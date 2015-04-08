@@ -5,11 +5,11 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "bedrock": "^0.3.2",
-    "bedrock-express": "~0.2.0",
-    "bedrock-server": "*",
-    "bower": "~1.3.12",
-    "bedrock-views": "*"
+    "bedrock": "^1.0.0",
+    "bedrock-express": "^1.0.0",
+    "bedrock-server": "^1.0.0",
+    "bedrock-views": "^1.0.0",
+    "bower": "~1.4.1"
   },
   "engines": {
     "node": ">=0.10.0"
