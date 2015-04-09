@@ -6,7 +6,7 @@
   "dependencies": {
     "angular": "~1.3.15",
     "angular-bootstrap": "~0.12.0",
-    "angular-stackables": "^1.0.0",
+    "angular-stackables": "~0.0.3",
     "bedrock-angular": "^1.0.0",
     "bedrock-angular-alert": "^1.0.0",
     "bedrock-angular-modal": "^1.0.0",
