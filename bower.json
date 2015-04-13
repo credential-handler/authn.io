@@ -9,6 +9,7 @@
     "angular-stackables": "~0.0.3",
     "bedrock-angular": "^1.0.0",
     "bedrock-angular-alert": "^1.0.0",
+    "bedrock-angular-form": "^1.0.0",
     "bedrock-angular-modal": "^1.0.0",
     "bedrock-angular-model": "^1.0.0",
     "bootstrap": "~3.3.4",

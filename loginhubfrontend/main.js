@@ -17,7 +17,20 @@ module.config(function($routeProvider) {
 });
 
 
-console.log("Worked");
+module.controller('FormController', function() {
+  var self = this;
+  self.name = '';
+  
+
+
+ self.login = function(username,password) {
+    console.log(username)
+    console.log(password)
+  };
+  });
+
+
+
 
 
 
