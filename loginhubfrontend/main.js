@@ -17,11 +17,11 @@ module.config(function($routeProvider) {
 });
 
 
-module.controller('FormController', function($scope, $http) {
+module.controller('FormController', function($scope, $http, config) {
   var self = this;
   self.name = '';
 
-
+console.log('config', config);
 
  self.login = function(username,password) {
    //TODO: fix hash to use delimeters or any other improvements

@@ -5,7 +5,7 @@ var database = require('bedrock-mongodb');
 require('bedrock-express');
 require('bedrock-requirejs');
 require('bedrock-server');
-require('bedrock-views');
+var views = require('bedrock-views');
 
 // custom configuration
 bedrock.config.mongodb.name = 'login_hub_dev'; // default: bedrock_dev
@@ -46,6 +46,20 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
 });
 
 bedrock.events.on('bedrock-express.configure.routes', function(app) {
+  app.post('/', function(req, res, next) {
+    views.getDefaultViewVars(req, function(err, vars) {
+      if(err) {
+        return next(err);
+      }
+      try {
+        vars.credentialsQuery = JSON.parse(req.body.query);
+      } catch(e) {
+        // TODO: handle this better perhaps
+        return next(e);
+      }
+      res.render('index.html', vars);
+    });
+  });
 
   app.post('/DIDquery', function(req, res){
     console.log(req.body);
