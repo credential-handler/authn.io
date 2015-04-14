@@ -1,7 +1,7 @@
 define([
-  'angular'
+  'angular', 'underscore','forge/forge'
 ], function(
-  angular
+  angular,_,forge
 ) {
 
 'use strict';
@@ -17,17 +17,28 @@ module.config(function($routeProvider) {
 });
 
 
-module.controller('FormController', function() {
+module.controller('FormController', function($scope, $http) {
   var self = this;
   self.name = '';
   
 
 
  self.login = function(username,password) {
-    console.log(username)
-    console.log(password)
+   //TODO: fix hash to use delimeters or any other improvements
+   var md = forge.md.sha256.create();
+    md.update(username + password);
+   Promise.resolve($http.post('/DIDQuery/' ,{hashQuery: md}))
+      .then(function(response) {
+        console.log(response);
+      })
+      .catch(function(err) {
+        console.log("There was an error")
+      })
+      .then(function() {
+        $scope.$apply();
+      }); 
   };
-  });
+});
 
 
 
