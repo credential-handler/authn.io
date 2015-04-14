@@ -20,14 +20,14 @@ module.config(function($routeProvider) {
 module.controller('FormController', function($scope, $http) {
   var self = this;
   self.name = '';
-  
+
 
 
  self.login = function(username,password) {
    //TODO: fix hash to use delimeters or any other improvements
    var md = forge.md.sha256.create();
     md.update(username + password);
-   Promise.resolve($http.post('/DIDQuery/' ,{hashQuery: md}))
+   Promise.resolve($http.post('/DIDQuery/' ,{hashQuery: md.digest().toHex()}))
       .then(function(response) {
         console.log(response);
       })
@@ -36,7 +36,7 @@ module.controller('FormController', function($scope, $http) {
       })
       .then(function() {
         $scope.$apply();
-      }); 
+      });
   };
 });
 

@@ -46,12 +46,6 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
 });
 
 bedrock.events.on('bedrock-express.configure.routes', function(app) {
-  app.get('/users/:name', function(req, res){
-    database.collections.people.insert([{name: req.param("name")}],
-     function(err, result){
-      res.send(result.result);
-    });
-  });
 
   app.post('/DIDquery', function(req, res){
     console.log(req.body);
