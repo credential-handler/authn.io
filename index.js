@@ -22,9 +22,9 @@ bedrock.config.views.paths.push(
 
 // add pseudo bower package
 bedrock.config.requirejs.bower.packages.push({
-  path: path.join(__dirname, 'loginhubfrontend'),
+  path: path.join(__dirname, 'components'),
   manifest: {
-    name: 'loginhubfrontend',
+    name: 'components',
     moduleType: 'amd',
     main: './main.js',
     dependencies: {
@@ -37,7 +37,7 @@ bedrock.config.requirejs.bower.packages.push({
 
 // On MongoDb being ready
 bedrock.events.on('bedrock-mongodb.ready', function(callback) {
-  database.openCollections(['CHT'], function(err) {
+  database.openCollections(['CHT', 'DidDocuments'], function(err) {
     if(err) {
       return callback(err);
     }
@@ -61,20 +61,70 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
     });
   });
 
+  app.post('/createDID', function(req, res, next) {
+    views.getDefaultViewVars(req, function(err, vars) {
+      if(err) {
+        return next(err);
+      }
+      try {
+        console.log('req.body', req.body);
+        vars.idpInfo = JSON.parse(req.body.idpInfo);
+      } catch(e){
+        return next(e);
+      }
+      // res.redirect(302, '/');
+      res.render('index.html', vars);
+    });
+  });
+
+  app.get('/idp', function(req, res, next) {
+    res.render('idp.html');
+  });
+
+  //
   app.post('/DIDquery', function(req, res){
     console.log(req.body);
     database.collections.CHT.find({hash: req.body.hashQuery})
     .toArray(function(err, docs){
       if(docs.length == 0){
-        var userDID = "did:" + bedrock.util.uuid();
+        res.send('Invalid login info');
+        /*var userDID = 'did:' + bedrock.util.uuid();
         database.collections.CHT.insert([{hash: req.body.hashQuery, did: userDID}]);
-        res.send(userDID);
+        res.send(userDID);*/
       }
       else{
+        // send session id aka login the person
         res.send(docs[0].did);
       }
     });
   });
+
+  // Called from idps to create a new did or send an error that they cannot create it
+  /*app.post('/newDID', function() {
+    // post data contains idp information
+    console.log(req.body);
+
+    database.collections.CHT.find({hash: req.body.hashQuery})
+    .toArray(function(err, docs){
+      if(docs.length == 0){
+        var userDID = 'did:' + bedrock.util.uuid();
+        database.collections.CHT.insert([{hash: req.body.hashQuery, did: userDID}]);
+        res.send({did:userDID, result:'good'});
+      }
+      else{
+        res.send({result:'taken'});
+      }
+    });
+  });*/
+
+  app.post('/storeDID', function() {
+    var loginHash = req.body.loginHash;
+    var DID = req.body.DID;
+    var DIDDoc = req.body.DIDDocument;
+    database.collections.CHT.insert([{hash: loginHash, did: DID}]);
+    database.collections.DidDocuments.insert([{did:DID, document:DIDDoc}]);
+  });
+
 });
 
 

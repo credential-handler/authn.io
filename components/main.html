@@ -1,0 +1,19 @@
+<div ng-controller="FormController as model">
+  <form class="form-horizontal" role="form">
+    <fieldset>
+      <br-input br-model="model.username" 
+        br-options="{name: 'username', label: 'Username'}">
+        Please enter your loginhub Username.
+      </br-input>
+      <br-input br-model="model.password"
+         br-options="{name: 'password', label: 'Password', type: 'password'}">
+        Please enter your loginhub Password.
+
+      </br-input>
+      <div style="text-align:center;">
+        <button ng-click="model.login(model.username,model.password)" type="button" class="btn btn-primary">Login</button> 
+        <a href="register" type="button" class="btn btn-primary">Register</a>
+      </div>
+    </fieldset>
+  </form>
+</div>

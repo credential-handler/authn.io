@@ -1,4 +1,6 @@
-<div ng-controller="FormController as model">
+<h1>Register</h1>
+
+<div ng-controller="RegisterController as model">
   <form class="form-horizontal" role="form">
     <fieldset>
       <br-input br-model="model.username" 
@@ -10,8 +12,9 @@
         Please enter your loginhub Password.
 
       </br-input>
-       <button ng-click="model.login(model.username,model.password)" type="button" class="btn btn-primary center-block">Login</button>
+      <div style="text-align:center;">
+        <button type="button" class="btn btn-primary">Submit</button>
+      </div>
     </fieldset>
-
   </form>
 </div>
