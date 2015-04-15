@@ -1,0 +1,34 @@
+<button onclick="createIdentity()" type="button" class="btn btn-primary">Create Identity</button>
+<script>
+function createIdentity() {
+	console.log("CALLED");
+	var queryUrl = '/createDID';
+	  /*queryUrl += '?credentials=true' + '&domain=' + 
+	    encodeURIComponent(opts.domain) + '&callback=' + 
+	    encodeURIComponent(opts.callback);*/
+	var query = {
+	  idp: {
+	    did: 'foo',
+	    url: 'bar'
+	  }
+	};
+	var queryString = escapeHtml(JSON.stringify(query));
+	console.log('qs', queryString);
+	var form = document.createElement('form');
+	form.setAttribute('method', 'post');
+	form.setAttribute('action', queryUrl);
+	form.innerHTML = 
+	  '<input type="hidden" name="idpInfo" value="' + queryString + '" />';
+	form.submit();
+
+
+	function escapeHtml(str) {
+	  return str
+	    .replace(/&/g, '&amp;')
+	    .replace(/</g, '&lt;')
+	    .replace(/>/g, '&gt;')
+	    .replace(/"/g, '&quot;');
+	}
+}
+
+</script>
