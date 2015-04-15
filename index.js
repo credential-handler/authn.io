@@ -78,7 +78,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
   });
 
   app.get('/idp', function(req, res, next) {
-    res.render('idp.html');
+    res.render('components/idp.html');
   });
 
   //
