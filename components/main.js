@@ -6,7 +6,7 @@ define([
 
 'use strict';
 
-var module = angular.module('app.loginhub',[]);
+var module = angular.module('app.loginhub',['bedrock.alert']);
 
 /* @ngInject */
 module.config(function($routeProvider) {
@@ -33,16 +33,66 @@ module.factory('DataService', function() {
   function get() {
     return savedData;
   }
+  function uuid() {
+    return (function(a,b){for(b=a='';a++<36;b+=a*51&52?(a^15?8^Math.random()*(a^20?16:4):4).toString(16):'-');return b;})();
+  };
+
   return {
     set: set,
-    get: get
+    get: get,
+    uuid: uuid
   }
+
 });
 
-module.controller('RegisterController', function($scope, $http, DataService) {
+module.controller('RegisterController', function($scope, $http, DataService, brAlertService) {
   var self = this;
+  self.passwordConfirmation = '';
+  self.password = '';
+  self.username = '';
+
+
+
   console.log(DataService.get());
   self.register = function() {
+    // TODO: Add more validation checks
+    if(self.password != self.passwordConfirmation) {
+      brAlertService.add('error', 
+            'Passwords don\'t match'); 
+    }
+    else if(self.username.length == 0) {
+      brAlertService.add('error', 
+            'Enter a username'); 
+    }
+    else {
+      var idpInfo = DataService.get();
+      var rsa = forge.pki.rsa;
+      console.log('start');
+      // TODO: Put spinner while key is generating
+      var keypair = rsa.generateKeyPair({bits: 2048, e: 0x10001});
+      var userDID = 'did:' + DataService.uuid();
+      console.log('idp', idpInfo);
+      console.log(keypair);
+      console.log('end');
+
+      var DidDocument = {
+        did: userDID,
+        publicKey: keypair.publicKey,
+      };
+
+      // TODO: Make this check better
+      if(idpInfo != undefined) {
+        DidDocument.idp = idpInfo;
+      }
+
+      console.log('DidDocument', DidDocument);
+
+      Promise.resolve($http.post('/storeDID/' ,{DidDocument: DidDocument}))
+        .then(function(response) {
+          console.log(response);
+        });
+
+    }
     /*
       generate public/private key
       generate DID
