@@ -10,10 +10,13 @@
       <br-input br-model="model.password"
          br-options="{name: 'password', label: 'Password', type: 'password'}">
         Please enter your loginhub Password.
-
+      </br-input>
+      <br-input br-model="model.passwordConfirmation"
+         br-options="{name: 'password', label: 'Confrim Password', type: 'password'}">
+        Please confirm your loginhub Password.
       </br-input>
       <div style="text-align:center;">
-        <button type="button" class="btn btn-primary">Submit</button>
+        <button ng-click="model.register()" type="button" class="btn btn-primary">Submit</button>
       </div>
     </fieldset>
   </form>
