@@ -20,6 +20,8 @@ bedrock.config.views.paths.push(
   path.join(__dirname)
 );
 
+bedrock.config.views.routes.push(['/*', 'index.html']);
+
 // add pseudo bower package
 bedrock.config.requirejs.bower.packages.push({
   path: path.join(__dirname, 'components'),
@@ -72,13 +74,8 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       } catch(e){
         return next(e);
       }
-      // res.redirect(302, '/');
       res.render('index.html', vars);
     });
-  });
-
-  app.get('/idp', function(req, res, next) {
-    res.render('components/idp.html');
   });
 
   //
@@ -117,12 +114,25 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
     });
   });*/
 
-  app.post('/storeDID', function() {
+  app.post('/storeDID', function(req, res) {
+    console.log(req.body);
     var loginHash = req.body.loginHash;
     var DID = req.body.DID;
     var DIDDoc = req.body.DIDDocument;
-    database.collections.CHT.insert([{hash: loginHash, did: DID}]);
-    database.collections.DidDocuments.insert([{did:DID, document:DIDDoc}]);
+
+    var hashTaken = false;
+    // checks if hash already exists in the database
+    database.collections.CHT.find({hash: loginHash})
+      .toArray(function(err, docs) {
+        if(docs.length == 0) {
+          database.collections.CHT.insert([{hash: loginHash, did: DID}]);
+          database.collections.DidDocuments.insert([{did:DID, document:DIDDoc}]);
+          res.send("Succesfully created user");
+        }
+        else {
+          res.send("Failed to create user");
+        }
+      });
   });
 
 });

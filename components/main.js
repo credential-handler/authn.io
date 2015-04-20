@@ -22,10 +22,16 @@ module.config(function($routeProvider) {
     when('/register', {
       title: 'Register',
       templateUrl: requirejs.toUrl('components/register.html')
+    }).
+    when('/idp', {
+      title: 'Idp',
+      templateUrl: requirejs.toUrl('components/idp.html')
     });
 });
 
-module.factory('DataService', function() {
+
+
+module.service('DataService', function() {
   var savedData = {}
   function set(data) {
     savedData = data;
@@ -65,6 +71,11 @@ module.controller('RegisterController', function($scope, $http, DataService, brA
             'Enter a username'); 
     }
     else {
+      var username = self.username;
+      var password = self.password;
+      var md = forge.md.sha256.create();
+      md.update(username + password);
+      var hash = md.digest().toHex();
       var idpInfo = DataService.get();
       var rsa = forge.pki.rsa;
       console.log('start');
@@ -85,9 +96,15 @@ module.controller('RegisterController', function($scope, $http, DataService, brA
         DidDocument.idp = idpInfo;
       }
 
-      console.log('DidDocument', DidDocument);
+      var data = {
+        DIDDocument: DidDocument,
+        DID: userDID,
+        loginHash: hash
+      }
 
-      Promise.resolve($http.post('/storeDID/' ,{DidDocument: DidDocument}))
+      console.log("All data sent", data);
+
+      Promise.resolve($http.post('/storeDID/' ,data))
         .then(function(response) {
           console.log(response);
         });
@@ -122,6 +139,12 @@ module.controller('FormController', function($scope, $http, config, DataService)
     Promise.resolve($http.post('/DIDQuery/' ,{hashQuery: md.digest().toHex()}))
       .then(function(response) {
         console.log(response);
+        if(response.data == "Succesfully created user"){
+          // do something, registration successful
+        }
+        else{
+          // something went wrong in registration
+        }
       })
       .catch(function(err) {
         console.log('There was an error')
