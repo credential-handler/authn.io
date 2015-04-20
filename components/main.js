@@ -27,9 +27,13 @@ module.config(function($routeProvider) {
       title: 'Idp',
       templateUrl: requirejs.toUrl('components/idp.html')
     }).
-    otherwise({
-      title:'Failed',
-      templateUrl: requirejs.toUrl('components/idp.html')
+    when('/cc', {
+      title: "Credential Consumer",
+      templateUrl: requirejs.toUrl('components/cc.html')
+    })
+    .when('/getCredential', {
+      title: 'Login',
+      templateUrl: requirejs.toUrl('components/main.html')
     });
 });
 
@@ -52,7 +56,6 @@ module.service('DataService', function($location) {
     //form.click();
     $location.path('/');
   }
-
   return {
     set: set,
     get: get,
@@ -149,15 +152,20 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
   var self = this;
   self.name = '';
 
+  if(config.data.credential) {
+    console.log('config.data.credential', config.data.credential);
+    DataService.set('credential', config.data.credential);
+    console.log('DataService.get(credential)', DataService.get('credential'));
+  }
   if(config.data.idp) {
     console.log('config.data.idp', config.data.idp);
     DataService.set('idpInfo', config.data.idp);
-    console.log('DataService.geT(idp)', DataService.get('idpInfo'));
+    console.log('DataService.get(idp)', DataService.get('idpInfo'));
   }
   if(config.data.callback) {
     console.log('config.data.callback', config.data.callback);
     DataService.set('callback', config.data.callback);
-    console.log('DataService.geT(callback)', DataService.get('callback'));
+    console.log('DataService.get(callback)', DataService.get('callback'));
   }
   console.log('config.data', config.data);
 
@@ -167,7 +175,11 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
     md.update(username + password);
     Promise.resolve($http.post('/DIDQuery/' ,{hashQuery: md.digest().toHex()}))
       .then(function(response) {
-        console.log(response);
+        console.log('response from DIDQuery', response);
+        if(DataService.get('credential')) {
+          // TODO: Post to idp (start the key dance)
+
+        }
         // succesfull login
         // TODO: Post data to callback? (credential consummer?)
         console.log('callback', DataService.get('callback'));

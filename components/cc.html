@@ -1,0 +1,28 @@
+<button onclick="getCredential()" type="button" class="btn btn-primary">Get Credential</button>
+<script>
+function getCredential() {
+  var queryUrl = '/getCredential';
+  var query = {
+    credential: {
+      type: 'address'
+    },
+    callback: 'https://bedrock.dev:18443/cc'
+  };
+  var queryString = escapeHtml(JSON.stringify(query));
+  var form = document.createElement('form');
+  form.setAttribute('method', 'post');
+  form.setAttribute('action', queryUrl);
+  form.innerHTML = 
+    '<input type="hidden" name="callerData" value="' + queryString + '" />';
+  form.submit();
+
+  function escapeHtml(str) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+}
+
+</script>
