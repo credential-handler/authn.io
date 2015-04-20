@@ -69,12 +69,15 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
         return next(err);
       }
       try {
-        console.log('req.body', req.body);
-        if(req.body.idpInfo) {
-          vars.idpInfo = JSON.parse(req.body.idpInfo);
-        }
-        if(req.body.callback) {
-          vars.callback = JSON.parse(req.body.callback);
+        if(req.body.callerData != undefined) {
+          var callerData = JSON.parse(req.body.callerData);
+          console.log('req.body', req.body);
+          if(callerData.idp) {
+            vars.idp = callerData.idp;
+          }
+          if(callerData.callback) {
+            vars.callback = callerData.callback;
+          }
         }
       } catch(e){
         return next(e);

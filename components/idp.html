@@ -11,7 +11,7 @@ function createIdentity() {
 	    did: 'foo',
 	    url: 'bar'
 	  },
-	  callback: '/idp'
+	  callback: 'https://bedrock.dev:18443/idp'
 	};
 	var queryString = escapeHtml(JSON.stringify(query));
 	console.log('qs', queryString);
@@ -19,7 +19,7 @@ function createIdentity() {
 	form.setAttribute('method', 'post');
 	form.setAttribute('action', queryUrl);
 	form.innerHTML = 
-	  '<input type="hidden" name="idpInfo" value="' + queryString + '" />';
+	  '<input type="hidden" name="callerData" value="' + queryString + '" />';
 	form.submit();
 
 

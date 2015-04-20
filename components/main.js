@@ -146,18 +146,21 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
   }
 });
 
-module.controller('LoginController', function($scope, $http, config, DataService, brAlertService) {
+module.controller('LoginController', function($scope, $http, $window, config, DataService, brAlertService) {
   var self = this;
   self.name = '';
 
-  console.log('config', config);
-  if(config.data.idpInfo) {
-    DataService.set('idpInfo', config.data.idpInfo);
+  if(config.data.idp) {
+    console.log('config.data.idp', config.data.idp);
+    DataService.set('idpInfo', config.data.idp);
+    console.log('DataService.geT(idp)', DataService.get('idpInfo'));
   }
   if(config.data.callback) {
+    console.log('config.data.callback', config.data.callback);
     DataService.set('callback', config.data.callback);
+    console.log('DataService.geT(callback)', DataService.get('callback'));
   }
-  console.log("idpInfo", DataService.get('idpInfo'));
+  console.log('config.data', config.data);
 
   self.login = function(username,password) {
     //TODO: fix hash to use delimeters or any other improvements
@@ -166,6 +169,11 @@ module.controller('LoginController', function($scope, $http, config, DataService
     Promise.resolve($http.post('/DIDQuery/' ,{hashQuery: md.digest().toHex()}))
       .then(function(response) {
         console.log(response);
+        // succesfull login
+        // TODO: Post data to callback? (credential consummer?)
+        console.log('callback', DataService.get('callback'));
+        // DataService.redirect(DataService.get('callback'));
+        $window.location.href = DataService.get('callback');
       })
       .catch(function(err) {
         console.log('There was an error', err);
