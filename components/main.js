@@ -116,7 +116,7 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
 
         console.log("All data sent", data);
 
-        Promise.resolve($http.post('/storeDID/' ,data))
+        Promise.resolve($http.post('/storeDID/', data))
           .then(function(response) {
             console.log(response.data);
             if(response.data == "Failed to create user"){
@@ -177,14 +177,24 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
       .then(function(response) {
         console.log('response from DIDQuery', response);
         if(DataService.get('credential')) {
-          // TODO: Post to idp (start the key dance)
+          Promise.resolve($http.post('/DidDocumentQuery', {did:response.data}))
+            .then(function(response) {
+              console.log('DidDocumentQuery response', response.data);
+              // TODO: Post to idp (start the key dance)
+              $window.location.href = DataService.get('callback');
+            })  
+            .catch(function(err) {
+
+            })
+            .then(function() {
+              $scope.$apply();
+            })
 
         }
         // succesfull login
         // TODO: Post data to callback? (credential consummer?)
-        console.log('callback', DataService.get('callback'));
+        // console.log('callback', DataService.get('callback'));
         // DataService.redirect(DataService.get('callback'));
-        $window.location.href = DataService.get('callback');
       })
       .catch(function(err) {
         console.log('There was an error', err);
