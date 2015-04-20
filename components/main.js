@@ -88,7 +88,7 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
       var rsa = forge.pki.rsa;
       console.log('start');
       // TODO: Put spinner while key is generating
-      var keypair = rsa.generateKeyPair({bits: 2048, e: 0x10001}, function(){
+      var keypair = rsa.generateKeyPair({bits: 2048, e: 0x10001});
 
         var userDID = 'did:' + DataService.uuid();
         console.log('idp', idpInfo);
@@ -129,7 +129,6 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
           });
 
 
-      });
     }
     /*
       generate public/private key
