@@ -26,40 +26,48 @@ module.config(function($routeProvider) {
     when('/idp', {
       title: 'Idp',
       templateUrl: requirejs.toUrl('components/idp.html')
+    }).
+    otherwise({
+      title:'Failed',
+      templateUrl: requirejs.toUrl('components/idp.html')
     });
 });
 
 
 
-module.service('DataService', function() {
+module.service('DataService', function($location) {
   var savedData = {}
-  function set(data) {
-    savedData = data;
+  function set(key, value) {
+    savedData.key = value;
   }
-  function get() {
-    return savedData;
+  function get(key) {
+    return savedData.key;
   }
   function uuid() {
     return (function(a,b){for(b=a='';a++<36;b+=a*51&52?(a^15?8^Math.random()*(a^20?16:4):4).toString(16):'-');return b;})();
   };
+  function redirect(url) {
+    //var form = document.createElement('a');
+    //form.setAttribute('href', url);
+    //form.click();
+    $location.path('/');
+  }
 
   return {
     set: set,
     get: get,
-    uuid: uuid
+    uuid: uuid,
+    redirect: redirect
   }
 
 });
 
-module.controller('RegisterController', function($scope, $http, DataService, brAlertService) {
+module.controller('RegisterController', function($scope, $http, $window, DataService, brAlertService) {
   var self = this;
   self.passwordConfirmation = '';
   self.password = '';
   self.username = '';
 
-
-
-  console.log(DataService.get());
   self.register = function() {
     // TODO: Add more validation checks
     if(self.password != self.passwordConfirmation) {
@@ -76,39 +84,52 @@ module.controller('RegisterController', function($scope, $http, DataService, brA
       var md = forge.md.sha256.create();
       md.update(username + password);
       var hash = md.digest().toHex();
-      var idpInfo = DataService.get();
+      var idpInfo = DataService.get('idpInfo');
       var rsa = forge.pki.rsa;
       console.log('start');
       // TODO: Put spinner while key is generating
-      var keypair = rsa.generateKeyPair({bits: 2048, e: 0x10001});
-      var userDID = 'did:' + DataService.uuid();
-      console.log('idp', idpInfo);
-      console.log(keypair);
-      console.log('end');
+      var keypair = rsa.generateKeyPair({bits: 2048, e: 0x10001}, function(){
 
-      var DidDocument = {
-        did: userDID,
-        publicKey: keypair.publicKey,
-      };
+        var userDID = 'did:' + DataService.uuid();
+        console.log('idp', idpInfo);
+        console.log(keypair);
+        console.log('end');
 
-      // TODO: Make this check better
-      if(idpInfo != undefined) {
-        DidDocument.idp = idpInfo;
-      }
+        var DidDocument = {
+          did: userDID,
+          publicKey: keypair.publicKey,
+        };
 
-      var data = {
-        DIDDocument: DidDocument,
-        DID: userDID,
-        loginHash: hash
-      }
+        // TODO: Make this check better
+        if(idpInfo != undefined) {
+          DidDocument.idp = idpInfo;
+        }
 
-      console.log("All data sent", data);
+        var data = {
+          DIDDocument: DidDocument,
+          DID: userDID,
+          loginHash: hash
+        }
 
-      Promise.resolve($http.post('/storeDID/' ,data))
-        .then(function(response) {
-          console.log(response);
-        });
+        console.log("All data sent", data);
 
+        Promise.resolve($http.post('/storeDID/' ,data))
+          .then(function(response) {
+            console.log(response.data);
+            if(response.data == "Failed to create user"){
+              brAlertService.add('error', 
+              'Could not create account. Use a different login/pw.'); 
+            }
+            else{
+              console.log("Success");
+              console.log("idpInfo", DataService.get('idpInfo'));
+              DataService.redirect('');
+              $scope.$apply();
+            }
+          });
+
+
+      });
     }
     /*
       generate public/private key
@@ -125,12 +146,18 @@ module.controller('RegisterController', function($scope, $http, DataService, brA
   }
 });
 
-module.controller('FormController', function($scope, $http, config, DataService) {
+module.controller('LoginController', function($scope, $http, config, DataService, brAlertService) {
   var self = this;
   self.name = '';
 
   console.log('config', config);
-  DataService.set(config.data.idpInfo);
+  if(config.data.idpInfo) {
+    DataService.set('idpInfo', config.data.idpInfo);
+  }
+  if(config.data.callback) {
+    DataService.set('callback', config.data.callback);
+  }
+  console.log("idpInfo", DataService.get('idpInfo'));
 
   self.login = function(username,password) {
     //TODO: fix hash to use delimeters or any other improvements
@@ -139,22 +166,17 @@ module.controller('FormController', function($scope, $http, config, DataService)
     Promise.resolve($http.post('/DIDQuery/' ,{hashQuery: md.digest().toHex()}))
       .then(function(response) {
         console.log(response);
-        if(response.data == "Succesfully created user"){
-          // do something, registration successful
-        }
-        else{
-          // something went wrong in registration
-        }
       })
       .catch(function(err) {
-        console.log('There was an error')
+        console.log('There was an error', err);
+        brAlertService.add('error', 
+          'Invalid login information'); 
       })
       .then(function() {
         $scope.$apply();
       });
   };
 });
-
 
 return module.name;
 });

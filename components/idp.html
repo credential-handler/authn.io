@@ -10,7 +10,8 @@ function createIdentity() {
 	  idp: {
 	    did: 'foo',
 	    url: 'bar'
-	  }
+	  },
+	  callback: '/idp'
 	};
 	var queryString = escapeHtml(JSON.stringify(query));
 	console.log('qs', queryString);

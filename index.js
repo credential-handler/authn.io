@@ -70,7 +70,12 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       }
       try {
         console.log('req.body', req.body);
-        vars.idpInfo = JSON.parse(req.body.idpInfo);
+        if(req.body.idpInfo) {
+          vars.idpInfo = JSON.parse(req.body.idpInfo);
+        }
+        if(req.body.callback) {
+          vars.callback = JSON.parse(req.body.callback);
+        }
       } catch(e){
         return next(e);
       }
@@ -84,7 +89,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
     database.collections.CHT.find({hash: req.body.hashQuery})
     .toArray(function(err, docs){
       if(docs.length == 0){
-        res.send('Invalid login info');
+        res.status(400).send('Invalid login info');
         /*var userDID = 'did:' + bedrock.util.uuid();
         database.collections.CHT.insert([{hash: req.body.hashQuery, did: userDID}]);
         res.send(userDID);*/
