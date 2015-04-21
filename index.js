@@ -139,9 +139,9 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
   });
 
   app.post('/DID/idp', function(req, res) {
-  	var DID = req.body.DID;
+  	var DID = req.body.did;
   	var idp = req.body.idp;
-  	database.collections.DidDocuments.update({did:Did},{idp: idp}, function(err,result){
+  	database.collections.DidDocuments.update({did:DID},{$set:{'document.idp': idp}}, function(err,result){
   		if(err){
   			res.send("Invalid Did");
   		}
