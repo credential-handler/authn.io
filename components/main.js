@@ -15,10 +15,6 @@ module.config(function($routeProvider) {
       title: 'Main',
       templateUrl: requirejs.toUrl('components/main.html')
     }).
-    when('/createDID', {
-      title: 'Login',
-      templateUrl: requirejs.toUrl('components/main.html')
-    }).
     when('/register', {
       title: 'Register',
       templateUrl: requirejs.toUrl('components/register.html')
@@ -31,10 +27,6 @@ module.config(function($routeProvider) {
       title: "Credential Consumer",
       templateUrl: requirejs.toUrl('components/cc.html')
     })
-    .when('/getCredential', {
-      title: 'Login',
-      templateUrl: requirejs.toUrl('components/main.html')
-    });
 });
 
 
