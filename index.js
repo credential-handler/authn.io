@@ -20,7 +20,10 @@ bedrock.config.views.paths.push(
   path.join(__dirname)
 );
 
-bedrock.config.views.routes.push(['/*', 'index.html']);
+// bedrock.config.views.routes.push(['/*', 'index.html']);
+bedrock.config.views.routes.push(['/cc', 'index.html']);
+bedrock.config.views.routes.push(['/idp', 'index.html']);
+bedrock.config.views.routes.push(['/register', 'index.html']);
 
 // add pseudo bower package
 bedrock.config.requirejs.bower.packages.push({
@@ -74,42 +77,45 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
     });
   });
 
-  // params: login hash
-  // returns: did
+  // TODO: validate params
+  /* 
+   * params: login hash
+   * return: did
+   */ 
   app.get('/DID', function(req, res){
-    console.log('/DID req.body', req.body);
-    database.collections.CHT.find({hash: req.body.hashQuery})
+    console.log('/DID req.query.hashQuery', req.query.hashQuery);
+    database.collections.CHT.find({hash: req.query.hashQuery})
     .toArray(function(err, docs){
       if(docs.length == 0){
         res.status(400).send('Invalid login info');
-        /*var userDID = 'did:' + bedrock.util.uuid();
-        database.collections.CHT.insert([{hash: req.body.hashQuery, did: userDID}]);
-        res.send(userDID);*/
       }
       else{
         // send session id aka login the person
+        console.log('/DID response', docs[0].did);
         res.send(docs[0].did);
       }
     });
   });
 
-  // Called from idps to create a new did or send an error that they cannot create it
-  /*app.post('/newDID', function() {
-    // post data contains idp information
-    console.log(req.body);
-
-    database.collections.CHT.find({hash: req.body.hashQuery})
+  // TODO: validate params
+  /*
+   * params: did 
+   * return: idp
+   */
+  app.get('/DID/Idp', function(req, res){
+    console.log('/DID/Idp req.query', req.query);
+    database.collections.DidDocuments.find({did:req.query.did})
     .toArray(function(err, docs){
       if(docs.length == 0){
-        var userDID = 'did:' + bedrock.util.uuid();
-        database.collections.CHT.insert([{hash: req.body.hashQuery, did: userDID}]);
-        res.send({did:userDID, result:'good'});
+        res.status(400).send('Invalid DID');
       }
       else{
-        res.send({result:'taken'});
+        console.log('/DID/Idp response', docs[0].document.idp);
+        res.send(docs[0].document.idp);
       }
     });
-  });*/
+
+  });
 
   app.post('/storeDID', function(req, res) {
     console.log(req.body);
