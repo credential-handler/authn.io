@@ -76,8 +76,8 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
 
   // params: login hash
   // returns: did
-  app.post('/DIDquery', function(req, res){
-    console.log(req.body);
+  app.get('/DID', function(req, res){
+    console.log('/DID req.body', req.body);
     database.collections.CHT.find({hash: req.body.hashQuery})
     .toArray(function(err, docs){
       if(docs.length == 0){

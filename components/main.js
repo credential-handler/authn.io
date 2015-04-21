@@ -162,9 +162,9 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
     //TODO: fix hash to use delimeters or any other improvements
     var md = forge.md.sha256.create();
     md.update(username + password);
-    Promise.resolve($http.post('/DIDQuery/' ,{hashQuery: md.digest().toHex()}))
+    Promise.resolve($http.get('/DID/' ,{hashQuery: md.digest().toHex()}))
       .then(function(response) {
-        console.log('response from DIDQuery', response);
+        console.log('response from GET /DID', response);
         if(DataService.get('credential')) {
           Promise.resolve($http.post('/DidDocumentQuery', {did:response.data}))
             .then(function(response) {
