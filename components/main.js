@@ -130,8 +130,6 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
               $scope.$apply();
             }
           });
-
-
     }
     /*
       generate public/private key
@@ -150,7 +148,6 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
 
 module.controller('LoginController', function($scope, $http, $window, config, DataService, brAlertService) {
   var self = this;
-  self.name = '';
 
   if(config.data.credential) {
     console.log('config.data.credential', config.data.credential);
@@ -179,7 +176,7 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
         if(DataService.get('credential')) {
           Promise.resolve($http.post('/DidDocumentQuery', {did:response.data}))
             .then(function(response) {
-              console.log('DidDocumentQuery response', response.data);
+              console.log('DidDocumentQuery response.data', response.data);
               // TODO: Post to idp (start the key dance)
               $window.location.href = DataService.get('callback');
             })  
@@ -188,8 +185,7 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
             })
             .then(function() {
               $scope.$apply();
-            })
-
+            });
         }
         // succesfull login
         // TODO: Post data to callback? (credential consummer?)
