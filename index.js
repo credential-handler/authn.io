@@ -143,11 +143,29 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
   });
 
   app.post('/DID/publicKey', function(req, res) {
-    
+    var DID = req.body.DID;
+    var key = req.body.key;
+    database.collections.DidDocuments.update({did:DID}, {$push: {publicKeys: key}}, {upsert: false}, function(err, result){
+      if(err){
+        res.send("Could not add public key");
+      }
+      else{
+        res.send("Added public key");
+      }
+    });
   });
 
   app.post('/DID/loginHash', function(req, res) {
-    
+    var DID = req.body.DID;
+    var loginHash = req.body.loginHash;
+    database.collections.CHT.update({did:DID}, {hash:loginHash}, {upsert: false}, function(err, result){
+      if(err){
+        res.send("Could not update loginhash");
+      }
+      else{
+        res.send("Updated loginHash");
+      }
+    });
   });
 
 });

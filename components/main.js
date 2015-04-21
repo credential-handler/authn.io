@@ -34,10 +34,12 @@ module.config(function($routeProvider) {
 module.service('DataService', function($location) {
   var savedData = {}
   function set(key, value) {
-    savedData.key = value;
+    console.log('key', key);
+    savedData[key] = value;
   }
   function get(key) {
-    return savedData.key;
+    console.log('key get', savedData);
+    return savedData[key];
   }
   function uuid() {
     return (function(a,b){for(b=a='';a++<36;b+=a*51&52?(a^15?8^Math.random()*(a^20?16:4):4).toString(16):'-');return b;})();
@@ -62,6 +64,7 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
   self.passwordConfirmation = '';
   self.password = '';
   self.username = '';
+    console.log('DataService.get(idp)', DataService.get('idpInfo'));
 
   self.register = function() {
     // TODO: Add more validation checks
@@ -92,9 +95,10 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
 
         var DidDocument = {
           did: userDID,
-          publicKey: keypair.publicKey,
+          publicKeys: [keypair.publicKey],
         };
 
+        console.log('idpinfo', idpInfo);
         // TODO: Make this check better
         if(idpInfo != undefined) {
           DidDocument.idp = idpInfo;
@@ -142,21 +146,18 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
   var self = this;
 
   if(config.data.credential) {
-    console.log('config.data.credential', config.data.credential);
     DataService.set('credential', config.data.credential);
     console.log('DataService.get(credential)', DataService.get('credential'));
   }
   if(config.data.idp) {
-    console.log('config.data.idp', config.data.idp);
     DataService.set('idpInfo', config.data.idp);
-    console.log('DataService.get(idp)', DataService.get('idpInfo'));
   }
   if(config.data.callback) {
-    console.log('config.data.callback', config.data.callback);
     DataService.set('callback', config.data.callback);
     console.log('DataService.get(callback)', DataService.get('callback'));
   }
   console.log('config.data', config.data);
+  console.log('DataService.get(idp)', DataService.get('idpInfo'));
 
   self.login = function(username,password) {
     //TODO: fix hash to use delimeters or any other improvements
