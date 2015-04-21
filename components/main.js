@@ -179,6 +179,28 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
               $scope.$apply();
             });
         }
+
+        if(DataService.get('idpInfo')) {
+          Promise.resolve($http.post('/DID/Idp', {
+            did: response.data,
+            idp: DataService.get('idpInfo')
+          }))
+            .then(function(){
+              // idp succesfully registered to did
+              console.log('Idp succesfully registered to did.');
+              $window.location.href = DataService.get('callback');
+            })
+            .catch(function(err){
+              console.log('There was an error', err);
+              brAlertService.add('error', 
+                'Idp unable to be registered'); 
+            })
+            .then(function() {
+              $scope.$apply();
+            }); 
+        }
+
+
         // succesfull login
         // TODO: Post data to callback? (credential consummer?)
         // console.log('callback', DataService.get('callback'));
