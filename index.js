@@ -93,25 +93,6 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
     });
   });
 
-  // params: did
-  // returns: did document
-  app.post('/DidDocumentQuery', function(req, res){
-    console.log(req.body);
-    database.collections.DidDocuments.find({did: req.body.did})
-    .toArray(function(err, docs){
-      if(docs.length == 0){
-        res.status(400).send('Invalid did');
-      }
-      else{
-        // send session id aka login the person
-        console.log('docs', docs);
-        console.log('docs[0].document', docs[0].document);
-        res.send(docs[0].document);
-      }
-    });
-  });
-
-
   // Called from idps to create a new did or send an error that they cannot create it
   /*app.post('/newDID', function() {
     // post data contains idp information
