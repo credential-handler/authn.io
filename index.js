@@ -138,6 +138,18 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       });
   });
 
+  app.post('/DID/idp', function(req, res) {
+
+  });
+
+  app.post('/DID/publicKey', function(req, res) {
+    
+  });
+
+  app.post('/DID/loginHash', function(req, res) {
+    
+  });
+
 });
 
 
