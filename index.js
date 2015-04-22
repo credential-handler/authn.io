@@ -166,10 +166,8 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
   });
 
   app.post('/DID/loginHash', function(req, res) {
-    console.log("HEREHEREHERE");
     var DID = req.body.DID;
     var loginHash = req.body.loginHash;
-    console.log("HERE, updating " + DID + ' to have new loginHash: ' + loginHash);
     database.collections.CHT.update({did:DID}, {$set: {'hash':loginHash}}, {upsert: false}, function(err, result){
       if(err){
         res.send("Could not update loginhash");

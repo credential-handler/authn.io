@@ -35,7 +35,7 @@ module.config(function($routeProvider) {
 
 
 
-module.service('DataService', function($location) {
+module.service('DataService', function($location, $scope) {
   var savedData = {}
   function set(key, value) {
     console.log('key', key);
@@ -49,10 +49,8 @@ module.service('DataService', function($location) {
     return (function(a,b){for(b=a='';a++<36;b+=a*51&52?(a^15?8^Math.random()*(a^20?16:4):4).toString(16):'-');return b;})();
   };
   function redirect(url) {
-    //var form = document.createElement('a');
-    //form.setAttribute('href', url);
-    //form.click();
     $location.path(url);
+    $scope.$apply();
   }
   return {
     set: set,
@@ -222,7 +220,7 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
   };
 });
 
-module.controller('UpdateAccountController', function($scope, $http, config, DataService, brAlertService) {
+module.controller('UpdateAccountController', function($http, config, DataService, brAlertService) {
   var self = this;
 
   self.updateAccount = function(oldUsername, oldPassword, newUsername, newPassword, newPasswordDuplicate){
@@ -252,7 +250,7 @@ module.controller('UpdateAccountController', function($scope, $http, config, Dat
             brAlertService.add('error', 'Something went wrong, changes not applied');
           })
           .then(function() {
-            $scope.$apply();
+            //$scope.$apply();
           });
     
       })
@@ -260,7 +258,7 @@ module.controller('UpdateAccountController', function($scope, $http, config, Dat
         brAlertService.add('error', 'Invalid Login information');
       })
       .then(function() {
-        $scope.$apply();
+        //$scope.$apply();
       });
 
     }
