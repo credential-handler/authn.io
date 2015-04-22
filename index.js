@@ -24,6 +24,7 @@ bedrock.config.views.paths.push(
 bedrock.config.views.routes.push(['/cc', 'index.html']);
 bedrock.config.views.routes.push(['/idp', 'index.html']);
 bedrock.config.views.routes.push(['/register', 'index.html']);
+bedrock.config.views.routes.push(['/updateaccount', 'index.html']);
 
 // add pseudo bower package
 bedrock.config.requirejs.bower.packages.push({
@@ -149,14 +150,12 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
   		  	res.send("Updated idp");
   		}
   	});
-  		
-
   });
 
   app.post('/DID/publicKey', function(req, res) {
     var DID = req.body.DID;
     var key = req.body.key;
-    database.collections.DidDocuments.update({did:DID}, {$push: {publicKeys: key}}, {upsert: false}, function(err, result){
+    database.collections.DidDocuments.update({did:DID}, {$push: {'document.publicKeys': key}}, {upsert: false}, function(err, result){
       if(err){
         res.send("Could not add public key");
       }
@@ -167,9 +166,11 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
   });
 
   app.post('/DID/loginHash', function(req, res) {
+    console.log("HEREHEREHERE");
     var DID = req.body.DID;
     var loginHash = req.body.loginHash;
-    database.collections.CHT.update({did:DID}, {hash:loginHash}, {upsert: false}, function(err, result){
+    console.log("HERE, updating " + DID + ' to have new loginHash: ' + loginHash);
+    database.collections.CHT.update({did:DID}, {$set: {'hash':loginHash}}, {upsert: false}, function(err, result){
       if(err){
         res.send("Could not update loginhash");
       }
@@ -178,7 +179,6 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       }
     });
   });
-
 });
 
 

@@ -1,0 +1,33 @@
+<div ng-controller="UpdateAccountController as model">
+  <form class="form-horizontal" role="form">
+    <fieldset>
+      <br-input br-model="model.username" 
+        br-options="{name: 'username', label: 'Old Username'}">
+        Please enter your current loginhub Username.
+      </br-input>
+      <br-input br-model="model.password"
+         br-options="{name: 'password', label: 'Old Password', type: 'password'}">
+        Please enter your current loginhub Password.
+      </br-input>
+      <hr/>
+
+      <br-input br-model="model.newUsername" 
+        br-options="{name: 'username', label: 'New Username'}">
+        Please enter your new loginhub Username.
+      </br-input>
+      <br-input br-model="model.newPassword"
+         br-options="{name: 'password', label: 'New Password', type: 'password'}">
+        Please enter your new loginhub Password.
+      </br-input>
+      <br-input br-model="model.newPasswordDuplicate"
+         br-options="{name: 'password', label: 'New Password', type: 'password'}">
+        Please confirm your new loginhub Password.
+      </br-input>
+
+
+      <div style="text-align:center;">
+        <button ng-click="model.updateAccount(model.username,model.password, model.newUsername, model.newPassword, model.newPasswordDuplicate)" type="submit" class="btn btn-primary">Update Account</button> 
+      </div>
+    </fieldset>
+  </form>
+</div>

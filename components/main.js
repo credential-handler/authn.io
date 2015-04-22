@@ -26,7 +26,11 @@ module.config(function($routeProvider) {
     when('/cc', {
       title: "Credential Consumer",
       templateUrl: requirejs.toUrl('components/cc.html')
-    })
+    }).
+    when('/updateaccount', {
+      title: "Update Login Info",
+      templateUrl: requirejs.toUrl('components/update-account.html')
+    });
 });
 
 
@@ -48,7 +52,7 @@ module.service('DataService', function($location) {
     //var form = document.createElement('a');
     //form.setAttribute('href', url);
     //form.click();
-    $location.path('/');
+    $location.path(url);
   }
   return {
     set: set,
@@ -122,7 +126,7 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
             else{
               console.log("Success");
               console.log("idpInfo", DataService.get('idpInfo'));
-              DataService.redirect('');
+              DataService.redirect('/');
               $scope.$apply();
             }
           });
@@ -215,6 +219,52 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
       .then(function() {
         $scope.$apply();
       });
+  };
+});
+
+module.controller('UpdateAccountController', function($scope, $http, config, DataService, brAlertService) {
+  var self = this;
+
+  self.updateAccount = function(oldUsername, oldPassword, newUsername, newPassword, newPasswordDuplicate){
+    if(newPassword != newPasswordDuplicate){
+      brAlertService.add('error', 'New passwords do not match!');
+    }
+    else {
+
+    var md = forge.md.sha256.create();
+    md.update(oldUsername + oldPassword);
+    var oldLoginHash = md.digest().toHex();
+
+    // verify that entered account exists, by finding the associated DID
+    Promise.resolve($http.get('/DID',{params:{hashQuery:oldLoginHash}}))
+      .then(function(response) {
+        
+        // got did, now make request to change hash
+        var did = response.data;
+        var md = forge.md.sha256.create();
+        md.update(newUsername + newPassword);
+        var newLoginHash = md.digest().toHex();
+        Promise.resolve($http.post('/DID/loginHash', {DID:did, loginHash:newLoginHash}))
+          .then(function(response) {
+            DataService.redirect('/');
+          })
+          .catch(function(err) {
+            brAlertService.add('error', 'Something went wrong, changes not applied');
+          })
+          .then(function() {
+            $scope.$apply();
+          });
+    
+      })
+      .catch(function(err) {
+        brAlertService.add('error', 'Invalid Login information');
+      })
+      .then(function() {
+        $scope.$apply();
+      });
+
+    }
+
   };
 });
 
