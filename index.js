@@ -168,6 +168,8 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
   app.post('/DID/loginHash', function(req, res) {
     var DID = req.body.DID;
     var loginHash = req.body.loginHash;
+
+    // What happens to all browsers that are relying on the CHT in localstorage? Don't use hash in local storage?
     database.collections.CHT.update({did:DID}, {$set: {'hash':loginHash}}, {upsert: false}, function(err, result){
       if(err){
         res.send("Could not update loginhash");

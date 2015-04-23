@@ -85,48 +85,51 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
       var hash = md.digest().toHex();
       var idpInfo = DataService.get('idpInfo');
       var rsa = forge.pki.rsa;
-      console.log('start');
+      console.log('start key generation ');
+
       // TODO: Put spinner while key is generating
       var keypair = rsa.generateKeyPair({bits: 2048, e: 0x10001});
+      
+      //places private key in browsers local storage
+      localStorage.setItem(hash, JSON.stringify(keypair.privateKey));
+      // to retrieve the private key, do the following
+      // var privateKey = localStorage.getItem(hash)
 
-        var userDID = 'did:' + DataService.uuid();
-        console.log('idp', idpInfo);
-        console.log(keypair);
-        console.log('end');
+      var userDID = 'did:' + DataService.uuid();
 
-        var DidDocument = {
-          did: userDID,
-          publicKeys: [keypair.publicKey],
-        };
+      console.log('end key generation');
 
-        console.log('idpinfo', idpInfo);
-        // TODO: Make this check better
-        if(idpInfo != undefined) {
-          DidDocument.idp = idpInfo;
-        }
+      var DidDocument = {
+        did: userDID,
+        publicKeys: [keypair.publicKey],
+      };
 
-        var data = {
-          DIDDocument: DidDocument,
-          DID: userDID,
-          loginHash: hash
-        }
+      // TODO: Make this check better
+      if(idpInfo != undefined) {
+        DidDocument.idp = idpInfo;
+      }
 
-        console.log("All data sent", data);
+      var data = {
+        DIDDocument: DidDocument,
+        DID: userDID,
+        loginHash: hash
+      }
 
-        Promise.resolve($http.post('/storeDID/', data))
-          .then(function(response) {
-            console.log(response.data);
-            if(response.data == "Failed to create user"){
-              brAlertService.add('error', 
-              'Could not create account. Use a different login/pw.'); 
-            }
-            else{
-              console.log("Success");
-              console.log("idpInfo", DataService.get('idpInfo'));
-              DataService.redirect('/');
-              $scope.$apply();
-            }
-          });
+      //Stores the DID
+      Promise.resolve($http.post('/storeDID/', data))
+        .then(function(response) {
+          console.log(response.data);
+          if(response.data == "Failed to create user"){
+            brAlertService.add('error', 
+            'Could not create account. Use a different login/pw.'); 
+          }
+          else{
+            console.log("Success");
+            console.log("idpInfo", DataService.get('idpInfo'));
+            DataService.redirect('/');
+            $scope.$apply();
+          }
+        });
     }
     /*
       generate public/private key
@@ -164,9 +167,15 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
     //TODO: fix hash to use delimeters or any other improvements
     var md = forge.md.sha256.create();
     md.update(username + password);
-    Promise.resolve($http.get('/DID',{params:{hashQuery:md.digest().toHex()}}))
+    var loginHash = md.digest().toHex();
+
+    var privateKey = localStorage.get(loginHash);
+
+    Promise.resolve($http.get('/DID',{params:{hashQuery:loginHash}}))
       .then(function(response) {
         console.log('response from GET /DID', response);
+
+        // Coming from credential consumer
         if(DataService.get('credential')) {
           Promise.resolve($http.get('/DID/Idp',{params:{did:response.data}}))
             .then(function(response) {
@@ -182,7 +191,8 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
             });
         }
 
-        if(DataService.get('idpInfo')) {
+        // Coming from IDP site
+        else if(DataService.get('idpInfo')) {
           Promise.resolve($http.post('/DID/Idp', {
             did: response.data,
             idp: DataService.get('idpInfo')
@@ -203,7 +213,7 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
         }
 
 
-        // succesfull login
+        // succesful login
         // TODO: Post data to callback? (credential consummer?)
         // console.log('callback', DataService.get('callback'));
         // DataService.redirect(DataService.get('callback'));
@@ -243,6 +253,14 @@ module.controller('UpdateAccountController', function($http, config, DataService
         var newLoginHash = md.digest().toHex();
         Promise.resolve($http.post('/DID/loginHash', {DID:did, loginHash:newLoginHash}))
           .then(function(response) {
+            var privateKey = localStorage.get(oldLoginHash);
+            if(privateKey){
+              localStorage.setItem(newLoginHash, privateKey);
+              localStorage.removeItem(oldLoginHash);
+            }
+            else{
+              // there was never a private key here?
+            }
             DataService.redirect('/');
           })
           .catch(function(err) {
@@ -251,7 +269,6 @@ module.controller('UpdateAccountController', function($http, config, DataService
           .then(function() {
             $scope.$apply();
           });
-    
       })
       .catch(function(err) {
         brAlertService.add('error', 'Invalid Login information');
