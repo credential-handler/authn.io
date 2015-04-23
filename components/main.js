@@ -169,7 +169,7 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
     md.update(username + password);
     var loginHash = md.digest().toHex();
 
-    var privateKey = localStorage.get(loginHash);
+    var privateKey = localStorage.getItem(loginHash);
 
     Promise.resolve($http.get('/DID',{params:{hashQuery:loginHash}}))
       .then(function(response) {
@@ -181,7 +181,7 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
         // lead to IDP, which we can retrieve
         // Then have idp give authorization to create a key pair for them
         if(!privateKey){
-          
+
         }
 
         // Coming from credential consumer
