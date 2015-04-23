@@ -35,7 +35,7 @@ module.config(function($routeProvider) {
 
 
 
-module.service('DataService', function($location, $scope) {
+module.service('DataService', function($location) {
   var savedData = {}
   function set(key, value) {
     console.log('key', key);
@@ -50,7 +50,6 @@ module.service('DataService', function($location, $scope) {
   };
   function redirect(url) {
     $location.path(url);
-    $scope.$apply();
   }
   return {
     set: set,
@@ -250,7 +249,7 @@ module.controller('UpdateAccountController', function($http, config, DataService
             brAlertService.add('error', 'Something went wrong, changes not applied');
           })
           .then(function() {
-            //$scope.$apply();
+            $scope.$apply();
           });
     
       })
@@ -258,7 +257,7 @@ module.controller('UpdateAccountController', function($http, config, DataService
         brAlertService.add('error', 'Invalid Login information');
       })
       .then(function() {
-        //$scope.$apply();
+        $scope.$apply();
       });
 
     }
