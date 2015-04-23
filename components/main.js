@@ -175,8 +175,17 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
       .then(function(response) {
         console.log('response from GET /DID', response);
 
+        // On a new device, need to do something
+
+        //possible outcome
+        // lead to IDP, which we can retrieve
+        // Then have idp give authorization to create a key pair for them
+        if(!privateKey){
+          
+        }
+
         // Coming from credential consumer
-        if(DataService.get('credential')) {
+        else if(DataService.get('credential')) {
           Promise.resolve($http.get('/DID/Idp',{params:{did:response.data}}))
             .then(function(response) {
               console.log('/DID/Idp response.data', response.data);
@@ -210,6 +219,11 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
             .then(function() {
               $scope.$apply();
             }); 
+        }
+
+        //Logged in, but nothing to do..?
+        else {
+
         }
 
 
