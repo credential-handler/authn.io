@@ -43,19 +43,106 @@ module.config(function($routeProvider) {
 });
 
 module.service('DataService', function($location) {
-  var savedData = {}
+  var savedData = {};
   function set(key, value) {
     savedData[key] = value;
-  }
+  };
   function get(key) {
     return savedData[key];
-  }
+  };
   function uuid() {
     return (function(a,b){for(b=a='';a++<36;b+=a*51&52?(a^15?8^Math.random()*(a^20?16:4):4).toString(16):'-');return b;})();
   };
   function redirect(url) {
     $location.path(url);
-  }
+  };
+  function encryptDid(did, password) {
+    var pwKeyHashMethod = 'PKCS5';
+    var encryptionMethod = 'AES-GCM';
+
+    var salt = forge.random.getBytesSync(128);
+
+    var numIterations = 5;
+
+    var key = forge.pkcs5.pbkdf2(password, salt, numIterations, 16)
+    
+    var iv = forge.random.getBytesSync(16);
+    var cipher = forge.cipher.createCipher('AES-GCM', key);
+
+    cipher.start({
+      iv: iv, // should be a 12-byte binary-encoded string or byte buffer
+      tagLength: 128 // optional, defaults to 128 bits
+    });
+    cipher.update(forge.util.createBuffer(did));
+    cipher.finish();
+    var encrypted = forge.util.encode64(cipher.output.getBytes());
+    var tag = forge.util.encode64(cipher.mode.tag.getBytes());
+    var iv64 = forge.util.encode64(iv);
+
+    var edid = {
+      pwKeyHashMethod: pwKeyHashMethod,
+      numIterations: numIterations,
+      salt: salt,
+      encryptionMethod: encryptionMethod,
+      authTag: tag,
+      key: key,
+      iv: iv64,
+      encrypted: encrypted
+    };
+
+    var encryptedDid = JSON.stringify(edid);
+
+    return encryptedDid;
+  };
+
+  function decryptDid(edid, password) {
+    //first order of business, get the did out of the response. it is now an encrypted did
+    // On a new device, need to do something
+
+    var pwKeyHashMethod = edid.pwKeyHashMethod;
+    var did = null;
+    var key = '';
+    var salt = edid.salt;
+    var numIterations = edid.numIterations;
+    // Checks which method to use for password based key derivation.
+    if (pwKeyHashMethod == 'PKCS5'){
+      key = forge.pkcs5.pbkdf2(password, salt, numIterations, 16)
+    }
+
+    var encryptionMethod = edid.encryptionMethod;
+
+    var pass = false;
+
+    //checks which method was used for encryption.
+    if(encryptionMethod == 'AES-GCM'){
+      
+      var iv = forge.util.createBuffer(
+        forge.util.decode64(edid.iv));
+
+      var authTag = forge.util.createBuffer(
+        forge.util.decode64(edid.authTag));
+
+      var decipher = forge.cipher.createDecipher(encryptionMethod, key);
+      decipher.start({
+        iv:iv,
+        tagLength:128,
+        tag:authTag
+      });
+
+      var encrypted = forge.util.createBuffer(
+        forge.util.decode64(edid.encrypted));
+
+      decipher.update(encrypted);
+      pass = decipher.finish();
+      did = decipher.output.getBytes();
+    }
+    if(pass){
+      return did;
+    }
+    else{
+      return null;
+    }
+  };
 
 // password / salt / encryption method / number of iterations.
 
@@ -63,7 +150,9 @@ module.service('DataService', function($location) {
     set: set,
     get: get,
     uuid: uuid,
-    redirect: redirect
+    redirect: redirect,
+    decryptDid: decryptDid,
+    encryptDid: encryptDid
   }
 });
 

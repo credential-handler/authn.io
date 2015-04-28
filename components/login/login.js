@@ -30,6 +30,8 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
     md.update(username + password);
     var loginHash = md.digest().toHex();
 
+    console.log("request hash:", loginHash);
+
     var privateKey = localStorage.getItem(loginHash);
 
     Promise.resolve($http.get('/DID',{params:{hashQuery:loginHash}}))
@@ -40,57 +42,22 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
         var did = null;
 
         var edid = response.data;
-        //first order of business, get the did out of the response. it is now an encrypted did
-        // On a new device, need to do something
 
-        var pwKeyHashMethod = edid.pwKeyHashMethod;
+        console.log('EDID', edid);
 
-        var key = '';
-        var salt = edid.salt;
-        var numIterations = edid.numIterations;
-        // Checks which method to use for password based key derivation.
-        if (pwKeyHashMethod == 'PKCS5'){
-          key = forge.pkcs5.pbkdf2(password, salt, numIterations, 16)
-        }
 
-        var encryptionMethod = edid.encryptionMethod;
-
-        var pass = false;
-
-        //checks which method was used for encryption.
-        if(encryptionMethod == 'AES-GCM'){
-          
-          var iv = forge.util.createBuffer(
-            forge.util.decode64(edid.iv));
-
-          var authTag = forge.util.createBuffer(
-            forge.util.decode64(edid.authTag));
-
-          var decipher = forge.cipher.createDecipher(encryptionMethod, key);
-          decipher.start({
-            iv:iv,
-            tagLength:128,
-            tag:authTag
-          });
-
-          var encrypted = forge.util.createBuffer(
-            forge.util.decode64(edid.encrypted));
-
-          decipher.update(encrypted);
-          pass = decipher.finish();
-          did = decipher.output.getBytes();
-        }
-
-        console.log('Passed', pass);
+        var did = DataService.decryptDid(edid, password);
+        
         console.log('DID', did);
 
-        if(pass){
+        if(did != null){
           //possible outcome
           // lead to IDP, which we can retrieve
           // Then have idp give authorization to create a key pair for them
           if(!privateKey){
-
+            
           }
+
           // Coming from credential consumer
           else if(DataService.get('credential')) {
             Promise.resolve($http.get('/DID/Idp',{params:{did:did}}))
