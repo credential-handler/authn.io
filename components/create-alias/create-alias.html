@@ -1,32 +1,32 @@
-<div ng-controller="UpdateAccountController as model">
+<div ng-controller="CreateAliasController as model">
   <form class="form-horizontal" role="form">
     <fieldset>
       <br-input br-model="model.username" 
         br-options="{name: 'username', label: 'Old Username'}">
-        Please enter your current loginhub Username.
+        Please enter your current loginhub username.
       </br-input>
       <br-input br-model="model.password"
          br-options="{name: 'password', label: 'Old Password', type: 'password'}">
-        Please enter your current loginhub Password.
+        Please enter your current loginhub password.
       </br-input>
       <hr/>
 
       <br-input br-model="model.newUsername" 
         br-options="{name: 'username', label: 'New Username'}">
-        Please enter your new loginhub Username.
+        Please enter your new loginhub username.
       </br-input>
       <br-input br-model="model.newPassword"
          br-options="{name: 'password', label: 'New Password', type: 'password'}">
-        Please enter your new loginhub Password.
+        Please enter your new loginhub password.
       </br-input>
       <br-input br-model="model.newPasswordDuplicate"
          br-options="{name: 'password', label: 'New Password', type: 'password'}">
-        Please confirm your new loginhub Password.
+        Please confirm your new loginhub password.
       </br-input>
 
 
       <div style="text-align:center;">
-        <button ng-click="model.updateAccount(model.username,model.password, model.newUsername, model.newPassword, model.newPasswordDuplicate)" type="submit" class="btn btn-primary">Update Account</button> 
+        <button ng-click="model.createAlias(model.username,model.password, model.newUsername, model.newPassword, model.newPasswordDuplicate)" type="submit" class="btn btn-primary">Create Alias</button> 
       </div>
     </fieldset>
   </form>

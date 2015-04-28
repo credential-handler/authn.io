@@ -2,7 +2,7 @@ define([
   'angular', 
   'underscore',
   'forge/forge',
-  './update-account/update-account',
+  './create-alias/create-alias',
   './register/register',
   './login/login'
 ], function(
@@ -11,7 +11,7 @@ define([
 
 'use strict';
 
-var module = angular.module('app.loginhub',['app.login', 'app.register', 'app.update-account', 'bedrock.alert']);
+var module = angular.module('app.loginhub',['app.login', 'app.register', 'app.create-alias', 'bedrock.alert']);
 
 /* @ngInject */
 module.config(function($routeProvider) {
@@ -36,9 +36,9 @@ module.config(function($routeProvider) {
       title: "Credential Consumer",
       templateUrl: requirejs.toUrl('components/cc.html')
     }).
-    when('/updateaccount', {
-      title: "Update Login Info",
-      templateUrl: requirejs.toUrl('components/update-account/update-account.html')
+    when('/create-alias', {
+      title: "Create alias account",
+      templateUrl: requirejs.toUrl('components/create-alias/create-alias.html')
     });
 });
 

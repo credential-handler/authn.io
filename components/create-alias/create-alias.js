@@ -5,13 +5,13 @@ define([
 
 'use strict';
 
-var module = angular.module('app.update-account', ['bedrock.alert']);
+var module = angular.module('app.create-alias', ['bedrock.alert']);
 
 
-module.controller('UpdateAccountController', function($http, $scope, config, DataService, brAlertService) {
+module.controller('CreateAliasController', function($http, $scope, config, DataService, brAlertService) {
   var self = this;
 
-  self.updateAccount = function(oldUsername, oldPassword, newUsername, newPassword, newPasswordDuplicate){
+  self.createAlias = function(oldUsername, oldPassword, newUsername, newPassword, newPasswordDuplicate){
     if(newPassword != newPasswordDuplicate){
       brAlertService.add('error', 'New passwords do not match!');
     }

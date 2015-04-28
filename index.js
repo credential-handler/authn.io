@@ -24,7 +24,8 @@ bedrock.config.views.paths.push(
 bedrock.config.views.routes.push(['/cc', 'index.html']);
 bedrock.config.views.routes.push(['/idp', 'index.html']);
 bedrock.config.views.routes.push(['/register', 'index.html']);
-bedrock.config.views.routes.push(['/updateaccount', 'index.html']);
+bedrock.config.views.routes.push(['/create-alias', 'index.html']);
+bedrock.config.views.routes.push(['/register/idp-error', 'index.html']);
 
 // add pseudo bower package
 bedrock.config.requirejs.bower.packages.push({
