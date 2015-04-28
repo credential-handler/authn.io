@@ -11,8 +11,6 @@ define([
 
 'use strict';
 
-// password / salt / encryption method / number of iterations.
-
 var module = angular.module('app.loginhub',['app.login', 'app.register', 'app.update-account', 'bedrock.alert']);
 
 /* @ngInject */
@@ -25,6 +23,10 @@ module.config(function($routeProvider) {
     when('/register', {
       title: 'Register',
       templateUrl: requirejs.toUrl('components/register/register.html')
+    }).
+    when('/register/idp-error', {
+      title: 'Need Identity Provider',
+      templateUrl: requirejs.toUrl('components/register/idp-error.html')
     }).
     when('/idp', {
       title: 'Idp',
@@ -43,11 +45,9 @@ module.config(function($routeProvider) {
 module.service('DataService', function($location) {
   var savedData = {}
   function set(key, value) {
-    console.log('key', key);
     savedData[key] = value;
   }
   function get(key) {
-    console.log('key get', savedData);
     return savedData[key];
   }
   function uuid() {
@@ -56,6 +56,9 @@ module.service('DataService', function($location) {
   function redirect(url) {
     $location.path(url);
   }
+
+// password / salt / encryption method / number of iterations.
+
   return {
     set: set,
     get: get,

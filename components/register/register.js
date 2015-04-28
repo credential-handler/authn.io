@@ -15,6 +15,10 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
   self.username = '';
     console.log('DataService.get(idp)', DataService.get('idpInfo'));
 
+  if(!DataService.get('idpInfo')){
+    DataService.redirect('/register/idp-error');
+  }
+
   self.register = function() {
     // TODO: Add more validation checks
     if(self.password != self.passwordConfirmation) {
@@ -33,6 +37,7 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
       var hash = md.digest().toHex();
       var idpInfo = DataService.get('idpInfo');
       var rsa = forge.pki.rsa;
+
       console.log('start key generation ');
 
       // TODO: Put spinner while key is generating
@@ -43,12 +48,73 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
       // to retrieve the private key, do the following
       // var privateKey = localStorage.getItem(hash)
 
-      var userDID = 'did:' + DataService.uuid();
+      var userDid = 'did:' + DataService.uuid();
+
+//---------------------------------------------------------------
+// PKCS5
+// AES-GCM 
+// password encrypted blob / salt / encryption method / number of iterations.
+
+//password-based key derivation 2
+//pbkdf2
+
+// iterations, salt, password blob/key
+
+//encryption
+// IV, authentication tag
+
+
+      var pwKeyHashMethod = 'PKCS5';
+      var encryptionMethod = 'AES-GCM';
+
+      var salt = forge.random.getBytesSync(128);
+
+      // where does this come into play with this encryption?
+      var numIterations = 5;
+
+      // i don't get this thing..
+      var key = forge.pkcs5.pbkdf2(password, salt, numIterations, 16)
+      
+      var iv = forge.random.getBytesSync(16);
+      var cipher = forge.cipher.createCipher('AES-GCM', key);
+
+      cipher.start({
+        iv: iv, // should be a 12-byte binary-encoded string or byte buffer
+        tagLength: 128 // optional, defaults to 128 bits
+      });
+      cipher.update(forge.util.createBuffer(userDid));
+      cipher.finish();
+      var encrypted = forge.util.encode64(cipher.output.getBytes());
+      var tag = forge.util.encode64(cipher.mode.tag.getBytes());
+      var iv64 = forge.util.encode64(iv);
+
+      console.log('Actual blob', encrypted);
+
+      console.log('THE KEY', key);
+
+
+
+      var edid = {
+        pwKeyHashMethod: pwKeyHashMethod,
+        numIterations: numIterations,
+        salt: salt,
+        encryptionMethod: encryptionMethod,
+        authTag: tag,
+        key: key,
+        iv: iv64,
+        encrypted: encrypted
+      };
+
+      var encryptedDid = JSON.stringify(edid);
+
+      console.log('Final encrypted did', encryptedDid);
+//---------------------------------------------------------------
+
+
 
       console.log('end key generation');
 
       var DidDocument = {
-        did: userDID,
         publicKeys: [keypair.publicKey],
       };
 
@@ -59,7 +125,8 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
 
       var data = {
         DIDDocument: DidDocument,
-        DID: userDID,
+        EDID: encryptedDid,
+        DID: userDid,
         loginHash: hash
       }
 
@@ -90,6 +157,9 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
         server checks work, validity, writes to db
         {hash: DID}
         {DID: DID Document}
+
+// password encrypted blob / salt / encryption method / number of iterations /.
+
     */
   }
 });

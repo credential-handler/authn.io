@@ -84,7 +84,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
    * return: did
    */ 
   app.get('/DID', function(req, res){
-    console.log('/DID req.query.hashQuery', req.query.hashQuery);
+    //console.log('/DID req.query.hashQuery', req.query.hashQuery);
     database.collections.CHT.find({hash: req.query.hashQuery})
     .toArray(function(err, docs){
       if(docs.length == 0){
@@ -92,7 +92,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       }
       else{
         // send session id aka login the person
-        console.log('/DID response', docs[0].did);
+        //console.log('/DID response', docs[0].did);
         res.send(docs[0].did);
       }
     });
@@ -104,14 +104,14 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
    * return: idp
    */
   app.get('/DID/Idp', function(req, res){
-    console.log('/DID/Idp req.query', req.query);
+    //console.log('/DID/Idp req.query', req.query);
     database.collections.DidDocuments.find({did:req.query.did})
     .toArray(function(err, docs){
       if(docs.length == 0){
         res.status(400).send('Invalid DID');
       }
       else{
-        console.log('/DID/Idp response', docs[0].document.idp);
+       // console.log('/DID/Idp response', docs[0].document.idp);
         res.send(docs[0].document.idp);
       }
     });
@@ -119,17 +119,18 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
   });
 
   app.post('/storeDID', function(req, res) {
-    console.log(req.body);
+   // console.log(req.body);
     var loginHash = req.body.loginHash;
     var DID = req.body.DID;
     var DIDDoc = req.body.DIDDocument;
+    var encryptedDID = req.body.EDID;
 
     var hashTaken = false;
     // checks if hash already exists in the database
     database.collections.CHT.find({hash: loginHash})
       .toArray(function(err, docs) {
         if(docs.length == 0) {
-          database.collections.CHT.insert([{hash: loginHash, did: DID}]);
+          database.collections.CHT.insert([{hash: loginHash, did: encryptedDID}]);
           database.collections.DidDocuments.insert([{did:DID, document:DIDDoc}]);
           res.send("Succesfully created user");
         }
@@ -169,7 +170,10 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
     var DID = req.body.DID;
     var loginHash = req.body.loginHash;
 
-    // What happens to all browsers that are relying on the CHT in localstorage? Don't use hash in local storage?
+
+    database.collections.CHT.insert([{hash: loginHash, did: DID}]);
+
+/*    // What happens to all browsers that are relying on the CHT in localstorage? Don't use hash in local storage?
     database.collections.CHT.update({did:DID}, {$set: {'hash':loginHash}}, {upsert: false}, function(err, result){
       if(err){
         res.send("Could not update loginhash");
@@ -178,6 +182,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
         res.send("Updated loginHash");
       }
     });
+*/
   });
 });
 

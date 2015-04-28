@@ -8,7 +8,7 @@ define([
 var module = angular.module('app.update-account', ['bedrock.alert']);
 
 
-module.controller('UpdateAccountController', function($http, config, DataService, brAlertService) {
+module.controller('UpdateAccountController', function($http, $scope, config, DataService, brAlertService) {
   var self = this;
 
   self.updateAccount = function(oldUsername, oldPassword, newUsername, newPassword, newPasswordDuplicate){
