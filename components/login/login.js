@@ -51,7 +51,17 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
 
         // valid login, but on a new device
         if(did != null && !privateKey){
-          DataService.redirect('/new-device');
+          Promise.resolve($http.get('/did/idp', {params:{did:did}}))
+            .then(function(response) {
+              DataService.set('idpInfo', response.data);
+              DataService.redirect('/new-device');
+            })
+            .catch(function(err) {
+              brAlertService.add('error', 'Something went wrong');
+            })
+            .then(function() {
+              $scope.$apply();
+            });
         }
         else if(did != null){
           // possible outcome

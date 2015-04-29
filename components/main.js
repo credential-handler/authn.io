@@ -4,14 +4,15 @@ define([
   'forge/forge',
   './create-alias/create-alias',
   './register/register',
-  './login/login'
+  './login/login',
+  './new-device/new-device'
 ], function(
   angular,_,forge
 ) {
 
 'use strict';
 
-var module = angular.module('app.loginhub',['app.login', 'app.register', 'app.create-alias', 'bedrock.alert']);
+var module = angular.module('app.loginhub',['app.login', 'app.register', 'app.create-alias', 'app.new-device', 'bedrock.alert']);
 
 /* @ngInject */
 module.config(function($routeProvider) {
@@ -22,7 +23,7 @@ module.config(function($routeProvider) {
     }).
     when('/new-device', {
       title: 'Register Device',
-      templateUrl: requirejs.toUrl('components/login/new-device.html')
+      templateUrl: requirejs.toUrl('components/new-device/new-device.html')
     }).
     when('/register', {
       title: 'Register',
