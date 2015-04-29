@@ -1,0 +1,51 @@
+idp polyfill information
+
+-createdid
+
+-get (alternative to accept/send)
+	if no key, create key, browser asks:
+		idp signs key that we sent,
+			up to browser to store it based on one-time vs permanent
+
+
+		one-time use key
+			generates key, mark it as one-time use.
+				sends request, including the public key to the idp
+		permanent key
+			generates key
+				doesnt send public key to idp
+				places keys in temporary local storage area
+					after you click accept on idp
+						goes to loginhub with signed public key, 
+							takes temporary key and verifies it and sends it to webdht
+								permanent key gets stored in local storage
+							or delete key from local storage if not
+
+What we need.
+	-better threat analysis
+	-messaging format for splitting up into multiple calls
+	-handling edge cases (in library get up and logged into idp)
+				//sends request, including the public key to the idp
+
+
+-accept/send
+	idp calls to give off credentials
+
+	always sends signed credentials
+		and might send message with just key
+			browser can add it as a permanent key or drop it. based on one-use vs permanent.
+
+
+/*		return an error that the browser does not have a private key
+			needs to make call to generate key
+				createKey
+			returns back public key in an error object
+				idp signs public key with its private key
+					call accept again with the additional info, and browser adds to dht and fulfills the rest of the request
+*/
+
+
+-createKey (optional)
+	adds api call to create key,
+	gives back public key to be signed
+		passed to accept/send
