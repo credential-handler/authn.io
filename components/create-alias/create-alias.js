@@ -24,7 +24,7 @@ module.controller('CreateAliasController', function($http, $scope, config, DataS
     console.log('oldLoginHash', oldLoginHash);
 
     // verify that entered account exists, by finding the associated DID
-    Promise.resolve($http.get('/DID',{params:{hashQuery:oldLoginHash}}))
+    Promise.resolve($http.get('/did',{params:{hashQuery:oldLoginHash}}))
       .then(function(response) {
         // got did, now make request to change hash
         var did = DataService.decryptDid(response.data, oldPassword);
@@ -36,7 +36,7 @@ module.controller('CreateAliasController', function($http, $scope, config, DataS
           console.log("HERE!"); 
           var encryptedDid = DataService.encryptDid(did, newPassword);
           console.log('encryptedDid', encryptedDid);
-          Promise.resolve($http.post('/DID/loginHash', {DID:encryptedDid, loginHash:newLoginHash}))
+          Promise.resolve($http.post('/did/login-hash', {DID:encryptedDid, loginHash:newLoginHash}))
             .then(function(response) {
               var privateKey = localStorage.get(oldLoginHash);
               if(privateKey){

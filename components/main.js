@@ -20,6 +20,10 @@ module.config(function($routeProvider) {
       title: 'Main',
       templateUrl: requirejs.toUrl('components/login/login.html')
     }).
+    when('/new-device', {
+      title: 'Register Device',
+      templateUrl: requirejs.toUrl('components/login/new-device.html')
+    }).
     when('/register', {
       title: 'Register',
       templateUrl: requirejs.toUrl('components/register/register.html')

@@ -26,6 +26,7 @@ bedrock.config.views.routes.push(['/idp', 'index.html']);
 bedrock.config.views.routes.push(['/register', 'index.html']);
 bedrock.config.views.routes.push(['/create-alias', 'index.html']);
 bedrock.config.views.routes.push(['/register/idp-error', 'index.html']);
+bedrock.config.views.routes.push(['/new-device', 'index.html']);
 
 // add pseudo bower package
 bedrock.config.requirejs.bower.packages.push({
@@ -84,7 +85,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
    * params: login hash
    * return: did
    */ 
-  app.get('/DID', function(req, res){
+  app.get('/did', function(req, res){
     //console.log('/DID req.query.hashQuery', req.query.hashQuery);
     database.collections.CHT.find({hash: req.query.hashQuery})
     .toArray(function(err, docs){
@@ -104,7 +105,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
    * params: did 
    * return: idp
    */
-  app.get('/DID/Idp', function(req, res){
+  app.get('/did/idp', function(req, res){
     //console.log('/DID/Idp req.query', req.query);
     database.collections.DidDocuments.find({did:req.query.did})
     .toArray(function(err, docs){
@@ -119,7 +120,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
 
   });
 
-  app.post('/storeDID', function(req, res) {
+  app.post('/store-did', function(req, res) {
    // console.log(req.body);
     var loginHash = req.body.loginHash;
     var DID = req.body.DID;
@@ -141,7 +142,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       });
   });
 
-  app.post('/DID/idp', function(req, res) {
+  app.post('/did/idp', function(req, res) {
   	var DID = req.body.did;
   	var idp = req.body.idp;
   	database.collections.DidDocuments.update({did:DID},{$set:{'document.idp': idp}}, function(err,result){
@@ -154,7 +155,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
   	});
   });
 
-  app.post('/DID/publicKey', function(req, res) {
+  app.post('/did/public-key', function(req, res) {
     var DID = req.body.DID;
     var key = req.body.key;
     database.collections.DidDocuments.update({did:DID}, {$push: {'document.publicKeys': key}}, {upsert: false}, function(err, result){
@@ -167,7 +168,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
     });
   });
 
-  app.post('/DID/loginHash', function(req, res) {
+  app.post('/did/login-hash', function(req, res) {
     var DID = req.body.DID;
     var loginHash = req.body.loginHash;
 

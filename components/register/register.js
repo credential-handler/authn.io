@@ -39,6 +39,9 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
       var rsa = forge.pki.rsa;
 
       console.log('start key generation ');
+      
+      $('.container').
+        wrapInner('<div class="spinner"></div>');
 
       // TODO: Put spinner while key is generating
       var keypair = rsa.generateKeyPair({bits: 2048, e: 0x10001});
@@ -75,7 +78,7 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
       }
 
       //Stores the DID
-      Promise.resolve($http.post('/storeDID/', data))
+      Promise.resolve($http.post('/store-did/', data))
         .then(function(response) {
           console.log(response.data);
           if(response.data == "Failed to create user"){

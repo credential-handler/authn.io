@@ -34,10 +34,9 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
 
     var privateKey = localStorage.getItem(loginHash);
 
-    Promise.resolve($http.get('/DID',{params:{hashQuery:loginHash}}))
+    Promise.resolve($http.get('/did',{params:{hashQuery:loginHash}}))
       .then(function(response) {
         console.log('response from GET /DID', response);
-
 
         var did = null;
 
@@ -50,17 +49,17 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
         
         console.log('DID', did);
 
-        if(did != null){
-          //possible outcome
+        // valid login, but on a new device
+        if(did != null && !privateKey){
+          DataService.redirect('/new-device');
+        }
+        else if(did != null){
+          // possible outcome
           // lead to IDP, which we can retrieve
           // Then have idp give authorization to create a key pair for them
-          if(!privateKey){
-            
-          }
-
           // Coming from credential consumer
-          else if(DataService.get('credential')) {
-            Promise.resolve($http.get('/DID/Idp',{params:{did:did}}))
+          if(DataService.get('credential')) {
+            Promise.resolve($http.get('/did/idp',{params:{did:did}}))
               .then(function(response) {
                 console.log('/DID/Idp response.data', response.data);
                 // TODO: Post to idp (start the key dance)
@@ -75,7 +74,7 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
           }
           // Coming from IDP site
           else if(DataService.get('idpInfo')) {
-            Promise.resolve($http.post('/DID/Idp', {
+            Promise.resolve($http.post('/did/idp', {
               did: did,
               idp: DataService.get('idpInfo')
             }))
@@ -98,6 +97,7 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
 
           }
         }
+
         // pass is false.
         // Bad login, unable to decrypt did with the password.
         else{
