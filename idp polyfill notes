@@ -7,15 +7,16 @@ idp polyfill information
 		idp signs key that we sent,
 			up to browser to store it based on one-time vs permanent
 
-
 		one-time use key
-			generates key, mark it as one-time use.
+			different storage instead of localstorage, for more temporary use
+				sessionstorage maybe
+			generates key, mark it as one-time use. // how do we mark it as one-time?
 				sends request, including the public key to the idp
 		permanent key
 			generates key
-				doesnt send public key to idp
 				places keys in temporary local storage area
 					after you click accept on idp
+						SEND REQUEST to callback
 						goes to loginhub with signed public key, 
 							takes temporary key and verifies it and sends it to webdht
 								permanent key gets stored in local storage

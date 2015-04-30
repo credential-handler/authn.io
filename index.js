@@ -45,7 +45,7 @@ bedrock.config.requirejs.bower.packages.push({
 
 // On MongoDb being ready
 bedrock.events.on('bedrock-mongodb.ready', function(callback) {
-  database.openCollections(['CHT', 'DidDocuments'], function(err) {
+  database.openCollections(['CHT', 'DidDocuments', 'Callbacks'], function(err) {
     if(err) {
       return callback(err);
     }
@@ -54,6 +54,8 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
 });
 
 bedrock.events.on('bedrock-express.configure.routes', function(app) {
+
+
   app.post('/', function(req, res, next) {
     views.getDefaultViewVars(req, function(err, vars) {
       if(err) {
@@ -105,7 +107,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
    * params: did 
    * return: idp
    */
-  app.get('/did/idp', function(req, res){
+  app.get('/did/idp', function(req, res) {
     //console.log('/DID/Idp req.query', req.query);
     database.collections.DidDocuments.find({did:req.query.did})
     .toArray(function(err, docs){
@@ -117,7 +119,34 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
         res.send(docs[0].document.idp);
       }
     });
+  });
 
+  app.post('/callback/new', function(req, res, next) {
+    console.log("Called new");
+    var id = bedrock.util.uuid();
+    var callback = req.body.callback;
+    console.log("Inserting " + id + ", and " + callback);
+    database.collections.Callbacks.insert([{id: id, callback: callback}]);
+    res.send(id);
+  });
+
+  app.get('/callback/:identifier', function(req, res, next) {
+    views.getDefaultViewVars(req, function(err, vars) {
+      var id = req.params.identifier;
+      console.log('id', id);
+      database.collections.Callbacks.find({id: id})
+      .toArray(function(err, docs){
+        if(docs.length == 0){
+          res.status(400).send('Invalid id');
+        }
+        else{
+          var callback = docs[0];
+          console.log("Redirecting to ", callback);
+          database.collections.Callbacks.remove({id: id});
+          res.redirect('cc');
+        }
+      });
+    });
   });
 
   app.post('/store-did', function(req, res) {

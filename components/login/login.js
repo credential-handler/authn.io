@@ -32,6 +32,8 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
 
     console.log("request hash:", loginHash);
 
+    DataService.set('loginHash', loginHash);
+
     var privateKey = localStorage.getItem(loginHash);
 
     Promise.resolve($http.get('/did',{params:{hashQuery:loginHash}}))
@@ -73,7 +75,15 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
               .then(function(response) {
                 console.log('/DID/Idp response.data', response.data);
                 // TODO: Post to idp (start the key dance)
-                $window.location.href = DataService.get('callback');
+                var idpInfo = response.data;
+                var callback = DataService.get('callback');
+                console.log('callback', callback);
+
+                Promise.resolve($http.post('/callback/new', {callback: callback}))
+                  .then(function(response) {
+                    $window.location.href = idpInfo.url;
+                  });
+                  
               })  
               .catch(function(err) {
 

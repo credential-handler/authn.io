@@ -1,7 +1,21 @@
 
 <h1 align="center"> You are on a new browser or device!</h1>
 <div ng-controller="NewDeviceController as model">
+	<hr/>
+	<h4> Remember your identity? </h4>
+	<form class="input-group">
+		<input name="use" type="radio" ng-model="model.use" value="one-time">
+			one-time
+		</input>
+		<br/>
+		<input name="use" type="radio" ng-model="model.use" value="permanent">
+			permanent
+		</input>
+		<br/>
+		<button type="submit" class="btn btn-primary" ng-click="model.goClicked(model.use)">go</button>
+	</form>
+	<!--hr/>
 	<p align="center">
 		In order to use login-hub with this browser or device, you will need to login through your IDP. Click <a ng-href='{{model.idpUrl}}'>here</a> to go to your IDP.
-	</p>
+	</p!-->
 </div>
