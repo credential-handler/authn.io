@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "bedrock": "^1.0.0",
+    "bedrock-docs": "^1.0.0",
     "bedrock-express": "^1.0.0",
     "bedrock-mongodb": "^1.0.0",
     "bedrock-server": "^1.0.0",
