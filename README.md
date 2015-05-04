@@ -2,13 +2,40 @@
 
 A solution to the [NASCAR login problem][NASCAR].
 
-The site provides a Web polyfill to enable the decentralized lookup of
-services associated with a person, organization, or entity. For example,
-this software enables a person to find their identity provider using an
+This software enables a person to find their identity provider using an
 email address and passphrase known to them.
 
-Development
------------
+In general, the site accomplishes this by providing a Web polyfill to
+enable the decentralized lookup of services associated with a person,
+organization, or entity. It does this by providing a number of REST APIs
+that identity provider websites can integrate with as well as front-end
+code that can be used as a polyfill on websites that want to support
+[Identity Credentials][IC]-based login.
+
+The goal of this project is to support [Identity Credentials][IC]-based
+login until a more complete Web Decentralized Hashtable (WebDHT) solution
+is standardized at W3C and Web browsers build the capability into the
+core of a browser. While the WebDHT work is a multi-year R&D effort, this
+software is provided as a placeholder so that other work that depends
+on [Identity Credentials][IC] can proceed in parallel.
+
+# Core Functionality
+
+This software enables a person to:
+
+1. Create and store a device-specific cryptographic key in local storage.
+2. Create a decentralized identifier (DID), associate that DID with the
+   public key associated in the previous step, and store it in a
+   decentralized identifier document in a decentralized network.
+3. Map an email address / passphrase combination to a decentralized
+   identifier document. 
+4. Map a decentralized identifier document to
+   a credential vault / identity provider.
+5. Proxy read and write requests for credentials between 
+   credential issuers, credential consumers, and credential vaults /
+   identity providers.
+
+# Development
 
 The following section explains how to setup and develop the loginhub
 software on a local development machine.
@@ -108,4 +135,5 @@ Access the server at the following URL:
 	  * gives back public key to be signed
 		* passed to accept/send
 
-[NASCAR]: https://indiewebcamp.com/NASCAR_problem  "The NASCAR Problem"
+[NASCAR]: https://indiewebcamp.com/NASCAR_problem "The NASCAR Problem"
+[IC]: http://opencreds.org/specs/source/identity-credentials/ "Identity Credentials"
