@@ -5,9 +5,9 @@ define([
 
 'use strict';
 
-var module = angular.module('app.login', ['bedrock.alert']);
+var module = angular.module('app.login', ['bedrock.alert', 'ipCookie']);
 
-module.controller('LoginController', function($scope, $http, $window, config, DataService, brAlertService) {
+module.controller('LoginController', function($scope, $http, ipCookie, $window, config, DataService, brAlertService) {
   var self = this;
 
   if(config.data.credential) {
@@ -66,6 +66,20 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
             });
         }
         else if(did != null){
+
+          Promise.resolve($http.get('/did/idp', {params:{did:did}}))
+            .then(function(response) {
+              var cookie = {
+                idp: response.data,
+                did: did                
+              };
+              ipCookie('session', cookie);
+            })
+            .catch(function(err) {
+              brAlertService.add('error', 'Unable to log in.');
+              console.log(err);
+            });
+
           // possible outcome
           // lead to IDP, which we can retrieve
           // Then have idp give authorization to create a key pair for them
