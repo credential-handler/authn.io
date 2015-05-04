@@ -36,9 +36,9 @@ module.controller('LoginController', function($scope, $http, $window, config, Da
 
     var privateKey = localStorage.getItem(loginHash);
 
-    Promise.resolve($http.get('/did',{params:{hashQuery:loginHash}}))
+    Promise.resolve($http.get('/mappings/' + loginHash))
       .then(function(response) {
-        console.log('response from GET /DID', response);
+        console.log('response from GET /mappings/:hash', response);
 
         var did = null;
 

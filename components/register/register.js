@@ -78,7 +78,7 @@ module.controller('RegisterController', function($scope, $http, $window, DataSer
       }
 
       //Stores the DID
-      Promise.resolve($http.post('/store-did/', data))
+      Promise.resolve($http.post('/dids/', data))
         .then(function(response) {
           console.log(response.data);
           if(response.data == "Failed to create user"){
