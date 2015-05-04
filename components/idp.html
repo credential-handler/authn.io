@@ -2,7 +2,7 @@
 <script>
 function createIdentity() {
 	// TODO: This should post to /
-	var queryUrl = '/';
+	var queryUrl = '/create-identity';
 	  /*queryUrl += '?credentials=true' + '&domain=' + 
 	    encodeURIComponent(opts.domain) + '&callback=' + 
 	    encodeURIComponent(opts.callback);*/
@@ -11,7 +11,7 @@ function createIdentity() {
 	    did: 'foo',
 	    url: 'idp'
 	  },
-	  callback: 'https://bedrock.dev:18443/idp'
+	  callback: 'https://loginhub.dev:33443/idp'
 	};
 	var queryString = escapeHtml(JSON.stringify(query));
 	console.log('qs', queryString);

@@ -8,8 +8,16 @@ define([
 var module = angular.module('app.register', ['bedrock.alert']);
 
 
-module.controller('RegisterController', function($scope, $http, $window, DataService, brAlertService) {
+module.controller('RegisterController', function($scope, $http, $window, config, DataService, brAlertService) {
   var self = this;
+
+  if(config.data.idp) {
+    DataService.set('idpInfo', config.data.idp);
+  }
+  if(config.data.callback) {
+    DataService.set('callback', config.data.callback);
+  }
+
   self.passwordConfirmation = '';
   self.password = '';
   self.username = '';

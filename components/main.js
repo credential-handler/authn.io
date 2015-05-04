@@ -18,7 +18,7 @@ var module = angular.module('app.loginhub',['app.login', 'app.register', 'app.cr
 module.config(function($routeProvider) {
   $routeProvider.
     when('/', {
-      title: 'Main',
+      title: 'Login',
       templateUrl: requirejs.toUrl('components/login/login.html')
     }).
     when('/new-device', {
@@ -44,6 +44,14 @@ module.config(function($routeProvider) {
     when('/create-alias', {
       title: "Create alias account",
       templateUrl: requirejs.toUrl('components/create-alias/create-alias.html')
+    }).
+    when('/credentials-request', {
+      title: "Credentials Request",
+      templateUrl: requirejs.toUrl('components/login/login.html')
+    }).
+    when('/create-identity', {
+      title: "Create Identity",
+      templateUrl: requirejs.toUrl('components/register/register.html')
     });
 });
 

@@ -1,12 +1,12 @@
 <button onclick="getCredential()" type="button" class="btn btn-primary">Get Credential</button>
 <script>
 function getCredential() {
-  var queryUrl = '/';
+  var queryUrl = '/credentials-request';
   var query = {
     credential: {
       type: 'address'
     },
-    callback: 'https://bedrock.dev:18443/cc'
+    callback: 'https://loginhub.dev:33443/cc'
   };
   var queryString = escapeHtml(JSON.stringify(query));
   var form = document.createElement('form');
