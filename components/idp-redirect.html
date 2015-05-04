@@ -1,0 +1,29 @@
+Redirecting
+<script>
+(function() {
+  var queryUrl = param('idp');
+  queryUrl += '?callback=' + param('callback');
+  queryUrl += '&credential=' + param('credential');
+
+  var form = document.createElement('form');  
+  form.setAttribute('method', 'post');
+  form.setAttribute('action', queryUrl);
+  form.submit();
+
+  function escapeHtml(str) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function param(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+      results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+  }
+
+})();
+</script>

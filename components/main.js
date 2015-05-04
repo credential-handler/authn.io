@@ -52,6 +52,10 @@ module.config(function($routeProvider) {
     when('/create-identity', {
       title: "Create Identity",
       templateUrl: requirejs.toUrl('components/register/register.html')
+    })
+    .when('/idp-redirect', {
+      title: "Redirecting",
+      templateUrl: requirejs.toUrl('components/idp-redirect.html')
     });
 });
 
