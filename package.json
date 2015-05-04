@@ -2,7 +2,7 @@
   "name": "loginhub",
   "version": "0.0.1",
   "scripts": {
-    "start": "node index.js"
+    "start": "node loginhub.dev.js"
   },
   "dependencies": {
     "bedrock": "^1.0.0",
@@ -17,5 +17,5 @@
     "node": ">=0.10.0"
   },
   "directories": {},
-  "main": "index.js"
+  "main": "./lib/loginhub"
 }
