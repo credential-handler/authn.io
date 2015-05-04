@@ -4,6 +4,7 @@
  * Copyright (c) 2015 The Open Payments Foundation. All rights reserved.
  */
 var config = require('bedrock').config;
+var path = require('path');
 
 // location of logs
 var _logdir = '/tmp/loginhub';
@@ -49,3 +50,10 @@ config.views.brand.name = 'Loginhub Test';
 config.views.vars.baseUri = config.server.baseUri;
 config.views.vars.title = config.views.brand.name;
 config.views.vars.siteTitle = config.views.brand.name;
+
+// mocha tests
+config.mocha.tests.push(path.join(__dirname, '..', 'tests', 'backend'));
+
+// protractor tests
+config.protractor.config.suites['loginhub'] = 
+  path.join(__dirname, '..', 'tests', 'frontend', '**', '*.js');

@@ -2,16 +2,21 @@
   "name": "loginhub",
   "version": "0.0.1",
   "scripts": {
-    "start": "node loginhub.dev.js"
+    "start": "node loginhub.dev.js",
+    "test": "node loginhub.dev.js test"
   },
   "dependencies": {
     "bedrock": "^1.0.0",
     "bedrock-docs": "^1.0.0",
     "bedrock-express": "^1.0.0",
+    "bedrock-mail": "^1.0.0",
     "bedrock-mongodb": "^1.0.0",
     "bedrock-server": "^1.0.0",
     "bedrock-views": "^1.0.0",
     "bower": "~1.4.1"
+  },
+  "devDependencies": {
+    "bedrock-protractor": "^1.0.0"
   },
   "engines": {
     "node": ">=0.10.0"
