@@ -92,13 +92,17 @@ module.controller('LoginController', function($scope, $http, ipCookie, $window, 
                 var idpInfo = response.data;
                 var callback = DataService.get('callback');
                 console.log('callback', callback);
-
-                Promise.resolve($http.post('/callback/new', {callback: callback}))
+                var queryUrl = idpInfo.url;
+                Promise.resolve($http.post('/callbacks/', {callback: callback}))
                   .then(function(response) {
-                    $window.location.href = idpInfo.url;
+                    queryUrl += '?callback=' + response.data;
+                    queryUrl += '&credential=' + 'address';
+                    var form = document.createElement('form');  
+                    form.setAttribute('method', 'post');
+                    form.setAttribute('action', queryUrl);
+                    form.submit();
                   });
-                  
-              })  
+              })
               .catch(function(err) {
 
               })
@@ -124,7 +128,7 @@ module.controller('LoginController', function($scope, $http, ipCookie, $window, 
               })
               .then(function() {
                 $scope.$apply();
-              }); 
+              });
           }
           //Logged in, but nothing to do..?
           else {
