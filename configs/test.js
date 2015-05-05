@@ -55,5 +55,5 @@ config.views.vars.siteTitle = config.views.brand.name;
 config.mocha.tests.push(path.join(__dirname, '..', 'tests', 'backend'));
 
 // protractor tests
-config.protractor.config.suites['loginhub'] = 
+config.protractor.config.suites['loginhub'] =
   path.join(__dirname, '..', 'tests', 'frontend', '**', '*.js');

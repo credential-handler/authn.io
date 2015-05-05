@@ -16,7 +16,10 @@
     "bower": "~1.4.1"
   },
   "devDependencies": {
-    "bedrock-protractor": "^1.0.0"
+    "bedrock-protractor": "^1.0.0",
+    "node-forge": "^0.6.26",
+    "node-uuid": "~1.4.3",
+    "request": "~2.55.0"
   },
   "engines": {
     "node": ">=0.10.0"
