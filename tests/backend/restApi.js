@@ -76,24 +76,28 @@ describe('loginhub - REST API', function() {
         publicKeys: [keypair.publicKey],
       };
 
+      /*
       console.log("CALLING DID", {
           loginHash: loginHash,
           DID: did,
           DIDDocument: didDocument,
           EDID: encryptedDid
         });
-      lhRequest.post(base + '/dids/', {
+      */
+
+      lhRequest({
+        url: base + '/dids/',
+        method: 'POST',
+        json: {
           loginHash: loginHash,
           DID: did,
           DIDDocument: didDocument,
           EDID: encryptedDid
-        }, function(err, res, body) {
-          console.log('body', body);
-        should.not.exist(err);
-        res.statusCode.should.equal(201);
-        should.exist(res.headers['location']);
-        didUrl = res.headers['location'];
-        done();
+        }}, function(err, res, body) {
+          //console.log('body', body, res.statusCode);
+          should.not.exist(err);
+          res.statusCode.should.equal(201);
+          done();
       });
     });
   });
