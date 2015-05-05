@@ -59,9 +59,7 @@ module.config(function($routeProvider) {
     });
 });
 
-
-
-module.service('DataService', function($location) {
+module.service('DataService', function($location, $http) {
   var savedData = {};
   function set(key, value) {
     savedData[key] = value;
@@ -75,6 +73,26 @@ module.service('DataService', function($location) {
   function redirect(url) {
     $location.path(url);
   };
+
+  // must either pass in the callback and idpUrl
+  // or have it in the DataService's savedData
+  function postToIdp(callback, idpUrl){
+    callback = callback || savedData['callback'];
+    var queryUrl = idpUrl || savedData['idpInfo'].url;
+
+    console.log("Creating mapping to " + callback + " from idp: " + queryUrl);
+    // heads over to idp
+    Promise.resolve($http.post('/callbacks/', {callback: callback}))
+      .then(function(response) {
+        queryUrl += '?callback=' + response.data;
+        queryUrl += '&credential=' + 'address';
+        var form = document.createElement('form');  
+        form.setAttribute('method', 'post');
+        form.setAttribute('action', queryUrl);
+        form.submit();
+      });
+  }
+
   function encryptDid(did, password) {
     var pwKeyHashMethod = 'PKCS5';
     var encryptionMethod = 'AES-GCM';
@@ -170,6 +188,7 @@ module.service('DataService', function($location) {
     get: get,
     uuid: uuid,
     redirect: redirect,
+    postToIdp: postToIdp,
     decryptDid: decryptDid,
     encryptDid: encryptDid
   }

@@ -8,7 +8,7 @@ define([
 
 var module = angular.module('app.new-device', []);
 
-module.controller('NewDeviceController', function($scope, DataService) {
+module.controller('NewDeviceController', function($scope, DataService, $http) {
   var self = this;
   var idpInfo = DataService.get('idpInfo');
   if(!idpInfo) {
@@ -34,22 +34,25 @@ module.controller('NewDeviceController', function($scope, DataService) {
       sessionStorage.setItem('one-time', JSON.stringify(privateKey));
       // heads over to idp
       // idp signs the document request
-      // and then signs it with the public key that I give them.
-      // idp sends signed document request back to me
-      // i decrypt it with my private key
+      // stuff here is most likely wrong
+        // and then signs it with the public key that I give them.
+        // idp sends signed document request back to me
+        // i decrypt it with my private key
 
       // hazy
+
+      DataService.postToIdp(undefined, undefined);
+
 
       // send signed document back to credential consumer
     }
     else if(use == 'permanent'){
       sessionStorage.setItem('tempPrivate' + loginHash, JSON.stringify(privateKey));
       sessionStorage.setItem('tempPublic' + loginHash, JSON.stringify(publicKey));
-      var data = {};
-      data.publicKey = publicKey;
-      data.callback = '/';
+
+      // heads over to idp  
+      DataService.postToIdp(undefined, undefined);
       
-      // heads over to idp
       // idp signs the document request
       //  and then signs it with the public key that I give them?
       //  idp sends signed document request back to me

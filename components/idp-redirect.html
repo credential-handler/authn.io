@@ -14,8 +14,6 @@ Redirecting
       form.setAttribute('action', queryUrl);
       form.submit();
   });
-     
-
 
   function escapeHtml(str) {
     return str
@@ -31,6 +29,5 @@ Redirecting
       results = regex.exec(location.search);
     return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
   }
-
 })();
 </script>

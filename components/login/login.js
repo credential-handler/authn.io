@@ -85,23 +85,10 @@ module.controller('LoginController', function($scope, $http, ipCookie, $window, 
           // Then have idp give authorization to create a key pair for them
           // Coming from credential consumer
           if(DataService.get('credential')) {
+            console.log("Came from credential consumer");
             Promise.resolve($http.get('/did/idp',{params:{did:did}}))
               .then(function(response) {
-                console.log('/DID/Idp response.data', response.data);
-                // TODO: Post to idp (start the key dance)
-                var idpInfo = response.data;
-                var callback = DataService.get('callback');
-                console.log('callback', callback);
-                var queryUrl = idpInfo.url;
-                Promise.resolve($http.post('/callbacks/', {callback: callback}))
-                  .then(function(response) {
-                    queryUrl += '?callback=' + response.data;
-                    queryUrl += '&credential=' + 'address';
-                    var form = document.createElement('form');  
-                    form.setAttribute('method', 'post');
-                    form.setAttribute('action', queryUrl);
-                    form.submit();
-                  });
+                DataService.postToIdp(undefined, response.data.url);
               })
               .catch(function(err) {
 
