@@ -1,5 +1,5 @@
 define([
-  'angular', 
+  'angular',
   'underscore',
   'forge/forge',
   './create-alias/create-alias',
@@ -7,7 +7,7 @@ define([
   './login/login',
   './new-device/new-device'
 ], function(
-  angular,_,forge
+  angular, _, forge
 ) {
 
 'use strict';
@@ -68,7 +68,9 @@ module.service('DataService', function($location, $http) {
     return savedData[key];
   };
   function uuid() {
+    // jscs: disable
     return (function(a,b){for(b=a='';a++<36;b+=a*51&52?(a^15?8^Math.random()*(a^20?16:4):4).toString(16):'-');return b;})();
+    // jscs: enable
   };
   function redirect(url) {
     $location.path(url);
@@ -76,7 +78,7 @@ module.service('DataService', function($location, $http) {
 
   // must either pass in the callback and idpUrl
   // or have it in the DataService's savedData
-  function postToIdp(callback, idpUrl){
+  function postToIdp(callback, idpUrl) {
     callback = callback || savedData['callback'];
     var queryUrl = idpUrl || savedData['idpInfo'].url;
 
@@ -86,7 +88,7 @@ module.service('DataService', function($location, $http) {
       .then(function(response) {
         queryUrl += '?callback=' + response.data;
         queryUrl += '&credential=' + 'address';
-        var form = document.createElement('form');  
+        var form = document.createElement('form');
         form.setAttribute('method', 'post');
         form.setAttribute('action', queryUrl);
         form.submit();
@@ -101,8 +103,8 @@ module.service('DataService', function($location, $http) {
 
     var numIterations = 5;
 
-    var key = forge.pkcs5.pbkdf2(password, salt, numIterations, 16)
-    
+    var key = forge.pkcs5.pbkdf2(password, salt, numIterations, 16);
+
     var iv = forge.random.getBytesSync(16);
     var cipher = forge.cipher.createCipher('AES-GCM', key);
 
@@ -133,7 +135,8 @@ module.service('DataService', function($location, $http) {
   };
 
   function decryptDid(edid, password) {
-    //first order of business, get the did out of the response. it is now an encrypted did
+    //first order of business, get the did out of the response. it is now an
+    // encrypted did
     // On a new device, need to do something
 
     var pwKeyHashMethod = edid.pwKeyHashMethod;
@@ -142,8 +145,8 @@ module.service('DataService', function($location, $http) {
     var salt = edid.salt;
     var numIterations = edid.numIterations;
     // Checks which method to use for password based key derivation.
-    if (pwKeyHashMethod == 'PKCS5'){
-      key = forge.pkcs5.pbkdf2(password, salt, numIterations, 16)
+    if(pwKeyHashMethod === 'PKCS5') {
+      key = forge.pkcs5.pbkdf2(password, salt, numIterations, 16);
     }
 
     var encryptionMethod = edid.encryptionMethod;
@@ -151,8 +154,8 @@ module.service('DataService', function($location, $http) {
     var pass = false;
 
     //checks which method was used for encryption.
-    if(encryptionMethod == 'AES-GCM'){
-      
+    if(encryptionMethod === 'AES-GCM') {
+
       var iv = forge.util.createBuffer(
         forge.util.decode64(edid.iv));
 
@@ -173,10 +176,9 @@ module.service('DataService', function($location, $http) {
       pass = decipher.finish();
       did = decipher.output.getBytes();
     }
-    if(pass){
+    if(pass) {
       return did;
-    }
-    else{
+    } else {
       return null;
     }
   };
@@ -191,14 +193,8 @@ module.service('DataService', function($location, $http) {
     postToIdp: postToIdp,
     decryptDid: decryptDid,
     encryptDid: encryptDid
-  }
+  };
 });
-
-
-
-
-
-
 
 return module.name;
 });

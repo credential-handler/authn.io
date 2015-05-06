@@ -1,13 +1,14 @@
 define([
   'angular',
   'forge/forge'
-], function(angular,forge) {
+], function(angular, forge) {
 
 'use strict';
 
 var module = angular.module('app.login', ['bedrock.alert', 'ipCookie']);
 
-module.controller('LoginController', function($scope, $http, ipCookie, $window, config, DataService, brAlertService) {
+module.controller('LoginController', function(
+  $scope, $http, ipCookie, $window, config, DataService, brAlertService) {
   var self = this;
 
   if(config.data.credential) {
@@ -24,7 +25,7 @@ module.controller('LoginController', function($scope, $http, ipCookie, $window, 
   //console.log('config.data', config.data);
   //console.log('DataService.get(idp)', DataService.get('idpInfo'));
 
-  self.login = function(username,password) {
+  self.login = function(username, password) {
     //TODO: fix hash to use delimeters or any other improvements
     var md = forge.md.sha256.create();
     md.update(username + password);
@@ -48,11 +49,11 @@ module.controller('LoginController', function($scope, $http, ipCookie, $window, 
 
 
         var did = DataService.decryptDid(edid, password);
-        
+
         console.log('DID', did);
 
         // valid login, but on a new device
-        if(did != null && !privateKey){
+        if(did != null && !privateKey) {
           Promise.resolve($http.get('/did/idp', {params:{did:did}}))
             .then(function(response) {
               DataService.set('idpInfo', response.data);
@@ -64,14 +65,12 @@ module.controller('LoginController', function($scope, $http, ipCookie, $window, 
             .then(function() {
               $scope.$apply();
             });
-        }
-        else if(did != null){
-
+        } else if(did != null) {
           Promise.resolve($http.get('/did/idp', {params:{did:did}}))
             .then(function(response) {
               var cookie = {
                 idp: response.data,
-                did: did                
+                did: did
               };
               ipCookie('session', cookie);
             })
@@ -96,38 +95,31 @@ module.controller('LoginController', function($scope, $http, ipCookie, $window, 
               .then(function() {
                 $scope.$apply();
               });
-          }
-          // Coming from IDP site
-          else if(DataService.get('idpInfo')) {
+          } else if(DataService.get('idpInfo')) {
+            // Coming from IDP site
             Promise.resolve($http.post('/did/idp', {
               did: did,
               idp: DataService.get('idpInfo')
             }))
-              .then(function(){
+              .then(function() {
                 // idp succesfully registered to did
                 console.log('Idp succesfully registered to did.');
                 $window.location.href = DataService.get('callback');
               })
-              .catch(function(err){
+              .catch(function(err) {
                 console.log('There was an error', err);
-                brAlertService.add('error', 
-                  'Idp unable to be registered'); 
+                brAlertService.add('error', 'Idp unable to be registered');
               })
               .then(function() {
                 $scope.$apply();
               });
+          } else {
+            // Logged in, but nothing to do..?
           }
-          //Logged in, but nothing to do..?
-          else {
-
-          }
-        }
-
-        // pass is false.
-        // Bad login, unable to decrypt did with the password.
-        else{
-           brAlertService.add('error', 
-          'Invalid login information'); 
+        } else {
+          // pass is false.
+          // Bad login, unable to decrypt did with the password.
+          brAlertService.add('error', 'Invalid login information');
         }
 
         // TODO: Post data to callback? (credential consummer?)
@@ -136,8 +128,7 @@ module.controller('LoginController', function($scope, $http, ipCookie, $window, 
       })
       .catch(function(err) {
         console.log('There was an error', err);
-        brAlertService.add('error', 
-          'Invalid login information'); 
+        brAlertService.add('error', 'Invalid login information');
       })
       .then(function() {
         $scope.$apply();

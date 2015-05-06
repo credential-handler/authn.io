@@ -13,13 +13,12 @@ module.controller('NewDeviceController', function($scope, DataService, $http) {
   var idpInfo = DataService.get('idpInfo');
   if(!idpInfo) {
     self.idpUrl = 'register/idp-error';
-  }
-  else{
+  } else {
     self.idpUrl = idpInfo.url;
   }
   self.use = 'one-time';
   $('#idpInfo').attr('href', self.idpUrl);
-  self.goClicked = function(use){
+  self.goClicked = function(use) {
     var loginHash = DataService.get('loginHash');
 
     console.log('start key generation');
@@ -30,7 +29,7 @@ module.controller('NewDeviceController', function($scope, DataService, $http) {
     var privateKey = keypair.privateKey;
     var publicKey = keypair.publicKey;
 
-    if(use == 'one-time'){
+    if(use == 'one-time') {
       sessionStorage.setItem('one-time', JSON.stringify(privateKey));
       // heads over to idp
       // idp signs the document request
@@ -43,28 +42,30 @@ module.controller('NewDeviceController', function($scope, DataService, $http) {
 
       DataService.postToIdp(undefined, undefined);
 
-
       // send signed document back to credential consumer
     }
-    else if(use == 'permanent'){
-      sessionStorage.setItem('tempPrivate' + loginHash, JSON.stringify(privateKey));
-      sessionStorage.setItem('tempPublic' + loginHash, JSON.stringify(publicKey));
+    if(use == 'permanent') {
+      sessionStorage.setItem(
+        'tempPrivate' + loginHash, JSON.stringify(privateKey));
+      sessionStorage.setItem(
+        'tempPublic' + loginHash, JSON.stringify(publicKey));
 
-      // heads over to idp  
+      // heads over to idp
       DataService.postToIdp(undefined, undefined);
-      
+
       // idp signs the document request
       //  and then signs it with the public key that I give them?
       //  idp sends signed document request back to me
       //  i decrypt it with my private key
-      //  send public key to dht WITH the idp's signature, so it is authorized to add the public key to DIDDocument
+      //  send public key to dht WITH the idp's signature,
+      //    so it is authorized to add the public key to DIDDocument
       //  send signed document back to credential consumer
       // idp does not sign the doc request
       //  send back invalid request or something
     }
 
     DataService.redirect(self.idpUrl);
-  }
+  };
 });
 
 

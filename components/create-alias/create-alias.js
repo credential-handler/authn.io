@@ -1,21 +1,22 @@
 define([
   'angular',
   'forge/forge'
-], function(angular,forge) {
+], function(angular, forge) {
 
 'use strict';
 
 var module = angular.module('app.create-alias', ['bedrock.alert']);
 
 
-module.controller('CreateAliasController', function($http, $scope, config, DataService, brAlertService) {
+module.controller('CreateAliasController', function(
+  $http, $scope, config, DataService, brAlertService) {
   var self = this;
 
-  self.createAlias = function(oldUsername, oldPassword, newUsername, newPassword, newPasswordDuplicate){
-    if(newPassword != newPasswordDuplicate){
-      brAlertService.add('error', 'New passwords do not match!');
+  self.createAlias = function(
+    oldUsername, oldPassword, newUsername, newPassword, newPasswordDuplicate) {
+    if(newPassword !== newPasswordDuplicate) {
+      return brAlertService.add('error', 'New passwords do not match!');
     }
-    else {
 
     var md = forge.md.sha256.create();
     md.update(oldUsername + oldPassword);
@@ -29,36 +30,35 @@ module.controller('CreateAliasController', function($http, $scope, config, DataS
         // got did, now make request to change hash
         var did = DataService.decryptDid(response.data, oldPassword);
 
-        if(did != null){
+        if(did != null) {
           var md = forge.md.sha256.create();
           md.update(newUsername + newPassword);
           var newLoginHash = md.digest().toHex();
-          console.log("HERE!"); 
+          console.log("HERE!");
           var encryptedDid = DataService.encryptDid(did, newPassword);
           console.log('encryptedDid', encryptedDid);
-          Promise.resolve($http.post('/did/login-hash', {DID:encryptedDid, loginHash:newLoginHash}))
+          Promise.resolve($http.post(
+            '/did/login-hash', {DID:encryptedDid, loginHash:newLoginHash}))
             .then(function(response) {
               var privateKey = localStorage.get(oldLoginHash);
-              if(privateKey){
+              if(privateKey) {
                 localStorage.setItem(newLoginHash, privateKey);
-              }
-              else{
+              } else {
                 // there was never a private key here?
               }
               DataService.redirect('/');
             })
             .catch(function(err) {
-              brAlertService.add('error', 'Something went wrong, changes not applied');
+              brAlertService.add(
+                'error', 'Something went wrong, changes not applied');
             })
             .then(function() {
               $scope.$apply();
             });
-        }
-        else{
+        } else {
           console.log('failed here');
           brAlertService.add('error', 'Invalid Login Information');
         }
-
       })
       .catch(function(err) {
         console.log('failed here 2');
@@ -67,9 +67,6 @@ module.controller('CreateAliasController', function($http, $scope, config, DataS
       .then(function() {
         $scope.$apply();
       });
-
-    }
-
   };
 });
 
