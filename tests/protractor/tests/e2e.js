@@ -1,13 +1,13 @@
 var bedrock = GLOBAL.bedrock;
 
-describe('Registration', function() {
+describe('registration', function() {
   var baseId = bedrock.randomString().toLowerCase();
 
   var identity = {};
   identity.email = baseId + '@loginhub.dev';
   identity.password = 'password';
 
-  it('should register, map, and store a new DID', function() {
+  it('should map and store a new DID', function() {
     bedrock.pages.idp.registerDid(identity);
   });
 });
