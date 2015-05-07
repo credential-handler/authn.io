@@ -18,8 +18,8 @@ var module = angular.module('app.loginhub',['app.login', 'app.register', 'app.cr
 module.config(function($routeProvider) {
   $routeProvider.
     when('/', {
-      title: 'Login',
-      templateUrl: requirejs.toUrl('components/login/login.html')
+      title: 'Login Hub Information',
+      templateUrl: requirejs.toUrl('components/info/info.html')
     }).
     when('/new-device', {
       title: 'Register Device',

@@ -40,7 +40,7 @@ module.controller('NewDeviceController', function($scope, DataService, $http) {
 
       // hazy
 
-      DataService.postToIdp(undefined, undefined);
+      DataService.postToIdp();
 
       // send signed document back to credential consumer
     }
@@ -50,9 +50,8 @@ module.controller('NewDeviceController', function($scope, DataService, $http) {
       sessionStorage.setItem(
         'tempPublic' + loginHash, JSON.stringify(publicKey));
 
-      // heads over to idp
-      DataService.postToIdp(undefined, undefined);
-
+      // heads over to idp  
+      DataService.postToIdp();
       // idp signs the document request
       //  and then signs it with the public key that I give them?
       //  idp sends signed document request back to me
