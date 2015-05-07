@@ -90,7 +90,7 @@ module.controller('RegisterController', function(
         } else {
           console.log("Success");
           console.log("idpInfo", DataService.get('idpInfo'));
-          DataService.redirect('/');
+          DataService.redirect(DataService.get('idpInfo').url);
           $scope.$apply();
         }
       });

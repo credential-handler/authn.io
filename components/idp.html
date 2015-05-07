@@ -1,4 +1,5 @@
 <button onclick="createIdentity()" type="button" class="btn btn-primary">Create Identity</button>
+<button onclick="acceptCredentials()" type="button" class="btn btn-primary">Accept credentials</button>
 <script>
 function createIdentity() {
 	// TODO: This should post to /
@@ -15,6 +16,35 @@ function createIdentity() {
 	};
 	var queryString = escapeHtml(JSON.stringify(query));
 	console.log('qs', queryString);
+	var form = document.createElement('form');
+	form.setAttribute('method', 'post');
+	form.setAttribute('action', queryUrl);
+	form.innerHTML = 
+	  '<input type="hidden" name="callerData" value="' + queryString + '" />';
+	form.submit();
+
+	function escapeHtml(str) {
+	  return str
+	    .replace(/&/g, '&amp;')
+	    .replace(/</g, '&lt;')
+	    .replace(/>/g, '&gt;')
+	    .replace(/"/g, '&quot;');
+	}
+}
+
+function acceptCredentials() {
+
+	var queryUrl = '/credentials-approve';
+	var query = {
+	  	credentials: {
+      		type: 'address'
+		}
+	};
+
+	queryUrl += '?id=' + id;
+
+	var queryString = escapeHtml(JSON.stringify(query));
+
 	var form = document.createElement('form');
 	form.setAttribute('method', 'post');
 	form.setAttribute('action', queryUrl);

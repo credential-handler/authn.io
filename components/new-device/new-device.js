@@ -37,7 +37,6 @@ module.controller('NewDeviceController', function($scope, DataService, $http) {
         // and then signs it with the public key that I give them.
         // idp sends signed document request back to me
         // i decrypt it with my private key
-
       // hazy
 
       DataService.postToIdp();

@@ -5,14 +5,15 @@ define([
   './create-alias/create-alias',
   './register/register',
   './login/login',
-  './new-device/new-device'
+  './new-device/new-device',
+  './credentials-approve/credentials-approve'
 ], function(
   angular, _, forge
 ) {
 
 'use strict';
 
-var module = angular.module('app.loginhub',['app.login', 'app.register', 'app.create-alias', 'app.new-device', 'bedrock.alert']);
+var module = angular.module('app.loginhub',['app.login', 'app.register', 'app.create-alias', 'app.new-device', 'app.credentials-approve', 'bedrock.alert']);
 
 /* @ngInject */
 module.config(function($routeProvider) {
@@ -56,11 +57,17 @@ module.config(function($routeProvider) {
     .when('/idp-redirect', {
       title: "Redirecting",
       templateUrl: requirejs.toUrl('components/idp-redirect.html')
+    })
+    .when('/credentials-approve', {
+      title: "Redirecting",
+      templateUrl: requirejs.toUrl('components/credentials-approve/credentials-approve.html')
     });
 });
 
 module.service('DataService', function($location, $http) {
   var savedData = {};
+  var self = this;
+
   function set(key, value) {
     savedData[key] = value;
   };
@@ -80,19 +87,33 @@ module.service('DataService', function($location, $http) {
   // or have it in the DataService's savedData
   function postToIdp(callback, idpUrl) {
     callback = callback || savedData['callback'];
+
     var queryUrl = idpUrl || savedData['idpInfo'].url;
 
+    var credentialRequest = savedData['credential'];
+
     console.log("Creating mapping to " + callback + " from idp: " + queryUrl);
-    // heads over to idp
-    Promise.resolve($http.post('/callbacks/', {callback: callback}))
-      .then(function(response) {
-        queryUrl += '?callback=' + response.data;
-        queryUrl += '&credential=' + 'address';
-        var form = document.createElement('form');
-        form.setAttribute('method', 'post');
-        form.setAttribute('action', queryUrl);
-        form.submit();
-      });
+
+    var id = uuid();
+    sessionStorage.setItem(id, callback);
+
+    queryUrl += '?id=' + id;
+
+    var queryString = escapeHtml(JSON.stringify(credentialRequest));
+    var form = document.createElement('form');
+    form.setAttribute('method', 'post');
+    form.setAttribute('action', queryUrl);
+    form.innerHTML = 
+    '<input type="hidden" name="callerData" value="' + queryString + '" />';
+    form.submit();
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
   }
 
   function encryptDid(did, password) {
