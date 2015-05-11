@@ -1,5 +1,14 @@
 <button onclick="getCredential()" type="button" class="btn btn-primary">Get Credential</button>
 <script>
+
+/*
+  This function starts the request for a credential with a form post to loginhub.
+  Posting to /credentials-request starts off a credential request.
+  It passes in address as the type of credential and more importantly
+  passes in a callback as part of the query.
+
+  This leads to '/credentials-request' in loginhub.js
+*/
 function getCredential() {
   var queryUrl = '/credentials-request';
   var query = {

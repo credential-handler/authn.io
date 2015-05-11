@@ -134,6 +134,22 @@ Access the server at the following URL:
 	  * adds api call to create key,
 	  * gives back public key to be signed
 		* passed to accept/send
+# Demos
+	* Registration	
+		* head to /idp
+		* Click create identity
+		* Type a username and password, and click Submit.
+	* Requesting a credential (Credential consumer) / Approving a requested credential (IDP)
+		* head to /cc
+		* click "Get Credential"
+		* Login to an existing account on loginhub
+		* You will be redirected to /idp with the requested credentials and the id
+		* Click Accept credentials
+		* You will be redirected to loginhub
+		* Then to the credential consumer attached with the request with the approved credentials. 
+
+
+
 
 [NASCAR]: https://indiewebcamp.com/NASCAR_problem "The NASCAR Problem"
 [IC]: http://opencreds.org/specs/source/identity-credentials/ "Identity Credentials"

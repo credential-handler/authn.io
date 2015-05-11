@@ -2,7 +2,6 @@
 <button onclick="acceptCredentials()" type="button" class="btn btn-primary">Accept credentials</button>
 <script>
 function createIdentity() {
-	// TODO: This should post to /
 	var queryUrl = '/create-identity';
 	  /*queryUrl += '?credentials=true' + '&domain=' + 
 	    encodeURIComponent(opts.domain) + '&callback=' + 
@@ -32,6 +31,16 @@ function createIdentity() {
 	}
 }
 
+/**
+	This function is triggered by clicking acceptCredentials.
+	Accept Credentials sends a json object called credentials back
+	towards a credential consumer. To do this, it posts to loginhub's
+	/credentials-approve url passing on the id associated with this 
+	credential approval, and also the actual object that has the
+	credentials within it.
+
+	This function leads to '/credentials-approve' in loginhub.js
+*/
 function acceptCredentials() {
 
 	var queryUrl = '/credentials-approve';
@@ -40,6 +49,8 @@ function acceptCredentials() {
       		type: 'address'
 		}
 	};
+
+	var id = param('id');
 
 	queryUrl += '?id=' + id;
 
@@ -59,5 +70,11 @@ function acceptCredentials() {
 	    .replace(/>/g, '&gt;')
 	    .replace(/"/g, '&quot;');
 	}
+	function param(name) {
+      name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+      var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+      results = regex.exec(location.search);
+      return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
 }
 </script>
