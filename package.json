@@ -13,7 +13,8 @@
     "bedrock-mongodb": "^1.0.0",
     "bedrock-server": "^1.0.0",
     "bedrock-views": "^1.0.0",
-    "bower": "~1.4.1"
+    "bower": "~1.4.1",
+    "did-io": "~0.2.0"
   },
   "devDependencies": {
     "bedrock-protractor": "^1.0.0",
