@@ -21,6 +21,6 @@ api.registerDid = function(identity) {
   element(by.brModel('model.password')).sendKeys(identity.password);
   element(by.brModel('model.passwordConfirmation')).sendKeys(identity.password);
   element(by.buttonText('Submit')).click();
-  bedrock.waitForUrl('/');
+  bedrock.waitForUrl('/idp');
   bedrock.waitForAngular();
 };
