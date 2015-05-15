@@ -1,12 +1,17 @@
 define([
   'angular',
-  'forge/forge'
-], function(angular, forge) {
+  'forge/forge',
+  'did-io',
+  'node-uuid'
+], function(angular, forge, didiojs, uuid) {
 
 'use strict';
 
 var module = angular.module('app.register', ['bedrock.alert']);
-
+var didio = didiojs({inject: {
+  forge: forge,
+  uuid: uuid
+}});
 
 module.controller('RegisterController', function(
   $scope, $http, $window, config, DataService, brAlertService) {
@@ -36,11 +41,8 @@ module.controller('RegisterController', function(
     if(self.username.length == 0) {
       return brAlertService.add('error', 'Enter a username');
     }
-    var username = self.username;
-    var password = self.password;
-    var md = forge.md.sha256.create();
-    md.update(username + password);
-    var hash = md.digest().toHex();
+
+    var hash = didio.generateHash(self.username, self.password);
     var idpInfo = DataService.get('idpInfo');
     var rsa = forge.pki.rsa;
 
@@ -56,9 +58,9 @@ module.controller('RegisterController', function(
     // to retrieve the private key, do the following
     // var privateKey = localStorage.getItem(hash)
 
-    var userDid = 'did:' + DataService.uuid();
+    var userDid = didio.generateDid();
 
-    var encryptedDid = DataService.encryptDid(userDid, password);
+    var encryptedDid = didio.encrypt(userDid, self.password);
     console.log('Final encrypted did', encryptedDid);
 
     console.log('end key generation');

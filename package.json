@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "scripts": {
     "start": "node loginhub.dev.js",
-    "test": "node loginhub.dev.js test"
+    "test": "node loginhub.dev.js test",
+    "postinstall": "bower install && nodejs loginhub.dev.js compile-less"
   },
   "dependencies": {
     "bedrock": "^1.0.0",
@@ -18,8 +19,6 @@
   },
   "devDependencies": {
     "bedrock-protractor": "^1.0.0",
-    "node-forge": "^0.6.26",
-    "node-uuid": "~1.4.3",
     "request": "~2.55.0"
   },
   "engines": {
