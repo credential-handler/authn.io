@@ -3,20 +3,26 @@
 <div ng-controller="RegisterController as model">
   <form class="form-horizontal" role="form">
     <fieldset>
-      <br-input br-model="model.username" 
-        br-options="{name: 'username', label: 'Username'}">
-        Please enter your loginhub Username.
+      <br-input br-model="model.username"
+        br-options="{name: 'email', label: 'Email'}">
+        Please enter your email address.
       </br-input>
-      <br-input br-model="model.password"
-         br-options="{name: 'password', label: 'Password', type: 'password'}">
-        Please enter your loginhub Password.
+      <br-input br-model="model.passphrase"
+         br-options="{name: 'passphrase', label: 'Passphrase', type: 'password'}">
+        Please enter a passphrase.
       </br-input>
-      <br-input br-model="model.passwordConfirmation"
-         br-options="{name: 'password', label: 'Confirm Password', type: 'password'}">
-        Please confirm your loginhub Password.
+      <br-input br-model="model.passphraseConfirmation"
+         br-options="{name: 'passphrase', label: 'Confirm Passphrase', type: 'password'}">
+        Please confirm your passphrase.
       </br-input>
       <div style="text-align:center;">
-        <button ng-click="model.register()" type="submit" class="btn btn-primary">Submit</button>
+        <button ng-disabled="model.registering || model.generating"
+          ng-click="model.register()" type="submit"
+          class="btn btn-primary">Submit</button>
+      </div>
+      <div style="text-align:center;" ng-show="model.generating">
+        Securing your login information, this may take a minute...
+        <i class="fa fa-refresh fa-spin text-muted"></i>
       </div>
     </fieldset>
   </form>
