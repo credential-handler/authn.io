@@ -58,33 +58,23 @@ module.controller('RegisterController', function(
     // to retrieve the private key, do the following
     // var privateKey = localStorage.getItem(hash)
 
-    var userDid = didio.generateDid();
+    var did = didio.generateDid();
 
-    var encryptedDid = didio.encrypt(userDid, self.password);
+    var encryptedDid = didio.encrypt(did, self.password);
     console.log('Final encrypted did', encryptedDid);
 
     console.log('end key generation');
 
-    var DidDocument = {
-      publicKeys: [keypair.publicKey]
+    // stores the hash to encryptedDid mapping
+    var mappingData = {
+      '@context': 'https://w3id.org/identity/v1',
+      id: 'urn:sha256:' + hash,
+      cipherData: encryptedDid
     };
-
-    // TODO: Make this check better
-    if(idpInfo != undefined) {
-      DidDocument.idp = idpInfo;
-    }
-
-    var data = {
-      DIDDocument: DidDocument,
-      EDID: encryptedDid,
-      DID: userDid,
-      loginHash: hash
-    };
-
-    //Stores the DID
-    Promise.resolve($http.post('/dids/', data))
+    Promise.resolve($http.post('/mappings/', mappingData))
       .then(function(response) {
-        console.log(response.data);
+        console.log(response);
+
         // TODO: user string error types not messages for comparison
         if(response.data === 'Failed to create user') {
           brAlertService.add(
@@ -95,7 +85,30 @@ module.controller('RegisterController', function(
           DataService.redirect(DataService.get('idpInfo').url);
           $scope.$apply();
         }
-      });
+    }).then(function() {
+      // stores the DID document
+      var didDocument = {
+        '@context': 'https://w3id.org/identity/v1',
+        id: did,
+        idp: idpInfo,
+        publicKeys: [forge.pki.publicKeyToPem(keypair.publicKey)]
+      };
+      Promise.resolve($http.post('/dids/', didDocument))
+        .then(function(response) {
+          console.log(response);
+          // TODO: user string error types not messages for comparison
+          if(response.data === 'Failed to create user') {
+            brAlertService.add(
+              'error', 'Could not create account. Use a different login/pw.');
+          } else {
+            console.log("Success");
+            console.log("idpInfo", DataService.get('idpInfo'));
+            DataService.redirect(DataService.get('idpInfo').url);
+            $scope.$apply();
+          }
+        });
+    });
+
     /*
       generate public/private key
       generate DID
