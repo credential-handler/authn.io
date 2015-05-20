@@ -18,7 +18,7 @@ module.controller('RegisterController', function(
   var self = this;
 
   if(config.data.idp) {
-    DataService.set('idpInfo', config.data.idp);
+    DataService.set('idp', config.data.idp);
   }
   if(config.data.callback) {
     DataService.set('callback', config.data.callback);
@@ -30,7 +30,7 @@ module.controller('RegisterController', function(
   self.registering = false;
   self.generating = false;
 
-  if(!DataService.get('idpInfo')) {
+  if(!DataService.get('idp')) {
     DataService.redirect('/register/idp-error');
   }
 
@@ -44,7 +44,7 @@ module.controller('RegisterController', function(
       return brAlertService.add('error',
         'You failed to provide an email address');
     }
-    var idpInfo = DataService.get('idpInfo');
+    var idp = DataService.get('idp');
 
     // generate the private key
     self.generating = true;
@@ -62,53 +62,65 @@ module.controller('RegisterController', function(
         if(err) {
           return reject(err);
         }
-        resolve(keypair);
+        return resolve(keypair);
       });
     }).then(function(kp) {
       keypair = kp;
-      // store private key in browser local storage
-      // FIXME: Convert to encrypted PEM, store in localStorage
+      // store encrypted private key in browser local storage
       var encryptedPem =  pki.encryptRsaPrivateKey(
         keypair.privateKey, self.username + self.passphrase);
       localStorage.setItem(hash, encryptedPem);
+      self.generating = false;
 
-      // generate the DID and encrypted DID data
+      // generate the DID
       did = didio.generateDid();
-      return new Promise(function(resolve, reject) {
-        didio.encrypt(did, self.passphrase, function(err, encryptedDid) {
-          self.generating = false;
-          if(err) {
-            return reject(err);
-          }
-          resolve(encryptedDid);
-        });
-      });
-    }).then(function(encryptedDid) {
-      // store the hash to encryptedDid mapping
+
+      // store the hash to did mapping
       var mappingData = {
         '@context': 'https://w3id.org/identity/v1',
-        id: 'urn:sha256:' + hash,
-        cipherData: encryptedDid
+        id: hash,
+        did: did,
+        accessControl: {
+          writePermission: [{
+            id: did + '/keys/1',
+            type: 'CryptographicKey'
+          }]
+        }
       };
+
       return Promise.resolve($http.post('/mappings/', mappingData));
     }).then(function(response) {
       if(response.status !== 201) {
         throw response;
       }
     }).then(function() {
-      // store the DID document
+      // create the DID document
       var didDocument = {
         '@context': 'https://w3id.org/identity/v1',
         id: did,
-        idp: idpInfo,
-        publicKeys: [forge.pki.publicKeyToPem(keypair.publicKey)]
+        idp: idp,
+        accessControl: {
+          writePermission: [{
+            id: did + '/keys/1',
+            type: 'CryptographicKey'
+          }, {
+            id: idp,
+            type: 'Identity'
+          }],
+        },
+        publicKey: [{
+          id: did + '/keys/1',
+          type: 'CryptographicKey',
+          owner: did,
+          publicKeyPem: forge.pki.publicKeyToPem(keypair.publicKey)
+        }]
       };
       return Promise.resolve($http.post('/dids/', didDocument))
         .then(function(response) {
           if(response.status !== 201) {
             throw response;
           }
-          DataService.redirect(DataService.get('idpInfo').url);
+          DataService.redirect(DataService.getUrl('idp'));
         });
     }).catch(function(err) {
       console.error('Failed to register with the network', err);

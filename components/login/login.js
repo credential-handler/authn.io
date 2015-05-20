@@ -16,14 +16,14 @@ module.controller('LoginController', function(
     //console.log('DataService.get(credential)', DataService.get('credential'));
   }
   if(config.data.idp) {
-    DataService.set('idpInfo', config.data.idp);
+    DataService.set('idp', config.data.idp);
   }
   if(config.data.callback) {
     DataService.set('callback', config.data.callback);
     //console.log('DataService.get(callback)', DataService.get('callback'));
   }
   //console.log('config.data', config.data);
-  //console.log('DataService.get(idp)', DataService.get('idpInfo'));
+  //console.log('DataService.get(idp)', DataService.get('idp'));
 
   self.login = function(username, password) {
     //TODO: fix hash to use delimeters or any other improvements
@@ -56,7 +56,7 @@ module.controller('LoginController', function(
         if(did != null && !privateKey) {
           Promise.resolve($http.get('/did/idp', {params:{did:did}}))
             .then(function(response) {
-              DataService.set('idpInfo', response.data);
+              DataService.set('idp', response.data);
               DataService.redirect('/new-device');
             })
             .catch(function(err) {
@@ -95,11 +95,11 @@ module.controller('LoginController', function(
               .then(function() {
                 $scope.$apply();
               });
-          } else if(DataService.get('idpInfo')) {
+          } else if(DataService.get('idp')) {
             // Coming from IDP site
             Promise.resolve($http.post('/did/idp', {
               did: did,
-              idp: DataService.get('idpInfo')
+              idp: DataService.get('idp')
             }))
               .then(function() {
                 // idp succesfully registered to did

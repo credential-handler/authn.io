@@ -65,7 +65,7 @@ module.config(function($routeProvider) {
     });
 });
 
-module.service('DataService', function($location, $http) {
+module.service('DataService', function($location, $window) {
   var savedData = {};
   var self = this;
 
@@ -75,8 +75,13 @@ module.service('DataService', function($location, $http) {
   function get(key) {
     return savedData[key];
   };
+  function getUrl(idp) {
+    // FIXME: Do actual IDP DID lookup
+    return $location.protocol() + '://' + $location.host() + ':' +
+      $location.port() + '/idp';
+  };
   function redirect(url) {
-    $location.path(url);
+    $window.location.href = url;
   };
 
   // must either pass in the callback and idpUrl
@@ -84,7 +89,7 @@ module.service('DataService', function($location, $http) {
   function postToIdp(callback, idpUrl) {
     callback = callback || savedData['callback'];
 
-    var queryUrl = idpUrl || savedData['idpInfo'].url;
+    var queryUrl = idpUrl || savedData['idp'];
 
     var credentialRequest = savedData['credential'];
 
@@ -117,6 +122,7 @@ module.service('DataService', function($location, $http) {
   return {
     set: set,
     get: get,
+    getUrl: getUrl,
     redirect: redirect,
     postToIdp: postToIdp,
     decryptDid: didio.decrypt,

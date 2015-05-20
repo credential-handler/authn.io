@@ -19,7 +19,8 @@
   },
   "devDependencies": {
     "bedrock-protractor": "^1.0.0",
-    "request": "~2.55.0"
+    "request": "~2.55.0",
+    "node-forge": "~0.6.28"
   },
   "engines": {
     "node": ">=0.10.0"

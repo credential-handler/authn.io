@@ -10,14 +10,14 @@ var module = angular.module('app.new-device', []);
 
 module.controller('NewDeviceController', function($scope, DataService, $http) {
   var self = this;
-  var idpInfo = DataService.get('idpInfo');
-  if(!idpInfo) {
+  var idp = DataService.get('idp');
+  if(!idp) {
     self.idpUrl = 'register/idp-error';
   } else {
-    self.idpUrl = idpInfo.url;
+    self.idpUrl = idp.url;
   }
   self.use = 'one-time';
-  $('#idpInfo').attr('href', self.idpUrl);
+  $('#idp').attr('href', self.idpUrl);
   self.goClicked = function(use) {
     var loginHash = DataService.get('loginHash');
 
