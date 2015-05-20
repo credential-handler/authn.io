@@ -20,8 +20,8 @@ module.controller('RegisterController', function(
   if(config.data.idp) {
     DataService.set('idp', config.data.idp);
   }
-  if(config.data.callback) {
-    DataService.set('callback', config.data.callback);
+  if(config.data.registrationCallback) {
+    DataService.set('callback', config.data.registrationCallback);
   }
 
   self.passphraseConfirmation = '';

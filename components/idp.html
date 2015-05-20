@@ -1,31 +1,13 @@
 <button onclick="createIdentity()" type="button" class="btn btn-primary">Create Identity</button>
 <button onclick="acceptCredentials()" type="button" class="btn btn-primary">Accept credentials</button>
+
 <script>
 function createIdentity() {
-	var queryUrl = '/create-identity';
-	  /*queryUrl += '?credentials=true' + '&domain=' +
-	    encodeURIComponent(opts.domain) + '&callback=' +
-	    encodeURIComponent(opts.callback);*/
-	var query = {
-	  idp: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
-	  callback: 'https://loginhub.dev:33443/idp'
-	};
-	var queryString = escapeHtml(JSON.stringify(query));
-	console.log('qs', queryString);
-	var form = document.createElement('form');
-	form.setAttribute('method', 'post');
-	form.setAttribute('action', queryUrl);
-	form.innerHTML =
-	  '<input type="hidden" name="callerData" value="' + queryString + '" />';
-	form.submit();
-
-	function escapeHtml(str) {
-	  return str
-	    .replace(/&/g, '&amp;')
-	    .replace(/</g, '&lt;')
-	    .replace(/>/g, '&gt;')
-	    .replace(/"/g, '&quot;');
-	}
+	navigator.credentials.registerDid({
+		idp: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
+		registrationUrl: '/create-identity',
+	  registrationCallback: 'https://loginhub.dev:33443/idp'
+	});
 }
 
 /**
