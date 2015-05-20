@@ -48,12 +48,14 @@ module.controller('RegisterController', function(
 
     // generate the private key
     self.generating = true;
-    var rsa = forge.pki.rsa;
+    var pki = forge.pki;
     var keypair = null;
     var did = null;
+    var hash = didio.generateHash(self.username, self.passphrase);
+    
     new Promise(function(resolve, reject) {
       self.generating = true;
-      rsa.generateKeyPair({
+      pki.rsa.generateKeyPair({
         bits: 2048,
         workerScript: '/bower-components/forge/js/prime.worker.js'
       }, function(err, keypair) {
@@ -66,9 +68,9 @@ module.controller('RegisterController', function(
       keypair = kp;
       // store private key in browser local storage
       // FIXME: Convert to encrypted PEM, store in localStorage
-      //localStorage.setItem(hash, JSON.stringify(keypair.privateKey));
-      // to retrieve the private key, do the following
-      // var privateKey = localStorage.getItem(hash)
+      var encryptedPem =  pki.encryptRsaPrivateKey(
+        keypair.privateKey, self.passphrase);
+      localStorage.setItem(hash, encryptedPem);
 
       // generate the DID and encrypted DID data
       did = didio.generateDid();
@@ -83,7 +85,6 @@ module.controller('RegisterController', function(
       });
     }).then(function(encryptedDid) {
       // store the hash to encryptedDid mapping
-      var hash = didio.generateHash(self.username, self.passphrase);
       var mappingData = {
         '@context': 'https://w3id.org/identity/v1',
         id: 'urn:sha256:' + hash,
@@ -91,7 +92,6 @@ module.controller('RegisterController', function(
       };
       return Promise.resolve($http.post('/mappings/', mappingData));
     }).then(function(response) {
-      console.log("RES", response);
       if(response.status !== 201) {
         throw response;
       }
