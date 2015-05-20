@@ -52,7 +52,7 @@ module.controller('RegisterController', function(
     var keypair = null;
     var did = null;
     var hash = didio.generateHash(self.username, self.passphrase);
-    
+
     new Promise(function(resolve, reject) {
       self.generating = true;
       pki.rsa.generateKeyPair({
@@ -69,7 +69,7 @@ module.controller('RegisterController', function(
       // store private key in browser local storage
       // FIXME: Convert to encrypted PEM, store in localStorage
       var encryptedPem =  pki.encryptRsaPrivateKey(
-        keypair.privateKey, self.passphrase);
+        keypair.privateKey, self.username + self.passphrase);
       localStorage.setItem(hash, encryptedPem);
 
       // generate the DID and encrypted DID data
