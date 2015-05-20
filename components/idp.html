@@ -3,53 +3,53 @@
 
 <script>
 function createIdentity() {
-	navigator.credentials.registerDid({
-		idp: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
-		registrationUrl: '/create-identity',
-	  registrationCallback: 'https://loginhub.dev:33443/idp'
-	});
+  navigator.credentials.registerDid({
+    idp: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
+    registrationUrl: '/create-identity',
+    registrationCallback: 'https://loginhub.dev:33443/idp'
+  });
 }
 
 /**
-	This function is triggered by clicking acceptCredentials.
-	Accept Credentials sends a json object called credentials back
-	towards a credential consumer. To do this, it posts to loginhub's
-	/credentials-approve url passing on the id associated with this
-	credential approval, and also the actual object that has the
-	credentials within it.
+  This function is triggered by clicking acceptCredentials.
+  Accept Credentials sends a json object called credentials back
+  towards a credential consumer. To do this, it posts to loginhub's
+  /credentials-approve url passing on the id associated with this
+  credential approval, and also the actual object that has the
+  credentials within it.
 
-	This function leads to '/credentials-approve' in loginhub.js
+  This function leads to '/credentials-approve' in loginhub.js
 */
 function acceptCredentials() {
 
-	var queryUrl = '/credentials-approve';
-	var query = {
-	  	credentials: {
-      		type: 'address'
-		}
-	};
+  var queryUrl = '/credentials-approve';
+  var query = {
+      credentials: {
+          type: 'address'
+    }
+  };
 
-	var id = param('id');
+  var id = param('id');
 
-	queryUrl += '?id=' + id;
+  queryUrl += '?id=' + id;
 
-	var queryString = escapeHtml(JSON.stringify(query));
+  var queryString = escapeHtml(JSON.stringify(query));
 
-	var form = document.createElement('form');
-	form.setAttribute('method', 'post');
-	form.setAttribute('action', queryUrl);
-	form.innerHTML =
-	  '<input type="hidden" name="callerData" value="' + queryString + '" />';
-	form.submit();
+  var form = document.createElement('form');
+  form.setAttribute('method', 'post');
+  form.setAttribute('action', queryUrl);
+  form.innerHTML =
+    '<input type="hidden" name="callerData" value="' + queryString + '" />';
+  form.submit();
 
-	function escapeHtml(str) {
-	  return str
-	    .replace(/&/g, '&amp;')
-	    .replace(/</g, '&lt;')
-	    .replace(/>/g, '&gt;')
-	    .replace(/"/g, '&quot;');
-	}
-	function param(name) {
+  function escapeHtml(str) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+  function param(name) {
       name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
       var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
       results = regex.exec(location.search);
