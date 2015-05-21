@@ -9,8 +9,8 @@ coverage
 node_modules
 npm-debug.log
 reports
-loginhub.dev-error.log
-loginhub.dev-app.log
-loginhub.dev-access.log
-loginhub.dev-access1.log
+authorization.dev-error.log
+authorization.dev-app.log
+authorization.dev-access.log
+authorization.dev-access1.log
 bedrock

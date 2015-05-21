@@ -1,4 +1,4 @@
-# Login Hub
+# authorization.io
 
 A solution to the [NASCAR login problem][NASCAR].
 
@@ -37,7 +37,7 @@ This software enables a person to:
 
 # Development
 
-The following section explains how to setup and develop the loginhub
+The following section explains how to setup and develop the authorization.io
 software on a local development machine.
 
 ### Requirements
@@ -48,14 +48,14 @@ software on a local development machine.
 
 ### Configuration
 
-The options in the `./configs/loginhub.dev.js` file can be tuned to your
+The options in the `./configs/authorization.dev.js` file can be tuned to your
 environment as needed.
 
 ## Setup
 
 * Setup an admin user on mongodb (see below)
 * Install the dependencies (see below)
-* Map the `loginhub.dev` hostname to your localhost.
+* Map the `authorization.dev` hostname to your localhost.
 
 To setup an admin user on mongodb:
 
@@ -69,22 +69,22 @@ To install dependencies, do the following:
 
 ### Running
 
-Add a host alias (for example, edit `/etc/hosts`) to map `loginhub.dev` to
+Add a host alias (for example, edit `/etc/hosts`) to map `authorization.dev` to
 `localhost`.
 
 Run the following to start up a development server from the source directory:
 
-    node loginhub.dev.js
+    node authorization.dev.js
 
 To add more verbose debugging, use the `--log-level` option:
 
-    node loginhub.dev.js --log-level debug
+    node authorization.dev.js --log-level debug
 
 ### Usage
 
 Access the server at the following URL:
 
-* https://loginhub.dev:33443/
+* https://authorization.dev:33443/
 
 # REST API
 
@@ -104,7 +104,7 @@ Access the server at the following URL:
         * places keys in temporary local storage area
           * after you click accept on idp
             * SEND REQUEST to callback
-              * goes to loginhub with signed public key,
+              * goes to authorization.io with signed public key,
                 * takes temporary key and verifies it and sends it to webdht
                 * permanent key gets stored in local storage
               * or delete key from local storage if not
@@ -142,10 +142,10 @@ Access the server at the following URL:
   * Requesting a credential (Credential consumer) / Approving a requested credential (IDP)
     * head to /cc
     * click "Get Credential"
-    * Login to an existing account on loginhub
+    * Login to an existing account on authorization.io
     * You will be redirected to /idp with the requested credentials and the id
     * Click Accept credentials
-    * You will be redirected to loginhub
+    * You will be redirected to authorization.io
     * Then to the credential consumer attached with the request with the approved credentials. 
 
 

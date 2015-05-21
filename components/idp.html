@@ -6,19 +6,19 @@ function createIdentity() {
   navigator.credentials.registerDid({
     idp: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
     registrationUrl: '/create-identity',
-    registrationCallback: 'https://loginhub.dev:33443/idp'
+    registrationCallback: 'https://credentials.dev:33443/idp'
   });
 }
 
 /**
   This function is triggered by clicking acceptCredentials.
   Accept Credentials sends a json object called credentials back
-  towards a credential consumer. To do this, it posts to loginhub's
+  towards a credential consumer. To do this, it posts to authorization.io's
   /credentials-approve url passing on the id associated with this
   credential approval, and also the actual object that has the
   credentials within it.
 
-  This function leads to '/credentials-approve' in loginhub.js
+  This function leads to '/credentials-approve' in authorizationio.js
 */
 function acceptCredentials() {
 

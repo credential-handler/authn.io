@@ -4,7 +4,7 @@ describe('registration', function() {
   var baseId = bedrock.randomString().toLowerCase();
 
   var identity = {};
-  identity.email = baseId + '@loginhub.dev';
+  identity.email = baseId + '@authorization.dev';
   identity.password = 'password';
 
   it('should map and store a new DID', function() {

@@ -14,7 +14,9 @@ define([
 
 'use strict';
 
-var module = angular.module('app.loginhub',['app.login', 'app.register', 'app.create-alias', 'app.new-device', 'app.credentials-approve', 'bedrock.alert']);
+var module = angular.module('app.authorizationio', [
+  'app.login', 'app.register', 'app.create-alias', 'app.new-device', 
+  'app.credentials-approve', 'bedrock.alert']);
 
 /* @ngInject */
 module.config(function($routeProvider) {
