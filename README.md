@@ -93,34 +93,34 @@ Access the server at the following URL:
   * createdid
 
   * get (alternative to accept/send)
-	  * if no key, create key, browser asks:
-		* idp signs key that we sent, up to browser to store it based on one-time vs permanent
-		* one-time use key
-			* different storage instead of localstorage, for more temporary use	sessionstorage maybe
-			* generates key, mark it as one-time use. // how do we mark it as one-time?
-			* sends request, including the public key to the idp
-		* permanent key
-			* generates key
-				* places keys in temporary local storage area
-					* after you click accept on idp
-						* SEND REQUEST to callback
-						  * goes to loginhub with signed public key,
-							  * takes temporary key and verifies it and sends it to webdht
-								* permanent key gets stored in local storage
-							* or delete key from local storage if not
+    * if no key, create key, browser asks:
+    * idp signs key that we sent, up to browser to store it based on one-time vs permanent
+    * one-time use key
+      * different storage instead of localstorage, for more temporary use  sessionstorage maybe
+      * generates key, mark it as one-time use. // how do we mark it as one-time?
+      * sends request, including the public key to the idp
+    * permanent key
+      * generates key
+        * places keys in temporary local storage area
+          * after you click accept on idp
+            * SEND REQUEST to callback
+              * goes to loginhub with signed public key,
+                * takes temporary key and verifies it and sends it to webdht
+                * permanent key gets stored in local storage
+              * or delete key from local storage if not
 
   * What we need.
-	  * better threat analysis
-	  * messaging format for splitting up into multiple calls
-	  * handling edge cases (in library get up and logged into idp)
-		* //sends request, including the public key to the idp
+    * better threat analysis
+    * messaging format for splitting up into multiple calls
+    * handling edge cases (in library get up and logged into idp)
+    * //sends request, including the public key to the idp
 
   * accept/send
-	  * idp calls to give off credentials
+    * idp calls to give off credentials
 
-	* always sends signed credentials
-		* and might send message with just key
-			* browser can add it as a permanent key or drop it. based on one-use vs permanent.
+  * always sends signed credentials
+    * and might send message with just key
+      * browser can add it as a permanent key or drop it. based on one-use vs permanent.
 
   * Not needed?
     * return an error that the browser does not have a private key
@@ -131,22 +131,22 @@ Access the server at the following URL:
     * call accept again with the additional info, and browser adds to dht and fulfills the rest of the request
 
   * createKey (optional)
-	  * adds api call to create key,
-	  * gives back public key to be signed
-		* passed to accept/send
+    * adds api call to create key,
+    * gives back public key to be signed
+    * passed to accept/send
 # Demos
-	* Registration	
-		* head to /idp
-		* Click create identity
-		* Type a username and password, and click Submit.
-	* Requesting a credential (Credential consumer) / Approving a requested credential (IDP)
-		* head to /cc
-		* click "Get Credential"
-		* Login to an existing account on loginhub
-		* You will be redirected to /idp with the requested credentials and the id
-		* Click Accept credentials
-		* You will be redirected to loginhub
-		* Then to the credential consumer attached with the request with the approved credentials. 
+  * Registration  
+    * head to /idp
+    * Click create identity
+    * Type a username and password, and click Submit.
+  * Requesting a credential (Credential consumer) / Approving a requested credential (IDP)
+    * head to /cc
+    * click "Get Credential"
+    * Login to an existing account on loginhub
+    * You will be redirected to /idp with the requested credentials and the id
+    * Click Accept credentials
+    * You will be redirected to loginhub
+    * Then to the credential consumer attached with the request with the approved credentials. 
 
 
 
