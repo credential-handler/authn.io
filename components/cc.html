@@ -11,28 +11,13 @@
   This leads to '/credentials-request' in authorizationio.js
 */
 function getCredential() {
-  var queryUrl = '/credentials-request';
-  var query = {
-    credential: {
-      type: 'address'
-    },
-    callback: 'https://authorization.dev:33443/cc'
-  };
-  var queryString = escapeHtml(JSON.stringify(query));
-  var form = document.createElement('form');
-  form.setAttribute('method', 'post');
-  form.setAttribute('action', queryUrl);
-  form.innerHTML = 
-    '<input type="hidden" name="callerData" value="' + queryString + '" />';
-  form.submit();
-
-  function escapeHtml(str) {
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
+  navigator.credentials.request({
+    '@context': 'https://w3id.org/identity/v1',
+    email: ''
+  }, {
+    requestUrl: 'https://authorization.dev:33443/credentials-request',
+    credentialCallback: 'https://authorization.dev:33443/rp'
+  });
 }
 
 </script>
