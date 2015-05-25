@@ -2,22 +2,22 @@
 <div ng-controller="LoginController as model">
   <form class="form-horizontal" role="form">
     <fieldset>
-      <br-input br-model="model.username" 
-        br-options="{name: 'username', label: 'Username'}">
+
+      <br-input br-model="model.username"
+        br-options="{name: 'username', label: 'Email'}">
         Please enter your preferred email address.
       </br-input>
-      <br-input br-model="model.password"
-         br-options="{name: 'password', label: 'Password', type: 'password'}">
-        Please enter your passphrase (for example: 42RhinosStampedeAtTeaTime).
 
+      <br-input br-model="model.password"
+         br-options="{name: 'password', label: 'Passphrase', type: 'password'}">
+        Please enter your passphrase (for example: 42RhinosStampedeAtTeaTime).
       </br-input>
+
       <div style="text-align:center;">
-        <button ng-click="model.login(model.username,model.password)" type="submit" class="btn btn-primary">Login</button> 
+        <button ng-click="model.login(model.username,model.password)" type="submit" class="btn btn-primary">Login</button>
         <a href="register" type="button" class="btn btn-primary">Register</a>
-        <br/>
-        <br/>
-        <p>Create an alias <a href="create-alias">here</a></p>
       </div>
+
     </fieldset>
   </form>
 </div>

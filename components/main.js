@@ -15,7 +15,7 @@ define([
 'use strict';
 
 var module = angular.module('app.authorizationio', [
-  'app.login', 'app.register', 'app.create-alias', 'app.new-device', 
+  'app.login', 'app.register', 'app.create-alias', 'app.new-device',
   'app.credentials-approve', 'bedrock.alert']);
 
 /* @ngInject */
@@ -88,17 +88,9 @@ module.service('DataService', function($location, $window) {
 
   // must either pass in the callback and idpUrl
   // or have it in the DataService's savedData
-  function postToIdp(callback, idpUrl) {
-    callback = callback || savedData['callback'];
-
-    var queryUrl = idpUrl || savedData['idp'];
-
-    var credentialRequest = savedData['credential'];
-
-    console.log("Creating mapping to " + callback + " from idp: " + queryUrl);
-
-    var id = uuid();
-    sessionStorage.setItem(id, callback);
+  function postToIdp(credentialRequestUrl, credentialCallbackUrl, data) {
+    var id = Date.now();
+    sessionStorage.setItem(id, credentialCallbackUrl);
 
     queryUrl += '?id=' + id;
 
