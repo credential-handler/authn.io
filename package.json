@@ -7,6 +7,7 @@
     "postinstall": "bower install && nodejs authorization.dev.js compile-less"
   },
   "dependencies": {
+    "async": "~0.9.0",
     "bedrock": "^1.0.0",
     "bedrock-docs": "^1.0.0",
     "bedrock-express": "^1.0.0",
