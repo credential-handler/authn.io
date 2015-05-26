@@ -86,11 +86,11 @@ module.controller('LoginController', function(
           requestUrl: cookie.credentialRequestUrl,
           credentialCallback: authioCallback
         });
-      }).then(function() {
-        $scope.$apply();
       }).catch(function(err) {
         brAlertService.add('error', 'Unable to log in.');
         console.log(err);
+      }).then(function() {
+        $scope.$apply();
       });
   };
 });
