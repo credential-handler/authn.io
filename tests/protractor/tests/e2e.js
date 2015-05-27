@@ -5,9 +5,9 @@ describe('registration', function() {
 
   var identity = {};
   identity.email = baseId + '@authorization.dev';
-  identity.password = 'password';
+  identity.passphrase = 'ThisIsALongPassphrase23';
 
-  it('should map and store a new DID', function() {
+  it('should create a mapping and DID document', function() {
     bedrock.pages.idp.registerDid(identity);
   });
 });

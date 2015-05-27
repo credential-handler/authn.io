@@ -3,53 +3,121 @@
  */
 'use strict';
 var config = require('bedrock').config;
+var didio = require('did-io')();
 var forge = require('node-forge');
 var request = require('request');
-var uuid = require('node-uuid');
-var didio = require('did-io')();
 
 // base URL for tests
 var base = config.server.baseUri;
+var authioRequest = request.defaults({strictSSL: false});
 
 describe('authorization.io - REST API', function() {
-  describe('/dids', function() {
-    var didUrl = null;
-    var lhRequest = request.defaults({strictSSL: false});
+  var did = didio.generateDid();
+  var email = did + '@authorization.dev';
+  var passphrase = did + 'password';
+  var hash = didio.generateHash(email, passphrase);
+  var keypair = forge.pki.rsa.generateKeyPair({bits: 512, e: 0x10001});
+  var mapping = {
+    '@context': 'https://w3id.org/identity/v1',
+    id: hash,
+    did: did,
+    accessControl: {
+      writePermission: [{
+        id: did + '/keys/1',
+        type: 'CryptographicKey'
+      }, {
+        id: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
+        type: 'Identity'
+      }]
+    }
+  };
+  var didDocument = {
+    '@context': 'https://w3id.org/identity/v1',
+    id: did,
+    idp: config.server.baseUri + '/idp',
+    accessControl: {
+      writePermission: [{
+        id: did + '/keys/1',
+        type: 'CryptographicKey'
+      }, {
+        id: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
+        type: 'Identity'
+      }]
+    },
+    publicKey: [{
+      id : did + '/keys/1',
+      type: 'CryptographicKey',
+      owner: did,
+      publicKeyPem: forge.pki.publicKeyToPem(keypair.publicKey)
+    }]
+  };
 
-    it('should support DID document creation', function(done) {
-      var did = didio.generateDid();
-      var email = did + '@authorization.dev';
-      var passphrase = did + 'password';
-      var loginHash = didio.generateHash(email, passphrase);
-      var encryptedDid = didio.encrypt(did, passphrase);
-      var keypair = forge.pki.rsa.generateKeyPair({bits: 512, e: 0x10001});
-      var didDocument = {
-        publicKeys: [keypair.publicKey],
-      };
+  describe('/mappings', function() {
+    var newMappingUrl = null;
 
-      /*
-      console.log("CALLING DID", {
-          loginHash: loginHash,
-          DID: did,
-          DIDDocument: didDocument,
-          EDID: encryptedDid
-        });
-      */
-
-      lhRequest({
-        url: base + '/dids/',
+    it('should support mapping creation', function(done) {
+      authioRequest({
+        url: base + '/mappings/',
         method: 'POST',
-        json: {
-          loginHash: loginHash,
-          DID: did,
-          DIDDocument: didDocument,
-          EDID: encryptedDid
-        }}, function(err, res, body) {
-          //console.log('body', body, res.statusCode);
-          should.not.exist(err);
-          res.statusCode.should.equal(201);
-          done();
+        json: mapping
+      }, function(err, res) {
+        should.not.exist(err);
+        res.statusCode.should.equal(201);
+        should.exist(res.headers.location);
+        newMappingUrl = res.headers.location;
+        done();
       });
     });
+
+    it('should support mapping retrieval', function(done) {
+      authioRequest({
+        url: newMappingUrl,
+        method: 'GET',
+        headers: {
+          'accept': 'application/ld+json'
+        }
+      }, function(err, res, body) {
+        should.not.exist(err);
+        res.statusCode.should.equal(200);
+        JSON.parse(body).should.deep.equal(mapping);
+        done();
+      });
+    });
+
   });
+
+  describe('/dids', function() {
+    var newDidDocumentUrl = null;
+
+    it('should support DID document creation', function(done) {
+      authioRequest({
+        url: base + '/dids/',
+        method: 'POST',
+        json: didDocument
+      }, function(err, res) {
+        should.not.exist(err);
+        res.statusCode.should.equal(201);
+        should.exist(res.headers.location);
+        newDidDocumentUrl = res.headers.location;
+        done();
+      });
+    });
+
+    it('should support DID document retrieval', function(done) {
+      authioRequest({
+        url: newDidDocumentUrl,
+        method: 'GET',
+        headers: {
+          'accept': 'application/ld+json'
+        }
+      }, function(err, res, body) {
+        should.not.exist(err);
+        res.statusCode.should.equal(200);
+        JSON.parse(body).should.deep.equal(didDocument);
+        done();
+      });
+    });
+
+  });
+
 });
