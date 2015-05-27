@@ -82,7 +82,7 @@ module.controller('LoginController', function(
         var rpCredentialCallback = $location.search().credentialCallback;
         sessionStorage.setItem(id, rpCredentialCallback);
 
-        navigator.credentials.request(config.data.request, {
+        navigator.credentials.request(config.data.credentialRequest, {
           requestUrl: cookie.credentialRequestUrl,
           credentialCallback: authioCallback
         });
