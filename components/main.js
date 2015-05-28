@@ -41,8 +41,12 @@ module.config(function($routeProvider) {
       title: 'Idp',
       templateUrl: requirejs.toUrl('components/idp.html')
     }).
-    when('/cc', {
+    when('/consumer/requestor', {
       title: "Credential Consumer",
+      templateUrl: requirejs.toUrl('components/cc.html')
+    }).
+    when('/consumer/issuer', {
+      title: "Credential Issuer",
       templateUrl: requirejs.toUrl('components/cc.html')
     }).
     when('/create-alias', {

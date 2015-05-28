@@ -8,8 +8,18 @@ var config = require('bedrock').config;
 var views = require('bedrock-views');
 
 bedrock.events.on('bedrock-express.configure.routes', function(app) {
-  // mock credential consumer landing page
-  app.post('/cc', function(req, res, next) {
+  // mock credential callback page
+  app.post('/consumer/credentials', function(req, res, next) {
+    views.getDefaultViewVars(req, function(err, vars) {
+      if(err) {
+        return next(err);
+      }
+      res.render('index.html', vars);
+    });
+  });
+
+  // mock credential issuer page
+  app.post('/consumer/issuer', function(req, res, next) {
     views.getDefaultViewVars(req, function(err, vars) {
       if(err) {
         return next(err);
