@@ -4,7 +4,6 @@ define([
   'forge/forge',
   'did-io',
   './create-alias/create-alias',
-  './register/register',
   './login/login',
   './new-device/new-device',
   './credentials-approve/credentials-approve'
@@ -15,7 +14,7 @@ define([
 'use strict';
 
 var module = angular.module('app.authorizationio', [
-  'app.login', 'app.register', 'app.create-alias', 'app.new-device',
+  'app.login', 'app.create-alias', 'app.new-device',
   'app.credentials-approve', 'bedrock.alert']);
 
 /* @ngInject */
@@ -33,14 +32,6 @@ module.config(function($routeProvider) {
       title: 'Register',
       templateUrl: requirejs.toUrl('components/register/register.html')
     }).
-    when('/register/idp-error', {
-      title: 'Need Identity Provider',
-      templateUrl: requirejs.toUrl('components/register/idp-error.html')
-    }).
-    when('/idp', {
-      title: 'Idp',
-      templateUrl: requirejs.toUrl('components/idp.html')
-    }).
     when('/consumer/requestor', {
       title: "Credential Consumer",
       templateUrl: requirejs.toUrl('components/cc.html')
@@ -57,15 +48,7 @@ module.config(function($routeProvider) {
       title: "Credentials Request",
       templateUrl: requirejs.toUrl('components/login/login.html')
     }).
-    when('/create-identity', {
-      title: "Create Identity",
-      templateUrl: requirejs.toUrl('components/register/register.html')
-    })
-    .when('/idp-redirect', {
-      title: "Redirecting",
-      templateUrl: requirejs.toUrl('components/idp-redirect.html')
-    })
-    .when('/credentials-approve', {
+    when('/credentials-approve', {
       title: "Redirecting",
       templateUrl: requirejs.toUrl('components/credentials-approve/credentials-approve.html')
     });
