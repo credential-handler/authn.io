@@ -9,8 +9,7 @@ var path = require('path');
 
 require('./lib/authorizationio');
 
-config.views.routes.push(['/cc', 'index.html']);
-config.views.routes.push(['/idp', 'index.html']);
+config.views.paths.push(path.join(__dirname, 'tests/views'));
 
 // load the development-specific extensions to the site
 require('./tests/lib/idp');

@@ -3,7 +3,6 @@ define([
   'underscore',
   'forge/forge',
   'did-io',
-  './create-alias/create-alias',
   './login/login',
   './new-device/new-device',
   './credentials-approve/credentials-approve'
@@ -14,8 +13,7 @@ define([
 'use strict';
 
 var module = angular.module('app.authorizationio', [
-  'app.login', 'app.create-alias', 'app.new-device',
-  'app.credentials-approve', 'bedrock.alert']);
+  'app.login', 'app.new-device', 'app.credentials-approve', 'bedrock.alert']);
 
 /* @ngInject */
 module.config(function($routeProvider) {
@@ -33,23 +31,23 @@ module.config(function($routeProvider) {
       templateUrl: requirejs.toUrl('components/register/register.html')
     }).
     when('/consumer/requestor', {
-      title: "Credential Consumer",
+      title: 'Credential Consumer',
       templateUrl: requirejs.toUrl('components/cc.html')
     }).
     when('/consumer/issuer', {
-      title: "Credential Issuer",
+      title: 'Credential Issuer',
       templateUrl: requirejs.toUrl('components/cc.html')
     }).
     when('/create-alias', {
-      title: "Create alias account",
+      title: 'Create alias account',
       templateUrl: requirejs.toUrl('components/create-alias/create-alias.html')
     }).
     when('/credentials-request', {
-      title: "Credentials Request",
+      title: 'Credentials Request',
       templateUrl: requirejs.toUrl('components/login/login.html')
     }).
     when('/credentials-approve', {
-      title: "Redirecting",
+      title: 'Redirecting',
       templateUrl: requirejs.toUrl('components/credentials-approve/credentials-approve.html')
     });
 });

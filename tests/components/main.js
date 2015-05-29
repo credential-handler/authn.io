@@ -19,6 +19,10 @@ module.config(function($routeProvider) {
       title: 'Identity Provider',
       templateUrl: requirejs.toUrl('idp-components/idp/index.html')
     })
+    .when('/idp/credentials', {
+      title: 'Credential Composer',
+      templateUrl: requirejs.toUrl('idp-components/idp/credentials.html')
+    })
     .when('/create-identity', {
       title: 'Create Identity',
       templateUrl: requirejs.toUrl('idp-components/idp/register.html')
