@@ -1,23 +1,67 @@
 <h1 align="center">Register</h1>
 
 <div ng-controller="RegisterController as model">
-  <form class="form-horizontal" role="form">
+  <form name="regForm" class="form-horizontal" role="form" novalidate
+    ng-submit="registrationForm()">
     <fieldset>
-      <br-input br-model="model.username"
-        br-options="{name: 'email', label: 'Email'}">
-        Please enter your email address.
-      </br-input>
-      <br-input br-model="model.passphrase"
-         br-options="{name: 'passphrase', label: 'Passphrase', type: 'password'}">
-        Please enter a passphrase.
-      </br-input>
-      <br-input br-model="model.passphraseConfirmation"
-         br-options="{name: 'passphraseConfirmation', label: 'Confirm Passphrase', type: 'password'}">
-        Please confirm your passphrase.
-      </br-input>
+      <div class="row">
+        <br-input br-model="model.username"
+          br-options="{name: 'email', label: 'Email'}"
+          ng-minlength=6 ng-maxlength=128 required>
+          Please enter your email address.
+        </br-input>
+        <div class="error" ng-show="regForm.email.$invalid && regForm.submitted">
+          <small class="error"
+            ng-show="regForm.email.$error.required">
+            Email is required.
+          </small>
+          <small class="error"
+            ng-show="regForm.email.$error.minlength">
+            Email is required to be at least 6 characters.
+          </small>
+          <small class="error"
+            ng-show="regForm.email.$error.maxlength">
+            Email must not be longer than 128 characters.
+          </small>
+        </div>
+      </div>
+      <div class="row">
+        <br-input br-model="model.passphrase"
+           br-options="{name: 'passphrase', label: 'Passphrase', type: 'password'}"
+           ng-minlength=6 ng-maxlength=128 required>
+          Please enter a passphrase.
+        </br-input>
+        <div class="error" ng-show="regForm.passphrase.$invalid && regForm.submitted">
+          <small class="error"
+            ng-show="regForm.passphrase.$error.required">
+            Passphrase is required.
+          </small>
+          <small class="error"
+            ng-show="regForm.passphrase.$error.minlength">
+            Passphrase is required to be at least 6 characters.
+          </small>
+          <small class="error"
+            ng-show="regForm.passphrase.$error.maxlength">
+            Passphrase must not be longer than 128 characters.
+          </small>
+        </div>
+      </div>
+      <div class="row">
+        <br-input br-model="model.passphraseConfirmation"
+           br-options="{name: 'passphraseConfirmation', label: 'Confirm Passphrase', type: 'password'}"
+           passphrase-check="model.passphrase" ng-model="model.passphraseConfirmation">
+          Please confirm your passphrase.
+        </br-input>
+        <div class="error" ng-show="regForm.$error.passphraseMatch && regForm.submitted">
+          <small class="error"
+            ng-show="regForm.$error.passphraseMatch">
+            Passphrase and Confirm Passphrase must match.
+          </small>
+        </div>
+      </div>
       <div style="text-align:center;">
         <button ng-disabled="model.registering || model.generating"
-          ng-click="model.register()" type="submit"
+          ng-click="model.registrationForm()" type="submit"
           class="btn btn-primary">Submit</button>
       </div>
       <div style="text-align:center;" ng-show="model.generating">
@@ -26,4 +70,10 @@
       </div>
     </fieldset>
   </form>
+  <div>
+    Form Valid: {{ regForm.$valid }}<br/>
+    Passphrase Error: {{ regForm.passphrase.$error }}<br/>
+    Confirm Error: {{ regForm.passphraseConfirmation.$error }}<br/>
+    Form Error: {{ regForm.$error }}<br/>
+  </div>
 </div>

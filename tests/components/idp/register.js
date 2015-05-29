@@ -7,11 +7,25 @@ define([
 
 'use strict';
 
-var module = angular.module('app.register', ['bedrock.alert']);
+var module = angular.module('app.register', ['bedrock.alert', 'app.register.directives']);
 var didio = didiojs({inject: {
   forge: forge,
   uuid: uuid
 }});
+
+angular.module('app.register.directives', [])
+  .directive('passphraseCheck', [function() {
+    return {
+      require: 'ngModel',
+      link: function(scope, elem, attrs, ctrl) {
+        var me = attrs.ngModel;
+        var matchTo = attrs.passphraseCheck;
+        scope.$watchGroup([me, matchTo], function(value){
+          ctrl.$setValidity('passphraseMatch', value[0] === value[1] );
+        });
+      }
+    }
+  }]);
 
 module.controller('RegisterController', function(
   $scope, $http, $window, config, DataService, brAlertService) {
@@ -22,6 +36,15 @@ module.controller('RegisterController', function(
   }
   if(config.data.registrationCallback) {
     DataService.set('callback', config.data.registrationCallback);
+  }
+
+  self.submitted = false;
+  self.registrationForm = function() {
+    if ($scope.regForm.$valid) {
+      self.register();
+    } else {
+      $scope.regForm.submitted = true;
+    }
   }
 
   self.passphraseConfirmation = '';
@@ -35,6 +58,7 @@ module.controller('RegisterController', function(
   }
 
   self.register = function() {
+    /*
     // TODO: Add more validation checks
     if(self.passphrase != self.passphraseConfirmation) {
       return brAlertService.add('error',
@@ -44,6 +68,7 @@ module.controller('RegisterController', function(
       return brAlertService.add('error',
         'You failed to provide an email address');
     }
+    */
     var idp = DataService.get('idp');
 
     // generate the private key
