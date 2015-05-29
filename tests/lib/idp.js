@@ -67,8 +67,6 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
         return next(err);
       }
 
-      console.log("req.query", req.query);
-
       // generate a fake credential
       vars.idp = {};
       vars.idp.identity = {
