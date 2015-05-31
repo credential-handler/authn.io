@@ -7,29 +7,34 @@ define([
 
 'use strict';
 
-var module = angular.module('app.register', ['bedrock.alert', 'app.register.directives']);
+var module = angular.module('app.register', ['bedrock.alert']);
 var didio = didiojs({inject: {
   forge: forge,
   uuid: uuid
 }});
 
-angular.module('app.register.directives', [])
-  .directive('passphraseCheck', [function() {
-    return {
-      require: 'ngModel',
-      link: function(scope, elem, attrs, ctrl) {
-        var me = attrs.ngModel;
-        var matchTo = attrs.passphraseCheck;
-        scope.$watchGroup([me, matchTo], function(value){
-          ctrl.$setValidity('passphraseMatch', value[0] === value[1] );
-        });
-      }
+module.directive('aioMatchesInput', [function() {
+  return {
+    require: 'ngModel',
+    link: function(scope, elem, attrs, ctrl) {
+      var me = attrs.ngModel;
+      var matchTo = attrs.aioMatchesInput;
+      scope.$watchGroup([me, matchTo], function(value){
+        ctrl.$setValidity('inputMatch', value[0] === value[1] );
+      });
     }
-  }]);
+  }
+}]);
 
 module.controller('RegisterController', function(
   $scope, $http, $window, config, DataService, brAlertService) {
   var self = this;
+  self.submitAttempted = false;
+  self.passphraseConfirmation = '';
+  self.passphrase = '';
+  self.username = '';
+  self.registering = false;
+  self.generating = false;
 
   if(config.data.idp) {
     DataService.set('idp', config.data.idp);
@@ -38,20 +43,13 @@ module.controller('RegisterController', function(
     DataService.set('callback', config.data.registrationCallback);
   }
 
-  self.submitted = false;
-  self.registrationForm = function() {
+  self.validateForm = function() {
     if ($scope.regForm.$valid) {
       self.register();
     } else {
-      $scope.regForm.submitted = true;
+      $scope.regForm.submitAttempted = true;
     }
   }
-
-  self.passphraseConfirmation = '';
-  self.passphrase = '';
-  self.username = '';
-  self.registering = false;
-  self.generating = false;
 
   if(!DataService.get('idp')) {
     DataService.redirect('/register/idp-error');

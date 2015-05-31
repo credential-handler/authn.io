@@ -7,10 +7,10 @@
       <div class="row">
         <br-input br-model="model.username"
           br-options="{name: 'email', label: 'Email'}"
-          ng-minlength=6 ng-maxlength=128 required>
+          ng-minlength="6" ng-maxlength="128" required>
           Please enter your email address.
         </br-input>
-        <div class="error" ng-show="regForm.email.$invalid && regForm.submitted">
+        <div class="error" ng-show="regForm.email.$invalid && regForm.submitAttempted">
           <small class="error"
             ng-show="regForm.email.$error.required">
             Email is required.
@@ -28,10 +28,10 @@
       <div class="row">
         <br-input br-model="model.passphrase"
            br-options="{name: 'passphrase', label: 'Passphrase', type: 'password'}"
-           ng-minlength=6 ng-maxlength=128 required>
+           ng-minlength="6" ng-maxlength="128" required>
           Please enter a passphrase.
         </br-input>
-        <div class="error" ng-show="regForm.passphrase.$invalid && regForm.submitted">
+        <div class="error" ng-show="regForm.passphrase.$invalid && regForm.submitAttempted">
           <small class="error"
             ng-show="regForm.passphrase.$error.required">
             Passphrase is required.
@@ -48,20 +48,23 @@
       </div>
       <div class="row">
         <br-input br-model="model.passphraseConfirmation"
-           br-options="{name: 'passphraseConfirmation', label: 'Confirm Passphrase', type: 'password'}"
-           passphrase-check="model.passphrase" ng-model="model.passphraseConfirmation">
+         br-options="{name: 'passphraseConfirmation',
+         label: 'Confirm Passphrase', type: 'password'}"
+         br-input-aio-matches-input="model.passphrase">
           Please confirm your passphrase.
         </br-input>
-        <div class="error" ng-show="regForm.$error.passphraseMatch && regForm.submitted">
+        <div class="error"
+          ng-show="regForm.passphraseConfirmation.$error.inputMatch &&
+          regForm.submitAttempted">
           <small class="error"
-            ng-show="regForm.$error.passphraseMatch">
+            ng-show="regForm.passphraseConfirmation.$error.inputMatch">
             Passphrase and Confirm Passphrase must match.
           </small>
         </div>
       </div>
       <div style="text-align:center;">
         <button ng-disabled="model.registering || model.generating"
-          ng-click="model.registrationForm()" type="submit"
+          ng-click="model.validateForm()" type="submit"
           class="btn btn-primary">Submit</button>
       </div>
       <div style="text-align:center;" ng-show="model.generating">
@@ -70,10 +73,4 @@
       </div>
     </fieldset>
   </form>
-  <div>
-    Form Valid: {{ regForm.$valid }}<br/>
-    Passphrase Error: {{ regForm.passphrase.$error }}<br/>
-    Confirm Error: {{ regForm.passphraseConfirmation.$error }}<br/>
-    Form Error: {{ regForm.$error }}<br/>
-  </div>
 </div>
