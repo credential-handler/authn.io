@@ -29,7 +29,6 @@ config.requirejs.bower.packages.push({
 
 // configure for tests
 bedrock.events.on('bedrock.test.configure', function() {
-  require('bedrock-protractor');
   require('./configs/test');
 });
 
