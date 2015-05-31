@@ -13,9 +13,28 @@ var didio = didiojs({inject: {
   uuid: uuid
 }});
 
+module.directive('aioMatchesInput', [function() {
+  return {
+    require: 'ngModel',
+    link: function(scope, elem, attrs, ctrl) {
+      var me = attrs.ngModel;
+      var matchTo = attrs.aioMatchesInput;
+      scope.$watchGroup([me, matchTo], function(value){
+        ctrl.$setValidity('inputMatch', value[0] === value[1] );
+      });
+    }
+  }
+}]);
+
 module.controller('RegisterController', function(
   $scope, $http, $window, config, DataService, brAlertService) {
   var self = this;
+  self.submitAttempted = false;
+  self.passphraseConfirmation = '';
+  self.passphrase = '';
+  self.username = '';
+  self.registering = false;
+  self.generating = false;
 
   if(config.data.idp) {
     DataService.set('idp', config.data.idp);
@@ -24,17 +43,20 @@ module.controller('RegisterController', function(
     DataService.set('callback', config.data.registrationCallback);
   }
 
-  self.passphraseConfirmation = '';
-  self.passphrase = '';
-  self.username = '';
-  self.registering = false;
-  self.generating = false;
+  self.validateForm = function() {
+    if ($scope.regForm.$valid) {
+      self.register();
+    } else {
+      $scope.regForm.submitAttempted = true;
+    }
+  }
 
   if(!DataService.get('idp')) {
     DataService.redirect('/register/idp-error');
   }
 
   self.register = function() {
+    /*
     // TODO: Add more validation checks
     if(self.passphrase != self.passphraseConfirmation) {
       return brAlertService.add('error',
@@ -44,6 +66,7 @@ module.controller('RegisterController', function(
       return brAlertService.add('error',
         'You failed to provide an email address');
     }
+    */
     var idp = DataService.get('idp');
 
     // generate the private key
