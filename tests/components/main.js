@@ -23,11 +23,18 @@ module.config(function($routeProvider) {
       title: 'Credential Composer',
       templateUrl: requirejs.toUrl('idp-components/idp/credentials.html')
     })
-    .when('/create-identity', {
-      title: 'Create Identity',
+    .when('/idp/identities', {
+      title: 'Register Identity',
       templateUrl: requirejs.toUrl('idp-components/idp/register.html')
     })
-;
+    .when('/consumer/requestor', {
+      title: 'Credential Consumer',
+      templateUrl: requirejs.toUrl('idp-components/consumer/cc.html')
+    }).
+    when('/consumer/issuer', {
+      title: 'Credential Issuer',
+      templateUrl: requirejs.toUrl('idp-components/consumer/cc.html')
+    });
 });
 
 return module.name;

@@ -60,6 +60,29 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
     });
   });
 
+  app.post('/idp/identities', function(req, res, next) {
+    views.getDefaultViewVars(req, function(err, vars) {
+      if(err) {
+        return next(err);
+      }
+      try {
+        if(req.body.jsonPostData) {
+          var request = JSON.parse(req.body.jsonPostData);
+          if(request.registrationCallback) {
+            vars.registrationCallback = request.registrationCallback;
+          }
+          if(request.idp) {
+            vars.idp = request.idp;
+          }
+        }
+      } catch(e) {
+        // TODO: handle this better perhaps
+        return next(e);
+      }
+      res.render('index.html', vars);
+    });
+  });
+
   // mock IdP credential approval page
   app.post('/idp/credentials', function(req, res, next) {
     views.getDefaultViewVars(req, function(err, vars) {

@@ -5,7 +5,7 @@
 function createIdentity() {
   navigator.credentials.registerDid({
     idp: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
-    registrationUrl: '/create-identity',
+    registrationUrl: '/idp/identities',
     registrationCallback: 'https://credentials.dev:33443/idp'
   });
 }

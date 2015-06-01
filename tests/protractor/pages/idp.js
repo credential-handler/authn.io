@@ -15,7 +15,7 @@ module.exports = api;
 api.registerDid = function(identity) {
   bedrock.get('/idp');
   element(by.buttonText('Create Identity')).click();
-  bedrock.waitForUrl('/create-identity');
+  bedrock.waitForUrl('/idp/identities');
   bedrock.waitForAngular();
   element(by.brModel('model.username')).sendKeys(identity.email);
   element(by.brModel('model.passphrase')).sendKeys(identity.passphrase);
