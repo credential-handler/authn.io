@@ -12,8 +12,8 @@ define([
 
 'use strict';
 
-var module = angular.module('app.authorizationio', [
-  'app.login', 'app.new-device', 'app.credentials', 'bedrock.alert']);
+var module = angular.module('authio.authorizationio', [
+  'authio.login', 'authio.new-device', 'authio.credentials', 'bedrock.alert']);
 
 /* @ngInject */
 module.config(function($routeProvider) {

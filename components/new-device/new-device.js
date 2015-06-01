@@ -6,7 +6,7 @@ define([
 
 'use strict';
 
-var module = angular.module('app.new-device', []);
+var module = angular.module('authio.new-device', []);
 
 module.controller('NewDeviceController', function($scope, DataService, $http) {
   var self = this;

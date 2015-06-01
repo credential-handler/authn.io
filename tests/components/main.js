@@ -9,8 +9,8 @@ define([
 
 'use strict';
 
-var module = angular.module('app.idpconsumer', [
-  'app.login', 'app.register', 'bedrock.alert']);
+var module = angular.module('authio.idpconsumer', [
+  'authio.login', 'authio.register', 'bedrock.alert']);
 
 /* @ngInject */
 module.config(function($routeProvider) {

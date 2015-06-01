@@ -7,7 +7,7 @@ define([
 
 'use strict';
 
-var module = angular.module('app.login', ['bedrock.alert', 'ipCookie']);
+var module = angular.module('authio.login', ['bedrock.alert', 'ipCookie']);
 var didio = didiojs({inject: {
   forge: forge,
   uuid: uuid

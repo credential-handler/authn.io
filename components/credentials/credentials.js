@@ -4,7 +4,7 @@ define([
 ], function(angular, forge) {
 'use strict';
 
-var module = angular.module('app.credentials', ['bedrock.alert']);
+var module = angular.module('authio.credentials', ['bedrock.alert']);
 
 module.controller('CredentialsController', function(config, $location) {
   self = this;
