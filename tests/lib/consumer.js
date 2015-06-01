@@ -14,7 +14,20 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       if(err) {
         return next(err);
       }
-      res.render('index.html', vars);
+
+      try {
+        if(req.body.jsonPostData) {
+          var jsonPostData = JSON.parse(req.body.jsonPostData);
+          if(jsonPostData) {
+            vars.authio = {};
+            vars.authio.identity = jsonPostData;
+          }
+        }
+      } catch(e) {
+        return next(e);
+      }
+
+      res.render('consumer/credentials.html', vars);
     });
   });
 
@@ -24,6 +37,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       if(err) {
         return next(err);
       }
+
       res.render('index.html', vars);
     });
   });
