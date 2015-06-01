@@ -13,7 +13,7 @@ module.controller('CredentialsController', function(config, $location) {
 
   self.transmitCredentials = function() {
     navigator.credentials.transmit(self.identity, {
-      responseUrl: self.credentialCallbackUrl
+      responseUrl: self.credentialCallback
     });
   };
 
