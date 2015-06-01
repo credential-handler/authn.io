@@ -30,7 +30,7 @@ module.config(function($routeProvider) {
       title: 'Register',
       templateUrl: requirejs.toUrl('components/register/register.html')
     }).
-    when('/credentials-request', {
+    when('/requests', {
       title: 'Credentials Request',
       templateUrl: requirejs.toUrl('components/login/login.html')
     }).

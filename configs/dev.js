@@ -15,7 +15,7 @@ require('../tests/lib/consumer');
 config.requirejs.bower.packages.push({
   path: path.join(__dirname, '..', 'tests', 'components'),
   manifest: {
-    name: 'idp-components',
+    name: 'authiodev-components',
     moduleType: 'amd',
     main: './main.js',
     dependencies: {

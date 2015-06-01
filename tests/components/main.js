@@ -17,23 +17,27 @@ module.config(function($routeProvider) {
   $routeProvider.
     when('/idp', {
       title: 'Identity Provider',
-      templateUrl: requirejs.toUrl('idp-components/idp/index.html')
+      templateUrl: requirejs.toUrl('authiodev-components/idp/index.html')
     })
     .when('/idp/credentials', {
       title: 'Credential Composer',
-      templateUrl: requirejs.toUrl('idp-components/idp/credentials.html')
+      templateUrl: requirejs.toUrl('authiodev-components/idp/credentials.html')
     })
     .when('/idp/identities', {
       title: 'Register Identity',
-      templateUrl: requirejs.toUrl('idp-components/idp/register.html')
+      templateUrl: requirejs.toUrl('authiodev-components/idp/register.html')
     })
     .when('/consumer/requestor', {
-      title: 'Credential Consumer',
-      templateUrl: requirejs.toUrl('idp-components/consumer/cc.html')
+      title: 'Credential Requestor',
+      templateUrl: requirejs.toUrl('authiodev-components/consumer/requestor.html')
     }).
-    when('/consumer/issuer', {
+    when('/consumer/credentials', {
+      title: 'Credential Consumer',
+      templateUrl: requirejs.toUrl('authiodev-components/consumer/credentials.html')
+    })
+    .when('/consumer/issuer', {
       title: 'Credential Issuer',
-      templateUrl: requirejs.toUrl('idp-components/consumer/cc.html')
+      templateUrl: requirejs.toUrl('authiodev-components/consumer/issuer.html')
     });
 });
 

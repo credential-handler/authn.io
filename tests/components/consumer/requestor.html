@@ -1,0 +1,18 @@
+<button onclick="getCredential()" type="button" class="btn btn-primary">Get Credential</button>
+<script>
+
+/*
+  This function starts the request for a credential with a form post to
+  authorization.io.
+*/
+function getCredential() {
+  navigator.credentials.request({
+    '@context': 'https://w3id.org/identity/v1',
+    email: ''
+  }, {
+    requestUrl: 'https://authorization.dev:33443/requests',
+    credentialCallback: 'https://authorization.dev:33443/consumer/credentials'
+  });
+}
+
+</script>
