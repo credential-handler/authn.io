@@ -1,0 +1,16 @@
+<h1 align="center">Issuer Login</h1>
+
+<button onclick="login()" type="button"
+  class="btn btn-primary">Login using DID</button>
+
+<script>
+function login() {
+  navigator.credentials.request({
+    '@context': 'https://w3id.org/identity/v1',
+    'id': ''
+  }, {
+    requestUrl: window.data.baseUri + '/requests',
+    credentialCallback: window.data.baseUri + '/issuer/dashboard'
+  });
+}
+</script>

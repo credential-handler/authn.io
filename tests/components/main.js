@@ -2,7 +2,8 @@ define([
   'angular',
   'underscore',
   'did-io',
-  './idp/register'
+  './idp/register',
+  './issuer/issuer'
 ], function(
   angular, _, didio
 ) {
@@ -10,7 +11,7 @@ define([
 'use strict';
 
 var module = angular.module('authio.idpconsumer', [
-  'authio.login', 'authio.register', 'bedrock.alert']);
+  'authio.login', 'authio.register', 'authio.issuer', 'bedrock.alert']);
 
 /* @ngInject */
 module.config(function($routeProvider) {
@@ -26,6 +27,14 @@ module.config(function($routeProvider) {
     .when('/idp/identities', {
       title: 'Register Identity',
       templateUrl: requirejs.toUrl('authiodev-components/idp/register.html')
+    })
+    .when('/issuer', {
+      title: 'Issuer Login',
+      templateUrl: requirejs.toUrl('authiodev-components/issuer/login.html')
+    })
+    .when('/issuer/dashboard', {
+      title: 'Issuer Dashboard',
+      templateUrl: requirejs.toUrl('authiodev-components/issuer/dashboard.html')
     })
     .when('/consumer/requestor', {
       title: 'Credential Requestor',

@@ -10,6 +10,7 @@ config.views.paths.push(path.join(__dirname, '..', 'tests', 'views'));
 
 // load the development-specific extensions to the site
 require('../tests/lib/idp');
+require('../tests/lib/issuer');
 require('../tests/lib/consumer');
 // pseudo bower package for idp and consumer
 config.requirejs.bower.packages.push({
@@ -26,3 +27,5 @@ config.requirejs.bower.packages.push({
 
 // bootstrap the Angular application so routes work
 config.views.routes.push(['/idp', 'index.html']);
+config.views.routes.push(['/issuer', 'issuer/credentials.html']);
+config.views.routes.push(['/issuer/dashboard', 'issuer/credentials.html']);
