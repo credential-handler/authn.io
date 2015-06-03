@@ -13,6 +13,9 @@ var views = require('bedrock-views');
 // mock IdP keypair
 var gIdPKeypair = null;
 
+// mock credential store
+var gCredentials = {};
+
 bedrock.events.on('bedrock-mongodb.ready', function(callback) {
   async.waterfall([
     function(callback) {
@@ -26,7 +29,8 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
       }, {
         '@context': 'https://w3id.org/identity/v1',
         id: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
-        credentialsRequestUrl: 'https://authorization.dev:33443/idp/credentials',
+        credentialsRequestUrl: 'https://authorization.dev:33443/idp/credentials?action=request',
+        storageRequestUrl: 'https://authorization.dev:33443/idp/credentials?action=store',
         accessControl: {
           writePermission: [{
             id: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1/keys/1',
@@ -76,7 +80,6 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
           }
         }
       } catch(e) {
-        // TODO: handle this better perhaps
         return next(e);
       }
       res.render('index.html', vars);
@@ -90,30 +93,46 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
         return next(err);
       }
 
-      // generate a fake credential
       vars.idp = {};
       vars.idp.identity = {
         '@context': 'https://w3id.org/identity/v1',
-        id: 'did:238947293847932874928374',
-        email: 'foo@example.com',
-        credential: [{
-          id: 'https://authorization.dev:33433/credential/8273',
-          type: 'EmailCredential',
-          claim: {
-            id: 'did:238947293847932874928374',
-            email: 'foo@example.com'
-          },
-          expires: '2017-02-04',
-          signature: {
-             type: 'GraphSignature2015',
-             creator: 'https://authorization.dev:33433/keys/8',
-             signature: 'XXXXXXXXXXXXXXXXXXX'
-          }
-        }]
+        credential: []
       };
+      if(req.query.action === 'request') {
+        // generate a fake credential
+        vars.idp.identity = {
+          '@context': 'https://w3id.org/identity/v1',
+          id: 'did:238947293847932874928374',
+          email: 'foo@example.com',
+          credential: [{
+            id: 'https://authorization.dev:33433/credential/8273',
+            type: 'EmailCredential',
+            claim: {
+              id: 'did:238947293847932874928374',
+              email: 'foo@example.com'
+            },
+            expires: '2017-02-04',
+            signature: {
+               type: 'GraphSignature2015',
+               creator: 'https://authorization.dev:33433/keys/8',
+               signature: 'XXXXXXXXXXXXXXXXXXX'
+            }
+          }]
+        };
 
-      // extract the callback URL
-      vars.idp.credentialCallbackUrl = req.query.credentialCallback;
+        // extract the credential callback URL
+        vars.idp.credentialCallbackUrl = req.query.credentialCallback;
+      } else if(req.query.action === 'store') {
+        try {
+          if(req.body.jsonPostData) {
+            vars.idp.identity = JSON.parse(req.body.jsonPostData);
+          }
+          // extract the storage callback URL
+          vars.idp.storageCallbackUrl = req.query.storageCallback;
+        } catch(e) {
+          return next(e);
+        }
+      }
 
       res.render('idp/credentials.html', vars);
     });

@@ -67,6 +67,7 @@ module.controller('LoginController', function(
         // extract the IDP DID credential request URL
         var cookie = {
           credentialRequestUrl: idpDidDocument.credentialsRequestUrl,
+          storageRequestUrl: idpDidDocument.storageRequestUrl,
           idp: idpDidDocument.id,
           did: did
         };
@@ -79,13 +80,23 @@ module.controller('LoginController', function(
         console.log('config.data', config.data);
         var authioCallback =
           'https://authorization.dev:33443/credentials?id=' + id
-        var rpCredentialCallback = $location.search().credentialCallback;
-        sessionStorage.setItem(id, rpCredentialCallback);
+        var credentialCallback = $location.search().credentialCallback;
+        var storageCallback = $location.search().storageCallback;
 
-        navigator.credentials.request(config.data.credentialRequest, {
-          requestUrl: cookie.credentialRequestUrl,
-          credentialCallback: authioCallback
-        });
+        if(credentialCallback) {
+          sessionStorage.setItem(id, credentialCallback);
+          navigator.credentials.request(config.data.credentialRequest, {
+            requestUrl: cookie.credentialRequestUrl,
+            credentialCallback: authioCallback
+          });
+        } else if(storageCallback) {
+          sessionStorage.setItem(id, storageCallback);
+          navigator.credentials.store(config.data.storageRequest, {
+              requestUrl: cookie.storageRequestUrl,
+              storageCallback: authioCallback
+            });
+        }
+
       }).catch(function(err) {
         brAlertService.add('error', 'Unable to log in.');
         console.log(err);

@@ -28,4 +28,3 @@ config.requirejs.bower.packages.push({
 // bootstrap the Angular application so routes work
 config.views.routes.push(['/idp', 'index.html']);
 config.views.routes.push(['/issuer', 'issuer/credentials.html']);
-config.views.routes.push(['/issuer/dashboard', 'issuer/credentials.html']);

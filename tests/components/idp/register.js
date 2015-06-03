@@ -135,4 +135,37 @@ module.controller('RegisterController', function(
   };
 });
 
+module.controller('CredentialManagerController', function(
+  $scope, $http, $location, config, brAlertService) {
+  var self = this;
+  self.idp = window.data.idp;
+  self.action = 'request';
+
+  if($location.search().action === 'store') {
+    self.action = 'store';
+  }
+
+  // transmit the selected credential to the requestor
+  self.transmit = function(identity) {
+    navigator.credentials.transmit(self.idp.identity, {
+      responseUrl: self.idp.credentialCallbackUrl
+    });
+  };
+
+  self.store = function(identity) {
+    Promise.resolve($http.post('/idp/credentials', identity)
+    ).then(function() {
+
+    }).catch(function(err) {
+      console.error('Failed to store credential', err);
+      brAlertService.add('error',
+        'Failed to register with the network. Try a different email ' +
+        'address and passphrase');
+      self.generating = false;
+      self.registering = false;
+    });
+  };
+
+});
+
 });

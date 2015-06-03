@@ -23,7 +23,7 @@ module.controller('IssuerController', function(
       id: window.data.baseUri + '/issuer/credentials/' + Date.now(),
       type: 'PassportCredential',
       claim: {
-        about: window.data.authio.identity.id,
+        about: window.data.issuer.identity.id,
         name: 'Pat Doe',
         country: 'USA',
         governmentId: '123-45-6789',
@@ -36,8 +36,13 @@ module.controller('IssuerController', function(
         throw response;
       }
       return response.config.data;
-    }).then(function(credential) {
-      navigator.credentials.store(credential);
+    }).then(function(identity) {
+      navigator.credentials.store(identity, {
+        requestUrl:
+          window.data.baseUri + '/requests?action=store',
+        storageCallback:
+          window.data.baseUri + '/issuer/dashboard?storage=status'
+      });
     }).catch(function(err) {
       console.error('Failed to store credential', err);
       brAlertService.add('error',

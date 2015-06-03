@@ -56,11 +56,33 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
         return next(err);
       }
       res.set('Content-Type', 'application/ld+json');
-      res.json({}, vars);
+      res.status(200).json({});
     });
   });
 
-  // mock issuer credentials generator
+  // mock issuer credentials dashboard
+  app.get('/issuer/dashboard', function(req, res, next) {
+    views.getDefaultViewVars(req, function(err, vars) {
+      if(err) {
+        return next(err);
+      }
+
+      try {
+        if(req.cookies.issuer) {
+          var issuer = JSON.parse(req.cookies.issuer);
+          if(issuer) {
+            vars.issuer = issuer;
+          }
+        }
+      } catch(e) {
+        return next(e);
+      }
+
+      res.render('issuer/credentials.html', vars);
+    });
+  });
+
+  // mock issuer credentials dashboard login
   app.post('/issuer/dashboard', function(req, res, next) {
     views.getDefaultViewVars(req, function(err, vars) {
       if(err) {
@@ -71,14 +93,15 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
         if(req.body.jsonPostData) {
           var jsonPostData = JSON.parse(req.body.jsonPostData);
           if(jsonPostData) {
-            vars.authio = {};
-            vars.authio.identity = jsonPostData;
+            vars.issuer = {};
+            vars.issuer.identity = jsonPostData;
           }
         }
       } catch(e) {
         return next(e);
       }
 
+      res.cookie('issuer', JSON.stringify(vars.issuer));
       res.render('issuer/credentials.html', vars);
     });
   });
