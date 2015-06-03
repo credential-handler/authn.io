@@ -14,7 +14,7 @@ var didio = didiojs({inject: {
 }});
 
 module.controller('RegisterController', function(
-  $scope, $http, $window, config, DataService, brAlertService) {
+  $scope, $http, $window, config, ipCookie, DataService, brAlertService) {
   var self = this;
 
   if(config.data.idp) {
@@ -118,6 +118,27 @@ module.controller('RegisterController', function(
       return Promise.resolve($http.post('/dids/', didDocument))
         .then(function(response) {
           if(response.status !== 201) {
+            throw response;
+          }
+        });
+    }).then(function() {
+      ipCookie('did', did);
+      var emailCredential = {
+        '@context': 'https://w3id.org/identity/v1',
+        id: did,
+        credential: [{
+          '@context': 'https://w3id.org/identity/v1',
+          type: 'EmailCredential',
+          claim: {
+            id: did,
+            email: did + '@example.com'
+          }
+        }]
+      }
+      return Promise.resolve($http.post('/idp/credentials',
+        JSON.stringify(emailCredential)))
+        .then(function(response) {
+          if(response.status !== 200) {
             throw response;
           }
           DataService.redirect(DataService.getUrl('idp'));

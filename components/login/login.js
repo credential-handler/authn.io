@@ -92,11 +92,10 @@ module.controller('LoginController', function(
         } else if(storageCallback) {
           sessionStorage.setItem(id, storageCallback);
           navigator.credentials.store(config.data.storageRequest, {
-              requestUrl: cookie.storageRequestUrl,
-              storageCallback: authioCallback
-            });
+            requestUrl: cookie.storageRequestUrl,
+            storageCallback: authioCallback
+          });
         }
-
       }).catch(function(err) {
         brAlertService.add('error', 'Unable to log in.');
         console.log(err);

@@ -6,9 +6,11 @@
 var _ = require('lodash');
 var async = require('async');
 var bedrock = require('bedrock');
+var config = require('bedrock').config;
 var database = require('bedrock-mongodb');
 var forge = require('node-forge');
 var views = require('bedrock-views');
+var jsigs = require('jsonld-signatures');
 
 // mock IdP keypair
 var gIdPKeypair = null;
@@ -100,25 +102,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       };
       if(req.query.action === 'request') {
         // generate a fake credential
-        vars.idp.identity = {
-          '@context': 'https://w3id.org/identity/v1',
-          id: 'did:238947293847932874928374',
-          email: 'foo@example.com',
-          credential: [{
-            id: 'https://authorization.dev:33433/credential/8273',
-            type: 'EmailCredential',
-            claim: {
-              id: 'did:238947293847932874928374',
-              email: 'foo@example.com'
-            },
-            expires: '2017-02-04',
-            signature: {
-               type: 'GraphSignature2015',
-               creator: 'https://authorization.dev:33433/keys/8',
-               signature: 'XXXXXXXXXXXXXXXXXXX'
-            }
-          }]
-        };
+        vars.idp.identity = gCredentials[req.cookies.did];
 
         // extract the credential callback URL
         vars.idp.credentialCallbackUrl = req.query.credentialCallback;
@@ -131,6 +115,28 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
           vars.idp.storageCallbackUrl = req.query.storageCallback;
         } catch(e) {
           return next(e);
+        }
+      } else {
+        var identity = req.body;
+
+        // sign and store the credential if one doesn't already exist for it
+        if(identity && !gCredentials[identity.id]) {
+          var privateKeyPem =
+            forge.pki.privateKeyToPem(gIdPKeypair.privateKey);
+          var credential = identity.credential[0];
+
+          jsigs.sign(credential, {
+            privateKeyPem: privateKeyPem,
+            creator: config.server.baseUri + '/idp/keys/1'
+          }, function(err, signedCredential) {
+            if(err) {
+              return next(err);
+            }
+            identity.credential[0] = signedCredential;
+            gCredentials[identity.id] = identity;
+            console.log("CREDENTIALS DATABASE\n", 
+              JSON.stringify(gCredentials, null, 2));
+          });
         }
       }
 
