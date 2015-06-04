@@ -134,8 +134,6 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
             }
             identity.credential[0] = signedCredential;
             gCredentials[identity.id] = identity;
-            console.log("CREDENTIALS DATABASE\n", 
-              JSON.stringify(gCredentials, null, 2));
           });
         }
       }

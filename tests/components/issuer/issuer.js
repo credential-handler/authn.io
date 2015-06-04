@@ -31,11 +31,11 @@ module.controller('IssuerController', function(
       }
     }))
     .then(function(response) {
-      console.log('generateCredential', response.config.data);
+      console.log('generateCredential', response.data);
       if(response.status !== 200) {
         throw response;
       }
-      return response.config.data;
+      return response.data;
     }).then(function(identity) {
       navigator.credentials.store(identity, {
         requestUrl:

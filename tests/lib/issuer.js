@@ -6,12 +6,14 @@
 var _ = require('lodash');
 var async = require('async');
 var bedrock = require('bedrock');
+var config = require('bedrock').config;
 var database = require('bedrock-mongodb');
 var forge = require('node-forge');
 var views = require('bedrock-views');
+var jsigs = require('jsonld-signatures');
 
 // mock issuer keypair
-var gIdPKeypair = null;
+var gIssuerKeypair = null;
 
 bedrock.events.on('bedrock-mongodb.ready', function(callback) {
   async.waterfall([
@@ -20,7 +22,7 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
     },
     function(callback) {
       // insert the mock IdP DID document
-      gIdPKeypair = forge.pki.rsa.generateKeyPair({bits: 512});
+      gIssuerKeypair = forge.pki.rsa.generateKeyPair({bits: 512});
       database.collections.didDocument.update({
         id: 'did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s'
       }, {
@@ -36,7 +38,7 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
           id : 'did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s/keys/1',
           type: 'CryptographicKey',
           owner: 'did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s',
-          publicKeyPem: forge.pki.publicKeyToPem(gIdPKeypair.publicKey)
+          publicKeyPem: forge.pki.publicKeyToPem(gIssuerKeypair.publicKey)
         }]
       }, _.assign({}, database.writeOptions, {upsert:true, multi:false}),
         function(err, doc) {
@@ -55,8 +57,28 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       if(err) {
         return next(err);
       }
-      res.set('Content-Type', 'application/ld+json');
-      res.status(200).json({});
+      var privateKeyPem =
+        forge.pki.privateKeyToPem(gIssuerKeypair.privateKey);
+      var targetDid = req.cookies.did;
+      var identity = {
+        '@context': 'https://w3id.org/identity/v1',
+        id: targetDid,
+        credential: [req.body]
+      };
+      var credential = req.body;
+
+      // sign the credential using the issuer key
+      jsigs.sign(credential, {
+        privateKeyPem: privateKeyPem,
+        creator: config.server.baseUri + '/issuer/keys/1'
+      }, function(err, signedCredential) {
+        if(err) {
+          return next(err);
+        }
+        identity.credential[0] = signedCredential;
+        res.set('Content-Type', 'application/ld+json');
+        res.status(200).json(identity);
+      });
     });
   });
 
@@ -95,6 +117,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
           if(jsonPostData) {
             vars.issuer = {};
             vars.issuer.identity = jsonPostData;
+            res.cookie('did', vars.issuer.identity.id);
           }
         }
       } catch(e) {
