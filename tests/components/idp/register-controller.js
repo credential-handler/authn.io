@@ -11,7 +11,7 @@ define([
 
   /* @ngInject */
   function factory(
-    $scope, $http, $window, config, DataService, ipCookie, brAlertService) {
+    $scope, $http, $location, ipCookie, brAlertService) {
     var self = this;
     self.submitAttempted = false;
     self.passphraseConfirmation = '';
@@ -19,13 +19,6 @@ define([
     self.username = '';
     self.registering = false;
     self.generating = false;
-
-    if(config.data.idp) {
-      DataService.set('idp', config.data.idp);
-    }
-    if(config.data.registrationCallback) {
-      DataService.set('callback', config.data.registrationCallback);
-    }
 
     self.validateForm = function() {
       if ($scope.regForm.$valid) {
@@ -35,26 +28,12 @@ define([
       }
     }
 
-    if(!DataService.get('idp')) {
-      DataService.redirect('/register/idp-error');
-    }
-
+    /**
+     * Registers a decentralized identifier, creating a mapping in the
+     * process as well as an email credential.
+     */
     self.register = function() {
-      /*
-      // TODO: Add more validation checks
-      if(self.passphrase != self.passphraseConfirmation) {
-        return brAlertService.add('error',
-          'The passphrases you entered do not match.');
-      }
-      if(self.username.length == 0) {
-        return brAlertService.add('error',
-          'You failed to provide an email address');
-      }
-      */
-      var idp = DataService.get('idp');
-
-      // generate the private key
-      self.generating = true;
+      var idp = 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1';
       var pki = forge.pki;
       var keypair = null;
       var did = null;
@@ -148,7 +127,7 @@ define([
             if(response.status !== 200) {
               throw response;
             }
-            DataService.redirect(DataService.getUrl('idp'));
+            $location.path('/');
           });
       }).catch(function(err) {
         console.error('Failed to register with the network', err);
