@@ -147,7 +147,6 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
                 return callback(err);
               }
               callback(null, {
-                '@context': 'https://w3id.org/identity/v1',
                 credential: signedCredential
               });
             });
