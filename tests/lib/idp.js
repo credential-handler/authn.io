@@ -98,14 +98,20 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       vars.idp = {};
       vars.idp.identity = {
         '@context': 'https://w3id.org/identity/v1',
-        credential: []
+        id: '',
+        type: '',
+        assertion: {}
       };
       if(req.query.action === 'request') {
         // generate a fake credential
-        vars.idp.identity = gCredentials[req.cookies.did];
+        var credentials = gCredentials[req.cookies.did];
+        vars.idp.identity.assertion = credentials;
+        vars.idp.identity.type = 'Identity';
+        vars.idp.identity.id = credentials[0].credential.claim.id;
 
         // extract the credential callback URL
         vars.idp.credentialCallbackUrl = req.query.credentialCallback;
+        res.render('idp/credentials.html', vars);
       } else if(req.query.action === 'store') {
         try {
           if(req.body.jsonPostData) {
@@ -116,30 +122,59 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
         } catch(e) {
           return next(e);
         }
+        res.render('idp/credentials.html', vars);
       } else {
         var identity = req.body;
 
-        // sign and store the credential if one doesn't already exist for it
-        if(identity && !gCredentials[identity.id]) {
+        // store the identity
+        if(identity) {
           var privateKeyPem =
             forge.pki.privateKeyToPem(gIdPKeypair.privateKey);
-          var credential = identity.credential[0];
+          var credentials = identity.assertion;
 
-          jsigs.sign(credential, {
-            privateKeyPem: privateKeyPem,
-            creator: config.server.baseUri + '/idp/keys/1'
-          }, function(err, signedCredential) {
+          // ensure that each credential is signed
+          async.map(credentials, function(item, callback) {
+            if(item.credential.signature) {
+              return callback(null, item);
+            }
+
+            // sign the credential if it doesn't already have a signature
+            jsigs.sign(item.credential, {
+              privateKeyPem: privateKeyPem,
+              creator: config.server.baseUri + '/idp/keys/1'
+            }, function(err, signedCredential) {
+              if(err) {
+                return callback(err);
+              }
+              callback(null, {
+                '@context': 'https://w3id.org/identity/v1',
+                credential: signedCredential
+              });
+            });
+          }, function(err, results) {
             if(err) {
               return next(err);
             }
-            identity.credential[0] = signedCredential;
-            gCredentials[identity.id] = identity;
+            identity.assertion = results;
+            _mergeCredentials(identity);
+            res.sendStatus(200);
           });
         }
       }
-
-      res.render('idp/credentials.html', vars);
     });
   });
+
+/**
+ * Merge the given credentials with the credentials in the database.
+ *
+ * @param identity the identity to take the credentials from.
+ */
+function _mergeCredentials(identity) {
+  if(!gCredentials[identity.id]) {
+    gCredentials[identity.id] = [];
+  }
+  gCredentials[identity.id] =
+    _.union(gCredentials[identity.id], identity.assertion);
+}
 
 });

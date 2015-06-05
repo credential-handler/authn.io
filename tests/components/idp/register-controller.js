@@ -112,12 +112,23 @@ define([
         var emailCredential = {
           '@context': 'https://w3id.org/identity/v1',
           id: did,
-          credential: [{
-            '@context': 'https://w3id.org/identity/v1',
-            type: 'EmailCredential',
-            claim: {
-              id: did,
-              email: did + '@example.com'
+          assertion: [{
+            credential: {
+              '@context': 'https://w3id.org/identity/v1',
+              type: 'EmailCredential',
+              claim: {
+                id: did,
+                email: did + '@example.com'
+              }
+            }
+          }, {
+            credential: {
+              '@context': 'https://w3id.org/identity/v1',
+              type: 'EmailCredential',
+              claim: {
+                id: did,
+                email: did + '@example.org'
+              }
             }
           }]
         }

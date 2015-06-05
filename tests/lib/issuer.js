@@ -63,19 +63,26 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       var identity = {
         '@context': 'https://w3id.org/identity/v1',
         id: targetDid,
-        credential: [req.body]
+        assertion: {}
       };
-      var credential = req.body;
+      var credentials = req.body.assertion.credential;
 
-      // sign the credential using the issuer key
-      jsigs.sign(credential, {
-        privateKeyPem: privateKeyPem,
-        creator: config.server.baseUri + '/issuer/keys/1'
-      }, function(err, signedCredential) {
+      // sign each credential
+      async.map(credentials, function(credential, callback) {
+        jsigs.sign(credential, {
+          privateKeyPem: privateKeyPem,
+          creator: config.server.baseUri + '/issuer/keys/1'
+        }, function(err, signedCredential) {
+          if(err) {
+            return callback(err);
+          }
+          callback(null, signedCredential);
+        });
+      }, function(err, results) {
         if(err) {
           return next(err);
         }
-        identity.credential[0] = signedCredential;
+        identity.assertion.credential = results;
         res.set('Content-Type', 'application/ld+json');
         res.status(200).json(identity);
       });

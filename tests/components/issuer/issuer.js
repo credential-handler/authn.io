@@ -19,16 +19,26 @@ module.controller('IssuerController', function(
 
   self.generateCredential = function() {
     Promise.resolve($http.post('/issuer/credentials', {
-      '@context': 'https://w3id.org/identity/v1',
-      id: window.data.baseUri + '/issuer/credentials/' + Date.now(),
-      type: 'PassportCredential',
-      claim: {
-        about: window.data.issuer.identity.id,
-        name: 'Pat Doe',
-        country: 'USA',
-        governmentId: '123-45-6789',
-        documentId: '27384-5322-53332'
-      }
+      credential: [{
+        '@context': 'https://w3id.org/identity/v1',
+        id: window.data.baseUri + '/issuer/credentials/' + Date.now(),
+        type: 'PassportCredential',
+        claim: {
+          id: window.data.issuer.identity.id,
+          name: 'Pat Doe',
+          country: 'USA',
+          governmentId: '123-45-6789',
+          documentId: '27384-5322-53332'
+        }
+      }, {
+        '@context': 'https://w3id.org/identity/v1',
+        id: window.data.baseUri + '/issuer/credentials/' + (Date.now() + 1),
+        type: 'ProofOfAgeCredential',
+        claim: {
+          id: window.data.issuer.identity.id,
+          ageOver: 21
+        }
+      }]
     }))
     .then(function(response) {
       console.log('generateCredential', response.data);
