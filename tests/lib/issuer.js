@@ -139,4 +139,28 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
     });
   });
 
+  // mock issuer credentials storage acknowledgements
+  app.post('/issuer/acknowledgements', function(req, res, next) {
+    views.getDefaultViewVars(req, function(err, vars) {
+      if(err) {
+        return next(err);
+      }
+
+      try {
+        if(req.body.jsonPostData) {
+          var jsonPostData = JSON.parse(req.body.jsonPostData);
+          if(jsonPostData) {
+            vars.issuer = {};
+            vars.issuer.identity = jsonPostData;
+          }
+        }
+      } catch(e) {
+        return next(e);
+      }
+
+      res.cookie('issuer', JSON.stringify(vars.issuer));
+      res.render('issuer/credentials.html', vars);
+    });
+  });
+
 });

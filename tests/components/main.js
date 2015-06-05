@@ -36,6 +36,10 @@ module.config(function($routeProvider) {
       title: 'Issuer Dashboard',
       templateUrl: requirejs.toUrl('authiodev-components/issuer/dashboard.html')
     })
+    .when('/issuer/acknowledgements', {
+      title: 'Issuer Dashboard',
+      templateUrl: requirejs.toUrl('authiodev-components/issuer/acknowledgements.html')
+    })
     .when('/consumer/requestor', {
       title: 'Credential Requestor',
       templateUrl: requirejs.toUrl('authiodev-components/consumer/requestor.html')

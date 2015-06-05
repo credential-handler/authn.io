@@ -1,0 +1,12 @@
+<h1 align="center">Credential Issuer Dashboard</h1>
+<div ng-controller="IssuerController as model">
+  <p>
+The issuer has verified that the following credentials were
+successfully stored at your identity provider:
+  </p>
+  <pre>
+    {{model.identity | json}}
+  </pre>
+  <button onclick="window.location = window.data.baseUri" type="button"
+    class="btn btn-primary">Back to test page</button>
+</div>

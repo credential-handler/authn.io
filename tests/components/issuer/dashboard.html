@@ -1,19 +1,8 @@
 <h1 align="center">Credential Issuer Dashboard</h1>
 <div ng-controller="IssuerController as model">
-  <div ng-if="model.storageSuccess">
-    <p>
-Issuer has been verified that the following credentials were
-successfully stored at your identity provider:
-    </p>
-    <pre>
-      {{model.writtenCredentials | json}}
-    </pre>
-    <button onclick="window.location = window.data.baseUri" type="button"
-      class="btn btn-primary">Back to test page</button>
-  </div>
-
-  <div ng-if="!model.storageSuccess">
-    <button ng-click="model.generateCredential()" type="button"
-      class="btn btn-primary">Issue Credential</button>
-  </div>
+  <p>
+This page is used to issue a passport credential to a recipient.
+  </p>
+  <button ng-click="model.generateCredential()" type="button"
+    class="btn btn-primary">Issue Credential</button>
 </div>

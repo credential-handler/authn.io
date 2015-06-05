@@ -16,16 +16,7 @@ var didio = didiojs({inject: {
 module.controller('IssuerController', function(
   $scope, $http, $window, config, DataService, brAlertService) {
   var self = this;
-  self.storageSuccess = false;
-  self.writtenCredentials = null;
-
-  // check to see if credentials were successfully written to the IdP
-  if(window.data.issuer && window.data.issuer.identity &&
-    window.data.issuer.identity.assertion[0].credential.type !==
-    'EmailCredential') {
-    self.storageSuccess = true;
-    self.writtenCredentials = window.data.issuer.identity;
-  }
+  self.identity = window.data.issuer.identity;
 
   self.generateCredential = function() {
     Promise.resolve($http.post('/issuer/credentials', {
@@ -67,7 +58,7 @@ module.controller('IssuerController', function(
         requestUrl:
           window.data.baseUri + '/requests?action=store',
         storageCallback:
-          window.data.baseUri + '/issuer/dashboard?storage=status'
+          window.data.baseUri + '/issuer/acknowledgements'
       });
     }).catch(function(err) {
       console.error('Failed to store credential', err);
