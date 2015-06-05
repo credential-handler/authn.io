@@ -1,4 +1,4 @@
-<h1 align="center">Register</h1>
+<h1 align="center">Identity Provider: Registration</h1>
 
 <div ng-controller="RegisterController as model">
   <form name="regForm" class="form-horizontal" role="form" novalidate
@@ -64,7 +64,7 @@
       <div style="text-align:center;">
         <button ng-disabled="model.registering || model.generating"
           ng-click="model.validateForm()" type="submit"
-          class="btn btn-primary">Submit</button>
+          class="btn btn-primary">Register</button>
       </div>
       <div style="text-align:center;" ng-show="model.generating">
         Securing your login information, this may take a minute...

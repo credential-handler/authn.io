@@ -1,8 +1,13 @@
-<h1 align="center">Credential Issuer Dashboard</h1>
+<h1 align="center">Issuer: Dashboard</h1>
 <div ng-controller="IssuerController as model">
   <p>
-This page is used to issue a passport credential to a recipient.
+Thank you for providing your decentralized identifier (DID). We are now
+able to issue credentials to your DID.
+  </p>
+  <p>
+Click below to issue a passport credential and a proof of age
+to yourself.
   </p>
   <button ng-click="model.generateCredential()" type="button"
-    class="btn btn-primary">Issue Credential</button>
+    class="btn btn-primary">Issue Passport Credential</button>
 </div>

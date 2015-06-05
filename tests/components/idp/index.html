@@ -1,58 +1,18 @@
-<button onclick="createIdentity()" type="button" class="btn btn-primary">Create Identity</button>
+<h1 align="center">Identity Provider</h1>
+
+<p>
+Register a new identity by clicking the button below.
+</p>
+
+<button onclick="registerIdentity()" type="button"
+  class="btn btn-primary">Register Identity</button>
 
 <script>
-function createIdentity() {
+function registerIdentity() {
   navigator.credentials.registerDid({
     idp: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
     registrationUrl: '/idp/identities',
     registrationCallback: 'https://credentials.dev:33443/idp'
   });
-}
-
-/**
-  This function is triggered by clicking acceptCredentials.
-  Accept Credentials sends a json object called credentials back
-  towards a credential consumer. To do this, it posts to authorization.io's
-  /credentials-approve url passing on the id associated with this
-  credential approval, and also the actual object that has the
-  credentials within it.
-
-  This function leads to '/credentials-approve' in authorizationio.js
-*/
-function acceptCredentials() {
-
-  var queryUrl = '/credentials-approve';
-  var query = {
-      credentials: {
-          type: 'address'
-    }
-  };
-
-  var id = param('id');
-
-  queryUrl += '?id=' + id;
-
-  var queryString = escapeHtml(JSON.stringify(query));
-
-  var form = document.createElement('form');
-  form.setAttribute('method', 'post');
-  form.setAttribute('action', queryUrl);
-  form.innerHTML =
-    '<input type="hidden" name="callerData" value="' + queryString + '" />';
-  form.submit();
-
-  function escapeHtml(str) {
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-  function param(name) {
-      name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-      var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-      results = regex.exec(location.search);
-      return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-    }
 }
 </script>
