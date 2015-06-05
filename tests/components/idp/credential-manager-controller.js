@@ -20,8 +20,14 @@ define([], function() {
 
     self.store = function(identity) {
       Promise.resolve($http.post('/idp/credentials', identity)
-      ).then(function() {
-
+      ).then(function(response) {
+        if(response.status !== 200) {
+          throw response;
+        }
+      }).then(function() {
+        navigator.credentials.transmit(identity, {
+          responseUrl: self.idp.storageCallbackUrl
+        });
       }).catch(function(err) {
         console.error('Failed to store credential', err);
         brAlertService.add('error',

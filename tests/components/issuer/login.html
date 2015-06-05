@@ -4,6 +4,11 @@
   class="btn btn-primary">Login</button>
 
 <script>
+// if DID is set, go to issuer dashboard
+if(/did=did/.test(document.cookie)) {
+  window.location = window.data.baseUri + '/issuer/dashboard'
+}
+
 function login() {
   navigator.credentials.request({
     '@context': 'https://w3id.org/identity/v1',

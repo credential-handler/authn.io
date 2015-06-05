@@ -65,24 +65,26 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
         id: targetDid,
         assertion: {}
       };
-      var credentials = req.body.assertion.credential;
+      var credentials = req.body.assertion;
 
       // sign each credential
-      async.map(credentials, function(credential, callback) {
-        jsigs.sign(credential, {
+      async.map(credentials, function(item, callback) {
+        jsigs.sign(item.credential, {
           privateKeyPem: privateKeyPem,
           creator: config.server.baseUri + '/issuer/keys/1'
         }, function(err, signedCredential) {
           if(err) {
             return callback(err);
           }
-          callback(null, signedCredential);
+          callback(null, {
+            credential: signedCredential
+          });
         });
       }, function(err, results) {
         if(err) {
           return next(err);
         }
-        identity.assertion.credential = results;
+        identity.assertion = results;
         res.set('Content-Type', 'application/ld+json');
         res.status(200).json(identity);
       });
@@ -96,15 +98,16 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
         return next(err);
       }
 
-      try {
-        if(req.cookies.issuer) {
-          var issuer = JSON.parse(req.cookies.issuer);
-          if(issuer) {
-            vars.issuer = issuer;
+      if(req.body.jsonPostData) {
+        try {
+          var jsonPostData = JSON.parse(req.body.jsonPostData);
+          if(jsonPostData) {
+            vars.issuer = {};
+            vars.issuer.identity = jsonPostData;
           }
+        } catch(e) {
+          return next(e);
         }
-      } catch(e) {
-        return next(e);
       }
 
       res.render('issuer/credentials.html', vars);
