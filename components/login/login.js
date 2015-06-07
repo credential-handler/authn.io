@@ -79,7 +79,7 @@ module.controller('LoginController', function(
         var id = Date.now();
         console.log('config.data', config.data);
         var authioCallback =
-          'https://authorization.dev:33443/credentials?id=' + id
+          config.data.baseUri + '/credentials?id=' + id
         var credentialCallback = $location.search().credentialCallback;
         var storageCallback = $location.search().storageCallback;
 

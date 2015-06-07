@@ -13,7 +13,7 @@ var authioRequest = request.defaults({strictSSL: false});
 
 describe('authorization.io - REST API', function() {
   var did = didio.generateDid();
-  var email = did + '@authorization.dev';
+  var email = did + '@' config.server.domain;
   var passphrase = did + 'password';
   var hash = didio.generateHash(email, passphrase);
   var keypair = forge.pki.rsa.generateKeyPair({bits: 512, e: 0x10001});

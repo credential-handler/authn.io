@@ -19,8 +19,8 @@ function getCredential() {
     '@context': 'https://w3id.org/identity/v1',
     email: ''
   }, {
-    requestUrl: 'https://authorization.dev:33443/requests',
-    credentialCallback: 'https://authorization.dev:33443/consumer/credentials'
+    requestUrl: window.data.baseUri + '/requests',
+    credentialCallback: window.data.baseUri + '/consumer/credentials'
   });
 }
 

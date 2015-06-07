@@ -9,7 +9,7 @@ describe('registration', function() {
     'yA2NdBthMcnTqGYz3Eqe9uNHxM8u00TaooiuhIM' +
     'P45C2nfqXTN17c1QubT0szamTrfACOBOvNs5m67';
   var identity = {};
-  identity.email = baseId + '@authorization.dev';
+  identity.email = baseId + '@' + bedrock.config.server.domain;
   identity.passphrase = 'ThisIsALongPassphrase23';
 
   describe('test identity registration form', function() {

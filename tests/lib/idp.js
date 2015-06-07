@@ -31,8 +31,10 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
       }, {
         '@context': 'https://w3id.org/identity/v1',
         id: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
-        credentialsRequestUrl: 'https://authorization.dev:33443/idp/credentials?action=request',
-        storageRequestUrl: 'https://authorization.dev:33443/idp/credentials?action=store',
+        credentialsRequestUrl: 
+          config.server.baseUri + '/idp/credentials?action=request',
+        storageRequestUrl: 
+          config.server.baseUri + '/idp/credentials?action=store',
         accessControl: {
           writePermission: [{
             id: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1/keys/1',
