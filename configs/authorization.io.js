@@ -13,7 +13,7 @@ var _cfgdir = path.join(__dirname, '..');
 var _logdir = '/var/log/authorization.io';
 
 // core configuration
-config.core.workers = 4;
+config.core.workers = 1;
 config.core.worker.restart = true;
 
 // master process while starting
