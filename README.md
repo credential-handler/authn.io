@@ -66,6 +66,7 @@ To setup an admin user on mongodb:
 To install dependencies, do the following:
 
     npm install
+    nodejs authorization.dev.js compile-less
 
 ### Running
 
