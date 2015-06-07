@@ -53,7 +53,6 @@ config.mongodb.name = 'authorization_io';
 config.mongodb.host = 'localhost';
 config.mongodb.port = 27017;
 config.mongodb.username = 'authorizationio';
-config.mongodb.password = '';
 config.mongodb.adminPrompt = false;
 config.mongodb.local.collection = 'authorization_io';
 
