@@ -20,13 +20,16 @@ define([
     self.registering = false;
     self.generating = false;
 
+    /**
+     * Validates the form, and if valid, performs a registration
+     */
     self.validateForm = function() {
-      if ($scope.regForm.$valid) {
+      if($scope.regForm.$valid) {
         self.register();
       } else {
         $scope.regForm.submitAttempted = true;
       }
-    }
+    };
 
     /**
      * Registers a decentralized identifier, creating a mapping in the
