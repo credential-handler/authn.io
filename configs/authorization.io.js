@@ -45,9 +45,8 @@ config.server.cert = path.join(_cfgdir, 'pki', 'authorization.io.crt');
 config.server.ca = path.join(_cfgdir, 'pki', 'authorization.io-bundle.crt');
 
 // session info
-config.server.session.secret = '';
-config.server.session.key = 'authio.sid';
-config.server.session.prefix = 'authio.';
+config.express.session.key = 'authio.sid';
+config.express.session.prefix = 'authio.';
 
 // limiter config
 config.limiter.ipRequestsPerHour = 15000;
