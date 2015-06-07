@@ -13,7 +13,7 @@ module.exports = api;
 
 api.navigateToRegistrationForm = function() {
   bedrock.get('/idp');
-  element(by.buttonText('Create Identity')).click();
+  element(by.buttonText('Register Identity')).click();
   bedrock.waitForUrl('/idp/identities');
   bedrock.waitForAngular();
 }
@@ -25,13 +25,13 @@ api.checkFields = function() {
     .isPresent()).to.eventually.equal(true);
   expect(element(by.brModel('model.passphraseConfirmation'))
     .isPresent()).to.eventually.equal(true);
-  expect(element(by.buttonText('Submit'))
+  expect(element(by.buttonText('Register'))
     .isPresent()).to.eventually.equal(true);
 }
 
 api.testField = function(modelName, testString, expectedErrorId) {
   element(by.brModel(modelName)).sendKeys(testString);
-  element(by.buttonText('Submit')).click();
+  element(by.buttonText('Register')).click();
   bedrock.waitForAngular();
   element(by.brModel(modelName)).getAttribute('name')
     .then(function(elementName) {
@@ -46,7 +46,7 @@ api.testFieldsMatch = function(
     modelNameA, modelNameB, testStringA, testStringB, expectedErrorId) {
   element(by.brModel(modelNameA)).sendKeys(testStringA);
   element(by.brModel(modelNameB)).sendKeys(testStringB);
-  element(by.buttonText('Submit')).click();
+  element(by.buttonText('Register')).click();
   bedrock.waitForAngular();
   element(by.brModel(modelNameB)).getAttribute('name')
     .then(function(elementName) {
@@ -61,7 +61,7 @@ api.registerDid = function(identity) {
   element(by.brModel('model.username')).sendKeys(identity.email);
   element(by.brModel('model.passphrase')).sendKeys(identity.passphrase);
   element(by.brModel('model.passphraseConfirmation')).sendKeys(identity.passphrase);
-  element(by.buttonText('Submit')).click();
+  element(by.buttonText('Register')).click();
   bedrock.waitForUrl('/idp');
   bedrock.waitForAngular();
 };
