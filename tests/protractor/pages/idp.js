@@ -62,6 +62,6 @@ api.registerDid = function(identity) {
   element(by.brModel('model.passphrase')).sendKeys(identity.passphrase);
   element(by.brModel('model.passphraseConfirmation')).sendKeys(identity.passphrase);
   element(by.buttonText('Register')).click();
-  bedrock.waitForUrl('/idp');
+  bedrock.waitForUrl('/');
   bedrock.waitForAngular();
 };
