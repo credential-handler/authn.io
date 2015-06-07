@@ -48,9 +48,6 @@ config.server.ca = path.join(_cfgdir, 'pki', 'authorization.io-bundle.crt');
 config.express.session.key = 'authio.sid';
 config.express.session.prefix = 'authio.';
 
-// limiter config
-config.limiter.ipRequestsPerHour = 15000;
-
 // database config
 config.mongodb.name = 'authorization_io';
 config.mongodb.host = 'localhost';
