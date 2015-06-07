@@ -9,21 +9,20 @@ var path = require('path');
 // location of configuration files
 var _cfgdir = path.join(__dirname, '..');
 
-// location of static resources
-var _datadir = path.join(__dirname, '..');
-
 // location of logs
 var _logdir = '/var/log/authorization.io';
 
-// app info
-// 0 means use # of cpus
-config.app.workers = 0;
-config.app.restartWorkers = true;
-config.app.user.groupId = 'authorizationio';
-config.app.user.userId = 'authorizationio';
+// core configuration
+config.core.workers = 0;
+config.core.worker.restart = true;
 
-// config environment
-config.environment = 'sandbox';
+// master process while starting
+config.core.starting.groupId = 'adm';
+config.core.starting.userId = 'root';
+
+// master and workers after starting
+config.core.running.groupId = 'authorizationio';
+config.core.running.userId = 'authorizationio';
 
 // logging
 config.loggers.logdir = _logdir;
@@ -54,13 +53,13 @@ config.server.session.prefix = 'authio.';
 config.limiter.ipRequestsPerHour = 15000;
 
 // database config
-config.database.name = 'authorization_io';
-config.database.host = 'localhost';
-config.database.port = 27017;
-config.database.username = 'authorizationio';
-config.database.password = '';
-config.database.adminPrompt = false;
-config.database.local.collection = 'authorization_io';
+config.mongodb.name = 'authorization_io';
+config.mongodb.host = 'localhost';
+config.mongodb.port = 27017;
+config.mongodb.username = 'authorizationio';
+config.mongodb.password = '';
+config.mongodb.adminPrompt = false;
+config.mongodb.local.collection = 'authorization_io';
 
 // FIXME: Everything below here is temporary for testing purposes
 
