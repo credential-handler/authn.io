@@ -56,6 +56,14 @@ config.mongodb.username = 'authorizationio';
 config.mongodb.adminPrompt = false;
 config.mongodb.local.collection = 'authorization_io';
 
+// view variables
+config.views.brand.name = 'authorization.io';
+config.views.vars.baseUri = config.server.baseUri;
+config.views.vars.title = config.views.brand.name;
+config.views.vars.siteTitle = config.views.brand.name;
+config.views.vars.supportDomain = config.server.domain;
+config.views.vars.style.brand.alt = config.views.brand.name;
+
 // FIXME: Everything below here is temporary for testing purposes
 
 config.views.paths.push(path.join(__dirname, '..', 'tests', 'views'));
