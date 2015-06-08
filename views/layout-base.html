@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html prefix="
+  {% block prefixes %}
+  xsd: http://www.w3.org/2001/XMLSchema#
+  rdfs: http://www.w3.org/2000/01/rdf-schema#
+  dc: http://purl.org/dc/terms/
+  bed: https://w3id.org/bedrock#
+  sec: https://w3id.org/security#
+  vcard: http://www.w3.org/2006/vcard/ns#
+  {% endblock %}" {% block headAttrs %}{% endblock %}>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <base href="/" />
+    <title ng-bind="(route.vars.title && (siteTitle + ': ' + route.vars.title)) || siteTitle"></title>
+    <link href='https://fonts.googleapis.com/css?family=Droid+Sans:400,700|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+    {% if minify %}
+      <link href="/css/bedrock-views.min.css" rel="stylesheet" type="text/css" />
+    {% else %}
+      {% block css %}
+      <link href="/css/bedrock-views.css" rel="stylesheet" type="text/css" />
+      <link href="/bower-components/bedrock-angular/css/custom.css" rel="stylesheet" type="text/css" />
+      {% endblock %}
+    {% endif %}
+    <!--[if IE]>
+    <link href="/css/ie.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    {% block beforeMain %}{% endblock %}
+
+    {% if pageLayout != "error" %}
+      {% if minify %}
+        <script src="/requirejs/main.min.js"></script>
+      {% else %}
+        <script data-main="/requirejs/main.js" src="/bower-components/requirejs/require.js"></script>
+      {% endif %}
+    {% endif %}
+  </head>
+
+  <body>
+    {% include "navbar.html" %}
+
+    {% if userAgent.obsolete %}
+    <div class="alert alert-danger">
+      Your browser ({{userAgent.family}} {{userAgent.major}}) is <strong>out of date</strong>.
+      Please <a href="http://www.updateyourbrowser.net/">update your browser.</a>
+    </div>
+    {% endif %}
+
+    <div class="container ng-cloak">
+
+      <!-- Javascript warning -->
+      <noscript>
+        <div class="alert alert-danger">
+          <p>Javascript must be enabled to use this site.</p>
+        </div>
+      </noscript>
+      {% if pageLayout != "error" %}
+      {% block forcedFonts %}{% endblock %}
+      {% include "data.html" %}
+      {% endif %}
+
+      {% block content %}
+        <p>Missing content.</p>
+      {% endblock %}
+
+      {# Avoid extra whitespace between elements for proper inline layout #}
+
+      {% if pageLayout == "normal" %}
+      <hr/>
+      {% endif %}
+      <footer class="container footer">
+        {% if pageLayout != "error" %}
+        {% block footerBrandRow %}{% endblock %}
+        {% endif %}
+      </footer>
+    </div>
+
+    {# Analytics #}
+    {% if googleAnalytics.enabled %}
+      <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', '{{googleAnalytics.account}}']);
+        _gaq.push(['_trackPageview']);
+            (function() {
+          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+      </script>
+    {% endif %}
+
+  </body>
+</html>
