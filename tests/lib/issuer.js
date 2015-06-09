@@ -23,23 +23,31 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
     function(callback) {
       // insert the mock IdP DID document
       gIssuerKeypair = forge.pki.rsa.generateKeyPair({bits: 512});
+      var now = Date.now();
       database.collections.didDocument.update({
-        id: 'did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s'
+        id: database.hash('did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s')
       }, {
-        '@context': 'https://w3id.org/identity/v1',
-        id: 'did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s',
-        accessControl: {
-          writePermission: [{
-            id: 'did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s/keys/1',
-            type: 'CryptographicKey'
-          }]
+        id: database.hash('did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s'),
+        meta: {
+          created: now,
+          updated: now
         },
-        publicKey: [{
-          id : 'did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s/keys/1',
-          type: 'CryptographicKey',
-          owner: 'did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s',
-          publicKeyPem: forge.pki.publicKeyToPem(gIssuerKeypair.publicKey)
-        }]
+        didDocument: {
+          '@context': 'https://w3id.org/identity/v1',
+          id: 'did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s',
+          accessControl: {
+            writePermission: [{
+              id: 'did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s/keys/1',
+              type: 'CryptographicKey'
+            }]
+          },
+          publicKey: [{
+            id : 'did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s/keys/1',
+            type: 'CryptographicKey',
+            owner: 'did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s',
+            publicKeyPem: forge.pki.publicKeyToPem(gIssuerKeypair.publicKey)
+          }]
+        }
       }, _.assign({}, database.writeOptions, {upsert:true, multi:false}),
         function(err, doc) {
         if(err) {

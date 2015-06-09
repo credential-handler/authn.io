@@ -26,27 +26,35 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
     function(callback) {
       // insert the mock IdP DID document
       gIdPKeypair = forge.pki.rsa.generateKeyPair({bits: 512});
+      var now = Date.now();
       database.collections.didDocument.update({
-        id: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1'
+        id: database.hash('did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1')
       }, {
-        '@context': 'https://w3id.org/identity/v1',
-        id: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
-        credentialsRequestUrl: 
-          config.server.baseUri + '/idp/credentials?action=request',
-        storageRequestUrl: 
-          config.server.baseUri + '/idp/credentials?action=store',
-        accessControl: {
-          writePermission: [{
-            id: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1/keys/1',
-            type: 'CryptographicKey'
-          }]
+        id: database.hash('did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1'),
+        meta: {
+          created: now,
+          updated: now
         },
-        publicKey: [{
-          id : 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1/keys/1',
-          type: 'CryptographicKey',
-          owner: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
-          publicKeyPem: forge.pki.publicKeyToPem(gIdPKeypair.publicKey)
-        }]
+        didDocument: {
+          '@context': 'https://w3id.org/identity/v1',
+          id: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
+          credentialsRequestUrl:
+            config.server.baseUri + '/idp/credentials?action=request',
+          storageRequestUrl:
+            config.server.baseUri + '/idp/credentials?action=store',
+          accessControl: {
+            writePermission: [{
+              id: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1/keys/1',
+              type: 'CryptographicKey'
+            }]
+          },
+          publicKey: [{
+            id : 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1/keys/1',
+            type: 'CryptographicKey',
+            owner: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
+            publicKeyPem: forge.pki.publicKeyToPem(gIdPKeypair.publicKey)
+          }]
+        }
       }, _.assign({}, database.writeOptions, {upsert:true, multi:false}),
         function(err, doc) {
         if(err) {

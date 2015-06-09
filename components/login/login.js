@@ -28,9 +28,6 @@ module.controller('LoginController', function(
     if(encryptedPem) {
       privateKey =
         pki.decryptRsaPrivateKey(encryptedPem, username + password);
-
-      // TODO: Store decrypted private key in session storage?
-      console.log("decrypted private key from localstorage:", privateKey);
     }
 
     // fetch the username + passphrase mapping
@@ -57,27 +54,26 @@ module.controller('LoginController', function(
         return Promise.resolve($http.get('/dids/' + did));
       }).then(function(response) {
         // fetched the person's DID document
-        console.log("got did document", response);
         var didDocument = response.data;
         return Promise.resolve($http.get('/dids/' + didDocument.idp));
       }).then(function(response) {
-        console.log("got IDP did document", response);
         // fetched the person's IDP DID document
         var idpDidDocument = response.data;
         // extract the IDP DID credential request URL
         var cookie = {
+          did: did,
+          privateKeyPem: pki.privateKeyToPem(privateKey),
           credentialRequestUrl: idpDidDocument.credentialsRequestUrl,
-          storageRequestUrl: idpDidDocument.storageRequestUrl,
-          idp: idpDidDocument.id,
-          did: did
+          storageRequestUrl: idpDidDocument.storageRequestUrl
         };
-        console.log('cookie', cookie);
-        ipCookie('session', cookie);
+        ipCookie('session', cookie, {
+          expires: 120,
+          expirationUnit: 'minutes'
+        });
 
         return cookie;
       }).then(function(cookie) {
         var id = Date.now();
-        console.log('config.data', config.data);
         var authioCallback =
           config.data.baseUri + '/credentials?id=' + id
         var credentialCallback = $location.search().credentialCallback;
