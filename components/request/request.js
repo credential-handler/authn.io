@@ -13,7 +13,7 @@ var didio = didiojs({inject: {
   uuid: uuid
 }});
 
-module.controller('LoginController', function(
+module.controller('RequestController', function(
   $scope, $http, $location, ipCookie, $window, config, DataService,
   brAlertService) {
   var self = this;

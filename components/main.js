@@ -3,7 +3,7 @@ define([
   'underscore',
   'forge/forge',
   'did-io',
-  './login/login',
+  './request/request',
   './new-device/new-device',
   './credentials/credentials'
 ], function(
@@ -32,7 +32,7 @@ module.config(function($routeProvider) {
     }).
     when('/requests', {
       title: 'Credentials Request',
-      templateUrl: requirejs.toUrl('components/login/login.html')
+      templateUrl: requirejs.toUrl('components/request/request.html')
     }).
     when('/credentials', {
       title: 'Approve Credentials',
