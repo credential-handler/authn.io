@@ -8,17 +8,41 @@ define([
 'use strict';
 
 var module = angular.module('authio.login', ['bedrock.alert', 'ipCookie']);
+var pki = forge.pki;
 var didio = didiojs({inject: {
   forge: forge,
   uuid: uuid
 }});
 
 module.controller('RequestController', function(
-  $scope, $http, $location, ipCookie, $window, config, DataService,
-  brAlertService) {
+  $scope, $http, $location, ipCookie, config, brAlertService) {
   var self = this;
-  var pki = forge.pki;
+  self.loginRequired = false;
 
+  /**
+   * Attempt to redirect the browser if a session exists.
+   */
+  self.redirect = function() {
+    try {
+      var session = ipCookie('session');
+      // refresh session
+      ipCookie('session', session, {
+        expires: 120,
+        expirationUnit: 'minutes'
+      });
+      _navigateToIdp(session);
+    } catch(e) {
+      self.loginRequired = true;
+    }
+  };
+
+  /**
+   * Perform a login and redirect the browser if the login is
+   * successful.
+   *
+   * @param username the username to use when logging in.
+   * @param password the password to use when logging in.
+   */
   self.login = function(username, password) {
     var hash = didio.generateHash(username, password);
     var encryptedPem = localStorage.getItem(hash);
@@ -72,32 +96,35 @@ module.controller('RequestController', function(
         });
 
         return cookie;
-      }).then(function(cookie) {
-        var id = Date.now();
-        var authioCallback =
-          config.data.baseUri + '/credentials?id=' + id
-        var credentialCallback = $location.search().credentialCallback;
-        var storageCallback = $location.search().storageCallback;
-
-        if(credentialCallback) {
-          sessionStorage.setItem(id, credentialCallback);
-          navigator.credentials.request(config.data.credentialRequest, {
-            requestUrl: cookie.credentialRequestUrl,
-            credentialCallback: authioCallback
-          });
-        } else if(storageCallback) {
-          sessionStorage.setItem(id, storageCallback);
-          navigator.credentials.store(config.data.storageRequest, {
-            requestUrl: cookie.storageRequestUrl,
-            storageCallback: authioCallback
-          });
-        }
-      }).catch(function(err) {
+      }).then(_navigateToIdp)
+      .catch(function(err) {
         brAlertService.add('error', 'Unable to log in.');
         console.log(err);
       }).then(function() {
         $scope.$apply();
       });
+  };
+
+  var _navigateToIdp = function(session) {
+    var id = Date.now();
+    var authioCallback =
+      config.data.baseUri + '/credentials?id=' + id
+    var credentialCallback = $location.search().credentialCallback;
+    var storageCallback = $location.search().storageCallback;
+
+    if(credentialCallback) {
+      sessionStorage.setItem(id, credentialCallback);
+      navigator.credentials.request(config.data.credentialRequest, {
+        requestUrl: session.credentialRequestUrl,
+        credentialCallback: authioCallback
+      });
+    } else if(storageCallback) {
+      sessionStorage.setItem(id, storageCallback);
+      navigator.credentials.store(config.data.storageRequest, {
+        requestUrl: session.storageRequestUrl,
+        storageCallback: authioCallback
+      });
+    }
   };
 });
 

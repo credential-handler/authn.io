@@ -1,23 +1,28 @@
-<h1 align="center">Log in</h1>
 <div ng-controller="RequestController as model">
-  <form class="form-horizontal" role="form">
-    <fieldset>
+  <div ng-show="model.loginRequired" ng-init="model.redirect()">
+    <h1 align="center">Log in</h1>
+    <form class="form-horizontal" role="form">
+      <fieldset>
 
-      <br-input br-model="model.username"
-        br-options="{name: 'username', label: 'Email'}">
-        Please enter your preferred email address.
-      </br-input>
+        <br-input br-model="model.username"
+          br-options="{name: 'username', label: 'Email'}">
+          Please enter your preferred email address.
+        </br-input>
 
-      <br-input br-model="model.password"
-         br-options="{name: 'password', label: 'Passphrase', type: 'password'}">
-        Please enter your passphrase (for example: 42RhinosStampedeAtTeaTime).
-      </br-input>
+        <br-input br-model="model.password"
+           br-options="{name: 'password', label: 'Passphrase', type: 'password'}">
+          Please enter your passphrase (for example: 42RhinosStampedeAtTeaTime).
+        </br-input>
 
-      <div style="text-align:center;">
-        <button ng-click="model.login(model.username,model.password)" type="submit" class="btn btn-primary">Login</button>
-        <a href="register" type="button" class="btn btn-primary">Register</a>
-      </div>
+        <div style="text-align:center;">
+          <button ng-click="model.login(model.username,model.password)" type="submit" class="btn btn-primary">Login</button>
+          <a href="register" type="button" class="btn btn-primary">Register</a>
+        </div>
 
-    </fieldset>
-  </form>
+      </fieldset>
+    </form>
+  </div>
+  <div ng-hide="model.loginRequired">
+    <p>Redirecting to your Identity Provider...</p>
+  </div>
 </div>
