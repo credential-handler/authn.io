@@ -70,7 +70,7 @@ module.controller('RequestController', function(
 
         // TODO: Re-direct to request-with-new-device path
         if(!privateKey) {
-          console.log('TODO: Implement request credential with '+
+          console.log('TODO: Implement request credential with ' +
             'new device flow');
         }
 
@@ -108,7 +108,7 @@ module.controller('RequestController', function(
   var _navigateToIdp = function(session) {
     var id = Date.now();
     var authioCallback =
-      config.data.baseUri + '/credentials?id=' + id
+      config.data.baseUri + '/credentials?id=' + id;
     var credentialCallback = $location.search().credentialCallback;
     var storageCallback = $location.search().storageCallback;
 

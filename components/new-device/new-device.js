@@ -49,7 +49,7 @@ module.controller('NewDeviceController', function($scope, DataService, $http) {
       sessionStorage.setItem(
         'tempPublic' + loginHash, JSON.stringify(publicKey));
 
-      // heads over to idp  
+      // heads over to idp
       DataService.postToIdp();
       // idp signs the document request
       //  and then signs it with the public key that I give them?
@@ -65,6 +65,5 @@ module.controller('NewDeviceController', function($scope, DataService, $http) {
     DataService.redirect(self.idpUrl);
   };
 });
-
 
 });

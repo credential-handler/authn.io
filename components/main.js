@@ -46,18 +46,18 @@ module.service('DataService', function($location, $window) {
 
   function set(key, value) {
     savedData[key] = value;
-  };
+  }
   function get(key) {
     return savedData[key];
-  };
+  }
   function getUrl(idp) {
     // FIXME: Do actual IDP DID lookup
     return $location.protocol() + '://' + $location.host() + ':' +
       $location.port() + '/idp';
-  };
+  }
   function redirect(url) {
     $window.location.href = url;
-  };
+  }
 
   // must either pass in the callback and idpUrl
   // or have it in the DataService's savedData
