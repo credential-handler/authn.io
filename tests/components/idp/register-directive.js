@@ -10,8 +10,8 @@ define([], function() {
       link: function(scope, elem, attrs, ctrl) {
         var me = attrs.ngModel;
         var matchTo = attrs.aioMatchesInput;
-        scope.$watchGroup([me, matchTo], function(value){
-          ctrl.$setValidity('inputMatch', value[0] === value[1] );
+        scope.$watchGroup([me, matchTo], function(value) {
+          ctrl.$setValidity('inputMatch', value[0] === value[1]);
         });
       }
     }
