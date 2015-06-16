@@ -14,6 +14,7 @@ var didio = didiojs({inject: {
   uuid: uuid
 }});
 
+// TODO: move to a new file, use @ngInject
 module.controller('RequestController', function(
   $scope, $http, $location, ipCookie, config, brAlertService) {
   var self = this;
@@ -50,8 +51,7 @@ module.controller('RequestController', function(
 
     // decrypt the encrypted key, if it exists
     if(encryptedPem) {
-      privateKey =
-        pki.decryptRsaPrivateKey(encryptedPem, username + password);
+      privateKey = pki.decryptRsaPrivateKey(encryptedPem, username + password);
     }
 
     // fetch the username + passphrase mapping
@@ -105,7 +105,7 @@ module.controller('RequestController', function(
       });
   };
 
-  var _navigateToIdp = function(session) {
+  function _navigateToIdp(session) {
     var id = Date.now();
     var authioCallback =
       config.data.baseUri + '/credentials?id=' + id;
@@ -125,7 +125,7 @@ module.controller('RequestController', function(
         storageCallback: authioCallback
       });
     }
-  };
+  }
 });
 
 });
