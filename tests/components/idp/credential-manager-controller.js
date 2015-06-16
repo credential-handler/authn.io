@@ -1,26 +1,27 @@
 define([], function() {
-  'use strict';
 
-  /* @ngInject */
-  function factory($scope, $http, $location, brAlertService) {
-    var self = this;
-    self.idp = window.data.idp;
-    self.action = 'request';
+'use strict';
 
-    if($location.search().action === 'store') {
-      self.action = 'store';
-    }
+/* @ngInject */
+function factory($scope, $http, $location, brAlertService) {
+  var self = this;
+  self.idp = window.data.idp;
+  self.action = 'request';
 
-    // transmit the selected credential to the requestor
-    self.transmit = function(identity) {
-      navigator.credentials.transmit(self.idp.identity, {
-        responseUrl: self.idp.credentialCallbackUrl
-      });
-    };
+  if($location.search().action === 'store') {
+    self.action = 'store';
+  }
 
-    self.store = function(identity) {
-      Promise.resolve($http.post('/idp/credentials', identity)
-      ).then(function(response) {
+  // transmit the selected credential to the requestor
+  self.transmit = function(identity) {
+    navigator.credentials.transmit(identity, {
+      responseUrl: self.idp.credentialCallbackUrl
+    });
+  };
+
+  self.store = function(identity) {
+    Promise.resolve($http.post('/idp/credentials', identity))
+      .then(function(response) {
         if(response.status !== 200) {
           throw response;
         }
@@ -30,13 +31,13 @@ define([], function() {
         });
       }).catch(function(err) {
         console.error('Failed to store credential', err);
-        brAlertService.add('error',
-          'Failed to store the credential.');
+        brAlertService.add('error', 'Failed to store the credential.');
+      }).then(function() {
+        $scope.$apply();
       });
-    };
-
   };
+}
 
-  return {CredentialManagerController: factory};
+return {CredentialManagerController: factory};
 
 });
