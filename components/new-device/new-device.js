@@ -1,13 +1,10 @@
-define([
-  'angular',
-  'forge/forge',
-  'jquery'
-], function(angular, forge) {
+define(['angular', 'forge/forge'], function(angular, forge) {
 
 'use strict';
 
 var module = angular.module('authio.new-device', []);
 
+// TODO: move to a new file, use @ngInject
 module.controller('NewDeviceController', function($scope, DataService, $http) {
   var self = this;
   var idp = DataService.get('idp');
