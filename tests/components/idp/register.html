@@ -11,15 +11,15 @@
             Please enter your email address.
           </div>
           <div name="br-input-validation-errors">
-            <small ng-show="regForm.email.$error.required">
+            <p ng-show="regForm.email.$error.required">
               Email is required.
-            </small>
-            <small ng-show="regForm.email.$error.minlength">
+            </p>
+            <p ng-show="regForm.email.$error.minlength">
               Email is required to be at least 6 characters.
-            </small>
-            <small ng-show="regForm.email.$error.maxlength">
+            </p>
+            <p ng-show="regForm.email.$error.maxlength">
               Email must not be longer than 128 characters.
-            </small>
+            </p>
           </div>
         </br-input>
         <br-input br-model="model.passphrase"
@@ -29,15 +29,15 @@
             Please enter a passphrase.
           </div>
           <div name="br-input-validation-errors">
-            <small ng-show="regForm.passphrase.$error.required">
+            <p ng-show="regForm.passphrase.$error.required">
               Passphrase is required.
-            </small>
-            <small ng-show="regForm.passphrase.$error.minlength">
+            </p>
+            <p ng-show="regForm.passphrase.$error.minlength">
               Passphrase is required to be at least 6 characters.
-            </small>
-            <small ng-show="regForm.passphrase.$error.maxlength">
+            </p>
+            <p ng-show="regForm.passphrase.$error.maxlength">
               Passphrase must not be longer than 128 characters.
-            </small>
+            </p>
           </div>
         </br-input>
         <br-input br-model="model.passphraseConfirmation"
@@ -50,9 +50,9 @@
             Please confirm your passphrase.
           </div>
           <div name="br-input-validation-errors">
-            <small ng-show="regForm.passphraseConfirmation.$error.inputMatch">
+            <p ng-show="regForm.passphraseConfirmation.$error.inputMatch">
               Passphrase and Confirm Passphrase must match.
-            </small>
+            </p>
           </div>
         </br-input>
       <div style="text-align:center;">
