@@ -8,8 +8,7 @@ var didio = didiojs({inject: {
 }});
 
 /* @ngInject */
-function factory(
-  $scope, $http, $location, ipCookie, brAlertService) {
+function factory($scope, $http, $location, ipCookie, brAlertService) {
   var self = this;
   self.passphraseConfirmation = '';
   self.passphrase = '';
@@ -32,26 +31,16 @@ function factory(
    */
   self.register = function() {
     var idp = 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1';
-    var pki = forge.pki;
     var keypair = null;
     var did = null;
     var hash = didio.generateHash(self.username, self.passphrase);
 
-    new Promise(function(resolve, reject) {
-      self.generating = true;
-      pki.rsa.generateKeyPair({
-        bits: 2048,
-        workerScript: '/bower-components/forge/js/prime.worker.js'
-      }, function(err, keypair) {
-        if(err) {
-          return reject(err);
-        }
-        return resolve(keypair);
-      });
-    }).then(function(kp) {
+    self.registering = true;
+    self.generating = true;
+    generateKeyPair().then(function(kp) {
       keypair = kp;
       // store encrypted private key in browser local storage
-      var encryptedPem =  pki.encryptRsaPrivateKey(
+      var encryptedPem = forge.pki.encryptRsaPrivateKey(
         keypair.privateKey, self.username + self.passphrase);
       localStorage.setItem(hash, encryptedPem);
       self.generating = false;
@@ -99,12 +88,12 @@ function factory(
           publicKeyPem: forge.pki.publicKeyToPem(keypair.publicKey)
         }]
       };
-    return Promise.resolve($http.post('/dids/', didDocument))
-      .then(function(response) {
-        if(response.status !== 201) {
-          throw response;
-        }
-      });
+      return Promise.resolve($http.post('/dids/', didDocument))
+        .then(function(response) {
+          if(response.status !== 201) {
+            throw response;
+          }
+        });
     }).then(function() {
       ipCookie('did', did);
       var emailCredential = {
@@ -129,9 +118,9 @@ function factory(
             }
           }
         }]
-      }
-      return Promise.resolve($http.post('/idp/credentials',
-        JSON.stringify(emailCredential)))
+      };
+      return Promise.resolve($http.post(
+        '/idp/credentials', JSON.stringify(emailCredential)))
         .then(function(response) {
           if(response.status !== 200) {
             throw response;
@@ -142,15 +131,29 @@ function factory(
       console.error('Failed to register with the network', err);
       brAlertService.add('error',
         'Failed to register with the network. Try a different email ' +
-        'address and passphrase');
-      self.generating = false;
-      self.registering = false;
+        'address and passphrase.');
     }).then(function() {
+      self.registering = false;
+      self.generating = false;
       $scope.$apply();
     });
   };
 }
 
 return {RegisterController: factory};
+
+function generateKeyPair() {
+  return new Promise(function(resolve, reject) {
+    forge.pki.rsa.generateKeyPair({
+      bits: 2048,
+      workerScript: '/bower-components/forge/js/prime.worker.js'
+    }, function(err, keypair) {
+      if(err) {
+        return reject(err);
+      }
+      return resolve(keypair);
+    });
+  });
+}
 
 });
