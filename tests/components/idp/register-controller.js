@@ -13,7 +13,6 @@ define([
   function factory(
     $scope, $http, $location, ipCookie, brAlertService) {
     var self = this;
-    self.submitAttempted = false;
     self.passphraseConfirmation = '';
     self.passphrase = '';
     self.username = '';
@@ -26,8 +25,6 @@ define([
     self.validateForm = function() {
       if($scope.regForm.$valid) {
         self.register();
-      } else {
-        $scope.regForm.submitAttempted = true;
       }
     };
 
