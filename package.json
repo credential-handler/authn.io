@@ -17,7 +17,8 @@
     "bedrock-views": "^1.0.0",
     "bower": "~1.4.1",
     "did-io": "~0.4.0",
-    "lodash": "^3.9.2"
+    "lodash": "^3.9.2",
+    "parse-http-header": "^1.0.0"
   },
   "devDependencies": {
     "bedrock-protractor": "^1.0.0",
