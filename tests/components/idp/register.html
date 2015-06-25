@@ -63,6 +63,9 @@
         Securing your login information, this may take a minute...
         <i class="fa fa-refresh fa-spin text-muted"></i>
       </div>
+      <div style="text-align:center;" ng-show="model.registering">
+        Registering... {{model.secondsLeft}} seconds remaining.
+      </div>
     </fieldset>
   </form>
 </div>
