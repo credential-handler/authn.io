@@ -60,3 +60,7 @@ protractor.suites.authorizationio = path.join(
   __dirname, '..', 'tests', 'protractor', 'tests', '**', '*.js');
 var prepare = path.join(__dirname, '..', 'tests', 'protractor', 'prepare.js');
 protractor.params.config.onPrepare.push(prepare);
+
+// lower minimum wait time for proofs
+config.authio.proofs.minWaitTimeInSecs = 1;
+config.authio.proofs.maxWaitTimeInSecs = 2;

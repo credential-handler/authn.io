@@ -1,20 +1,46 @@
-define(['forge/forge', 'did-io', 'node-uuid'], function(forge, didiojs, uuid) {
+define([
+  'underscore', 'async', 'forge/forge', 'did-io', 'node-uuid', 'jsonld',
+  'jsonld-signatures'],
+function(_, async, forge, didiojs, uuid, jsonld, jsigjs) {
 
 'use strict';
 
-var didio = didiojs({inject: {
-  forge: forge,
-  uuid: uuid
-}});
-
 /* @ngInject */
-function factory($scope, $http, $location, ipCookie, brAlertService) {
+function factory($scope, $http, $location, ipCookie, brAlertService, config) {
   var self = this;
   self.passphraseConfirmation = '';
   self.passphrase = '';
   self.username = '';
   self.registering = false;
   self.generating = false;
+
+  // setup custom document loader for identity JSON-LD context
+  jsonld = jsonld();
+  var _oldLoader = jsonld.documentLoader;
+  jsonld.documentLoader = function(url) {
+    if(url in config.data.CONTEXTS) {
+      return Promise.resolve({
+        contextUrl: null,
+        document: config.data.CONTEXTS[url],
+        documentUrl: url
+      });
+    }
+    return _oldLoader(url);
+  };
+
+  // initialize jsig using the AMD-loaded helper libraries
+  var jsig = jsigjs({inject: {
+    async: async,
+    forge: forge,
+    jsonld: jsonld,
+    _: _
+  }});
+
+  // initialize didio using the AMD-loaded helper libraries
+  var didio = didiojs({inject: {
+    forge: forge,
+    uuid: uuid
+  }});
 
   /**
    * Helper method to generate a keypair asynchronously.
@@ -170,11 +196,23 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
           throw response;
         }
       });
-    }).then(function(response) {
+    }).then(function() {
+      // sign the mapping data
+      return new Promise(function(resolve, reject) {
+        jsig.sign(mappingData, {
+          privateKeyPem: forge.pki.privateKeyToPem(keypair.privateKey),
+          creator: did + '/keys/1'
+        }, function(err, signedMappingData) {
+          if(err) {
+            return reject(err);
+          }
+          resolve(signedMappingData);
+        });
+      });
+    }).then(function(signedMappingData) {
       // register the mapping document
-      return Promise.resolve($http.post('/mappings/', mappingData));
+      return Promise.resolve($http.post('/mappings/', signedMappingData));
     }).then(function(response) {
-      console.log("Mapping created", response);
       if(response.status !== 201) {
         throw response;
       }

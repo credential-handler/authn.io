@@ -28,3 +28,7 @@ config.requirejs.bower.packages.push({
 // bootstrap the Angular application so routes work
 config.views.routes.push(['/idp', 'index.html']);
 config.views.routes.push(['/issuer', 'issuer/credentials.html']);
+
+// lower minimum wait time for proofs
+config.authio.proofs.minWaitTimeInSecs = 2;
+config.authio.proofs.maxWaitTimeInSecs = 3;
