@@ -182,7 +182,21 @@ function factory($scope, $http, $location, ipCookie, brAlertService, config) {
           }]
         }
       };
-
+    }).then(function() {
+      // sign the didDocument
+      return new Promise(function(resolve, reject) {
+        jsig.sign(didDocument, {
+          privateKeyPem: forge.pki.privateKeyToPem(keypair.privateKey),
+          creator: did + '/keys/1'
+        }, function(err, signedDidDocument) {
+          if(err) {
+            return reject(err);
+          }
+          resolve(signedDidDocument);
+        });
+      });
+    }).then(function(signedDidDocument) {
+      didDocument = signedDidDocument;
       // wait until the proof of patience has been established
       return self._establishProofOfPatience(didDocument);
     }).then(function(proof) {
