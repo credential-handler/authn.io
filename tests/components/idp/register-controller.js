@@ -36,6 +36,18 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
   }
 
   /**
+   * Decrements the number of seconds left for registering.
+   */
+  self._updateSecondsLeft = function() {
+    $scope.$apply();
+    // update the timer every second
+    if(self.secondsLeft > 1) {
+      setTimeout(self._updateSecondsLeft, 1000);
+    }
+    self.secondsLeft -= 1;
+  }
+
+  /**
    * Helper function to establish a proof of patience for writing a
    * DID document.
    *
@@ -43,7 +55,6 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
    */
   self._establishProofOfPatience = function(didDocument) {
     return new Promise(function(resolve, reject) {
-      self.registering = true;
       return Promise.resolve($http.post('/dids/', didDocument, {
         transformResponse: function(data, headers, status) {
           return {
@@ -66,6 +77,8 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
           // wait for as long as the proof of patience requires
           self.secondsLeft = err.headers['retry-after'];
           var waitTime = self.secondsLeft * 1000;
+          self.registering = true;
+          self._updateSecondsLeft();
           setTimeout(function() {
             var proof = err.headers['www-authenticate'];
             return resolve(proof);
@@ -95,7 +108,6 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
     var mappingData = {};
     var didDocument = {};
 
-    self.registering = true;
     self.generating = true;
     self.secondsLeft = 0;
 
@@ -148,7 +160,6 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
       // wait until the proof of patience has been established
       return self._establishProofOfPatience(didDocument);
     }).then(function(proof) {
-      console.log("ProofOfPatience", proof);
       // use the proof of patience to register the DID
       return Promise.resolve($http.post('/dids/', didDocument, {
         headers: {
