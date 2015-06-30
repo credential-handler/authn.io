@@ -235,8 +235,8 @@ function factory($scope, $http, $location, ipCookie, brAlertService, config) {
       var emailCredential = {
         '@context': 'https://w3id.org/identity/v1',
         id: did,
-        assertion: [{
-          credential: {
+        credential: [{
+          '@graph': {
             '@context': 'https://w3id.org/identity/v1',
             type: 'EmailCredential',
             claim: {
@@ -245,7 +245,7 @@ function factory($scope, $http, $location, ipCookie, brAlertService, config) {
             }
           }
         }, {
-          credential: {
+          '@graph': {
             '@context': 'https://w3id.org/identity/v1',
             type: 'EmailCredential',
             claim: {

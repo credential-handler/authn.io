@@ -110,14 +110,14 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
         '@context': 'https://w3id.org/identity/v1',
         id: '',
         type: '',
-        assertion: {}
+        credential: {}
       };
       if(req.query.action === 'request') {
         // generate a fake credential
         var credentials = gCredentials[req.cookies.did];
-        vars.idp.identity.assertion = credentials;
+        vars.idp.identity.credential = credentials;
         vars.idp.identity.type = 'Identity';
-        vars.idp.identity.id = credentials[0].credential.claim.id;
+        vars.idp.identity.id = credentials[0]['@graph'].claim.id;
 
         // extract the credential callback URL
         vars.idp.credentialCallbackUrl = req.query.credentialCallback;
@@ -140,16 +140,16 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
         if(identity) {
           var privateKeyPem =
             forge.pki.privateKeyToPem(gIdPKeypair.privateKey);
-          var credentials = identity.assertion;
+          var credentials = identity.credential;
 
           // ensure that each credential is signed
           async.map(credentials, function(item, callback) {
-            if(item.credential.signature) {
+            if(item['@graph'].signature) {
               return callback(null, item);
             }
 
             // sign the credential if it doesn't already have a signature
-            jsigs.sign(item.credential, {
+            jsigs.sign(item['@graph'], {
               privateKeyPem: privateKeyPem,
               creator: config.server.baseUri + '/idp/keys/1'
             }, function(err, signedCredential) {
@@ -157,14 +157,14 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
                 return callback(err);
               }
               callback(null, {
-                credential: signedCredential
+                '@graph': signedCredential
               });
             });
           }, function(err, results) {
             if(err) {
               return next(err);
             }
-            identity.assertion = results;
+            identity.credential = results;
             _mergeCredentials(identity);
             res.sendStatus(200);
           });
@@ -183,7 +183,7 @@ function _mergeCredentials(identity) {
     gCredentials[identity.id] = [];
   }
   gCredentials[identity.id] =
-    _.union(gCredentials[identity.id], identity.assertion);
+    _.union(gCredentials[identity.id], identity.credential);
 }
 
 });

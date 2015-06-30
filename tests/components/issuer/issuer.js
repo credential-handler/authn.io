@@ -22,8 +22,8 @@ module.controller('IssuerController', function(
     Promise.resolve($http.post('/issuer/credentials', {
       '@context': 'https://w3id.org/identity/v1',
       id: window.data.issuer.identity.id,
-      assertion: [{
-        credential: {
+      credential: [{
+        '@graph': {
           '@context': 'https://w3id.org/identity/v1',
           id: window.data.baseUri + '/issuer/credentials/' + Date.now(),
           type: 'PassportCredential',
@@ -36,7 +36,7 @@ module.controller('IssuerController', function(
           }
         }
       }, {
-        credential: {
+        '@graph': {
           '@context': 'https://w3id.org/identity/v1',
           id: window.data.baseUri + '/issuer/credentials/' + (Date.now() + 1),
           type: 'ProofOfAgeCredential',
