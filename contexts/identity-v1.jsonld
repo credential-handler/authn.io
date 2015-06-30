@@ -38,6 +38,7 @@
     "streetAddress": "schema:streetAddress",
     "url": {"@id": "schema:url", "@type": "@id"},
 
+    "Credential": "sec:Credential",
     "CryptographicKey": "sec:Key",
     "EncryptedMessage": "sec:EncryptedMessage",
     "GraphSignature2012": "sec:GraphSignature2012",

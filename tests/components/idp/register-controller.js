@@ -232,25 +232,26 @@ function factory($scope, $http, $location, ipCookie, brAlertService, config) {
       }
     }).then(function() {
       ipCookie('did', did);
+      var exHost = did.split(':')[1];
       var emailCredential = {
         '@context': 'https://w3id.org/identity/v1',
         id: did,
         credential: [{
           '@graph': {
             '@context': 'https://w3id.org/identity/v1',
-            type: 'EmailCredential',
+            type: ['Credential', 'EmailCredential'],
             claim: {
               id: did,
-              email: did + '@example.com'
+              email: 'test@' + exHost + '.example.com'
             }
           }
         }, {
           '@graph': {
             '@context': 'https://w3id.org/identity/v1',
-            type: 'EmailCredential',
+            type: ['Credential', 'EmailCredential'],
             claim: {
               id: did,
-              email: did + '@example.org'
+              email: 'test@' + exHost + '.example.org'
             }
           }
         }]

@@ -26,7 +26,7 @@ module.controller('IssuerController', function(
         '@graph': {
           '@context': 'https://w3id.org/identity/v1',
           id: window.data.baseUri + '/issuer/credentials/' + Date.now(),
-          type: 'PassportCredential',
+          type: ['Credential', 'PassportCredential'],
           claim: {
             id: window.data.issuer.identity.id,
             name: 'Pat Doe',
@@ -39,7 +39,7 @@ module.controller('IssuerController', function(
         '@graph': {
           '@context': 'https://w3id.org/identity/v1',
           id: window.data.baseUri + '/issuer/credentials/' + (Date.now() + 1),
-          type: 'ProofOfAgeCredential',
+          type: ['Credential', 'ProofOfAgeCredential'],
           claim: {
             id: window.data.issuer.identity.id,
             ageOver: 21
