@@ -15,8 +15,16 @@
         </br-input>
 
         <div style="text-align:center;">
-          <button ng-click="model.login(model.username,model.password)" type="submit" class="btn btn-primary">Login</button>
-          <a href="register" type="button" class="btn btn-primary">Register</a>
+          <input type="checkbox" name="public-terminal" ng-model="model.publicComputer"/> I'm using a public computer
+        </div>
+
+        <div style="text-align:center;">
+          <button ng-disabled="model.generating" ng-click="model.login(model.username,model.password)" type="submit" class="btn btn-primary">Login</button>
+        </div>
+
+        <div style="text-align:center;" ng-show="model.generating">
+          Securing your connection, this may take a minute...
+          <i class="fa fa-refresh fa-spin text-muted"></i>
         </div>
 
       </fieldset>

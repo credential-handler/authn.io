@@ -55,9 +55,6 @@ module.controller(
   };
   if(self.keyInfo.id) {
     signer.creator = self.keyInfo.id;
-  } else {
-    // FIXME: Implement ephemeral key support
-    signer.creator = 'urn:sha256:PUBLIC_KEY_FINGERPRINT_IMPLEMENT_ME'
   }
   jsig.sign(self.identity, signer, function(err, signedIdentity) {
     if(err) {

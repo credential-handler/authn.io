@@ -19,7 +19,38 @@ module.controller('RequestController', function(
   $scope, $http, $location, ipCookie, config, brAlertService) {
   var self = this;
   self.loginRequired = false;
+  self.generating = false;
   self.keyInfo = {};
+  self.publicComputer = false;
+
+  /**
+   * Helper method to generate a temporary keypair asynchronously.
+   *
+   * @return a promise that resolves to a keypair, or rejects with the error.
+   */
+  self._generateTemporaryKey = function() {
+    return new Promise(function(resolve, reject) {
+      self.generating = true;
+      $scope.$apply();
+      forge.pki.rsa.generateKeyPair({
+        bits: 2048,
+        workerScript: '/bower-components/forge/js/prime.worker.js'
+      }, function(err, keypair) {
+        self.generating = false;
+        $scope.$apply();
+        if(err) {
+          return reject(err);
+        }
+        // FIXME: Should we be using SHA-256 for the key fingerprint?
+        return resolve({
+          id: 'urn:rsa-public-key-sha1:' + pki.getPublicKeyFingerprint(
+            keypair.publicKey, {encoding: 'hex', delimiter: ':'}),
+          publicKeyPem: forge.pki.publicKeyToPem(keypair.publicKey),
+          privateKeyPem: forge.pki.privateKeyToPem(keypair.privateKey)
+        });
+      });
+    });
+  }
 
   /**
    * Attempt to redirect the browser if a session exists.
@@ -63,8 +94,8 @@ module.controller('RequestController', function(
 
     // decrypt the encrypted key, if it exists
     if(self.keyInfo && self.keyInfo.privateKeyPem) {
-      privateKey =
-        pki.decryptRsaPrivateKey(self.keyInfo.privateKeyPem, username + password);
+      privateKey = pki.decryptRsaPrivateKey(
+        self.keyInfo.privateKeyPem, username + password);
     }
 
     // fetch the username + passphrase mapping
@@ -79,12 +110,12 @@ module.controller('RequestController', function(
         } else {
           throw new Error('DID lookup failed');
         }
-        console.log('got did:', did);
 
-        // TODO: Re-direct to request-with-new-device path
-        if(!privateKey) {
-          console.log('TODO: Implement request credential with ' +
-            'new device flow');
+        return self._generateTemporaryKey(hash);
+      }).then(function(key) {
+        if(self.publicComputer) {
+          self.keyInfo = key;
+          privateKey = pki.privateKeyFromPem(self.keyInfo.privateKeyPem);
         }
 
         // get the DID document
@@ -97,6 +128,9 @@ module.controller('RequestController', function(
         // fetched the person's IDP DID document
         var idpDidDocument = response.data;
         // extract the IDP DID credential request URL
+        // FIXME: security issue - do not store the public key information 
+        // in a cookie since the private key is sent unencrypted to/from 
+        // authorization.io
         var cookie = {
           did: did,
           publicKey: {
