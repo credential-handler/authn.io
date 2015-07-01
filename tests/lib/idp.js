@@ -114,14 +114,51 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       };
       if(req.query.action === 'request') {
         // generate a fake credential
-        var credentials = gCredentials[req.cookies.did];
-        vars.idp.identity.credential = credentials;
+        vars.idp.identity.credential = gCredentials[req.cookies.did];
         vars.idp.identity.type = 'Identity';
-        vars.idp.identity.id = credentials[0]['@graph'].claim.id;
+        vars.idp.identity.id =
+          vars.idp.identity.credential[0]['@graph'].claim.id;
 
         // extract the credential callback URL
         vars.idp.credentialCallbackUrl = req.query.credentialCallback;
-        res.render('idp/credentials.html', vars);
+
+        // add a new credential for the public key
+        var credQuery = {};
+        try {
+          credQuery = JSON.parse(req.body.jsonPostData);
+        } catch(err) {
+          console.log('Error: Failed to extract credential query:', err);
+        }
+        if(credQuery.publicKey) {
+          var publicKeyCredential = {
+            '@context': "https://w3id.org/identity/v1",
+            type: [
+              'Credential',
+              'CryptographicKeyCredential'
+            ],
+            claim: {
+              id: vars.idp.identity.id,
+              publicKey: credQuery.publicKey
+            }
+          };
+
+          // sign the public key credential
+          jsigs.sign(publicKeyCredential, {
+            privateKeyPem: forge.pki.privateKeyToPem(gIdPKeypair.privateKey),
+            creator: config.server.baseUri + '/idp/keys/1'
+          }, function(err, signedPublicKeyCredential) {
+            if(!err) {
+              vars.idp.identity.credential.push({
+                '@graph': signedPublicKeyCredential
+              });
+            }
+            res.render('idp/credentials.html', vars);
+            // remove temporary key credential
+            vars.idp.identity.credential.pop()
+          });
+        } else {
+          res.render('idp/credentials.html', vars);
+        }
       } else if(req.query.action === 'store') {
         try {
           if(req.body.jsonPostData) {

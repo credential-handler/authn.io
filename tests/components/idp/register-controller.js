@@ -129,7 +129,7 @@ function factory($scope, $http, $location, ipCookie, brAlertService, config) {
   self.register = function() {
     var idp = 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1';
     var keypair = null;
-    var did = null;
+    var did = didio.generateDid();
     var hash = didio.generateHash(self.username, self.passphrase);
     var mappingData = {};
     var didDocument = {};
@@ -142,11 +142,13 @@ function factory($scope, $http, $location, ipCookie, brAlertService, config) {
       // store encrypted private key in browser local storage
       var encryptedPem = forge.pki.encryptRsaPrivateKey(
         keypair.privateKey, self.username + self.passphrase);
-      localStorage.setItem(hash, encryptedPem);
+      localStorage.setItem(hash, JSON.stringify({
+        id: did + '/keys/1',
+        publicKeyPem: forge.pki.publicKeyToPem(keypair.publicKey),
+        privateKeyPem: encryptedPem
+      }));
       self.generating = false;
 
-      // generate the DID
-      did = didio.generateDid();
 
       // create the DID document
       didDocument = {

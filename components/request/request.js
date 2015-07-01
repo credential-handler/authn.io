@@ -19,6 +19,7 @@ module.controller('RequestController', function(
   $scope, $http, $location, ipCookie, config, brAlertService) {
   var self = this;
   self.loginRequired = false;
+  self.keyInfo = {};
 
   /**
    * Attempt to redirect the browser if a session exists.
@@ -31,6 +32,10 @@ module.controller('RequestController', function(
         expires: 120,
         expirationUnit: 'minutes'
       });
+
+      // extract the keyInfo if it exists in the session
+      self.keyInfo = session.publicKey;
+
       _navigateToIdp(session);
     } catch(e) {
       self.loginRequired = true;
@@ -46,12 +51,20 @@ module.controller('RequestController', function(
    */
   self.login = function(username, password) {
     var hash = didio.generateHash(username, password);
-    var encryptedPem = localStorage.getItem(hash);
+    self.keyInfo = localStorage.getItem(hash);
     var privateKey = null;
 
+    // try to JSON parse the self.keyInfo
+    try {
+      self.keyInfo = JSON.parse(self.keyInfo);
+    } catch(err) {
+      console.log('Error: Failed to extract key information for this device.');
+    }
+
     // decrypt the encrypted key, if it exists
-    if(encryptedPem) {
-      privateKey = pki.decryptRsaPrivateKey(encryptedPem, username + password);
+    if(self.keyInfo && self.keyInfo.privateKeyPem) {
+      privateKey =
+        pki.decryptRsaPrivateKey(self.keyInfo.privateKeyPem, username + password);
     }
 
     // fetch the username + passphrase mapping
@@ -86,7 +99,11 @@ module.controller('RequestController', function(
         // extract the IDP DID credential request URL
         var cookie = {
           did: did,
-          privateKeyPem: pki.privateKeyToPem(privateKey),
+          publicKey: {
+            id: self.keyInfo.id,
+            publicKeyPem: self.keyInfo.publicKeyPem,
+            privateKeyPem: pki.privateKeyToPem(privateKey),
+          },
           credentialRequestUrl: idpDidDocument.credentialsRequestUrl,
           storageRequestUrl: idpDidDocument.storageRequestUrl
         };
@@ -114,6 +131,17 @@ module.controller('RequestController', function(
 
     if(credentialCallback) {
       sessionStorage.setItem(id, credentialCallback);
+
+      // add the public key for the request (if one exists)
+      if(self.keyInfo.publicKeyPem) {
+        config.data.credentialRequest.publicKey = {
+          publicKeyPem: self.keyInfo.publicKeyPem
+        }
+        if(self.keyInfo.id) {
+          config.data.credentialRequest.publicKey.id = self.keyInfo.id;
+        }
+      }
+
       navigator.credentials.request(config.data.credentialRequest, {
         requestUrl: session.credentialRequestUrl,
         credentialCallback: authioCallback
