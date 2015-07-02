@@ -1,6 +1,6 @@
 {
   "name": "authorization.io",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "scripts": {
     "start": "node authorization.dev.js",
     "test": "node authorization.dev.js test",
