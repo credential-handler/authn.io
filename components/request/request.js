@@ -30,6 +30,11 @@ module.controller('RequestController', function(
    */
   self._generateTemporaryKey = function() {
     return new Promise(function(resolve, reject) {
+      // skip temporary key generation if this is not a public computer
+      if(!self.publicComputer) {
+        return resolve();
+      }
+
       self.generating = true;
       $scope.$apply();
       forge.pki.rsa.generateKeyPair({
@@ -41,10 +46,13 @@ module.controller('RequestController', function(
         if(err) {
           return reject(err);
         }
-        // FIXME: Should we be using SHA-256 for the key fingerprint?
+        // generate the sha-256 public key fingerprint
+        var fingerprint = pki.getPublicKeyFingerprint(keypair.publicKey, {
+          md: forge.md.sha256.create(),encoding: 'hex', delimiter: ':'
+        });
+
         return resolve({
-          id: 'urn:rsa-public-key-sha1:' + pki.getPublicKeyFingerprint(
-            keypair.publicKey, {encoding: 'hex', delimiter: ':'}),
+          id: 'urn:rsa-public-key-sha1:' + fingerprint,
           publicKeyPem: forge.pki.publicKeyToPem(keypair.publicKey),
           privateKeyPem: forge.pki.privateKeyToPem(keypair.privateKey)
         });
@@ -128,8 +136,8 @@ module.controller('RequestController', function(
         // fetched the person's IDP DID document
         var idpDidDocument = response.data;
         // extract the IDP DID credential request URL
-        // FIXME: security issue - do not store the public key information 
-        // in a cookie since the private key is sent unencrypted to/from 
+        // FIXME: security issue - do not store the public key information
+        // in a cookie since the private key is sent unencrypted to/from
         // authorization.io
         var cookie = {
           did: did,
