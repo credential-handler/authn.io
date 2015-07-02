@@ -52,7 +52,7 @@ module.controller('RequestController', function(
         });
 
         return resolve({
-          id: 'urn:rsa-public-key-sha1:' + fingerprint,
+          id: 'urn:rsa-public-key-sha256:' + fingerprint,
           publicKeyPem: forge.pki.publicKeyToPem(keypair.publicKey),
           privateKeyPem: forge.pki.privateKeyToPem(keypair.privateKey)
         });
