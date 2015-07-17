@@ -1,5 +1,5 @@
 define([
-  'angular', 'underscore', 'async', 'forge/forge', 'jsonld',
+  'angular', 'underscore', 'async', 'forge/js/forge', 'jsonld',
   'jsonld-signatures'],
   function(angular, _, async, forge, jsonld, jsigjs) {
 

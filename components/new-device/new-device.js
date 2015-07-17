@@ -1,4 +1,4 @@
-define(['angular', 'forge/forge'], function(angular, forge) {
+define(['angular', 'forge/js/forge'], function(angular, forge) {
 
 'use strict';
 

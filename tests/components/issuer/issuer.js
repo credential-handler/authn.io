@@ -1,6 +1,6 @@
 define([
   'angular',
-  'forge/forge',
+  'forge/js/forge',
   'did-io',
   'node-uuid'
 ], function(angular, forge, didiojs, uuid) {

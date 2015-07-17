@@ -20,11 +20,11 @@
     "lodash": "^3.9.2"
   },
   "devDependencies": {
-    "bedrock-protractor": "^1.0.0",
-    "request": "~2.55.0",
-    "node-forge": "~0.6.28",
+    "bedrock-protractor": "^2.0.0",
     "jsonld": "~0.3.22",
-    "jsonld-signatures": "~0.2.5"
+    "jsonld-signatures": "~0.2.5",
+    "node-forge": "~0.6.28",
+    "request": "~2.55.0"
   },
   "engines": {
     "node": ">=0.10.0"

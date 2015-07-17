@@ -1,5 +1,5 @@
 define([
-  'underscore', 'async', 'forge/forge', 'did-io', 'node-uuid', 'jsonld',
+  'underscore', 'async', 'forge/js/forge', 'did-io', 'node-uuid', 'jsonld',
   'jsonld-signatures'],
 function(_, async, forge, didiojs, uuid, jsonld, jsigjs) {
 

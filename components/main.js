@@ -1,7 +1,7 @@
 define([
   'angular',
   'underscore',
-  'forge/forge',
+  'forge/js/forge',
   'did-io',
   './request/request',
   './new-device/new-device',
