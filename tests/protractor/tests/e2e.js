@@ -1,4 +1,7 @@
 var bedrock = GLOBAL.bedrock;
+var expect = GLOBAL.expect;
+var describe = GLOBAL.describe;
+var it = GLOBAL.it;
 
 // variables used throughout the tests
 var baseId = bedrock.randomString().toLowerCase();
@@ -58,6 +61,7 @@ describe('registration', function() {
         'nonMatchingPhraseB', 'inputMatch');
     });
     */
+
     it('should create a mapping and DID document', function() {
       // Override default timeout, RSA key generation is slow on older CPUs.
       this.timeout(180000);
@@ -69,15 +73,16 @@ describe('registration', function() {
 });
 
 describe('login', function() {
-/*
   it('should reject an invalid email', function() {
     bedrock.pages.authio.navigateToLoginForm();
     bedrock.pages.authio.login({
       email: 'invalid-email@example.com',
-      passphrase: identity.passphrase
+      passphrase: identity.passphrase,
+      expectFailure: true
     });
   });
 
+/*
   it('should reject an invalid password', function() {
     bedrock.pages.authio.navigateToLoginForm();
     bedrock.pages.authio.login({

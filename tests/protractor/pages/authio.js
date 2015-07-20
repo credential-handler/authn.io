@@ -24,41 +24,52 @@ api.navigateToLoginForm = function() {
 };
 
 api.login = function(options) {
+  var expectFailure = options.expectFailure || false;
   element(by.brModel('model.username')).sendKeys(options.email);
   element(by.brModel('model.password')).sendKeys(options.passphrase);
   if(options.publicComputer) {
     element(by.model('model.publicComputer')).click();
   }
   element(by.buttonText('Login')).click();
+  bedrock.waitForAngular();
 
   // if errors exist, fail
-  // FIXME: Check for errors
-  //expect($('.br-alert-area-fixed-show').isPresent()).toBe(false);
+  element(by.css('.br-alert-area-fixed-show')).isPresent()
+    .then(function(present) {
+      if(expectFailure && present) {
+        return api;
+      } else if(expectFailure && !present) {
+        throw('Expected login to fail');
+      } else if(!expectFailure && present) {
+        throw('Expected login to succeed');
+      } else {
+        // wait for compose screen
+        bedrock.waitForUrl(function(url) {
+          return url.indexOf('/idp/credentials?') !== -1;
+        });
+        bedrock.waitForAngular();
 
-  // wait for compose screen
-  bedrock.waitForUrl(function(url) {
-    return url.indexOf('/idp/credentials?') !== -1;
-  });
-  bedrock.waitForAngular();
+        // compose and wait for send screen
+        var composeButton = element(by.buttonText('Compose Credential'));
+        browser.wait(
+          protractor.ExpectedConditions.elementToBeClickable(composeButton),
+          5000);
+        composeButton.click();
+        bedrock.waitForUrl(function(url) {
+          return url.indexOf('/credentials?') !== -1;
+        });
+        bedrock.waitForAngular();
 
-  // compose and wait for send screen
-  var composeButton = element(by.buttonText('Compose Credential'));
-  browser.wait(
-    protractor.ExpectedConditions.elementToBeClickable(composeButton), 5000);
-  composeButton.click();
-  bedrock.waitForUrl(function(url) {
-    return url.indexOf('/credentials?') !== -1;
-  });
-  bedrock.waitForAngular();
+        // send credentials and wait for
+        var sendButton = element(by.buttonText('Send Credentials'));
+        browser.wait(
+          protractor.ExpectedConditions.elementToBeClickable(sendButton), 5000);
+        sendButton.click();
 
-  // send credentials and wait for
-  var sendButton = element(by.buttonText('Send Credentials'));
-  browser.wait(
-    protractor.ExpectedConditions.elementToBeClickable(sendButton), 5000);
-  sendButton.click();
-
-  bedrock.waitForUrl('/issuer/dashboard');
-  bedrock.waitForAngular();
+        bedrock.waitForUrl('/issuer/dashboard');
+        bedrock.waitForAngular();
+      }
+    });
 
   return api;
 };
