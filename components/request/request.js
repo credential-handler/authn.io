@@ -58,7 +58,7 @@ module.controller('RequestController', function(
         });
       });
     });
-  }
+  };
 
   /**
    * Attempt to redirect the browser if a session exists.
@@ -144,7 +144,7 @@ module.controller('RequestController', function(
           publicKey: {
             id: self.keyInfo.id,
             publicKeyPem: self.keyInfo.publicKeyPem,
-            privateKeyPem: pki.privateKeyToPem(privateKey),
+            privateKeyPem: pki.privateKeyToPem(privateKey)
           },
           credentialRequestUrl: idpDidDocument.credentialsRequestUrl,
           storageRequestUrl: idpDidDocument.storageRequestUrl
@@ -178,7 +178,7 @@ module.controller('RequestController', function(
       if(self.keyInfo.publicKeyPem) {
         config.data.credentialRequest.publicKey = {
           publicKeyPem: self.keyInfo.publicKeyPem
-        }
+        };
         if(self.keyInfo.id) {
           config.data.credentialRequest.publicKey.id = self.keyInfo.id;
         }
