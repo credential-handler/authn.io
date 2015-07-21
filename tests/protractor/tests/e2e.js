@@ -72,6 +72,7 @@ describe('registration', function() {
 });
 
 describe('session management', function() {
+
   it('should reject an invalid email for login', function() {
     bedrock.pages.authio.navigateToLoginForm();
     bedrock.pages.authio.login({
@@ -100,7 +101,6 @@ describe('session management', function() {
     });
     bedrock.pages.authio.logout();
   });
-
 
   it('should allow a valid login', function() {
     bedrock.pages.authio.navigateToLoginForm();
