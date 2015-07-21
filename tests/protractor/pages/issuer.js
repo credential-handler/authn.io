@@ -46,10 +46,11 @@ api.issueAndStoreCredential = function() {
   browser.wait(
     protractor.ExpectedConditions.elementToBeClickable(sendButton), 5000);
   sendButton.click();
+  bedrock.waitForAngular();
 
   // wait for acknowledgement
   bedrock.waitForUrl('/issuer/acknowledgements');
   bedrock.waitForAngular();
 
   return api;
-}
+};

@@ -22,7 +22,7 @@ describe('registration', function() {
     beforeEach(function() {
       bedrock.pages.idp.navigateToRegistrationForm();
     });
-/*
+
     it('should contain the proper form elements', function() {
       bedrock.pages.idp.checkFields();
     });
@@ -60,7 +60,6 @@ describe('registration', function() {
         'model.passphrase', 'model.passphraseConfirmation', 'goodPhraseA',
         'nonMatchingPhraseB', 'inputMatch');
     });
-    */
 
     it('should create a mapping and DID document', function() {
       // Override default timeout, RSA key generation is slow on older CPUs.
@@ -73,7 +72,6 @@ describe('registration', function() {
 });
 
 describe('session management', function() {
-  /*
   it('should reject an invalid email for login', function() {
     bedrock.pages.authio.navigateToLoginForm();
     bedrock.pages.authio.login({
@@ -112,8 +110,6 @@ describe('session management', function() {
     });
     bedrock.pages.authio.logout();
   });
-  */
-
 });
 
 describe('issuing', function() {
@@ -129,5 +125,6 @@ describe('issuing', function() {
 describe('consuming', function() {
   it('should compose, transmit, and consume a credential', function() {
     bedrock.pages.consumer.navigateToConsumer().retrieveCredential();
+    bedrock.pages.authio.logout();
   });
 });
