@@ -27,6 +27,9 @@ api.issueAndStoreCredential = function() {
   bedrock.waitForAngular();
 
   element(by.buttonText('Issue Passport Credential')).click();
+  // FIXME: Find some way to not use sleep
+  browser.driver.sleep(1000);
+  bedrock.waitForAngular();
 
   // wait for the store button and click it
   var storeButton = element(by.buttonText('Store Credential'));

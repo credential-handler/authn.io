@@ -102,7 +102,7 @@ describe('session management', function() {
     });
     bedrock.pages.authio.logout();
   });
-  */
+
 
   it('should allow a valid login', function() {
     bedrock.pages.authio.navigateToLoginForm();
@@ -112,13 +112,13 @@ describe('session management', function() {
     });
     bedrock.pages.authio.logout();
   });
+  */
 
 });
 
 describe('issuing', function() {
   it('should issue and store a credential', function() {
-    bedrock.pages.authio.navigateToLoginForm();
-    bedrock.pages.authio.login({
+    bedrock.pages.authio.navigateToLoginForm().login({
       email: identity.email,
       passphrase: identity.passphrase
     });
@@ -128,5 +128,6 @@ describe('issuing', function() {
 
 describe('consuming', function() {
   it('should compose, transmit, and consume a credential', function() {
+    bedrock.pages.consumer.navigateToConsumer().retrieveCredential();
   });
 });

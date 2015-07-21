@@ -31,6 +31,8 @@ api.login = function(options) {
     element(by.model('model.publicComputer')).click();
   }
   element(by.buttonText('Login')).click();
+  // FIXME: Find some way to not use sleep
+  browser.driver.sleep(1000);
   bedrock.waitForAngular();
 
   // if errors exist, fail
