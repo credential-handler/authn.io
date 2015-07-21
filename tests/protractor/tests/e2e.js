@@ -72,8 +72,9 @@ describe('registration', function() {
 
 });
 
-describe('login', function() {
-  it('should reject an invalid email', function() {
+describe('session management', function() {
+  /*
+  it('should reject an invalid email for login', function() {
     bedrock.pages.authio.navigateToLoginForm();
     bedrock.pages.authio.login({
       email: 'invalid-email@example.com',
@@ -82,42 +83,46 @@ describe('login', function() {
     });
   });
 
-/*
-  it('should reject an invalid password', function() {
+  it('should reject an invalid password for login', function() {
     bedrock.pages.authio.navigateToLoginForm();
     bedrock.pages.authio.login({
       email: identity.email,
-      passphrase: 'invalid-passphrase'
+      passphrase: 'invalid-passphrase',
+      expectFailure: true
     });
   });
 
-  it('should allow a login from a public computer', function() {
+  it('should allow a valid login from a public computer', function() {
     bedrock.pages.authio.navigateToLoginForm();
     this.timeout(180000);
     bedrock.pages.authio.login({
       email: identity.email,
       passphrase: identity.passphrase,
-      publicComputer: true,
-      wait: true
+      publicComputer: true
     });
     bedrock.pages.authio.logout();
   });
-*/
+  */
 
   it('should allow a valid login', function() {
     bedrock.pages.authio.navigateToLoginForm();
     bedrock.pages.authio.login({
       email: identity.email,
-      passphrase: identity.passphrase,
-      wait: true
+      passphrase: identity.passphrase
     });
+    bedrock.pages.authio.logout();
   });
 
 });
 
-/*
 describe('issuing', function() {
   it('should issue and store a credential', function() {
+    bedrock.pages.authio.navigateToLoginForm();
+    bedrock.pages.authio.login({
+      email: identity.email,
+      passphrase: identity.passphrase
+    });
+    bedrock.pages.issuer.issueAndStoreCredential();
   });
 });
 
@@ -125,4 +130,3 @@ describe('consuming', function() {
   it('should compose, transmit, and consume a credential', function() {
   });
 });
-*/
