@@ -16,7 +16,7 @@ module.controller(
   self.identity = config.data.authio.identity;
   self.transmitDisabled = true;
 
-  // setup custom document loader for identity JSON-LD context
+  // setup custom document loader for identity JON-LD context
   jsonld = jsonld();
   var _oldLoader = jsonld.documentLoader;
   jsonld.documentLoader = function(url) {

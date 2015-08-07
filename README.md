@@ -28,10 +28,10 @@ This software enables a person to:
    public key associated in the previous step, and store it in a
    decentralized identifier document in a decentralized network.
 3. Map an email address / passphrase combination to a decentralized
-   identifier document. 
+   identifier document.
 4. Map a decentralized identifier document to
    a credential vault / identity provider.
-5. Proxy read and write requests for credentials between 
+5. Proxy read and write requests for credentials between
    credential issuers, credential consumers, and credential vaults /
    identity providers.
 
@@ -136,7 +136,7 @@ Access the server at the following URL:
     * gives back public key to be signed
     * passed to accept/send
 # Demos
-  * Registration  
+  * Registration
     * head to /idp
     * Click create identity
     * Type a username and password, and click Submit.
@@ -147,7 +147,7 @@ Access the server at the following URL:
     * You will be redirected to /idp with the requested credentials and the id
     * Click Accept credentials
     * You will be redirected to authorization.io
-    * Then to the credential consumer attached with the request with the approved credentials. 
+    * Then to the credential consumer attached with the request with the approved credentials.
 
 
 
