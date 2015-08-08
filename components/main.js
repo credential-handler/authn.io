@@ -6,7 +6,8 @@ define([
   './request/request',
   './new-device/new-device',
   './credentials/credentials',
-  './idp-test/idp-test'
+  './idp-test/idp-test',
+  './register/register'
 ], function(
   angular, _, forge, didio
 ) {
@@ -14,7 +15,8 @@ define([
 'use strict';
 
 var module = angular.module('authio.authorizationio', [
-  'authio.login', 'authio.new-device', 'authio.credentials', 'bedrock.alert']);
+  'authio.login', 'authio.new-device', 'authio.credentials',
+  'authio.register2', 'bedrock.alert']);
 
 /* @ngInject */
 module.config(function($routeProvider) {

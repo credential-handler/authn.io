@@ -1,0 +1,82 @@
+<h1 align="center">DID Registration</h1>
+
+<div ng-controller="RegisterController2 as model">
+  <div ng-show="model.display.form">
+    <h3>Information posted from polyfill</h3>
+    <pre>{{ model.idpRegistration | json }}</pre>
+    <form name="regForm" class="form-horizontal" role="form" novalidate
+      ng-submit="model.validateForm()">
+      <fieldset>
+          <br-input br-model="model.username"
+            br-options="{name: 'email', label: 'Email'}"
+            ng-minlength="6" ng-maxlength="128" required>
+            <div name="br-input-help">
+              Please enter your email address.
+            </div>
+            <div name="br-input-validation-errors">
+              <p ng-show="regForm.email.$error.required">
+                Email is required.
+              </p>
+              <p ng-show="regForm.email.$error.minlength">
+                Email is required to be at least 6 characters.
+              </p>
+              <p ng-show="regForm.email.$error.maxlength">
+                Email must not be longer than 128 characters.
+              </p>
+            </div>
+          </br-input>
+          <br-input br-model="model.passphrase"
+            br-options="{name: 'passphrase', label: 'Passphrase', type: 'password'}"
+            ng-minlength="6" ng-maxlength="128" required>
+            <div name="br-input-help">
+              Please enter a passphrase.
+            </div>
+            <div name="br-input-validation-errors">
+              <p ng-show="regForm.passphrase.$error.required">
+                Passphrase is required.
+              </p>
+              <p ng-show="regForm.passphrase.$error.minlength">
+                Passphrase is required to be at least 6 characters.
+              </p>
+              <p ng-show="regForm.passphrase.$error.maxlength">
+                Passphrase must not be longer than 128 characters.
+              </p>
+            </div>
+          </br-input>
+          <br-input br-model="model.passphraseConfirmation"
+            br-options="{
+              name: 'passphraseConfirmation',
+              label: 'Confirm Passphrase',
+              type: 'password'
+            }" br-input-aio-matches-input="model.passphrase">
+            <div name="br-input-help">
+              Please confirm your passphrase.
+            </div>
+            <div name="br-input-validation-errors">
+              <p ng-show="regForm.passphraseConfirmation.$error.inputMatch">
+                Passphrase and Confirm Passphrase must match.
+              </p>
+            </div>
+          </br-input>
+        <div style="text-align:center;">
+          <button ng-disabled="model.registering || model.generating"
+            type="submit" class="btn btn-primary">Register</button>
+        </div>
+        <div style="text-align:center;" ng-show="model.generating">
+          Securing your login information, this may take a minute...
+          <i class="fa fa-refresh fa-spin text-muted"></i>
+        </div>
+        <div style="text-align:center;" ng-show="model.registering">
+          Waiting in line to register... {{model.secondsLeft}} seconds remaining.
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div ng-show="model.display.information">
+    <h3>This information will be sent to your IDP at {{ model.idpRegistration.registrationCallback }}</h3>
+    <pre class="pre-scrollable">{{ model.didDocument | json }}</pre>
+    <form name="idpForm" method="post" action="{{ model.idpRegistrationCallback }}">
+      <input type="hidden" name="jsonPostData" value="{{ model.didDocument }}">
+    <button type="submit" class="btn btn-primary">Continue</button>
+  </div>
+</div>
