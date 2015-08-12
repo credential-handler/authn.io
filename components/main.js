@@ -6,6 +6,7 @@ define([
   './request/request',
   './new-device/new-device',
   './credentials/credentials',
+  './credentials-store/credentials',
   './idp-test/idp-test',
   './register/register'
 ], function(
@@ -16,7 +17,7 @@ define([
 
 var module = angular.module('authio.authorizationio', [
   'authio.login', 'authio.new-device', 'authio.credentials',
-  'authio.register2', 'bedrock.alert']);
+  'authio.register2', 'authio.credentials-store', 'bedrock.alert']);
 
 /* @ngInject */
 module.config(function($routeProvider) {
@@ -40,6 +41,11 @@ module.config(function($routeProvider) {
     when('/credentials', {
       title: 'Approve Credentials',
       templateUrl: requirejs.toUrl('components/credentials/credentials.html')
+    }).
+    when('/credentials/store', {
+      title: 'Store Credentials',
+      templateUrl: requirejs.toUrl(
+        'components/credentials-store/credentials.html')
     }).
     when('/test/credentials/idpquery', {
       title: 'Mock Credential Consumer Query',
