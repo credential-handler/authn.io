@@ -106,8 +106,6 @@ function factory($scope, $http, $location, ipCookie, config, brAlertService) {
     var did = null;
     Promise.resolve($http.get('/mappings/' + hash))
       .then(function(response) {
-        console.log('response from GET /mappings/:hash', response);
-
         // the mapping fetch succeeded
         if(response.data && response.data.did) {
           did = response.data.did;
