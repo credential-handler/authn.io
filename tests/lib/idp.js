@@ -129,6 +129,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
         } catch(err) {
           console.log('Error: Failed to extract credential query:', err);
         }
+        vars.query = credQuery;
         if(credQuery.publicKey) {
           var publicKeyCredential = {
             '@context': "https://w3id.org/identity/v1",

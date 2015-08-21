@@ -1,12 +1,30 @@
-define([], function() {
+define(['angular'], function(angular) {
 
 'use strict';
 
 /* @ngInject */
-function factory($scope, $http, $location, brAlertService) {
+function factory(
+  $scope, $http, $location, $rootScope, brAlertService,
+  credFormLibraryService) {
   var self = this;
   self.idp = window.data.idp;
+  self.credentials = self.idp.identity.credential.map(function(credential) {
+    return credential['@graph'];
+  });
   self.action = 'request';
+  self.composed = null;
+  if(window.data.query) {
+    self.query = angular.copy(window.data.query);
+    // FIXME
+    delete self.query.publicKey;
+    delete self.query['@context'];
+  }
+
+  self.library = null;
+  var library = credFormLibraryService.getLibrary().then(function(library) {
+    self.library = library;
+    $rootScope.$apply();
+  });
 
   if($location.search().action === 'store') {
     self.action = 'store';
