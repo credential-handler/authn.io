@@ -1,0 +1,340 @@
+{
+  "@context": [
+    "https://w3id.org/credentials/v1",
+    "../contexts/test-v1.jsonld"
+  ],
+  "id": "urn:test:vocabs:test-v1",
+  "label": "Test Vocabulary",
+  "@graph": [
+    {
+      "id": "schema:email",
+      "type": "Property",
+      "label": "Email Address",
+      "range": "String"
+    },
+    {
+      "id": "schema:streetAddress",
+      "type": "Property",
+      "label": "Street Address",
+      "range": "String"
+    },
+    {
+      "id": "schema:addressLocality",
+      "type": "Property",
+      "label": "Locality",
+      "range": "String"
+    },
+    {
+      "id": "schema:addressRegion",
+      "type": "Property",
+      "label": "Region",
+      "range": "String"
+    },
+    {
+      "id": "schema:postalCode",
+      "type": "Property",
+      "label": "Postal Code",
+      "range": "String"
+    },
+    {
+      "id": "cred:issued",
+      "type": "Property",
+      "label": "Date Issued",
+      "range": "Date"
+    },
+    {
+      "id": "cred:issuer",
+      "type": "Property",
+      "label": "Issuer",
+      "range": "URL"
+    },
+    {
+      "id": "test:ageOver",
+      "type": "Property",
+      "label": "Age is Over",
+      "range": "String"
+    },
+    {
+      "id": "schema:height",
+      "type": "Property",
+      "label": "Height",
+      "range": "String"
+    },
+    {
+      "id": "schema:image",
+      "type": "Property",
+      "label": "Image",
+      "range": "URL",
+      "contentType": "image/*"
+    },
+    {
+      "id": "schema:weight",
+      "type": "Property",
+      "label": "Weight",
+      "range": "String"
+    },
+    {
+      "id": "schema:birthDate",
+      "type": "Property",
+      "label": "Date of Birth",
+      "range": "Date"
+    },
+    {
+      "id": "schema:birthPlace",
+      "type": "Property",
+      "label": "Place of Birth",
+      "range": "URL"
+    },
+    {
+      "id": "test:bloodType",
+      "type": "Property",
+      "label": "Blood Type",
+      "range": "String"
+    },
+    {
+      "id": "test:isSmoker",
+      "type": "Property",
+      "label": "Is a Smoker",
+      "range": "String"
+    },
+    {
+      "id": "cred:claim",
+      "type": "Property",
+      "label": "Claim",
+      "range": "URL",
+      "collapsed": true
+    },
+    {
+      "id": "schema:address",
+      "type": "Property",
+      "label": "Address",
+      "range": "URL",
+      "collapsed": true
+    },
+    {
+      "id": "test:VerifiedAddressCredential",
+      "type": "PropertyGroup",
+      "label": "Verified Address",
+      "layout": [
+        {
+          "property": "schema:image"
+        },
+        {
+          "property": "cred:issuer"
+        },
+        {
+          "property": "cred:issued"
+        },
+        {
+          "property": "cred:claim",
+          "propertyGroup": "test:PostalAddressPropertyGroup"
+        }
+      ]
+    },
+    {
+      "id": "test:AgeOverCredential",
+      "type": "PropertyGroup",
+      "label": "Verified Age",
+      "layout": [
+        {
+          "property": "schema:image"
+        },
+        {
+          "property": "cred:issuer"
+        },
+        {
+          "property": "cred:issued"
+        },
+        {
+          "property": "cred:claim",
+          "propertyGroup": "test:AgeOverPropertyGroup"
+        }
+      ]
+    },
+    {
+      "id": "test:PhysicalExaminationCredential",
+      "type": "PropertyGroup",
+      "label": "Physical Examination Results",
+      "layout": [
+        {
+          "property": "schema:image"
+        },
+        {
+          "property": "cred:issuer"
+        },
+        {
+          "property": "cred:issued"
+        },
+        {
+          "property": "cred:claim",
+          "propertyGroup": "test:PhysicalExaminationPropertyGroup"
+        }
+      ]
+    },
+    {
+      "id": "test:EmailCredential",
+      "type": "PropertyGroup",
+      "label": "Verified Email",
+      "layout": [
+        {
+          "property": "schema:image"
+        },
+        {
+          "property": "cred:issuer"
+        },
+        {
+          "property": "cred:issued"
+        },
+        {
+          "property": "cred:claim",
+          "propertyGroup": "test:EmailPropertyGroup"
+        }
+      ]
+    },
+    {
+      "id": "test:BloodTestCredential",
+      "type": "PropertyGroup",
+      "label": "Blood Test Results",
+      "layout": [
+        {
+          "property": "schema:image"
+        },
+        {
+          "property": "cred:issuer"
+        },
+        {
+          "property": "cred:issued"
+        },
+        {
+          "property": "cred:claim",
+          "propertyGroup": "test:BloodTestPropertyGroup"
+        }
+      ]
+    },
+    {
+      "id": "test:BirthDateCredential",
+      "type": "PropertyGroup",
+      "label": "Birth Date Certification",
+      "layout": [
+        {
+          "property": "schema:image"
+        },
+        {
+          "property": "cred:issuer"
+        },
+        {
+          "property": "cred:issued"
+        },
+        {
+          "property": "cred:claim",
+          "propertyGroup": "test:BirthDatePropertyGroup"
+        }
+      ]
+    },
+    {
+      "id": "test:CredentialPropertyGroup",
+      "type": "PropertyGroup",
+      "label": "General",
+      "layout": [
+        {
+          "property": "schema:image"
+        },
+        {
+          "property": "cred:issuer"
+        },
+        {
+          "property": "cred:issued"
+        }
+      ]
+    },
+    {
+      "id": "test:BirthDatePropertyGroup",
+      "type": "PropertyGroup",
+      "label": "Birth Record",
+      "layout": [
+        {
+          "property": "schema:birthDate"
+        },
+        {
+          "property": "schema:birthPlace",
+          "propertyGroup": "test:PostalAddressPropertyGroup"
+        }
+      ]
+    },
+    {
+      "id": "test:EmailPropertyGroup",
+      "type": "PropertyGroup",
+      "collapsed": true,
+      "layout": [
+        {
+          "property": "schema:email"
+        }
+      ]
+    },
+    {
+      "id": "test:BloodTestPropertyGroup",
+      "type": "PropertyGroup",
+      "layout": [
+        {
+          "property": "test:bloodType"
+        },
+        {
+          "property": "test:isSmoker"
+        }
+      ]
+    },
+    {
+      "id": "test:AgeOverPropertyGroup",
+      "type": "PropertyGroup",
+      "label": "Age Verification",
+      "layout": [
+        {
+          "property": "test:ageOver"
+        }
+      ]
+    },
+    {
+      "id": "test:PhysicalExaminationPropertyGroup",
+      "type": "PropertyGroup",
+      "label": "Physical Examination",
+      "layout": [
+        {
+          "property": "schema:height"
+        },
+        {
+          "property": "schema:weight"
+        }
+      ]
+    },
+    {
+      "id": "test:PostalAddressPropertyGroup",
+      "type": "PropertyGroup",
+      "label": "Address",
+      "layout": [
+        {
+          "property": "schema:address",
+          "propertyGroup": "test:AddressPropertyGroup"
+        }
+      ]
+    },
+    {
+      "id": "test:AddressPropertyGroup",
+      "type": "PropertyGroup",
+      "collapsed": true,
+      "layout": [
+        {
+          "property": "schema:streetAddress"
+        },
+        {
+          "property": "schema:addressLocality"
+        },
+        {
+          "property": "schema:addressRegion"
+        },
+        {
+          "property": "schema:postalCode"
+        }
+      ]
+    }
+  ]
+}

@@ -34,6 +34,21 @@ config.requirejs.bower.packages.push({
 config.views.routes.push(['/idp', 'index.html']);
 config.views.routes.push(['/issuer', 'issuer/credentials.html']);
 
+// serve demo contexts and vocabs
+config.express.static.push(path.join(
+  __dirname, '..', 'static'));
+
+// setup to load demo vocabs
+config.views.vars['bedrock-angular-credential'] =
+  config.views.vars['bedrock-angular-credential'] || {};
+config.views.vars['bedrock-angular-credential'].libraries =
+  config.views.vars['bedrock-angular-credential'].libraries || {};
+config.views.vars['bedrock-angular-credential'].libraries.default = {
+  vocabs: [
+    config.server.baseUri + '/vocabs/test-v1.jsonld'
+  ]
+};
+
 // lower minimum wait time for proofs
 config.authio.proofs.minWaitTimeInSecs = 2;
 config.authio.proofs.maxWaitTimeInSecs = 3;
