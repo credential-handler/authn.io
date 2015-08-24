@@ -159,7 +159,7 @@ function factory($scope, $http, $location, ipCookie, config, brAlertService) {
   };
 
   function _navigateToIdp(session) {
-    var id = Date.now();
+    var id = uuid.v4();
     var authioCallback =
       config.data.baseUri + '/credentials?id=' + id;
     var credentialCallback = $location.search().credentialCallback;
