@@ -5,7 +5,8 @@ define([
   'did-io',
   './request/request',
   './new-device/new-device',
-  './credentials/credentials'
+  './credentials/credentials',
+  './idp-test/idp-test'
 ], function(
   angular, _, forge, didio
 ) {
@@ -37,6 +38,14 @@ module.config(function($routeProvider) {
     when('/credentials', {
       title: 'Approve Credentials',
       templateUrl: requirejs.toUrl('components/credentials/credentials.html')
+    }).
+    when('/test/credentials/idpquery', {
+      title: 'Mock Credential Consumer Query',
+      templateUrl: requirejs.toUrl('components/idp-test/idp-test.html')
+    }).
+    when('/test/credentials/composed-identity', {
+      title: 'Mock Credential Consumer Query Results',
+      templateUrl: requirejs.toUrl('components/idp-test/idp-test.html')
     });
 });
 
@@ -84,7 +93,7 @@ module.service('DataService', function($location, $window) {
     }
   }
 
-// password / salt / encryption method / number of iterations.
+  // password / salt / encryption method / number of iterations.
 
   return {
     set: set,

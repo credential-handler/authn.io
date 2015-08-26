@@ -14,8 +14,8 @@
     "bedrock-mail": "^1.0.0",
     "bedrock-mongodb": "^1.0.0",
     "bedrock-server": "^1.0.0",
-    "bedrock-views": "^1.0.0",
     "body-parser": "^1.13.3",
+    "bedrock-views": "digitalbazaar/bedrock-views#master",
     "bower": "~1.4.1",
     "did-io": "~0.4.0",
     "lodash": "^3.9.2"
