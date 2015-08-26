@@ -8,7 +8,8 @@ define([
   './credentials/credentials',
   './credentials-store/credentials',
   './idp-test/idp-test',
-  './register/register'
+  './register/register',
+  'angular-local-storage'
 ], function(
   angular, _, forge, didio
 ) {
@@ -17,7 +18,8 @@ define([
 
 var module = angular.module('authio.authorizationio', [
   'authio.login', 'authio.new-device', 'authio.credentials',
-  'authio.register2', 'authio.credentials-store', 'bedrock.alert']);
+  'authio.register2', 'authio.credentials-store', 'bedrock.alert',
+  'LocalStorageModule']);
 
 /* @ngInject */
 module.config(function($routeProvider) {
@@ -59,6 +61,13 @@ module.config(function($routeProvider) {
       title: 'Mock Credential Storage Results',
       templateUrl: requirejs.toUrl('components/idp-test/idp-test.html')
     });
+});
+
+module.config(function(localStorageServiceProvider) {
+  localStorageServiceProvider
+    .setPrefix('authio')
+    .setStorageType('localStorage')
+    .setNotify(false, false);
 });
 
 module.service('DataService', function($location, $window) {

@@ -9,12 +9,18 @@ define([
 'use strict';
 
 /* @ngInject */
-function factory($scope, config, $location, ipCookie) {
+function factory($scope, config, $location, ipCookie, localStorageService) {
 
   var self = this;
   self.callback = sessionStorage.getItem($location.search().id);
+  self.callbackHostName = new URL(self.callback).hostname;
   self.identity = config.data.authio.identity;
   self.transmitDisabled = true;
+  self.confirmTransmission = true;
+
+  if(localStorageService.get(self.callbackHostName) === 'bypass') {
+    self.confirmTransmission = false;
+  }
 
   // setup custom document loader for identity JSON-LD context
   jsonld = jsonld();
@@ -61,6 +67,9 @@ function factory($scope, config, $location, ipCookie) {
       console.log('Error: Signature on identity failed:', err);
     }
     self.identity.signature = signedIdentity.signature;
+    if(!self.confirmTransmission) {
+      return self.transmitCredentials();
+    }
     self.transmitDisabled = false;
     $scope.$apply();
   });
@@ -69,6 +78,16 @@ function factory($scope, config, $location, ipCookie) {
     navigator.credentials.transmit(self.identity, {
       responseUrl: self.callback
     });
+  };
+
+  self.setBypass = function() {
+    if(self.bypassConfirmation) {
+      // bypass option is checked
+      localStorageService.set(self.callbackHostName, 'bypass');
+    } else {
+      // bypass option is not checked
+      localStorageService.remove(self.callbackHostName);
+    }
   };
 };
 
