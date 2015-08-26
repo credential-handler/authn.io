@@ -17,8 +17,10 @@ function factory($scope, config, $location, ipCookie, localStorageService) {
   self.identity = config.data.authio.identity;
   self.transmitDisabled = true;
   self.confirmTransmission = true;
+  var trustedDomainPrefix = 'settings.trustedDomains.';
+  var trustedDomainKey = trustedDomainPrefix + self.callbackHostName;
 
-  if(localStorageService.get(self.callbackHostName) === 'bypass') {
+  if(localStorageService.get(trustedDomainKey) === 'bypass') {
     self.confirmTransmission = false;
   }
 
@@ -83,10 +85,10 @@ function factory($scope, config, $location, ipCookie, localStorageService) {
   self.setBypass = function() {
     if(self.bypassConfirmation) {
       // bypass option is checked
-      localStorageService.set(self.callbackHostName, 'bypass');
+      localStorageService.set(trustedDomainKey, 'bypass');
     } else {
       // bypass option is not checked
-      localStorageService.remove(self.callbackHostName);
+      localStorageService.remove(trustedDomainKey);
     }
   };
 };
