@@ -16,9 +16,13 @@ function factory($scope, config, $location, ipCookie) {
   self.idp = {};
   self.idp.url = null;
   self.idp.query = null;
+  self.idp.credential = null;
   self.display = {};
   self.display.form = true;
   self.display.identity = false;
+  self.display.credential = false;
+  self.requestTypes = ['Credential Query', 'Credential Storage'];
+  self.requestType = null;
 
   var _display = function(section) {
     // hide all
@@ -34,10 +38,17 @@ function factory($scope, config, $location, ipCookie) {
     _display('identity');
   }
 
+  if(config.data.authio && config.data.authio.credential) {
+    self.credential = config.data.authio.credential;
+    _display('credential');
+  }
+
   var idpTestFormData = ipCookie('idpTestFormData');
   if(idpTestFormData) {
     self.idp.url = idpTestFormData.url;
     self.idp.query = idpTestFormData.query;
+    self.idp.credential = idpTestFormData.credential;
+    self.requestType = idpTestFormData.requestType;
   }
 
   // refresh the session cookie
@@ -53,6 +64,8 @@ function factory($scope, config, $location, ipCookie) {
     idpTestFormData = {};
     idpTestFormData.url = self.idp.url;
     idpTestFormData.query = self.idp.query;
+    idpTestFormData.credential = self.idp.credential;
+    idpTestFormData.requestType = self.requestType;
     ipCookie('idpTestFormData', idpTestFormData, {
       expires: 30,
       expirationUnit: 'days'
@@ -61,17 +74,33 @@ function factory($scope, config, $location, ipCookie) {
 
   self.send = function() {
     _saveFormData();
-    // NOTE: id is not presently used in the mock
-    var id = uuid.v4();
-    var authioCallback =
-      config.data.baseUri + '/test/credentials/composed-identity?id=' + id;
-    try {
-      navigator.credentials.request(self.idp.query, {
-        requestUrl: self.idp.url,
-        credentialCallback: authioCallback
-      });
-    } catch(err) {
-      alert(err);
+    if(self.requestType == 'Credential Query') {
+      // NOTE: id is not presently used in the mock
+      var id = uuid.v4();
+      var authioCallback =
+        config.data.baseUri + '/test/credentials/composed-identity?id=' + id;
+      try {
+        navigator.credentials.request(JSON.parse(self.idp.query), {
+          requestUrl: self.idp.url,
+          credentialCallback: authioCallback
+        });
+      } catch(err) {
+        alert(err);
+      }
+    }
+    if(self.requestType == 'Credential Storage') {
+      // NOTE: id is not presently used in the mock
+      var id = uuid.v4();
+      var authioCallback =
+        config.data.baseUri + '/test/credentials/stored-credential?id=' + id;
+      try {
+        navigator.credentials.store(JSON.parse(self.idp.credential), {
+          requestUrl: self.idp.url,
+          storageCallback: authioCallback
+        });
+      } catch(err) {
+        alert(err);
+      }
     }
   };
 
@@ -79,7 +108,6 @@ function factory($scope, config, $location, ipCookie) {
     if(field) {
       self.idp[field] = null;
     } else {
-      $scope.idptestform.$setPristine();
       _.each(self.idp, function(value, key, list) {
         self.idp[key] = null;
       });
@@ -88,6 +116,31 @@ function factory($scope, config, $location, ipCookie) {
 
   self.startOver = function() {
     _display('form');
+  };
+
+  self.generateCredential = function() {
+    var mockCredential = {
+      "@context": "https://w3id.org/credentials/v1",
+      "type": [
+        "Credential",
+        "test:EmailCredential"
+      ],
+      "name": "Test 1: Work Email",
+      "issued": "2015-01-01T01:02:03Z",
+      "issuer": "did:3c188385-d415-4ffc-ade9-32940f28c5a1",
+      "claim": {
+        "id": "did:27129b93-1188-4ef7-a5f2-519a98a5ca54",
+        "email": "individual@examplebusiness.com"
+      },
+      "signature": {
+        "type": "GraphSignature2012",
+        "created": "2015-01-01T01:02:03Z",
+        "creator": "https://staging-idp.truecred.com/i/demo/keys/1",
+        "signatureValue": "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz01234567890ABCDEFGHIJKLM=="
+      }
+    };
+    mockCredential.id = 'did:' + uuid.v4();
+    self.idp.credential = JSON.stringify(mockCredential);
   };
 
 };
