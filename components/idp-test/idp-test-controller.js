@@ -1,17 +1,12 @@
 define([
   'underscore',
-  'async',
-  'forge/js/forge',
-  'jsonld',
-  'jsonld-signatures',
   'node-uuid'
-], function(_, async, forge, jsonld, jsigjs, uuid) {
+], function(_, uuid) {
 
 'use strict';
 
 /* @ngInject */
 function factory($scope, config, $location, ipCookie) {
-
   var self = this;
   self.idp = {};
   self.idp.url = null;
@@ -74,9 +69,9 @@ function factory($scope, config, $location, ipCookie) {
 
   self.send = function() {
     _saveFormData();
-    if(self.requestType == 'Credential Query') {
+    var id = uuid.v4();
+    if(self.requestType === 'Credential Query') {
       // NOTE: id is not presently used in the mock
-      var id = uuid.v4();
       var authioCallback =
         config.data.baseUri + '/test/credentials/composed-identity?id=' + id;
       try {
@@ -87,10 +82,8 @@ function factory($scope, config, $location, ipCookie) {
       } catch(err) {
         alert(err);
       }
-    }
-    if(self.requestType == 'Credential Storage') {
+    } else if(self.requestType === 'Credential Storage') {
       // NOTE: id is not presently used in the mock
-      var id = uuid.v4();
       var authioCallback =
         config.data.baseUri + '/test/credentials/stored-credential?id=' + id;
       try {
@@ -120,30 +113,37 @@ function factory($scope, config, $location, ipCookie) {
 
   self.generateCredential = function() {
     var mockCredential = {
-      "@context": "https://w3id.org/credentials/v1",
-      "type": [
-        "Credential",
-        "test:EmailCredential"
+      "@context": [
+        "https://w3id.org/identity/v1",
+        "https://w3id.org/credentials/v1"
       ],
-      "name": "Test 1: Work Email",
-      "issued": "2015-01-01T01:02:03Z",
-      "issuer": "did:3c188385-d415-4ffc-ade9-32940f28c5a1",
-      "claim": {
-        "id": "did:27129b93-1188-4ef7-a5f2-519a98a5ca54",
-        "email": "individual@examplebusiness.com"
-      },
-      "signature": {
-        "type": "GraphSignature2012",
-        "created": "2015-01-01T01:02:03Z",
-        "creator": "https://staging-idp.truecred.com/i/demo/keys/1",
-        "signatureValue": "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz01234567890ABCDEFGHIJKLM=="
-      }
+      "id": "did:27129b93-1188-4ef7-a5f2-519a98a5ca54",
+      "credential": [{
+        "@graph": {
+          "@context": "https://w3id.org/credentials/v1",
+          "type": [
+            "Credential",
+            "test:EmailCredential"
+          ],
+          "name": "Test 1: Work Email",
+          "issued": "2015-01-01T01:02:03Z",
+          "issuer": "did:3c188385-d415-4ffc-ade9-32940f28c5a1",
+          "claim": {
+            "id": "did:27129b93-1188-4ef7-a5f2-519a98a5ca54",
+            "email": "individual@examplebusiness.com"
+          },
+          "signature": {
+            "type": "GraphSignature2012",
+            "created": "2015-01-01T01:02:03Z",
+            "creator": "https://staging-idp.truecred.com/i/demo/keys/1",
+            "signatureValue": "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz01234567890ABCDEFGHIJKLM=="
+          }
+        }
+      }]
     };
-    mockCredential.id = 'did:' + uuid.v4();
     self.idp.credential = JSON.stringify(mockCredential);
   };
-
-};
+}
 
 return {IdpTestController: factory};
 
