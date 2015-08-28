@@ -270,7 +270,7 @@ function factory(brFormLibraryService) {
 
   service.getLibrary = function() {
     var library = brFormLibraryService.create();
-    return library.load(vocab).then(function() {
+    return library.load(vocab.id, {vocab: vocab}).then(function() {
       return library;
     });
   };
