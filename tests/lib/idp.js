@@ -6,6 +6,7 @@
 var _ = require('lodash');
 var async = require('async');
 var bedrock = require('bedrock');
+var bodyParser = require('body-parser');
 var config = require('bedrock').config;
 var database = require('bedrock-mongodb');
 var forge = require('node-forge');
@@ -66,6 +67,9 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
 });
 
 bedrock.events.on('bedrock-express.configure.routes', function(app) {
+  // parse application/x-www-form-urlencoded
+  var parseForm = bodyParser.urlencoded({extended: false});
+
   // mock IdP landing page
   app.post('/idp', function(req, res, next) {
     views.getDefaultViewVars(req, function(err, vars) {
@@ -76,7 +80,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
     });
   });
 
-  app.post('/idp/identities', function(req, res, next) {
+  app.post('/idp/identities', parseForm, function(req, res, next) {
     views.getDefaultViewVars(req, function(err, vars) {
       if(err) {
         return next(err);
@@ -99,7 +103,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
   });
 
   // mock IdP credential approval page
-  app.post('/idp/credentials', function(req, res, next) {
+  app.post('/idp/credentials', parseForm, function(req, res, next) {
     views.getDefaultViewVars(req, function(err, vars) {
       if(err) {
         return next(err);

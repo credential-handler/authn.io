@@ -6,6 +6,7 @@
 var _ = require('lodash');
 var async = require('async');
 var bedrock = require('bedrock');
+var bodyParser = require('body-parser');
 var config = require('bedrock').config;
 var database = require('bedrock-mongodb');
 var forge = require('node-forge');
@@ -59,6 +60,9 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
 });
 
 bedrock.events.on('bedrock-express.configure.routes', function(app) {
+  // parse application/x-www-form-urlencoded
+  var parseForm = bodyParser.urlencoded({extended: false});
+
   // mock issuer credentials generator
   app.post('/issuer/credentials', function(req, res, next) {
     views.getDefaultViewVars(req, function(err, vars) {
@@ -100,7 +104,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
   });
 
   // mock issuer credentials dashboard
-  app.get('/issuer/dashboard', function(req, res, next) {
+  app.get('/issuer/dashboard', parseForm, function(req, res, next) {
     views.getDefaultViewVars(req, function(err, vars) {
       if(err) {
         return next(err);
@@ -123,7 +127,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
   });
 
   // mock issuer credentials dashboard login
-  app.post('/issuer/dashboard', function(req, res, next) {
+  app.post('/issuer/dashboard', parseForm, function(req, res, next) {
     views.getDefaultViewVars(req, function(err, vars) {
       if(err) {
         return next(err);
@@ -148,7 +152,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
   });
 
   // mock issuer credentials storage acknowledgements
-  app.post('/issuer/acknowledgements', function(req, res, next) {
+  app.post('/issuer/acknowledgements', parseForm, function(req, res, next) {
     views.getDefaultViewVars(req, function(err, vars) {
       if(err) {
         return next(err);
