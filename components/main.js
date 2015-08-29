@@ -19,7 +19,7 @@ define([
 var module = angular.module('authio.authorizationio', [
   'authio.login', 'authio.new-device', 'authio.credentials',
   'authio.register2', 'authio.credentials-store', 'bedrock.alert',
-  'LocalStorageModule']);
+  'authio.idp-test', 'LocalStorageModule']);
 
 /* @ngInject */
 module.config(function($routeProvider) {
