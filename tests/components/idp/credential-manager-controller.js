@@ -15,8 +15,6 @@ function factory($scope, $http, $location, brAlertService, config) {
     delete self.query.publicKey;
     delete self.query['@context'];
   }
-  console.log('query', self.query);
-  console.log('identity', self.identity);
 
   if($location.search().action === 'store') {
     self.action = 'store';
