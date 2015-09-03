@@ -7,6 +7,7 @@ define([
 ], function(
   angular,
   credentialManagerController,
+  // TODO: remove formLibraryService
   formLibraryService,
   registerController,
   registerDirective) {

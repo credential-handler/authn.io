@@ -1,3 +1,4 @@
+// TODO: remove this service
 define([], function() {
 
 'use strict';

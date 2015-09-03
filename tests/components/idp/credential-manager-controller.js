@@ -3,28 +3,20 @@ define(['angular'], function(angular) {
 'use strict';
 
 /* @ngInject */
-function factory(
-  $scope, $http, $location, $rootScope, brAlertService,
-  credFormLibraryService) {
+function factory($scope, $http, $location, brAlertService, config) {
   var self = this;
-  self.idp = window.data.idp;
-  self.credentials = self.idp.identity.credential.map(function(credential) {
-    return credential['@graph'];
-  });
+  var idp = config.data.idp;
+  self.identity = idp.identity;
   self.action = 'request';
   self.composed = null;
-  if(window.data.query) {
-    self.query = angular.copy(window.data.query);
+  if(config.data.query) {
+    self.query = angular.copy(config.data.query);
     // FIXME
     delete self.query.publicKey;
     delete self.query['@context'];
   }
-
-  self.library = null;
-  var library = credFormLibraryService.getLibrary().then(function(library) {
-    self.library = library;
-    $rootScope.$apply();
-  });
+  console.log('query', self.query);
+  console.log('identity', self.identity);
 
   if($location.search().action === 'store') {
     self.action = 'store';
@@ -33,7 +25,7 @@ function factory(
   // transmit the selected credential to the requestor
   self.transmit = function(identity) {
     navigator.credentials.transmit(identity, {
-      responseUrl: self.idp.credentialCallbackUrl
+      responseUrl: idp.credentialCallbackUrl
     });
   };
 
@@ -45,7 +37,7 @@ function factory(
         }
       }).then(function() {
         navigator.credentials.transmit(identity, {
-          responseUrl: self.idp.storageCallbackUrl
+          responseUrl: idp.storageCallbackUrl
         });
       }).catch(function(err) {
         console.error('Failed to store credential', err);
