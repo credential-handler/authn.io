@@ -82,9 +82,9 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
           '@context': 'https://w3id.org/identity/v1',
           id: devIdp.did,
           credentialsRequestUrl:
-            devIdp.baseUri + '/credentials?action=request',
+            devIdp.baseUri + '/tasks/credentials/compose-identity',
           storageRequestUrl:
-            devIdp.baseUri + '/credentials?action=store',
+            devIdp.baseUri + '/tasks/credentials/request-credential-storage ',
           accessControl: {
             writePermission: [{
               id: devIdp.did + '/keys/1',
@@ -101,7 +101,7 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
       }, _.assign({}, database.writeOptions, {upsert:true, multi:false}),
         function(err, doc) {
         if(err) {
-          console.log('Failed to set IdP document:', err, doc);
+          console.log('Failed to set IDP document:', err, doc);
         }
         callback();
       });
