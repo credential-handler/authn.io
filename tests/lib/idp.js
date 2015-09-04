@@ -142,7 +142,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
             ],
             type: [
               'Credential',
-              'CryptographicKeyCredential'
+              'sec:CryptographicKeyCredential'
             ],
             claim: {
               id: vars.idp.identity.id,
