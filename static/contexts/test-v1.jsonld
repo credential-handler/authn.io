@@ -42,13 +42,6 @@
     "PropertyGroup": "br:PropertyGroup",
     "Date": "xsd:dateTime",
     "String": "rdfs:Literal",
-    "URL": "rdfs:Resource",
-
-    "test": "urn:test:",
-
-    "thing": "test:thing",
-    "thingId": {"@id": "test:thing", "@type": "@id"},
-
-    "Thing": "test:Thing"
+    "URL": "rdfs:Resource"
   }
 }

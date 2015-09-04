@@ -115,7 +115,10 @@ function factory($scope, config, $location, ipCookie) {
     var mockCredential = {
       "@context": [
         "https://w3id.org/identity/v1",
-        "https://w3id.org/credentials/v1"
+        "https://w3id.org/credentials/v1",
+        {
+          "br": "urn:bedrock:"
+        }
       ],
       "id": "did:27129b93-1188-4ef7-a5f2-519a98a5ca54",
       "credential": [{
@@ -123,7 +126,7 @@ function factory($scope, config, $location, ipCookie) {
           "@context": "https://w3id.org/credentials/v1",
           "type": [
             "Credential",
-            "test:EmailCredential"
+            "br:test:EmailCredential"
           ],
           "name": "Test 1: Work Email",
           "issued": "2015-01-01T01:02:03Z",

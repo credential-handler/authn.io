@@ -236,12 +236,24 @@ function factory($scope, $http, $location, ipCookie, brAlertService, config) {
       ipCookie('did', did);
       var exHost = did.split(':')[1];
       var emailCredential = {
-        '@context': 'https://w3id.org/identity/v1',
+        '@context': [
+          'https://w3id.org/identity/v1',
+          'https://w3id.org/credentials/v1',
+          {
+            'br': 'urn:bedrock:'
+          }
+        ],
         id: did,
         credential: [{
           '@graph': {
-            '@context': 'https://w3id.org/identity/v1',
-            type: ['Credential', 'EmailCredential'],
+            '@context': [
+              'https://w3id.org/identity/v1',
+              'https://w3id.org/credentials/v1',
+              {
+                'br': 'urn:bedrock:'
+              }
+            ],
+            type: ['Credential', 'br:test:EmailCredential'],
             claim: {
               id: did,
               email: 'test@' + exHost + '.example.com'
@@ -249,8 +261,14 @@ function factory($scope, $http, $location, ipCookie, brAlertService, config) {
           }
         }, {
           '@graph': {
-            '@context': 'https://w3id.org/identity/v1',
-            type: ['Credential', 'EmailCredential'],
+            '@context': [
+              'https://w3id.org/identity/v1',
+              'https://w3id.org/credentials/v1',
+              {
+                'br': 'urn:bedrock:'
+              }
+            ],
+            type: ['Credential', 'br:test:EmailCredential'],
             claim: {
               id: did,
               email: 'test@' + exHost + '.example.org'

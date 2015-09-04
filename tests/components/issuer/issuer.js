@@ -18,31 +18,38 @@ module.controller('IssuerController', function(
   var self = this;
   self.identity = window.data.issuer.identity;
 
+  var CONTEXT = [
+    'https://w3id.org/identity/v1',
+    'https://w3id.org/credentials/v1',
+    {
+      'br': 'urn:bedrock:'
+    }
+  ];
   self.generateCredential = function() {
     Promise.resolve($http.post('/issuer/credentials', {
-      '@context': 'https://w3id.org/identity/v1',
+      '@context': CONTEXT,
       id: window.data.issuer.identity.id,
       credential: [{
         '@graph': {
-          '@context': 'https://w3id.org/identity/v1',
+          '@context': CONTEXT,
           id: window.data.baseUri + '/issuer/credentials/' + Date.now(),
-          type: ['Credential', 'PassportCredential'],
+          type: ['Credential', 'br:test:PassportCredential'],
           claim: {
             id: window.data.issuer.identity.id,
             name: 'Pat Doe',
-            country: 'USA',
-            governmentId: '123-45-6789',
-            documentId: '27384-5322-53332'
+            addressCountry: 'USA',
+            'br:test:governmentId': '123-45-6789',
+            'br:test:documentId': '27384-5322-53332'
           }
         }
       }, {
         '@graph': {
-          '@context': 'https://w3id.org/identity/v1',
+          '@context': CONTEXT,
           id: window.data.baseUri + '/issuer/credentials/' + (Date.now() + 1),
-          type: ['Credential', 'ProofOfAgeCredential'],
+          type: ['Credential', 'br:test:ProofOfAgeCredential'],
           claim: {
             id: window.data.issuer.identity.id,
-            ageOver: 21
+            'br:test:ageOver': 21
           }
         }
       }]

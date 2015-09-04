@@ -49,7 +49,7 @@
       "range": "URL"
     },
     {
-      "id": "test:ageOver",
+      "id": "br:test:ageOver",
       "type": "Property",
       "label": "Age is Over",
       "range": "String"
@@ -86,13 +86,13 @@
       "range": "URL"
     },
     {
-      "id": "test:bloodType",
+      "id": "br:test:bloodType",
       "type": "Property",
       "label": "Blood Type",
       "range": "String"
     },
     {
-      "id": "test:isSmoker",
+      "id": "br:test:isSmoker",
       "type": "Property",
       "label": "Is a Smoker",
       "range": "String"
@@ -112,7 +112,7 @@
       "collapsed": true
     },
     {
-      "id": "test:VerifiedAddressCredential",
+      "id": "br:test:VerifiedAddressCredential",
       "type": "PropertyGroup",
       "label": "Verified Address",
       "layout": [
@@ -127,12 +127,12 @@
         },
         {
           "property": "cred:claim",
-          "propertyGroup": "test:PostalAddressPropertyGroup"
+          "propertyGroup": "br:test:PostalAddressPropertyGroup"
         }
       ]
     },
     {
-      "id": "test:AgeOverCredential",
+      "id": "br:test:AgeOverCredential",
       "type": "PropertyGroup",
       "label": "Verified Age",
       "layout": [
@@ -147,12 +147,12 @@
         },
         {
           "property": "cred:claim",
-          "propertyGroup": "test:AgeOverPropertyGroup"
+          "propertyGroup": "br:test:AgeOverPropertyGroup"
         }
       ]
     },
     {
-      "id": "test:PhysicalExaminationCredential",
+      "id": "br:test:PhysicalExaminationCredential",
       "type": "PropertyGroup",
       "label": "Physical Examination Results",
       "layout": [
@@ -167,12 +167,12 @@
         },
         {
           "property": "cred:claim",
-          "propertyGroup": "test:PhysicalExaminationPropertyGroup"
+          "propertyGroup": "br:test:PhysicalExaminationPropertyGroup"
         }
       ]
     },
     {
-      "id": "test:EmailCredential",
+      "id": "br:test:EmailCredential",
       "type": "PropertyGroup",
       "label": "Verified Email",
       "layout": [
@@ -187,12 +187,12 @@
         },
         {
           "property": "cred:claim",
-          "propertyGroup": "test:EmailPropertyGroup"
+          "propertyGroup": "br:test:EmailPropertyGroup"
         }
       ]
     },
     {
-      "id": "test:BloodTestCredential",
+      "id": "br:test:BloodTestCredential",
       "type": "PropertyGroup",
       "label": "Blood Test Results",
       "layout": [
@@ -207,12 +207,12 @@
         },
         {
           "property": "cred:claim",
-          "propertyGroup": "test:BloodTestPropertyGroup"
+          "propertyGroup": "br:test:BloodTestPropertyGroup"
         }
       ]
     },
     {
-      "id": "test:BirthDateCredential",
+      "id": "br:test:BirthDateCredential",
       "type": "PropertyGroup",
       "label": "Birth Date Certification",
       "layout": [
@@ -227,12 +227,12 @@
         },
         {
           "property": "cred:claim",
-          "propertyGroup": "test:BirthDatePropertyGroup"
+          "propertyGroup": "br:test:BirthDatePropertyGroup"
         }
       ]
     },
     {
-      "id": "test:CredentialPropertyGroup",
+      "id": "br:test:CredentialPropertyGroup",
       "type": "PropertyGroup",
       "label": "General",
       "layout": [
@@ -248,7 +248,7 @@
       ]
     },
     {
-      "id": "test:BirthDatePropertyGroup",
+      "id": "br:test:BirthDatePropertyGroup",
       "type": "PropertyGroup",
       "label": "Birth Record",
       "layout": [
@@ -257,12 +257,12 @@
         },
         {
           "property": "schema:birthPlace",
-          "propertyGroup": "test:PostalAddressPropertyGroup"
+          "propertyGroup": "br:test:PostalAddressPropertyGroup"
         }
       ]
     },
     {
-      "id": "test:EmailPropertyGroup",
+      "id": "br:test:EmailPropertyGroup",
       "type": "PropertyGroup",
       "collapsed": true,
       "layout": [
@@ -272,29 +272,29 @@
       ]
     },
     {
-      "id": "test:BloodTestPropertyGroup",
+      "id": "br:test:BloodTestPropertyGroup",
       "type": "PropertyGroup",
       "layout": [
         {
-          "property": "test:bloodType"
+          "property": "br:test:bloodType"
         },
         {
-          "property": "test:isSmoker"
+          "property": "br:test:isSmoker"
         }
       ]
     },
     {
-      "id": "test:AgeOverPropertyGroup",
+      "id": "br:test:AgeOverPropertyGroup",
       "type": "PropertyGroup",
       "label": "Age Verification",
       "layout": [
         {
-          "property": "test:ageOver"
+          "property": "br:test:ageOver"
         }
       ]
     },
     {
-      "id": "test:PhysicalExaminationPropertyGroup",
+      "id": "br:test:PhysicalExaminationPropertyGroup",
       "type": "PropertyGroup",
       "label": "Physical Examination",
       "layout": [
@@ -307,18 +307,18 @@
       ]
     },
     {
-      "id": "test:PostalAddressPropertyGroup",
+      "id": "br:test:PostalAddressPropertyGroup",
       "type": "PropertyGroup",
       "label": "Address",
       "layout": [
         {
           "property": "schema:address",
-          "propertyGroup": "test:AddressPropertyGroup"
+          "propertyGroup": "br:test:AddressPropertyGroup"
         }
       ]
     },
     {
-      "id": "test:AddressPropertyGroup",
+      "id": "br:test:AddressPropertyGroup",
       "type": "PropertyGroup",
       "collapsed": true,
       "layout": [

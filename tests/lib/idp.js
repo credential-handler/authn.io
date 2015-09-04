@@ -136,7 +136,10 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
         vars.query = credQuery;
         if(credQuery.publicKey) {
           var publicKeyCredential = {
-            '@context': "https://w3id.org/identity/v1",
+            '@context': [
+              "https://w3id.org/identity/v1",
+              "https://w3id.org/credentials/v1"
+            ],
             type: [
               'Credential',
               'CryptographicKeyCredential'
