@@ -6,7 +6,6 @@
     "dc": "http://purl.org/dc/terms/",
     "identity": "https://w3id.org/identity#",
     "perm": "https://w3id.org/permissions#",
-    "ps": "https://w3id.org/payswarm#",
     "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
     "sec": "https://w3id.org/security#",
@@ -73,9 +72,6 @@
     "Identity": "identity:Identity",
     "did": {"@id": "identity:did", "@type": "@id"},
     "identityService": {"@id": "identity:identityService", "@type": "@id"},
-    "idp": {"@id": "identity:idp", "@type": "@id"},
-
-    "paymentProcessor": "ps:processor",
-    "preferences": {"@id": "ps:preferences", "@type": "@vocab"}
+    "idp": {"@id": "identity:idp", "@type": "@id"}
   }
 }
