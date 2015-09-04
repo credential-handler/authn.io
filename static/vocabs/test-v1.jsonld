@@ -112,6 +112,19 @@
       "collapsed": true
     },
     {
+      "id": "sec:publicKey",
+      "type": "Property",
+      "label": "Public Key",
+      "range": "URL",
+      "collapsed": true
+    },
+    {
+      "id": "sec:publicKeyPem",
+      "type": "Property",
+      "label": "Public Key PEM",
+      "range": "String"
+    },
+    {
       "id": "br:test:VerifiedAddressCredential",
       "type": "PropertyGroup",
       "label": "Verified Address",
@@ -232,6 +245,26 @@
       ]
     },
     {
+      "id": "sec:CryptographicKeyCredential",
+      "type": "PropertyGroup",
+      "label": "Cryptographic Key",
+      "layout": [
+        {
+          "property": "schema:image"
+        },
+        {
+          "property": "cred:issuer"
+        },
+        {
+          "property": "cred:issued"
+        },
+        {
+          "property": "cred:claim",
+          "propertyGroup": "br:test:CryptographicKeyPropertyGroup"
+        }
+      ]
+    },
+    {
       "id": "br:test:CredentialPropertyGroup",
       "type": "PropertyGroup",
       "label": "General",
@@ -333,6 +366,27 @@
         },
         {
           "property": "schema:postalCode"
+        }
+      ]
+    },
+    {
+      "id": "br:test:CryptographicKeyPropertyGroup",
+      "type": "PropertyGroup",
+      "label": "Cryptographic Key",
+      "layout": [
+        {
+          "property": "sec:publicKey",
+          "propertyGroup": "br:test:PublicKeyPemPropertyGroup"
+        }
+      ]
+    },
+    {
+      "id": "br:test:PublicKeyPemPropertyGroup",
+      "type": "PropertyGroup",
+      "collapsed": true,
+      "layout": [
+        {
+          "property": "sec:publicKeyPem"
         }
       ]
     }
