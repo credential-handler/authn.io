@@ -122,7 +122,8 @@
       "id": "sec:publicKeyPem",
       "type": "Property",
       "label": "Public Key PEM",
-      "range": "String"
+      "range": "String",
+      "displayType": "pre"
     },
     {
       "id": "br:test:VerifiedAddressCredential",
