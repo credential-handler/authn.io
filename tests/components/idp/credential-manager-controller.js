@@ -9,13 +9,7 @@ function factory($scope, $http, $location, brAlertService, config) {
   self.identity = idp.identity;
   self.action = 'request';
   self.composed = null;
-  if(config.data.query) {
-    self.query = angular.copy(config.data.query);
-    // FIXME
-    delete self.query.publicKey;
-    delete self.query['@context'];
-  }
-
+  self.query = config.data.query;
   if($location.search().action === 'store') {
     self.action = 'store';
   }
