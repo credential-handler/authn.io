@@ -373,6 +373,7 @@
       "id": "br:test:CryptographicKeyPropertyGroup",
       "type": "PropertyGroup",
       "label": "Cryptographic Key",
+      "collapsed": true,
       "layout": [
         {
           "property": "sec:publicKey",
