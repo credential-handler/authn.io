@@ -71,7 +71,7 @@ function factory($scope, config, $location, ipCookie) {
     _saveFormData();
     var id = uuid.v4();
     if(self.requestType === 'Credential Query') {
-      // NOTE: id is not presently used in the mock
+      // NOTE: id parameter is not presently used in the mock
       var authioCallback =
         config.data.baseUri + '/test/credentials/composed-identity?id=' + id;
       try {
@@ -124,6 +124,7 @@ function factory($scope, config, $location, ipCookie) {
       "credential": [{
         "@graph": {
           "@context": "https://w3id.org/credentials/v1",
+          "id": "https://example.com/credentials/" + uuid.v4(),
           "type": [
             "Credential",
             "br:test:EmailCredential"
