@@ -92,7 +92,7 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
             }]
           },
           publicKey: [{
-            id : devIdp.did + '/keys/1',
+            id: devIdp.did + '/keys/1',
             type: 'CryptographicKey',
             owner: devIdp.did,
             publicKeyPem: forge.pki.publicKeyToPem(gIdPKeypair.publicKey)
