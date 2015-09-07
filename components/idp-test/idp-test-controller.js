@@ -139,7 +139,7 @@ function factory($scope, config, $location, ipCookie) {
           "signature": {
             "type": "GraphSignature2012",
             "created": "2015-01-01T01:02:03Z",
-            "creator": "https://staging-idp.truecred.com/i/demo/keys/1",
+            "creator": "https://idp.example.com/i/demo/keys/1",
             "signatureValue": "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz01234567890ABCDEFGHIJKLM=="
           }
         }

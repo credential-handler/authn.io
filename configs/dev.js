@@ -81,10 +81,11 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
         didDocument: {
           '@context': 'https://w3id.org/identity/v1',
           id: devIdp.did,
+          // TODO: change to `url: devIdp.url`, use to look up services
           credentialsRequestUrl:
             devIdp.baseUri + '/tasks/credentials/compose-identity',
           storageRequestUrl:
-            devIdp.baseUri + '/tasks/credentials/request-credential-storage ',
+            devIdp.baseUri + '/tasks/credentials/request-credential-storage',
           accessControl: {
             writePermission: [{
               id: devIdp.did + '/keys/1',

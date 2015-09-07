@@ -152,6 +152,7 @@ function factory(
         keypair.privateKey, self.username + self.passphrase);
       localStorage.setItem(hash, JSON.stringify({
         id: did + '/keys/1',
+        owner: did,
         publicKeyPem: forge.pki.publicKeyToPem(keypair.publicKey),
         privateKeyPem: encryptedPem
       }));

@@ -137,6 +137,7 @@ function factory($scope, $http, $location, ipCookie, config, brAlertService) {
           did: did,
           publicKey: {
             id: self.keyInfo.id,
+            owner: self.keyInfo.owner,
             publicKeyPem: self.keyInfo.publicKeyPem,
             privateKeyPem: pki.privateKeyToPem(privateKey)
           },
@@ -165,7 +166,7 @@ function factory($scope, $http, $location, ipCookie, config, brAlertService) {
     var credentialCallback = $location.search().credentialCallback;
     var storageCallback = $location.search().storageCallback;
 
-    if(credentialCallback) {
+    if(credentialCallback && !config.data.sendCryptographicKeyCredential) {
       sessionStorage.setItem(id, credentialCallback);
 
       // add the public key for the request (if one exists)
@@ -181,6 +182,26 @@ function factory($scope, $http, $location, ipCookie, config, brAlertService) {
       navigator.credentials.request(config.data.credentialRequest, {
         requestUrl: session.credentialRequestUrl,
         credentialCallback: authioCallback
+      });
+    } else if(credentialCallback && config.data.sendCryptographicKeyCredential) {
+      // clone template
+      var identity = JSON.parse(JSON.stringify(
+        config.data.identityWithCryptographicKeyCredentialTemplate));
+      identity.id = session.did;
+      identity.signature.creator = session.publicKey.id;
+      var credential = identity.credential[0]['@graph'];
+      credential.claim = {
+        id: session.did,
+        publicKey: {
+          id: session.publicKey.id,
+          publicKeyPem: session.publicKey.publicKeyPem,
+          owner: session.publicKey.owner
+        }
+      };
+      credential.signature.creator = session.publicKey.id;
+
+      navigator.credentials.transmit(identity, {
+        responseUrl: credentialCallback
       });
     } else if(storageCallback) {
       sessionStorage.setItem(id, storageCallback);
