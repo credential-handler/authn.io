@@ -191,7 +191,7 @@ function factory($scope, $http, $location, ipCookie, config, brAlertService) {
     }
   }
 
-};
+}
 
 return {RequestController: factory};
 

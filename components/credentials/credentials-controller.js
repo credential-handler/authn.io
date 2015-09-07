@@ -91,7 +91,7 @@ function factory($scope, config, $location, ipCookie, localStorageService) {
       localStorageService.remove(trustedDomainKey);
     }
   };
-};
+}
 
 return {CredentialsController: factory};
 

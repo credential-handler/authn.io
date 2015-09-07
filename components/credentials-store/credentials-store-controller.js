@@ -73,7 +73,7 @@ function factory($scope, config, $location, ipCookie) {
       responseUrl: self.callback
     });
   };
-};
+}
 
 return {CredentialsStoreController: factory};
 
