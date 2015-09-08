@@ -39,10 +39,7 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
         didDocument: {
           '@context': 'https://w3id.org/identity/v1',
           id: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
-          credentialsRequestUrl:
-            config.server.baseUri + '/idp/credentials?action=request',
-          storageRequestUrl:
-            config.server.baseUri + '/idp/credentials?action=store',
+          url: config.server.baseUri + '/idp',
           accessControl: {
             writePermission: [{
               id: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1/keys/1',
@@ -69,6 +66,25 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
 bedrock.events.on('bedrock-express.configure.routes', function(app) {
   // parse application/x-www-form-urlencoded
   var parseForm = bodyParser.urlencoded({extended: false});
+
+  // TODO: change to serve this on "/idp" when JSON-LD is requested
+  // identity credentials end points
+  app.get('/idp/.well-known/identity', function(req, res) {
+    // TODO: move entire document to config system
+    var endpoints = {
+      '@context': {
+        credentialsRequestUrl:
+          'https://w3id.org/identity#credentialsRequestUrl',
+        storageRequestUrl: 'https://w3id.org/identity#storageRequestUrl'
+      },
+      credentialsRequestUrl: config.server.baseUri +
+        '/idp/credentials?action=request',
+      storageRequestUrl: config.server.baseUri +
+        '/idp/credentials?action=store'
+    };
+    res.type('application/json');
+    res.send(endpoints);
+  });
 
   // mock IdP landing page
   app.post('/idp', function(req, res, next) {

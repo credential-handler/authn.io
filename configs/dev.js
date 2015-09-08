@@ -53,6 +53,8 @@ config.views.vars['bedrock-angular-credential'].libraries.default = {
 config.authio.proofs.minWaitTimeInSecs = 2;
 config.authio.proofs.maxWaitTimeInSecs = 3;
 
+// TODO: move to IdP
+
 // mock IdP keypair
 var gIdPKeypair = null;
 // this information must match the config of bedrock-idp
@@ -82,10 +84,7 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
           '@context': 'https://w3id.org/identity/v1',
           id: devIdp.did,
           // TODO: change to `url: devIdp.url`, use to look up services
-          credentialsRequestUrl:
-            devIdp.baseUri + '/tasks/credentials/compose-identity',
-          storageRequestUrl:
-            devIdp.baseUri + '/tasks/credentials/request-credential-storage',
+          url: devIdp.baseUri,
           accessControl: {
             writePermission: [{
               id: devIdp.did + '/keys/1',

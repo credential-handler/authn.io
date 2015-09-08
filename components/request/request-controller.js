@@ -127,9 +127,25 @@ function factory($scope, $http, $location, ipCookie, config, brAlertService) {
         var didDocument = response.data;
         return Promise.resolve($http.get('/dids/' + didDocument.idp));
       }).then(function(response) {
-        // fetched the person's IDP DID document
+        // fetched the person's IdP DID document
         var idpDidDocument = response.data;
-        // extract the IDP DID credential request URL
+        // TODO: remove this backwards-compatibility hack, only fetch
+        // idpDidDocument.url in the future
+        if('credentialRequestUrl' in idpDidDocument &&
+          'storageRequestUrl' in idpDidDocument) {
+          return Promise.resolve(idpDidDocument);
+        }
+
+        // get the IdP's service end points
+        // TODO: hit `url` directly with JSON-LD request instead of using
+        // .well-known
+        var url = idpDidDocument.url + '/.well-known/identity';
+        return Promise.resolve($http.get(url));
+      }).then(function(response) {
+        var idpConfig = response.data;
+
+        // fetched IdP's service config
+        // extract the IdP DID credential request URL
         // FIXME: security issue - do not store the public key information
         // in a cookie since the private key is sent unencrypted to/from
         // authorization.io
@@ -141,8 +157,8 @@ function factory($scope, $http, $location, ipCookie, config, brAlertService) {
             publicKeyPem: self.keyInfo.publicKeyPem,
             privateKeyPem: pki.privateKeyToPem(privateKey)
           },
-          credentialRequestUrl: idpDidDocument.credentialsRequestUrl,
-          storageRequestUrl: idpDidDocument.storageRequestUrl
+          credentialRequestUrl: idpConfig.credentialsRequestUrl,
+          storageRequestUrl: idpConfig.storageRequestUrl
         };
         ipCookie('session', cookie, {
           expires: 120,
