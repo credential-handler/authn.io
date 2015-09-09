@@ -216,7 +216,6 @@ function factory(
           authorization: proof
         }
       })).then(function(response) {
-        console.log('CREATE DID STATUS:', response);
         if(response.status !== 201) {
           throw response;
         }
