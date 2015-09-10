@@ -2,8 +2,6 @@
 
 <div ng-controller="RegisterController2 as model">
   <div ng-show="model.display.form">
-    <h3>Information posted from polyfill</h3>
-    <pre>{{ model.idpRegistration | json }}</pre>
     <form name="regForm" class="form-horizontal" role="form" novalidate
       ng-submit="model.validateForm()">
       <fieldset>
@@ -71,6 +69,13 @@
         </div>
       </fieldset>
     </form>
+    <hr />
+    <h5>Information posted from polyfill
+      <span style="cursor: pointer; color: blue" ng-click="model.togglePolyfill()">
+        [{{ model.polyfillShowHide }}]
+      </span>
+    </h5>
+    <pre ng-show="model.display.polyfill">{{ model.idpRegistration | json }}</pre>
   </div>
   <div ng-show="model.display.information">
     <h3>This information will be sent to your IDP at {{ model.idpRegistration.registrationCallback }}</h3>

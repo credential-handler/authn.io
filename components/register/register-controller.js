@@ -21,6 +21,8 @@ function factory(
   self.display = {};
   self.display.form = true;
   self.display.information = false;
+  self.display.polyfill = false;
+  self.polyfillShowHide = 'show';
 
   // setup custom document loader for identity JSON-LD context
   jsonld = jsonld();
@@ -255,6 +257,12 @@ function factory(
       $scope.$apply();
     });
   };
+
+  self.togglePolyfill = function() {
+    self.display.polyfill = self.display.polyfill === false ? true : false;
+    self.polyfillShowHide = self.polyfillShowHide === 'show' ? 'hide' : 'show';
+  };
+
 }
 
 return {RegisterController2: factory};
