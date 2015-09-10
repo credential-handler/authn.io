@@ -20,7 +20,6 @@ function factory(
   self.generating = false;
   self.display = {};
   self.display.form = true;
-  self.display.information = false;
   self.display.polyfill = false;
   self.polyfillShowHide = 'show';
 
@@ -251,9 +250,9 @@ function factory(
     }).then(function() {
       self.registering = false;
       self.generating = false;
-      self.didDocument = didDocument;
-      self.display.form = false;
-      self.display.information = true;
+      navigator.credentials.transmit(didDocument, {
+        responseUrl: self.idpRegistrationCallback
+      });
       $scope.$apply();
     });
   };

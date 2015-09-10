@@ -77,11 +77,4 @@
     </h5>
     <pre ng-show="model.display.polyfill">{{ model.idpRegistration | json }}</pre>
   </div>
-  <div ng-show="model.display.information">
-    <h3>This information will be sent to your IDP at {{ model.idpRegistration.registrationCallback }}</h3>
-    <pre class="pre-scrollable">{{ model.didDocument | json }}</pre>
-    <form name="idpForm" method="post" action="{{ model.idpRegistrationCallback }}">
-      <input type="hidden" name="jsonPostData" value="{{ model.didDocument }}">
-    <button type="submit" class="btn btn-primary">Continue</button>
-  </div>
 </div>
