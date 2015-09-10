@@ -8,7 +8,6 @@ function factory($scope, $http, $location, brAlertService, config) {
   var idp = config.data.idp;
   self.identity = idp.identity;
   self.action = 'request';
-  self.composed = null;
   self.query = config.data.query;
   if($location.search().action === 'store') {
     self.action = 'store';
