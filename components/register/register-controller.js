@@ -142,6 +142,7 @@ function factory(
     var hash = didio.generateHash(self.username, self.passphrase);
     var mappingData = {};
     var didDocument = {};
+    var registrationError = false;
 
     self.generating = true;
     self.secondsLeft = 0;
@@ -243,6 +244,7 @@ function factory(
       }
       ipCookie('did', did);
     }).catch(function(err) {
+      registrationError = true;
       console.error('Failed to register with the network', err);
       brAlertService.add('error',
         'Failed to register with the network. Try a different email ' +
@@ -250,9 +252,11 @@ function factory(
     }).then(function() {
       self.registering = false;
       self.generating = false;
-      navigator.credentials.transmit(didDocument, {
-        responseUrl: self.idpRegistrationCallback
-      });
+      if(!registrationError) {
+        navigator.credentials.transmit(didDocument, {
+          responseUrl: self.idpRegistrationCallback
+        });
+      }
       $scope.$apply();
     });
   };
