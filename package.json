@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "bedrock-protractor": "^2.0.0",
-    "jsonld": "~0.3.22",
+    "jsonld": "~0.4.1",
     "jsonld-signatures": "~0.2.5",
     "node-forge": "~0.6.28",
     "request": "~2.55.0"
