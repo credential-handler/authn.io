@@ -21,7 +21,7 @@
     "es6-promise": "~2.1",
     "forge": "~0.6.28",
     "jquery": "~1.11.1",
-    "jsonld-signatures": "^1.0.0",
+    "jsonld-signatures": "^1.0.2",
     "requirejs": "~2.1.15",
     "angular-local-storage": "~0.2.2"
   },
