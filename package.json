@@ -17,7 +17,7 @@
     "body-parser": "^1.13.3",
     "bedrock-views": "digitalbazaar/bedrock-views#master",
     "bower": "^1.5.0",
-    "did-io": "~0.4.0",
+    "did-io": "^0.4.4",
     "lodash": "^3.9.2"
   },
   "devDependencies": {
