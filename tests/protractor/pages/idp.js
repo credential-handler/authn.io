@@ -16,7 +16,7 @@ api.navigateToRegistrationForm = function() {
   element(by.buttonText('Register Identity')).click();
   bedrock.waitForUrl('/idp/identities');
   bedrock.waitForAngular();
-}
+};
 
 api.checkFields = function() {
   expect(element(by.brModel('model.username'))
@@ -27,7 +27,7 @@ api.checkFields = function() {
     .isPresent()).to.eventually.equal(true);
   expect(element(by.buttonText('Register'))
     .isPresent()).to.eventually.equal(true);
-}
+};
 
 api.testField = function(modelName, testString, expectedErrorId) {
   element(by.brModel(modelName)).sendKeys(testString);
@@ -52,7 +52,8 @@ api.testFieldsMatch = function(
     .then(function(elementName) {
       expect(element(by.attribute('br-model', modelNameB))
         .element(by.attribute(
-          'ng-show', ['regForm', elementName, '$error', expectedErrorId].join('.')))
+          'ng-show',
+          ['regForm', elementName, '$error', expectedErrorId].join('.')))
         .isDisplayed()).to.eventually.equal(true);
     });
   };
