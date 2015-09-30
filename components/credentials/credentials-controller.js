@@ -9,16 +9,76 @@ define([
 'use strict';
 
 /* @ngInject */
-function factory($scope, config, $location, ipCookie, localStorageService) {
+function factory(
+  $scope, config, $location, ipCookie, brAlertService, localStorageService) {
 
   var self = this;
-  self.callback = sessionStorage.getItem($location.search().id);
+  var requestData = {};
+  var keyTypes = {};
+  keyTypes.EXISTING = 'existing';
+  keyTypes.TEMPORARY = 'temporary';
+  keyTypes.NEW = 'new';
+
+  try {
+    requestData = JSON.parse(sessionStorage.getItem($location.search().id));
+  } catch(err) {
+    throw new Error('Could not parse request data.');
+  }
+  self.requestOwner = requestData.owner;
+  self.callback = requestData.callback;
   self.callbackHostName = new URL(self.callback).hostname;
   self.identity = config.data.authio.identity;
   self.transmitDisabled = true;
   self.confirmTransmission = true;
   var trustedDomainPrefix = 'settings.trustedDomains.';
   var trustedDomainKey = trustedDomainPrefix + self.callbackHostName;
+
+  if(self.identity.id !== self.requestOwner &&
+    _getOwnerId(self.identity) !== self.requestOwner) {
+    brAlertService.add(
+      'error', 'Identity document does not correspond with the request.');
+    throw new Error('Identity document does not correspond with the request.');
+  }
+  var session = null;
+  var sessionKey = _encodeSessionKey(self.identity.id);
+  if(requestData.keyType === keyTypes.EXISTING) {
+    session = ipCookie(sessionKey);
+    if(session === undefined) {
+      // this could be an acknowledgement where the owner is in claim.id
+      sessionKey = _encodeSessionKey(_getOwnerId(self.identity));
+      session = ipCookie(sessionKey);
+    }
+    if(session === undefined) {
+      // the information in the document does not correspond with an identity
+      brAlertService.add('error', 'Active session not found.');
+      throw new Error('Active session not found.');
+    }
+    // refresh session
+    ipCookie(sessionKey, session, {
+      expires: 120,
+      expirationUnit: 'minutes',
+      secure: true
+    });
+  }
+  if(requestData.keyType !== keyTypes.EXISTING) {
+    try {
+      session = JSON.parse(sessionStorage.getItem(sessionKey));
+      if(!session) {
+        // this could be an acknowledgement where the owner is in claim.id
+        sessionKey = _encodeSessionKey(_getOwnerId(self.identity));
+        session = JSON.parse(sessionStorage.getItem(sessionKey));
+      }
+      if(!session) {
+        // the information in the document does not correspond with an identity
+        brAlertService.add('error', 'Active session not found.');
+        throw new Error('Active session not found.');
+      }
+    } catch(err) {
+      console.log('Error: Failed to parse existing session data.');
+    }
+  }
+  // extract the keyInfo if it exists in the session
+  self.keyInfo = session.publicKey;
 
   if(localStorageService.get(trustedDomainKey) === 'bypass') {
     self.confirmTransmission = false;
@@ -45,17 +105,6 @@ function factory($scope, config, $location, ipCookie, localStorageService) {
     jsonld: jsonld,
     _: _
   }});
-
-  // refresh the session cookie
-  var session = ipCookie('session');
-  // refresh session
-  ipCookie('session', session, {
-    expires: 120,
-    expirationUnit: 'minutes'
-  });
-
-  // extract the keyInfo if it exists in the session
-  self.keyInfo = session.publicKey;
 
   // sign the identity
   var signer = {
@@ -91,6 +140,15 @@ function factory($scope, config, $location, ipCookie, localStorageService) {
       localStorageService.remove(trustedDomainKey);
     }
   };
+
+  function _encodeSessionKey(key) {
+    // NOTE: stripping colon because browser encodes it
+    return [key.replace(/[:]/g,''), 'session'].join('.');
+  }
+
+  function _getOwnerId(identity) {
+    return identity.credential[0]['@graph'].claim.id;
+  }
 }
 
 return {CredentialsController: factory};

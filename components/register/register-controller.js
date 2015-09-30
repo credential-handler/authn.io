@@ -147,17 +147,30 @@ function factory(
     self.generating = true;
     self.secondsLeft = 0;
 
+    var identities = localStorage.getItem('identities');
+    if(!identities) {
+      identities = [];
+    } else {
+      try {
+        identities = JSON.parse(identities);
+      } catch(err) {
+        return console.log('Error: Failed to parse existing identities.');
+      }
+    }
+
     self._generateKeyPair().then(function(kp) {
       keypair = kp;
       // store encrypted private key in browser local storage
       var encryptedPem = forge.pki.encryptRsaPrivateKey(
         keypair.privateKey, self.username + self.passphrase);
-      localStorage.setItem(hash, JSON.stringify({
+      identities.push({
         id: did + '/keys/1',
         owner: did,
         publicKeyPem: forge.pki.publicKeyToPem(keypair.publicKey),
-        privateKeyPem: encryptedPem
-      }));
+        privateKeyPem: encryptedPem,
+        label: self.username
+      });
+      localStorage.setItem('identities', JSON.stringify(identities));
       self.generating = false;
 
       // create the DID document
@@ -242,7 +255,6 @@ function factory(
       if(response.status !== 201) {
         throw response;
       }
-      ipCookie('did', did);
     }).catch(function(err) {
       registrationError = true;
       console.error('Failed to register with the network', err);
