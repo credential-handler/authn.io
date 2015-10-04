@@ -31,8 +31,7 @@ config.requirejs.bower.packages.push({
 });
 
 // serve demo contexts and vocabs
-config.express.static.push(path.join(
-  __dirname, '..', 'static'));
+config.express.static.push(path.join(__dirname, '..', 'static'));
 
 // setup to load demo vocabs
 config.views.vars['bedrock-angular-credential'] =
