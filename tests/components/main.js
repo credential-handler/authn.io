@@ -16,17 +16,13 @@ var module = angular.module('authio.idpconsumer', [
 /* @ngInject */
 module.config(function($routeProvider) {
   $routeProvider.
-    when('/idp', {
+    when('/idp/register', {
       title: 'Identity Provider',
-      templateUrl: requirejs.toUrl('authiodev-components/idp/index.html')
+      templateUrl: requirejs.toUrl('authiodev-components/idp/register.html')
     })
     .when('/idp/credentials', {
       title: 'Credential Composer',
       templateUrl: requirejs.toUrl('authiodev-components/idp/credentials.html')
-    })
-    .when('/idp/identities', {
-      title: 'Register Identity',
-      templateUrl: requirejs.toUrl('authiodev-components/idp/register.html')
     })
     .when('/issuer', {
       title: 'Issuer Login',

@@ -6,15 +6,12 @@ function(_, async, forge, didiojs, uuid, jsonld, jsigjs) {
 'use strict';
 
 /* @ngInject */
-function factory($scope, $sce, $http, brAlertService, config) {
+function factory($http, $location, $scope, brAlertService, config) {
   var self = this;
-  self.idpRegistration = config.data.idpRegistration;
-  self.idp = config.data.idpRegistration.idp;
-  self.idpRegistrationCallback =
-    $sce.trustAsResourceUrl(config.data.idpRegistration.registrationCallback);
   self.passphraseConfirmation = '';
   self.passphrase = '';
   self.username = '';
+  self.loading = false;
   self.registering = false;
   self.generating = false;
   self.display = {};
@@ -50,91 +47,40 @@ function factory($scope, $sce, $http, brAlertService, config) {
     uuid: uuid
   }});
 
-  /**
-   * Helper method to generate a keypair asynchronously.
-   *
-   * @return a promise that resolves to a keypair, or rejects with the error.
-   */
-  self._generateKeyPair = function() {
-    return new Promise(function(resolve, reject) {
-      forge.pki.rsa.generateKeyPair({
-        bits: 2048,
-        workerScript: '/bower-components/forge/js/prime.worker.js'
-      }, function(err, keypair) {
-        if(err) {
-          return reject(err);
-        }
-        return resolve(keypair);
-      });
-    });
-  };
-
-  /**
-   * Decrements the number of seconds left for registering.
-   */
-  self._updateSecondsLeft = function() {
+  // get register parameters
+  self.loading = true;
+  var origin = $location.search().origin;
+  var router = new navigator.credentials._Router('params', origin);
+  router.request('registerDid').then(function(message) {
+    // TODO: handle other parameters
+    console.log('message', message);
+    self.idp = message.data.idp;
+  }).catch(function(err) {
+    brAlertService.add('error', err);
+  }).then(function() {
+    self.loading = false;
     $scope.$apply();
-    // update the timer every second
-    if(self.secondsLeft > 1) {
-      setTimeout(self._updateSecondsLeft, 1000);
-    }
-    self.secondsLeft -= 1;
-  };
-
-  /**
-   * Helper function to establish a proof of patience for writing a
-   * DID document.
-   *
-   * @return a promise that resolves to the proof, or rejects with the error.
-   */
-  self._establishProofOfPatience = function(didDocument) {
-    return new Promise(function(resolve, reject) {
-      return Promise.resolve($http.post('/dids/', didDocument, {
-        transformResponse: function(data, headers, status) {
-          return {
-            status: status,
-            headers: {
-              'retry-after': parseInt(headers('retry-after'), 10),
-              'www-authenticate': headers('www-authenticate')
-            },
-            data: data
-          };
-        }})).then(function(response) {
-          // expecting a 401 HTTP error code, so a success of any kind is bad
-          return reject(response);
-        }).catch(function(err) {
-          // expect 401 unauthorized and a proof-of-patience challenge
-          if(err.status !== 401) {
-            return reject(err);
-          }
-
-          // wait for as long as the proof of patience requires
-          self.secondsLeft = err.headers['retry-after'];
-          var waitTime = self.secondsLeft * 1000;
-          self.registering = true;
-          self._updateSecondsLeft();
-          setTimeout(function() {
-            var proof = err.headers['www-authenticate'];
-            return resolve(proof);
-          }, waitTime);
-        });
-    });
-  };
+  });
 
   /**
    * Validates the form, and if valid, performs a registration
    */
   self.validateForm = function() {
     if($scope.regForm.$valid) {
-      self.register();
+      _register();
     }
+  };
+
+  self.togglePolyfill = function() {
+    self.display.polyfill = self.display.polyfill === false ? true : false;
+    self.polyfillShowHide = self.polyfillShowHide === 'show' ? 'hide' : 'show';
   };
 
   /**
    * Registers a decentralized identifier, creating a mapping in the
    * process as well as an email credential.
    */
-  self.register = function() {
+  function _register() {
     var idp = self.idp;
     var keypair = null;
     var did = didio.generateDid();
@@ -157,7 +103,9 @@ function factory($scope, $sce, $http, brAlertService, config) {
       }
     }
 
-    self._generateKeyPair().then(function(kp) {
+    // TODO: this code needs to be reorganized into smaller more comprehensible
+    // functions
+    _generateKeyPair().then(function(kp) {
       keypair = kp;
       // store encrypted private key in browser local storage
       var encryptedPem = forge.pki.encryptRsaPrivateKey(
@@ -222,7 +170,7 @@ function factory($scope, $sce, $http, brAlertService, config) {
     }).then(function(signedDidDocument) {
       didDocument = signedDidDocument;
       // wait until the proof of patience has been established
-      return self._establishProofOfPatience(didDocument);
+      return _establishProofOfPatience(didDocument);
     }).then(function(proof) {
       // use the proof of patience to register the DID
       return Promise.resolve($http.post('/dids/', didDocument, {
@@ -264,19 +212,83 @@ function factory($scope, $sce, $http, brAlertService, config) {
       self.registering = false;
       self.generating = false;
       if(!registrationError) {
-        navigator.credentials.transmit(didDocument, {
-          responseUrl: self.idpRegistrationCallback
-        });
+        var router = new navigator.credentials._Router('result', origin);
+        router.send('registerDid', didDocument);
       }
       $scope.$apply();
     });
-  };
+  }
 
-  self.togglePolyfill = function() {
-    self.display.polyfill = self.display.polyfill === false ? true : false;
-    self.polyfillShowHide = self.polyfillShowHide === 'show' ? 'hide' : 'show';
-  };
+  /**
+   * Helper method to generate a keypair asynchronously.
+   *
+   * @return a promise that resolves to a keypair, or rejects with the error.
+   */
+  function _generateKeyPair() {
+    return new Promise(function(resolve, reject) {
+      forge.pki.rsa.generateKeyPair({
+        bits: 2048,
+        workerScript: '/bower-components/forge/js/prime.worker.js'
+      }, function(err, keypair) {
+        if(err) {
+          return reject(err);
+        }
+        return resolve(keypair);
+      });
+    });
+  }
 
+  /**
+   * Helper function to establish a proof of patience for writing a
+   * DID document.
+   *
+   * @return a promise that resolves to the proof, or rejects with the error.
+   */
+  function _establishProofOfPatience(didDocument) {
+    return new Promise(function(resolve, reject) {
+      return Promise.resolve($http.post('/dids/', didDocument, {
+        transformResponse: function(data, headers, status) {
+          return {
+            status: status,
+            headers: {
+              'retry-after': parseInt(headers('retry-after'), 10),
+              'www-authenticate': headers('www-authenticate')
+            },
+            data: data
+          };
+        }})).then(function(response) {
+          // expecting a 401 HTTP error code, so a success of any kind is bad
+          return reject(response);
+        }).catch(function(err) {
+          // expect 401 unauthorized and a proof-of-patience challenge
+          if(err.status !== 401) {
+            return reject(err);
+          }
+
+          // wait for as long as the proof of patience requires
+          self.secondsLeft = err.headers['retry-after'];
+          var waitTime = self.secondsLeft * 1000;
+          self.registering = true;
+          _updateSecondsLeft();
+          setTimeout(function() {
+            var proof = err.headers['www-authenticate'];
+            return resolve(proof);
+          }, waitTime);
+        });
+    });
+  }
+
+  /**
+   * Decrements the number of seconds left for registering.
+   */
+  function _updateSecondsLeft() {
+    $scope.$apply();
+    // update the timer every second
+    if(self.secondsLeft > 1) {
+      setTimeout(_updateSecondsLeft, 1000);
+    }
+    self.secondsLeft -= 1;
+  }
 }
 
 return {RegisterController2: factory};

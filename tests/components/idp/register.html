@@ -1,70 +1,41 @@
 <h1 align="center">Identity Provider: Registration</h1>
 
-<div ng-controller="RegisterController as model">
+<p>
+  Clicking the button below will create a new account with this demo IdP and
+  then take you through the process to link it to a new decentralized identity.
+</p>
+
+<div ng-controller="aiotRegisterController as model">
   <form name="regForm" class="form-horizontal" role="form" novalidate
     ng-submit="model.validateForm()">
     <fieldset>
-        <br-input br-model="model.username"
-          br-options="{name: 'email', label: 'Email'}"
-          ng-minlength="6" ng-maxlength="128" required>
-          <div name="br-input-help">
-            Please enter your email address.
-          </div>
-          <div name="br-input-validation-errors">
-            <p ng-show="regForm.email.$error.required">
-              Email is required.
-            </p>
-            <p ng-show="regForm.email.$error.minlength">
-              Email is required to be at least 6 characters.
-            </p>
-            <p ng-show="regForm.email.$error.maxlength">
-              Email must not be longer than 128 characters.
-            </p>
-          </div>
-        </br-input>
-        <br-input br-model="model.passphrase"
-          br-options="{name: 'passphrase', label: 'Passphrase', type: 'password'}"
-          ng-minlength="6" ng-maxlength="128" required>
-          <div name="br-input-help">
-            Please enter a passphrase.
-          </div>
-          <div name="br-input-validation-errors">
-            <p ng-show="regForm.passphrase.$error.required">
-              Passphrase is required.
-            </p>
-            <p ng-show="regForm.passphrase.$error.minlength">
-              Passphrase is required to be at least 6 characters.
-            </p>
-            <p ng-show="regForm.passphrase.$error.maxlength">
-              Passphrase must not be longer than 128 characters.
-            </p>
-          </div>
-        </br-input>
-        <br-input br-model="model.passphraseConfirmation"
-          br-options="{
-            name: 'passphraseConfirmation',
-            label: 'Confirm Passphrase',
-            type: 'password'
-          }" br-input-aio-matches-input="model.passphrase">
-          <div name="br-input-help">
-            Please confirm your passphrase.
-          </div>
-          <div name="br-input-validation-errors">
-            <p ng-show="regForm.passphraseConfirmation.$error.inputMatch">
-              Passphrase and Confirm Passphrase must match.
-            </p>
-          </div>
-        </br-input>
-      <div style="text-align:center;">
-        <button ng-disabled="model.registering || model.generating"
-          type="submit" class="btn btn-primary">Register</button>
-      </div>
-      <div style="text-align:center;" ng-show="model.generating">
-        Securing your login information, this may take a minute...
-        <i class="fa fa-refresh fa-spin text-muted"></i>
-      </div>
-      <div style="text-align:center;" ng-show="model.registering">
-        Waiting in line to register... {{model.secondsLeft}} seconds remaining.
+      <br-input br-model="model.username"
+        br-options="{name: 'username', label: 'Username'}"
+        ng-minlength="3" ng-maxlength="128" required>
+        <div name="br-input-help">
+          Please enter a username to associated with your local account.
+        </div>
+        <div name="br-input-validation-errors">
+          <p ng-show="regForm.username.$error.required">
+            Username is required.
+          </p>
+          <p ng-show="regForm.username.$error.minlength">
+            Username is required to be at least 3 characters.
+          </p>
+          <p ng-show="regForm.username.$error.maxlength">
+            Username must not be longer than 128 characters.
+          </p>
+        </div>
+      </br-input>
+
+      <div class="form-group">
+        <div class="col-md-offset-3">
+          <button type="submit" ng-disabled="model.loading || regForm.$invalid"
+            class="btn btn-primary btn-lg">Register</button>
+          <span ng-show="model.loading">
+            <i class="fa fa-refresh fa-spin fa-lg"></i>
+          </span>
+        </div>
       </div>
     </fieldset>
   </form>
