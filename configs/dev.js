@@ -1,26 +1,26 @@
 /*
- * authorization.io test configuration.
+ * authorization.io development configuration.
  *
  * Copyright (c) 2015 The Open Payments Foundation. All rights reserved.
  */
 var bedrock = require('bedrock');
 var config = bedrock.config;
 var path = require('path');
-var forge = require('node-forge');
-var database = require('bedrock-mongodb');
-var async = require('async');
 var _ = require('lodash');
 
 config.views.paths.push(path.join(__dirname, '..', 'tests', 'views'));
 
 // load the development-specific extensions to the site
+// FIXME: rename "tests" to "demo"
 require('../tests/lib/idp');
 require('../tests/lib/issuer');
 require('../tests/lib/consumer');
-// pseudo bower package for idp and consumer
+
+// pseudo bower package for demo idp, issuer, and consumer
 config.requirejs.bower.packages.push({
   path: path.join(__dirname, '..', 'tests', 'components'),
   manifest: {
+    // FIXME: rename to authio-demo
     name: 'authiodev-components',
     moduleType: 'amd',
     main: './main.js',

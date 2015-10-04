@@ -70,10 +70,12 @@ config.views.vars.style.brand.alt = config.views.brand.name;
 require('../tests/lib/idp');
 require('../tests/lib/issuer');
 require('../tests/lib/consumer');
-// pseudo bower package for idp and consumer
+
+// pseudo bower package for demo idp, issuer, and consumer
 config.requirejs.bower.packages.push({
   path: path.join(__dirname, '..', 'tests', 'components'),
   manifest: {
+    // TODO: rename to authio-demo
     name: 'authiodev-components',
     moduleType: 'amd',
     main: './main.js',
