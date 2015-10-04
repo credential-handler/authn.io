@@ -66,8 +66,6 @@ config.views.vars.style.brand.alt = config.views.brand.name;
 
 // FIXME: Everything below here is temporary for testing purposes
 
-config.views.paths.push(path.join(__dirname, '..', 'tests', 'views'));
-
 // load the development-specific extensions to the site
 require('../tests/lib/idp');
 require('../tests/lib/issuer');
@@ -84,9 +82,5 @@ config.requirejs.bower.packages.push({
     }
   }
 });
-
-// bootstrap the Angular application so routes work
-config.views.routes.push(['/idp', 'index.html']);
-config.views.routes.push(['/issuer', 'issuer/credentials.html']);
 
 require('./authorization.io-secrets');

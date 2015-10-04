@@ -65,64 +65,36 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
 
   // mock issuer credentials generator
   app.post('/issuer/credentials', function(req, res, next) {
-    views.getDefaultViewVars(req, function(err, vars) {
-      if(err) {
-        return next(err);
-      }
-      var privateKeyPem =
-        forge.pki.privateKeyToPem(gIssuerKeypair.privateKey);
-      var targetDid = req.cookies.did;
-      var identity = {
-        '@context': 'https://w3id.org/identity/v1',
-        id: targetDid,
-        credential: {}
-      };
-      var credentials = req.body.credential;
+    var privateKeyPem =
+      forge.pki.privateKeyToPem(gIssuerKeypair.privateKey);
+    var targetDid = req.cookies.did;
+    var identity = {
+      '@context': 'https://w3id.org/identity/v1',
+      id: targetDid,
+      credential: {}
+    };
+    var credentials = req.body.credential;
 
-      // sign each credential
-      async.map(credentials, function(item, callback) {
-        jsigs.sign(item['@graph'], {
-          privateKeyPem: privateKeyPem,
-          creator: config.server.baseUri + '/issuer/keys/1'
-        }, function(err, signedCredential) {
-          if(err) {
-            return callback(err);
-          }
-          callback(null, {
-            '@graph': signedCredential
-          });
-        });
-      }, function(err, results) {
+    // sign each credential
+    async.map(credentials, function(item, callback) {
+      jsigs.sign(item['@graph'], {
+        privateKeyPem: privateKeyPem,
+        creator: config.server.baseUri + '/issuer/keys/1'
+      }, function(err, signedCredential) {
         if(err) {
-          return next(err);
+          return callback(err);
         }
-        identity.credential = results;
-        res.set('Content-Type', 'application/ld+json');
-        res.status(200).json(identity);
+        callback(null, {
+          '@graph': signedCredential
+        });
       });
-    });
-  });
-
-  // mock issuer credentials dashboard
-  app.get('/issuer/dashboard', parseForm, function(req, res, next) {
-    views.getDefaultViewVars(req, function(err, vars) {
+    }, function(err, results) {
       if(err) {
         return next(err);
       }
-
-      if(req.body.jsonPostData) {
-        try {
-          var jsonPostData = JSON.parse(req.body.jsonPostData);
-          if(jsonPostData) {
-            vars.issuer = {};
-            vars.issuer.identity = jsonPostData;
-          }
-        } catch(e) {
-          return next(e);
-        }
-      }
-
-      res.render('issuer/credentials.html', vars);
+      identity.credential = results;
+      res.set('Content-Type', 'application/ld+json');
+      res.status(200).json(identity);
     });
   });
 
@@ -147,7 +119,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       }
 
       res.cookie('issuer', JSON.stringify(vars.issuer));
-      res.render('issuer/credentials.html', vars);
+      res.render('main.html', vars);
     });
   });
 
@@ -171,7 +143,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       }
 
       res.cookie('issuer', JSON.stringify(vars.issuer));
-      res.render('issuer/credentials.html', vars);
+      res.render('main.html', vars);
     });
   });
 

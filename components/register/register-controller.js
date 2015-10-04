@@ -6,8 +6,7 @@ function(_, async, forge, didiojs, uuid, jsonld, jsigjs) {
 'use strict';
 
 /* @ngInject */
-function factory(
-  $scope, $sce, $http, $location, ipCookie, brAlertService, config) {
+function factory($scope, $sce, $http, brAlertService, config) {
   var self = this;
   self.idpRegistration = config.data.idpRegistration;
   self.idp = config.data.idpRegistration.idp;

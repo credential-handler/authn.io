@@ -47,10 +47,6 @@ module.config(function($routeProvider) {
     when('/consumer/credentials', {
       title: 'Credential Consumer',
       templateUrl: requirejs.toUrl('authiodev-components/consumer/credentials.html')
-    })
-    .when('/consumer/issuer', {
-      title: 'Credential Issuer',
-      templateUrl: requirejs.toUrl('authiodev-components/consumer/issuer.html')
     });
 });
 

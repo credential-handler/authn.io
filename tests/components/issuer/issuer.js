@@ -1,20 +1,10 @@
-define([
-  'angular',
-  'forge/js/forge',
-  'did-io',
-  'node-uuid'
-], function(angular, forge, didiojs, uuid) {
+define(['angular'], function(angular) {
 
 'use strict';
 
 var module = angular.module('authio.issuer', ['bedrock.alert']);
-var didio = didiojs({inject: {
-  forge: forge,
-  uuid: uuid
-}});
 
-module.controller('IssuerController', function(
-  $scope, $http, $window, config, DataService, brAlertService) {
+module.controller('IssuerController', function($scope, $http, brAlertService) {
   var self = this;
   self.identity = window.data.issuer.identity;
 

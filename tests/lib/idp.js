@@ -86,16 +86,6 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
     res.send(endpoints);
   });
 
-  // mock IdP landing page
-  app.post('/idp', function(req, res, next) {
-    views.getDefaultViewVars(req, function(err, vars) {
-      if(err) {
-        return next(err);
-      }
-      res.render('index.html', vars);
-    });
-  });
-
   app.post('/idp/identities', parseForm, function(req, res, next) {
     views.getDefaultViewVars(req, function(err, vars) {
       if(err) {
@@ -114,7 +104,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       } catch(e) {
         return next(e);
       }
-      res.render('index.html', vars);
+      res.render('main.html', vars);
     });
   });
 
@@ -176,12 +166,12 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
                 '@graph': signedPublicKeyCredential
               });
             }
-            res.render('idp/credentials.html', vars);
+            res.render('main.html', vars);
             // remove temporary key credential
             vars.idp.identity.credential.pop();
           });
         } else {
-          res.render('idp/credentials.html', vars);
+          res.render('main.html', vars);
         }
       } else if(req.query.action === 'store') {
         try {
@@ -193,7 +183,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
         } catch(e) {
           return next(e);
         }
-        res.render('idp/credentials.html', vars);
+        res.render('main.html', vars);
       } else {
         var identity = req.body;
 

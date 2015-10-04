@@ -1,36 +1,26 @@
 define([
   'angular',
-  'underscore',
-  'forge/js/forge',
-  'did-io',
   './request/request',
-  './new-device/new-device',
   './credentials/credentials',
   './credentials-store/credentials',
   './idp-test/idp-test',
   './register/register',
   'angular-local-storage'
-], function(
-  angular, _, forge, didio
-) {
+], function(angular) {
 
 'use strict';
 
 var module = angular.module('authio.authorizationio', [
-  'authio.login', 'authio.new-device', 'authio.credentials',
+  'authio.login', 'authio.credentials',
   'authio.register2', 'authio.credentials-store', 'bedrock.alert',
   'authio.idp-test', 'LocalStorageModule']);
 
 /* @ngInject */
-module.config(function($routeProvider) {
+module.config(function($routeProvider, localStorageServiceProvider) {
   $routeProvider.
     when('/', {
-      title: 'Login Hub Information',
+      title: 'Welcome',
       templateUrl: requirejs.toUrl('components/info/info.html')
-    }).
-    when('/new-device', {
-      title: 'Register Device',
-      templateUrl: requirejs.toUrl('components/new-device/new-device.html')
     }).
     when('/register', {
       title: 'Register',
@@ -61,71 +51,13 @@ module.config(function($routeProvider) {
       title: 'Mock Credential Storage Results',
       templateUrl: requirejs.toUrl('components/idp-test/idp-test.html')
     });
-});
 
-module.config(function(localStorageServiceProvider) {
   localStorageServiceProvider
     .setPrefix('authio')
     .setStorageType('localStorage')
     .setNotify(false, false);
 });
 
-module.service('DataService', function($location, $window) {
-  var savedData = {};
-  var self = this;
-
-  function set(key, value) {
-    savedData[key] = value;
-  }
-  function get(key) {
-    return savedData[key];
-  }
-  function getUrl(idp) {
-    // FIXME: Do actual IDP DID lookup
-    return $location.protocol() + '://' + $location.host() + ':' +
-      $location.port() + '/idp';
-  }
-  function redirect(url) {
-    $window.location.href = url;
-  }
-
-  // must either pass in the callback and idpUrl
-  // or have it in the DataService's savedData
-  function postToIdp(credentialRequestUrl, credentialCallbackUrl, data) {
-    var id = Date.now();
-    sessionStorage.setItem(id, credentialCallbackUrl);
-
-    queryUrl += '?id=' + id;
-
-    var queryString = escapeHtml(JSON.stringify(credentialRequest));
-    var form = document.createElement('form');
-    form.setAttribute('method', 'post');
-    form.setAttribute('action', queryUrl);
-    form.innerHTML =
-    '<input type="hidden" name="callerData" value="' + queryString + '" />';
-    form.submit();
-
-    function escapeHtml(str) {
-      return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
-  }
-
-  // password / salt / encryption method / number of iterations.
-
-  return {
-    set: set,
-    get: get,
-    getUrl: getUrl,
-    redirect: redirect,
-    postToIdp: postToIdp,
-    decryptDid: didio.decrypt,
-    encryptDid: didio.encrypt
-  };
-});
-
 return module.name;
+
 });
