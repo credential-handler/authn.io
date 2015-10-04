@@ -1,4 +1,4 @@
-define(['angular'], function(angular) {
+define([], function() {
 
 'use strict';
 
@@ -39,6 +39,6 @@ function factory($scope, $http, $location, brAlertService, config) {
   };
 }
 
-return {CredentialManagerController: factory};
+return {aoidCredentialManagerController: factory};
 
 });

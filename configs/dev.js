@@ -20,8 +20,7 @@ require('../tests/lib/consumer');
 config.requirejs.bower.packages.push({
   path: path.join(__dirname, '..', 'tests', 'components'),
   manifest: {
-    // FIXME: rename to authio-demo
-    name: 'authiodev-components',
+    name: 'authio-demo',
     moduleType: 'amd',
     main: './main.js',
     dependencies: {

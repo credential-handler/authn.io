@@ -85,6 +85,6 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
   }
 }
 
-return {aiotRegisterController: factory};
+return {aiodRegisterController: factory};
 
 });

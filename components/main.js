@@ -12,7 +12,7 @@ define([
 
 var module = angular.module('authio.authorizationio', [
   'authio.login', 'authio.credentials',
-  'authio.register2', 'authio.credentials-store', 'bedrock.alert',
+  'authio.register', 'authio.credentials-store', 'bedrock.alert',
   'authio.idp-test', 'LocalStorageModule']);
 
 /* @ngInject */

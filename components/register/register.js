@@ -1,17 +1,17 @@
 define([
   'angular',
-  './register-controller',
-  './register-directive'
+  './register-did-controller',
+  './matches-input-directive'
 ], function(
   angular,
-  registerController,
-  registerDirective) {
+  registerDidController,
+  matchesInputDirective) {
 
 'use strict';
 
-var module = angular.module('authio.register2', ['ipCookie', 'bedrock.alert']);
+var module = angular.module('authio.register', ['ipCookie', 'bedrock.alert']);
 
-module.controller(registerController);
-module.directive(registerDirective);
+module.controller(registerDidController);
+module.directive(matchesInputDirective);
 
 });

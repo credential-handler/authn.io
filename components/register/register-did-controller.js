@@ -291,6 +291,6 @@ function factory($http, $location, $scope, brAlertService, config) {
   }
 }
 
-return {RegisterController2: factory};
+return {aioRegisterDidController: factory};
 
 });
