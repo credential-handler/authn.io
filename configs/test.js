@@ -51,6 +51,21 @@ config.views.vars.baseUri = config.server.baseUri;
 config.views.vars.title = config.views.brand.name;
 config.views.vars.siteTitle = config.views.brand.name;
 
+// serve demo contexts and vocabs
+config.express.static.push(path.join(
+  __dirname, '..', 'static'));
+
+// setup to load demo vocabs
+config.views.vars['bedrock-angular-credential'] =
+  config.views.vars['bedrock-angular-credential'] || {};
+config.views.vars['bedrock-angular-credential'].libraries =
+  config.views.vars['bedrock-angular-credential'].libraries || {};
+config.views.vars['bedrock-angular-credential'].libraries.default = {
+  vocabs: [
+    config.server.baseUri + '/vocabs/test-v1.jsonld'
+  ]
+};
+
 // mocha tests
 config.mocha.tests.push(path.join(__dirname, '..', 'tests', 'mocha'));
 

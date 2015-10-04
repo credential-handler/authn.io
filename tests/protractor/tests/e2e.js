@@ -60,20 +60,25 @@ describe('registration', function() {
         'model.passphrase', 'model.passphraseConfirmation', 'goodPhraseA',
         'nonMatchingPhraseB', 'inputMatch');
     });
+  });
+
+  describe('properly completed registration form', function() {
+
+    beforeEach(function() {
+      bedrock.pages.idp.navigateToRegistrationForm();
+    });
 
     it('should create a mapping and DID document', function() {
       // Override default timeout, RSA key generation is slow on older CPUs.
       this.timeout(180000);
       bedrock.pages.idp.registerDid(identity);
     });
-
   });
-
 });
 
 describe('session management', function() {
 
-  it('should reject an invalid email for login', function() {
+  it('should reject an unknown email for login', function() {
     bedrock.pages.authio.navigateToLoginForm();
     bedrock.pages.authio.login({
       email: 'invalid-email@example.com',
@@ -82,7 +87,7 @@ describe('session management', function() {
     });
   });
 
-  it('should reject an invalid password for login', function() {
+  it('should reject an incorrect password for login', function() {
     bedrock.pages.authio.navigateToLoginForm();
     bedrock.pages.authio.login({
       email: identity.email,
@@ -91,7 +96,8 @@ describe('session management', function() {
     });
   });
 
-  it('should allow a valid login from a public computer', function() {
+  // FIXME: This test may no longer be relevant
+  it.skip('should allow a valid login from a public computer', function() {
     bedrock.pages.authio.navigateToLoginForm();
     this.timeout(180000);
     bedrock.pages.authio.login({
@@ -124,7 +130,12 @@ describe('issuing', function() {
 
 describe('consuming', function() {
   it('should compose, transmit, and consume a credential', function() {
-    bedrock.pages.consumer.navigateToConsumer().retrieveCredential();
+    bedrock.pages.consumer.navigateToConsumer().getCredential();
+    bedrock.pages.authio.login({
+      email: identity.email,
+      passphrase: identity.passphrase
+    });
+    bedrock.pages.consumer.retrieveCredential();
     bedrock.pages.authio.logout();
   });
 });

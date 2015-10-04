@@ -23,10 +23,10 @@ api.navigateToIssuer = function() {
 
 api.issueAndStoreCredential = function() {
   // expect to already be on the issue credential page
-  element(by.buttonText('Issue Passport Credential')).isPresent();
-  bedrock.waitForAngular();
-
-  element(by.buttonText('Issue Passport Credential')).click();
+  var issueButton = element(by.buttonText('Issue Passport Credential'));
+  browser.wait(
+    protractor.ExpectedConditions.elementToBeClickable(issueButton), 5000);
+  issueButton.click();
   // FIXME: Find some way to not use sleep
   browser.driver.sleep(2000);
   bedrock.waitForAngular();

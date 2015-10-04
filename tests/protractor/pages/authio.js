@@ -25,14 +25,19 @@ api.navigateToLoginForm = function() {
 
 api.login = function(options) {
   var expectFailure = options.expectFailure || false;
-  element(by.brModel('model.username')).sendKeys(options.email);
+  element(by.brModel('model.email')).sendKeys(options.email);
   element(by.brModel('model.password')).sendKeys(options.passphrase);
   if(options.publicComputer) {
     element(by.model('model.publicComputer')).click();
   }
   element(by.buttonText('Login')).click();
   // FIXME: Find some way to not use sleep
-  browser.driver.sleep(1000);
+  if(expectFailure) {
+    browser.driver.sleep(1000);
+  } else {
+    // key generation can take some time
+    browser.driver.sleep(6000);
+  }
   bedrock.waitForAngular();
 
   // if errors exist, fail
@@ -44,32 +49,6 @@ api.login = function(options) {
         throw('Expected login to fail');
       } else if(!expectFailure && present) {
         throw('Expected login to succeed');
-      } else {
-        // wait for compose screen
-        bedrock.waitForUrl(function(url) {
-          return url.indexOf('/idp/credentials?') !== -1;
-        });
-        bedrock.waitForAngular();
-
-        // compose and wait for send screen
-        var composeButton = element(by.buttonText('Compose Credential'));
-        browser.wait(
-          protractor.ExpectedConditions.elementToBeClickable(composeButton),
-          5000);
-        composeButton.click();
-        bedrock.waitForUrl(function(url) {
-          return url.indexOf('/credentials?') !== -1;
-        });
-        bedrock.waitForAngular();
-
-        // send credentials and wait for
-        var sendButton = element(by.buttonText('Send Credentials'));
-        browser.wait(
-          protractor.ExpectedConditions.elementToBeClickable(sendButton), 5000);
-        sendButton.click();
-
-        bedrock.waitForUrl('/issuer/dashboard');
-        bedrock.waitForAngular();
       }
     });
 
@@ -79,4 +58,3 @@ api.login = function(options) {
 api.logout = function() {
   browser.driver.manage().deleteCookie('session');
 };
-

@@ -13,10 +13,7 @@ var api = {};
 module.exports = api;
 
 api.navigateToConsumer = function() {
-  bedrock.get('/');
-  bedrock.waitForAngular();
-
-  element(by.cssContainingText('a', 'Request Credentials')).click();
+  bedrock.get('/consumer/requestor');
 
   // wait for the Get Passport Credential button to appear
   var gpcButton = element(by.buttonText('Get Passport Credential'));
@@ -26,7 +23,7 @@ api.navigateToConsumer = function() {
   return api;
 };
 
-api.retrieveCredential = function() {
+api.getCredential = function() {
   // expect to already be on the credential consumer page
   bedrock.waitForAngular();
   element(by.buttonText('Get Passport Credential')).isPresent();
@@ -36,17 +33,27 @@ api.retrieveCredential = function() {
   // FIXME: Find some way to not use sleep
   browser.driver.sleep(1000);
   bedrock.waitForAngular();
+};
 
+api.retrieveCredential = function() {
   // wait for the compose button and click it
   bedrock.waitForUrl(function(url) {
     return url.indexOf('/idp/credentials?') !== -1;
   });
   bedrock.waitForAngular();
-  var composeButton = element(by.buttonText('Compose Credential'));
+
+  // wait for the Get Passport Credential button to appear
+  var emailButton = element(by.buttonText('email'));
   browser.wait(
-    protractor.ExpectedConditions.elementToBeClickable(composeButton), 5000);
-  composeButton.click();
+    protractor.ExpectedConditions.elementToBeClickable(emailButton), 5000);
+  emailButton.click();
   bedrock.waitForAngular();
+  var credential = element.all(by.css('.br-selectable')).get(0);
+  credential.click();
+  bedrock.waitForAngular();
+  var doneButton = element(by.buttonText('Done'));
+  doneButton.click();
+  browser.sleep(1000);
 
   // send credential to be consumed
   var sendButton = element(by.buttonText('Send Credentials'));
