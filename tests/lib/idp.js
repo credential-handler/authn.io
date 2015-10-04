@@ -47,13 +47,13 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
             }]
           },
           publicKey: [{
-            id : 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1/keys/1',
+            id: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1/keys/1',
             type: 'CryptographicKey',
             owner: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
             publicKeyPem: forge.pki.publicKeyToPem(gIdPKeypair.publicKey)
           }]
         }
-      }, _.assign({}, database.writeOptions, {upsert:true, multi:false}),
+      }, _.assign({}, database.writeOptions, {upsert: true, multi: false}),
         function(err, doc) {
         if(err) {
           console.log('Failed to set IdP document:', err, doc);
@@ -149,12 +149,12 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
         } catch(err) {
           console.log('Error: Failed to extract credential query:', err);
         }
-        vars.query = credQuery;
+        vars.query = credQuery.query;
         if(credQuery.publicKey) {
           var publicKeyCredential = {
             '@context': [
-              "https://w3id.org/identity/v1",
-              "https://w3id.org/credentials/v1"
+              'https://w3id.org/identity/v1',
+              'https://w3id.org/credentials/v1'
             ],
             type: [
               'Credential',
@@ -178,7 +178,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
             }
             res.render('idp/credentials.html', vars);
             // remove temporary key credential
-            vars.idp.identity.credential.pop()
+            vars.idp.identity.credential.pop();
           });
         } else {
           res.render('idp/credentials.html', vars);
@@ -234,17 +234,17 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
     });
   });
 
-/**
- * Merge the given credentials with the credentials in the database.
- *
- * @param identity the identity to take the credentials from.
- */
-function _mergeCredentials(identity) {
-  if(!gCredentials[identity.id]) {
-    gCredentials[identity.id] = [];
+  /**
+   * Merge the given credentials with the credentials in the database.
+   *
+   * @param identity the identity to take the credentials from.
+   */
+  function _mergeCredentials(identity) {
+    if(!gCredentials[identity.id]) {
+      gCredentials[identity.id] = [];
+    }
+    gCredentials[identity.id] =
+      _.union(gCredentials[identity.id], identity.credential);
   }
-  gCredentials[identity.id] =
-    _.union(gCredentials[identity.id], identity.credential);
-}
 
 });

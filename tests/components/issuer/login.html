@@ -12,7 +12,8 @@ we can issue a credential to you. To do so, click the button below.
 function login() {
   navigator.credentials.request({
     '@context': 'https://w3id.org/identity/v1',
-    'email': ''
+    id: '',
+    publicKey: ''
   }, {
     requestUrl: window.data.baseUri + '/requests',
     credentialCallback: window.data.baseUri + '/issuer/dashboard'
