@@ -127,6 +127,6 @@ function factory(
   }
 }
 
-return {aioProxyController: factory};
+return {aioAgentController: factory};
 
 });
