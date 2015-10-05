@@ -76,6 +76,18 @@ function factory($window, aioIdentityService) {
       if(_parseOrigin(idpUrl) !== options.origin) {
         throw new Error('Origin mismatch.');
       }
+      // include public key in parameters
+      if(options.op === 'get') {
+        var publicKey = message.data.publicKey = {
+          '@context': session.publicKey['@context']
+        };
+        if(session.publicKey.id) {
+          publicKey.id = session.publicKey.id;
+        }
+        publicKey.type = session.publicKey.type;
+        publicKey.owner = session.publicKey.owner;
+        publicKey.publicKeyPem = session.publicKey.publicKeyPem;
+      }
       router = new Router(options.route, options.origin);
     } else {
       console.log('credential agent sending to RP...');
