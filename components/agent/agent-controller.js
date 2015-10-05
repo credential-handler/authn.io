@@ -70,7 +70,7 @@ function factory(
   if(query.route === 'params') {
     if(aioProxyService.needsParameters(query)) {
       // flow is just starting, get parameters from RP
-      return aioProxyService.getParameters(query).then(function(params) {
+      return aioProxyService.proxy(query).then(function(params) {
         if(query.op === 'get') {
           // special handle request for public key credential
           self.isCryptoKeyRequest = _.isEqual(params, CRYPTO_KEY_REQUEST);

@@ -9,25 +9,21 @@ function factory($window, aioIdentityService) {
   var Router = navigator.credentials._Router;
 
   /**
-   * Returns true if the given operation's parameters need to be received.
-   *
-   * @param op the name of the operation.
+   * Returns true if the current operation's parameters need to be received.
    *
    * @return true if parameters need to be received, false if not.
    */
-  service.needsParameters = function(op) {
-    return !_load('credentials.' + op + '.params');
+  service.needsParameters = function() {
+    return !_load('params');
   };
 
   /**
-   * Returns true if the given operation's result needs to be received.
-   *
-   * @param op the name of the operation.
+   * Returns true if the current operation's result needs to be received.
    *
    * @return true if the result needs to be received, false if not.
    */
-  service.needsResult = function(op) {
-    return !_load('credentials.' + op + '.result');
+  service.needsResult = function() {
+    return !_load('result');
   };
 
   /**
@@ -39,7 +35,7 @@ function factory($window, aioIdentityService) {
    * TODO: document
    */
   service.proxy = function(options) {
-    var message = _load('credentials.' + options.op + '.' + options.route);
+    var message = _load(options.route);
     return aioIdentityService.getSession().then(function(session) {
       if(!session) {
         // TODO: need better error handling for expired sessions
@@ -59,15 +55,13 @@ function factory($window, aioIdentityService) {
   // TODO: document
 
   service.sendCryptographicKeyCredential = function(query, identity) {
-    sessionStorage.setItem(
-      'credentials.' + query.op + '.result',
-      JSON.stringify({
-        id: new Date().getTime() + '-' + Math.floor(Math.random() * 100000),
-        origin: query.origin,
-        data: identity
-      }));
+    sessionStorage.setItem('operation.result', JSON.stringify({
+      id: new Date().getTime() + '-' + Math.floor(Math.random() * 100000),
+      origin: query.origin,
+      data: identity
+    }));
     service.proxy({
-      op: query.op,
+      op: 'get',
       route: 'result',
       origin: query.origin
     });
@@ -89,7 +83,7 @@ function factory($window, aioIdentityService) {
         throw new Error('Origin mismatch.');
       }
       // get RP origin
-      var rpMessage = _load(options.op, 'params');
+      var rpMessage = _load('params');
       if(!rpMessage) {
         throw new Error('Credential protocol error.');
       }
@@ -106,7 +100,7 @@ function factory($window, aioIdentityService) {
       });*/
     }
 
-    router.send(options.op, message.data);
+    router.send(message.op, message.data);
   }
 
   function _receive(session, options) {
@@ -133,16 +127,16 @@ function factory($window, aioIdentityService) {
 
   function _save(op, route, message) {
     sessionStorage.setItem(
-      'credentials.' + op + '.' + route,
+      'authio.operation.' + route,
       JSON.stringify({
-        id: new Date().getTime() + '-' + Math.floor(Math.random() * 100000),
         origin: message.origin,
+        op: op,
         data: message.data
       }));
   }
 
-  function _load(op, route) {
-    var item = sessionStorage.getItem('credentials.' + op + '.' + route);
+  function _load(route) {
+    var item = sessionStorage.getItem('authio.operation.' + route);
     if(item) {
       try {
         item = JSON.parse(item);

@@ -6,7 +6,7 @@ define([], function() {
 function factory($scope, $http, $location, ipCookie, brAlertService) {
   var self = this;
   self.idp = 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1';
-  self.username = '';
+  self.username = 'demo-username';
   self.loading = false;
 
   /**
