@@ -5,15 +5,16 @@ define([
   './credentials-store/credentials',
   './identity/identity',
   './idp-test/idp-test',
-  './register/register',
+  './register-did/register-did',
   'angular-local-storage'
 ], function(angular) {
 
 'use strict';
 
 var module = angular.module('authio.authorizationio', [
-  'authio.identity', 'authio.login', 'authio.credentials',
-  'authio.register', 'authio.credentials-store', 'bedrock.alert',
+  'authio.identity', 'authio.registerDid',
+  'authio.login', 'authio.credentials',
+  'authio.credentials-store', 'bedrock.alert',
   'authio.idp-test', 'LocalStorageModule']);
 
 /* @ngInject */
@@ -22,10 +23,6 @@ module.config(function($routeProvider, localStorageServiceProvider) {
     when('/', {
       title: 'Welcome',
       templateUrl: requirejs.toUrl('components/info/info.html')
-    }).
-    when('/register', {
-      title: 'Register',
-      templateUrl: requirejs.toUrl('components/register/register.html')
     }).
     when('/requests', {
       title: 'Credentials Request',
