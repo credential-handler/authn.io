@@ -266,21 +266,19 @@ function factory($http, config) {
    * @return a Promise that resolves once the session has been created.
    */
   service.createSession = function(id) {
-    return new Promise(function(resolve, reject) {
-      if(!service.isAuthenticated(id)) {
-        return reject(new Error('Not authenticated.'));
-      }
+    if(!service.isAuthenticated(id)) {
+      return Promise.reject(new Error('Not authenticated.'));
+    }
 
-      // check identity's IdP's config
-      return service.getIdPConfig(id).then(function(config) {
-        // use `localStorage` because the session needs to persist across
-        // multiple windows
-        var session = {
-          id: id,
-          idpConfig: config
-        };
-        localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session));
-      });
+    // check identity's IdP's config
+    return service.getIdPConfig(id).then(function(config) {
+      // use `localStorage` because the session needs to persist across
+      // multiple windows
+      var session = {
+        id: id,
+        idpConfig: config
+      };
+      localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session));
     });
   };
 
