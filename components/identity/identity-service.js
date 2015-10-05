@@ -17,7 +17,8 @@ function factory($http, config) {
 
   var STORAGE_KEYS = {
     IDENTITIES: 'authio.identities',
-    SESSIONS: 'authio.sessions'
+    AUTHENTICATED: 'authio.authenticated',
+    SESSION: 'authio.session'
   };
   var KEY_TYPES = {
     EXISTING: 'existing',
@@ -184,14 +185,14 @@ function factory($http, config) {
   };
 
   /**
-   * Creates a session for an identity. Creating a session removes the need
-   * to enter a password for a particular identity. Sessions can only be
-   * created for identities that have already been loaded via `load()`.
+   * Authenticates as an identity. Unlocking an identity removes the need to
+   * enter a password for a particular identity. Authentication can only be
+   * performed on identities that have already been loaded via `load()`.
    *
    * @param id the ID (DID) for the identity.
    * @param password the identity's password.
    */
-  service.createSession = function(id, password) {
+  service.authenticate = function(id, password) {
     var identity = storage.get(id);
     if(!identity) {
       throw new Error('Identity not found.');
@@ -205,45 +206,98 @@ function factory($http, config) {
     }
 
     // save decrypted private key
-    var sessions = localStorage.getItem(STORAGE_KEYS.SESSIONS);
+    // use `localStorage` because authenticated identities need to persist
+    // across different windows
+    var authenticated = localStorage.getItem(STORAGE_KEYS.AUTHENTICATED);
     try {
-      sessions = JSON.parse(sessions);
+      authenticated = JSON.parse(authenticated);
     } catch(err) {
-      sessions = {};
+      authenticated = {};
     }
-    sessions[id] = {
+    authenticated[id] = {
       privateKeyPem: forge.pki.privateKeyToPem(privateKey),
       expires: Date.now() + SESSION_EXPIRATION
     };
-    localStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(sessions));
+    localStorage.setItem(
+      STORAGE_KEYS.AUTHENTICATED, JSON.stringify(authenticated));
   };
 
   /**
-   * Gets the current session for the given DID, if one exists.
+   * Checks whether or not the identity associated with the given DID is
+   * authenticated.
    *
-   * @param did the DID to get the session for.
+   * @param id the ID (DID) of the identity to check.
    *
-   * @return the session for the given DID, null if none exists.
+   * @return true if the identity is authenticated, false if not.
    */
-  service.getSession = function(did) {
-    var session = null;
+  service.isAuthenticated = function(id) {
+    var rval = false;
 
-    var sessions = localStorage.getItem(STORAGE_KEYS.SESSIONS);
+    var authenticated = localStorage.getItem(STORAGE_KEYS.AUTHENTICATED);
     try {
-      sessions = JSON.parse(sessions);
+      authenticated = JSON.parse(authenticated);
     } catch(err) {
-      sessions = {};
+      authenticated = {};
     }
-    if(did in sessions) {
-      if(sessions[did].expires < Date.now()) {
-        // expire session
-        delete sessions[did];
+    if(id in authenticated) {
+      // ensure identity hasn't expired and is loaded
+      if(authenticated[id].expires < Date.now() || !storage.get(id)) {
+        // expire authenticated identity
+        delete authenticated[id];
       } else {
-        // update session
-        session = sessions[did];
-        session.expires = Date.now() + SESSION_EXPIRATION;
+        // update authenticated identity
+        authenticated[id].expires = Date.now() + SESSION_EXPIRATION;
+        rval = true;
       }
-      localStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(sessions));
+      localStorage.setItem(
+        STORAGE_KEYS.AUTHENTICATED, JSON.stringify(authenticated));
+    }
+    return rval;
+  };
+
+  /**
+   * Creates a session for an authenticated identity. Creating a session
+   * establishes which identity should be used in credential flows. Only
+   * one session can be set at a time. A sessions can only be set for an
+   * identity that has been authenticated.
+   *
+   * @param id the ID (DID) for the identity.
+   *
+   * @return a Promise that resolves once the session has been created.
+   */
+  service.createSession = function(id) {
+    return new Promise(function(resolve, reject) {
+      if(!service.isAuthenticated(id)) {
+        return reject(new Error('Not authenticated.'));
+      }
+
+      // check identity's IdP's config
+      return service.getIdPConfig(id).then(function(config) {
+        // use `localStorage` because the session needs to persist across
+        // multiple windows
+        var session = {
+          id: id,
+          idpConfig: config
+        };
+        localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session));
+      });
+    });
+  };
+
+  /**
+   * Gets the current session, if one exists.
+   *
+   * @return the session, null if none exists.
+   */
+  service.getSession = function() {
+    var session = localStorage.getItem(STORAGE_KEYS.SESSION);
+    try {
+      session = JSON.parse(session);
+    } catch(err) {
+      return null;
+    }
+    if(!service.isAuthenticated(session.id)) {
+      return null;
     }
     return session;
   };
@@ -251,26 +305,18 @@ function factory($http, config) {
   /**
    * Gets the service end point configuration for an identity's IdP.
    *
-   * @param did the identity's DID.
+   * @param id the identity's ID (DID).
    *
    * @return a Promise that resolves to the IdP's config.
    */
-  service.getIdPConfig = function(did) {
+  service.getIdPConfig = function(id) {
     // get user's DID document
-    Promise.resolve($http.get('/dids/' + did)).then(function(response) {
+    Promise.resolve($http.get('/dids/' + id)).then(function(response) {
       // get IdP's DID document
       var didDocument = response.data;
       return Promise.resolve($http.get('/dids/' + didDocument.idp));
     }).then(function(response) {
       var idpDidDocument = response.data;
-
-      // TODO: remove this backwards-compatibility hack, only fetch
-      // idpDidDocument.url in the future
-      if('credentialRequestUrl' in idpDidDocument &&
-        'storageRequestUrl' in idpDidDocument) {
-        return Promise.resolve(idpDidDocument);
-      }
-
       // get the IdP's config
       // TODO: hit `url` directly with JSON-LD request instead of using
       // .well-known
