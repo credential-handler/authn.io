@@ -20,11 +20,6 @@ function factory($http, config) {
     AUTHENTICATED: 'authio.authenticated',
     SESSION: 'authio.session'
   };
-  var KEY_TYPES = {
-    EXISTING: 'existing',
-    TEMPORARY: 'temporary',
-    NEW: 'new'
-  };
   // TODO: make configurable (30 mins)
   var SESSION_EXPIRATION = 30 * 60 * 1000;
 
