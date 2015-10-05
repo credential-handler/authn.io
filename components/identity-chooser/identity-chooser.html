@@ -1,0 +1,106 @@
+<div class="row">
+  <div ng-if="ctrl.display.identityChooser">
+    <br-headline br-title="Select an Identity" br-loading="ctrl.loading"
+      br-options="{menu: false}"></br-headline>
+    <ul ng-hide="ctrl.loading" class="list-unstyled">
+      <li class="br-item-hover well" ng-repeat="(id, identity) in ctrl.identities"
+        ng-click="ctrl.select(id)">
+        <div>
+          <i class="col-md-offset-1 fa fa-user fa-5x"></i>
+          <span class="col-md-offset-2"><strong>{{identity.label}}</strong></span>
+        </div>
+        <div ng-if="ctrl.display.loginForm && ctrl.selected">
+          <hr/>
+          <form class="form-horizontal" name="loginForm"
+            ng-submit="ctrl.authenticate(id, ctrl.password)">
+            <fieldset>
+              <br-input br-model="ctrl.password"
+                br-options="{
+                  name: 'password',
+                  label: 'Passphrase',
+                  type: 'password',
+                  showValidation: true,
+                  autofocus: true
+                }" required>
+                <div name="br-input-help">
+                  Please enter your passphrase.
+                </div>
+                <div name="br-input-validation-errors">
+                  <p ng-show="loginForm.password.$error.required">
+                    Passphrase is required.
+                  </p>
+                </div>
+              </br-input>
+              <div class="form-group">
+                <div class="input-group col-md-offset-2 col-md-9">
+                  <div class="btn-group">
+                    <button class="btn btn-primary" type="submit"
+                      ng-disabled="ctrl.loading || loginForm.$invalid"><i
+                      class="fa fa-sign-in"></i> Login</button>
+                  </div>
+                  <span ng-show="ctrl.loading">
+                    <i class="fa fa-refresh fa-spin fa-lg text-muted"></i>
+                  </span>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div ng-if="ctrl.display.newIdentity">
+    <br-headline br-title="Load an Identity" br-loading="ctrl.loading"
+      br-options="{menu: false}"></br-headline>
+    <!-- FIXME:
+    <div class="well col-md-offset-3 col-md-6">
+      <form name="newIdentityForm">
+        <fieldset>
+          <br-input br-model="ctrl.email"
+            br-options="{name: 'email', label: 'Email', showValidation: true, autofocus: true}"
+            ng-maxlength="128" required>
+            <div name="br-input-help">
+              Please enter your email address.
+            </div>
+            <div name="br-input-validation-errors">
+              <p ng-show="newIdentityForm.email.$error.required">
+                Email is required.
+              </p>
+              <p ng-show="newIdentityForm.email.$error.maxlength">
+                Email must not be longer than 128 characters.
+              </p>
+            </div>
+          </br-input>
+          <br-input br-model="ctrl.password"
+            br-options="{name: 'password', label: 'Passphrase', type: 'password', showValidation: true}"
+            required>
+            <div name="br-input-help">
+              Please enter your passphrase.
+            </div>
+            <div name="br-input-validation-errors">
+              <p ng-show="newIdentityForm.password.$error.required">
+                Password is required.
+              </p>
+            </div>
+          </br-input>
+          <div class="checkbox col-md-offset-3" style="clear:both;" >
+            <label>
+              <input name="remember" ng-model="ctrl.remember" type="checkbox">
+              Remember me next time
+            </label>
+          </div>
+          <div align="center">
+            <button class="btn btn-primary" ng-disabled="newIdentityForm.$invalid || ctrl.generating"
+              ng-click="ctrl.login({username: ctrl.email, password: ctrl.password, remember: ctrl.remember})">
+              Login
+            </button>
+          </div>
+          <div style="text-align:center; padding-top: 15px;" ng-show="ctrl.generating">
+            Securing your connection, this may take a minute...
+            <i class="fa fa-refresh fa-spin text-muted"></i>
+          </div>
+        </fieldset>
+      </form>
+    </div> -->
+  </div>
+</div>
