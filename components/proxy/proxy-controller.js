@@ -1,13 +1,22 @@
-define([], function() {
+define(['jsonld', 'underscore'], function(jsonld, _) {
 
 'use strict';
 
 /* @ngInject */
 function factory(
-  $location, $scope, aioIdentityService, aioProxyService, brAlertService) {
+  $location, $scope, aioIdentityService, aioProxyService,
+  brAlertService, config) {
   var self = this;
+  self.isCryptoKeyRequest = false;
+  self.did = null;
   self.display = {};
   var query = $location.search();
+
+  var CRYPTO_KEY_REQUEST = {
+    '@context': 'https://w3id.org/identity/v1',
+    id: '',
+    publicKey: ''
+  };
 
   /**
    * Resumes the flow by proxying a message. This function is called
@@ -16,12 +25,45 @@ function factory(
    * after an identity is chosen.
    *
    * @param err an error if one occurred.
+   * @param session set to the selected session if an identity chooser was used.
    */
-  self.complete = function(err) {
+  self.complete = function(err, session) {
     if(err) {
       return brAlertService.add('error', err);
     }
-    aioProxyService.proxy(query);
+    if(!self.isCryptoKeyRequest || !_isKeyPermanent(session)) {
+      return aioProxyService.proxy(query);
+    }
+
+    // special handle request for permanent public key credential:
+
+    // clone template
+    var identity = JSON.parse(JSON.stringify(
+      config.data.identityWithCryptographicKeyCredentialTemplate));
+    identity.id = session.id;
+    identity.signature.creator = session.publicKey.id;
+    var credential = identity.credential[0]['@graph'];
+    credential.claim = {
+      id: session.id,
+      publicKey: {
+        id: session.publicKey.id,
+        owner: session.publicKey.owner,
+        publicKeyPem: session.publicKey.publicKeyPem
+      }
+    };
+    delete credential.signature;
+    aioIdentityService.sign({
+      document: credential,
+      publicKeyId: session.publicKey.id,
+      privateKeyPem: session.privateKeyPem
+    }).then(function(signed) {
+      identity.credential[0]['@graph'] = signed;
+      aioProxyService.sendCryptographicKeyCredential(query, identity);
+    }).catch(function(err) {
+      brAlertService.add('error', err);
+    }).then(function() {
+      $scope.$apply();
+    });
   };
 
   // we're receiving parameters from the RP or sending them to the IdP
@@ -30,6 +72,8 @@ function factory(
       // flow is just starting, get parameters from RP
       return aioProxyService.getParameters(query).then(function(params) {
         if(query.op === 'get') {
+          // special handle request for public key credential
+          self.isCryptoKeyRequest = _.isEqual(params, CRYPTO_KEY_REQUEST);
           // always show identity chooser for `get` requests
           self.display.identityChooser = true;
           $scope.$apply();
@@ -75,6 +119,11 @@ function factory(
 
   function _getOwnerId(identity) {
     return identity.credential[0]['@graph'].claim.id;
+  }
+
+  function _isKeyPermanent(identity) {
+    return ('id' in identity.publicKey && !jsonld.hasValue(
+      identity.publicKey, 'type', 'EphemeralCryptographicKey'));
   }
 }
 

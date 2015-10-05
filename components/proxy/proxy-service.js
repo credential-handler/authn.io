@@ -35,6 +35,8 @@ function factory($window, aioIdentityService) {
    * message in session storage for the given options, it will be sent, if
    * there isn't, one will be received and stored and then navigation will
    * occur to handle that message.
+   *
+   * TODO: document
    */
   service.proxy = function(options) {
     var message = _load('credentials.' + options.op + '.' + options.route);
@@ -53,8 +55,23 @@ function factory($window, aioIdentityService) {
       return _receive(session, options);
     });
   };
-  
+
   // TODO: document
+
+  service.sendCryptographicKeyCredential = function(query, identity) {
+    sessionStorage.setItem(
+      'credentials.' + query.op + '.result',
+      JSON.stringify({
+        id: new Date().getTime() + '-' + Math.floor(Math.random() * 100000),
+        origin: query.origin,
+        data: identity
+      }));
+    service.proxy({
+      op: query.op,
+      route: 'result',
+      origin: query.origin
+    });
+  };
 
   function _send(session, message, options) {
     var router;
@@ -77,6 +94,16 @@ function factory($window, aioIdentityService) {
         throw new Error('Credential protocol error.');
       }
       router = new Router(options.route, rpMessage.origin);
+      // TODO: update session.publicKey.id if unset and IdP has set it
+      // in `message.data` and the DID document now reflects it
+      // TODO: digitally-sign message.data
+      /*aioIdentityService.sign({
+        document: message.data,
+        publicKeyId: session.publicKey.id,
+        privateKeyPem: session.privateKeyPem
+      }).then(function(signed) {
+        message.data = signed;
+      });*/
     }
 
     router.send(options.op, message.data);
