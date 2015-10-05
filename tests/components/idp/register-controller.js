@@ -68,8 +68,7 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
           }
         }]
       };
-      return Promise.resolve($http.post(
-        '/idp/credentials', JSON.stringify(emailCredential)))
+      return Promise.resolve($http.post('/idp/credentials', emailCredential))
         .then(function(response) {
           if(response.status !== 200) {
             throw response;

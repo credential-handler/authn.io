@@ -10,16 +10,8 @@ module.controller(issuerController);
 module.config(function($routeProvider) {
   $routeProvider
     .when('/issuer', {
-      title: 'Issuer Login',
-      templateUrl: requirejs.toUrl('authio-demo/issuer/login.html')
-    })
-    .when('/issuer/dashboard', {
-      title: 'Issuer Dashboard',
-      templateUrl: requirejs.toUrl('authio-demo/issuer/dashboard.html')
-    })
-    .when('/issuer/acknowledgements', {
-      title: 'Issuer Acknowledgements',
-      templateUrl: requirejs.toUrl('authio-demo/issuer/acknowledgements.html')
+      title: 'Issuer',
+      templateUrl: requirejs.toUrl('authio-demo/issuer/issuer.html')
     });
 });
 

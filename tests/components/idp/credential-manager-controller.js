@@ -8,7 +8,39 @@ function factory($scope, $http, $location, brAlertService, config) {
   var idp = config.data.idp;
   self.identity = idp.identity;
   self.action = 'request';
-  self.query = config.data.query;
+
+  var query = $location.search();
+  var operation;
+
+  navigator.credentials.getPendingOperation({
+    agentUrl: '/agent?op=' + query.op + '&route=params'
+  }).then(function(op) {
+    operation = op;
+    if(op.name !== query.op) {
+      throw new Error('Unexpected credential operation.');
+    }
+    self.op = op.name;
+    if(op.name === 'get') {
+      self.params = op.options;
+    } else {
+      self.params = op.credential;
+    }
+    $scope.$apply();
+  });
+
+  self.complete = function() {
+    operation.complete({foo: 'bar'}, {
+      agentUrl: '/agent?op=' + operation.name + '&route=result'
+    });
+  };  
+  
+  // FIXME: old below
+  
+  
+  
+  
+  
+  
   if($location.search().action === 'store') {
     self.action = 'store';
   }

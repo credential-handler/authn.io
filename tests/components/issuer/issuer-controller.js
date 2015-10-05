@@ -3,26 +3,45 @@ define([], function() {
 'use strict';
 
 /* @ngInject */
-function factory($scope, $http, brAlertService, config) {
+function factory($scope, $http, $window, brAlertService, config) {
   var self = this;
-  self.identity = config.data.issuer.identity;
+  self.view = 'login';
 
   var CONTEXT = [
     'https://w3id.org/identity/v1',
     'https://w3id.org/credentials/v1',
     {'br': 'urn:bedrock:'}
   ];
+
+  self.login = function() {
+    navigator.credentials.get({
+      query: {
+        '@context': 'https://w3id.org/identity/v1',
+        id: '',
+        publicKey: ''
+      },
+      agentUrl: '/agent?op=get&route=params'
+    }).then(function(identity) {
+      self.did = identity.id;
+      self.view = 'dashboard';
+    }).catch(function(err) {
+      brAlertService.add('error', err);
+    }).then(function() {
+      $scope.$apply();
+    });
+  };
+
   self.generateCredential = function() {
     Promise.resolve($http.post('/issuer/credentials', {
       '@context': CONTEXT,
-      id: window.data.issuer.identity.id,
+      id: config.data.issuer.identity.id,
       credential: [{
         '@graph': {
           '@context': CONTEXT,
-          id: window.data.baseUri + '/issuer/credentials/' + Date.now(),
+          id: config.data.baseUri + '/issuer/credentials/' + Date.now(),
           type: ['Credential', 'br:test:PassportCredential'],
           claim: {
-            id: window.data.issuer.identity.id,
+            id: config.data.issuer.identity.id,
             name: 'Pat Doe',
             addressCountry: 'USA',
             'br:test:governmentId': '123-45-6789',
@@ -32,10 +51,10 @@ function factory($scope, $http, brAlertService, config) {
       }, {
         '@graph': {
           '@context': CONTEXT,
-          id: window.data.baseUri + '/issuer/credentials/' + (Date.now() + 1),
+          id: config.data.baseUri + '/issuer/credentials/' + (Date.now() + 1),
           type: ['Credential', 'br:test:ProofOfAgeCredential'],
           claim: {
-            id: window.data.issuer.identity.id,
+            id: config.data.issuer.identity.id,
             'br:test:ageOver': 21
           }
         }
@@ -48,19 +67,22 @@ function factory($scope, $http, brAlertService, config) {
       }
       return response.data;
     }).then(function(identity) {
-      navigator.credentials.store(identity, {
-        requestUrl:
-          window.data.baseUri + '/requests?action=store',
-        storageCallback:
-          window.data.baseUri + '/issuer/acknowledgements'
+      return navigator.credentials.store(identity, {
+        agentUrl: '/agent?op=store&route=params'
+      }).then(function(identity) {
+        self.identity = identity;
+        self.view = 'acknowledgement'
       });
     }).catch(function(err) {
       console.error('Failed to store credential', err);
-      brAlertService.add('error',
-        'Failed to store credential.');
+      brAlertService.add('error', 'Failed to store credential.');
     }).then(function() {
       $scope.$apply();
     });
+  };
+
+  self.home = function() {
+    $window.location = config.data.baseUri;
   };
 }
 

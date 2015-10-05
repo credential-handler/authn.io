@@ -1,0 +1,32 @@
+<div class="ng-cloak" ng-controller="aiodConsumerController as model">
+
+  <div ng-if="model.view === 'request'">
+    <div class="row">
+      <div class="col-md-12">
+        <h1 class="headline">Consumer: Request Credential</h1>
+      </div>
+    </div>
+
+    <div class="row">
+      <p>This is a credential consumer that would like to know your passport
+        information.</p>
+      <button ng-click="model.get()" type="button"
+        class="btn btn-primary">Get Passport Credential</button>
+    </div>
+  </div>
+
+  <div ng-if="model.view === 'response'">
+    <div class="row">
+      <div class="col-md-12">
+        <h1 class="headline">Consumer: Transmission Complete</h1>
+      </div>
+    </div>
+
+    <div class="row">
+      <p>This is the information you sent this consumer:</p>
+      <pre class="pre-scrollable">{{self.identity | json}}</pre>
+     <button onclick="model.home()" type="button"
+        class="btn btn-primary">Back to demo page</button>
+    </div>
+  </div>
+</div>

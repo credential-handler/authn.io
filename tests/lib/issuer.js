@@ -16,6 +16,8 @@ var jsigs = require('jsonld-signatures');
 // mock issuer keypair
 var gIssuerKeypair = null;
 
+var _did = 'did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s';
+
 bedrock.events.on('bedrock-mongodb.ready', function(callback) {
   async.waterfall([
     function(callback) {
@@ -25,27 +27,28 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
       // insert the mock IdP DID document
       gIssuerKeypair = forge.pki.rsa.generateKeyPair({bits: 512});
       var now = Date.now();
+      var idHash = database.hash(_did);
       database.collections.didDocument.update({
-        id: database.hash('did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s')
+        id: idHash
       }, {
-        id: database.hash('did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s'),
+        id: idHash,
         meta: {
           created: now,
           updated: now
         },
         didDocument: {
           '@context': 'https://w3id.org/identity/v1',
-          id: 'did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s',
+          id: _did,
           accessControl: {
             writePermission: [{
-              id: 'did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s/keys/1',
+              id: _did + '/keys/1',
               type: 'CryptographicKey'
             }]
           },
           publicKey: [{
-            id : 'did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s/keys/1',
+            id : _did + '/keys/1',
             type: 'CryptographicKey',
-            owner: 'did:1s1s1s1s-1s1s-1s1s-1s1s-1s1s1s1s1s1s',
+            owner: _did,
             publicKeyPem: forge.pki.publicKeyToPem(gIssuerKeypair.publicKey)
           }]
         }
@@ -60,9 +63,6 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
 });
 
 bedrock.events.on('bedrock-express.configure.routes', function(app) {
-  // parse application/x-www-form-urlencoded
-  var parseForm = bodyParser.urlencoded({extended: false});
-
   // mock issuer credentials generator
   app.post('/issuer/credentials', function(req, res, next) {
     var privateKeyPem =
@@ -97,54 +97,4 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       res.status(200).json(identity);
     });
   });
-
-  // mock issuer credentials dashboard login
-  app.post('/issuer/dashboard', parseForm, function(req, res, next) {
-    views.getDefaultViewVars(req, function(err, vars) {
-      if(err) {
-        return next(err);
-      }
-
-      try {
-        if(req.body.jsonPostData) {
-          var jsonPostData = JSON.parse(req.body.jsonPostData);
-          if(jsonPostData) {
-            vars.issuer = {};
-            vars.issuer.identity = jsonPostData;
-            res.cookie('did', vars.issuer.identity.id);
-          }
-        }
-      } catch(e) {
-        return next(e);
-      }
-
-      res.cookie('issuer', JSON.stringify(vars.issuer));
-      res.render('main.html', vars);
-    });
-  });
-
-  // mock issuer credentials storage acknowledgements
-  app.post('/issuer/acknowledgements', parseForm, function(req, res, next) {
-    views.getDefaultViewVars(req, function(err, vars) {
-      if(err) {
-        return next(err);
-      }
-
-      try {
-        if(req.body.jsonPostData) {
-          var jsonPostData = JSON.parse(req.body.jsonPostData);
-          if(jsonPostData) {
-            vars.issuer = {};
-            vars.issuer.identity = jsonPostData;
-          }
-        }
-      } catch(e) {
-        return next(e);
-      }
-
-      res.cookie('issuer', JSON.stringify(vars.issuer));
-      res.render('main.html', vars);
-    });
-  });
-
 });

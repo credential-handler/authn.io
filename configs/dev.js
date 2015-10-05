@@ -14,7 +14,6 @@ config.views.paths.push(path.join(__dirname, '..', 'tests', 'views'));
 // FIXME: rename "tests" to "demo"
 require('../tests/lib/idp');
 require('../tests/lib/issuer');
-require('../tests/lib/consumer');
 
 // pseudo bower package for demo idp, issuer, and consumer
 config.requirejs.bower.packages.push({

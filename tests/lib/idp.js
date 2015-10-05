@@ -28,28 +28,30 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
       // insert the mock IdP DID document
       gIdPKeypair = forge.pki.rsa.generateKeyPair({bits: 512});
       var now = Date.now();
+      var id = 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1';
+      var idHash = database.hash(id);
       database.collections.didDocument.update({
-        id: database.hash('did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1')
+        id: idHash
       }, {
-        id: database.hash('did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1'),
+        id: idHash,
         meta: {
           created: now,
           updated: now
         },
         didDocument: {
           '@context': 'https://w3id.org/identity/v1',
-          id: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
+          id: id,
           url: config.server.baseUri + '/idp',
           accessControl: {
             writePermission: [{
-              id: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1/keys/1',
+              id: id + '/keys/1',
               type: 'CryptographicKey'
             }]
           },
           publicKey: [{
-            id: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1/keys/1',
+            id: id + '/keys/1',
             type: 'CryptographicKey',
-            owner: 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1',
+            owner: id,
             publicKeyPem: forge.pki.publicKeyToPem(gIdPKeypair.publicKey)
           }]
         }
@@ -57,6 +59,7 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
         function(err, doc) {
         if(err) {
           console.log('Failed to set IdP document:', err, doc);
+          return callback(err);
         }
         callback();
       });
@@ -75,37 +78,19 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       '@context': {
         credentialsRequestUrl:
           'https://w3id.org/identity#credentialsRequestUrl',
-        storageRequestUrl: 'https://w3id.org/identity#storageRequestUrl'
+        storageRequestUrl: 'https://w3id.org/identity#storageRequestUrl',
+        credentialManagementUrl:
+          'https://w3id.org/identity#credentialManagementUrl'
       },
-      credentialsRequestUrl: config.server.baseUri +
+      /*credentialsRequestUrl: config.server.baseUri +
         '/idp/credentials?action=request',
       storageRequestUrl: config.server.baseUri +
-        '/idp/credentials?action=store'
+        '/idp/credentials?action=store',*/
+      credentialManagementUrl: config.server.baseUri +
+        '/idp/credentials'
     };
     res.type('application/json');
     res.send(endpoints);
-  });
-
-  app.post('/idp/identities', parseForm, function(req, res, next) {
-    views.getDefaultViewVars(req, function(err, vars) {
-      if(err) {
-        return next(err);
-      }
-      try {
-        if(req.body.jsonPostData) {
-          var request = JSON.parse(req.body.jsonPostData);
-          if(request.registrationCallback) {
-            vars.registrationCallback = request.registrationCallback;
-          }
-          if(request.idp) {
-            vars.idp = request.idp;
-          }
-        }
-      } catch(e) {
-        return next(e);
-      }
-      res.render('main.html', vars);
-    });
   });
 
   // mock IdP credential approval page
