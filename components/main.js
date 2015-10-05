@@ -3,6 +3,7 @@ define([
   './request/request',
   './credentials/credentials',
   './credentials-store/credentials',
+  './identity/identity',
   './idp-test/idp-test',
   './register/register',
   'angular-local-storage'
@@ -11,7 +12,7 @@ define([
 'use strict';
 
 var module = angular.module('authio.authorizationio', [
-  'authio.login', 'authio.credentials',
+  'authio.identity', 'authio.login', 'authio.credentials',
   'authio.register', 'authio.credentials-store', 'bedrock.alert',
   'authio.idp-test', 'LocalStorageModule']);
 
