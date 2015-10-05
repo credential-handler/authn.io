@@ -21,7 +21,6 @@ function factory(
   var router = new navigator.credentials._Router('params', origin);
   router.request('registerDid').then(function(message) {
     // TODO: handle other parameters
-    console.log('message', message);
     self.idp = message.data.idp;
   }).catch(function(err) {
     brAlertService.add('error', err);
@@ -38,7 +37,7 @@ function factory(
     if(!$scope.regForm.$valid) {
       return;
     }
-    $scope.on('identityService.register.progress', function(e, data) {
+    $scope.$on('identityService.register.progress', function(e, data) {
       self.generating = false;
       self.registering = true;
       self.secondsLeft = data.secondsLeft;
