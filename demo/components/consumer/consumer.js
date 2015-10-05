@@ -2,7 +2,7 @@ define(['angular'], function(angular) {
 
 'use strict';
 
-var module = angular.module('authio-demo.consumer', []);
+var module = angular.module('authio-demo.consumer', ['bedrock.alert']);
 
 /* @ngInject */
 module.config(function($routeProvider) {

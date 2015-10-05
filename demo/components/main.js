@@ -11,11 +11,11 @@ var module = angular.module('authio-demo', [
   'authio-demo.consumer', 'authio-demo.idp', 'authio-demo.issuer']);
 
 /* @ngInject */
-module.config(function($routeProvider, localStorageServiceProvider) {
+module.config(function($routeProvider) {
   $routeProvider
     .when('/', {
       title: 'Welcome',
-      templateUrl: requirejs.toUrl('/welcome.html')
+      templateUrl: requirejs.toUrl('authio-demo/welcome.html')
     });
 });
 

@@ -16,7 +16,7 @@ require('../demo/lib/issuer');
 
 // pseudo bower package for demo idp, issuer, and consumer
 config.requirejs.bower.packages.push({
-  path: path.join(__dirname, '..', 'tests', 'components'),
+  path: path.join(__dirname, '..', 'demo', 'components'),
   manifest: {
     name: 'authio-demo',
     moduleType: 'amd',
