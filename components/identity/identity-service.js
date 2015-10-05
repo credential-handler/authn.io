@@ -69,7 +69,8 @@ function factory($http, config) {
    *            emitted will be: `identityService.register.progress`
    *              with an object `{secondsLeft: <value>}`.
    *
-   * @return a Promise that resolves to the new identity.
+   * @return a Promise that resolves to an object containing the new identity
+   *    and its DID document: `{identity: ..., didDocument: ...}`.
    */
   service.register = function(options) {
     options = options || {};
@@ -100,11 +101,13 @@ function factory($http, config) {
         privateKeyPem: forge.pki.privateKeyToPem(kp.privateKey),
         scope: options.scope
       });
-    }).then(function(identity) {
+    }).then(function(registrationInfo) {
       // permanently store identity
       return storage.insert({
-        identity: identity,
+        identity: registrationInfo.identity,
         permanent: true
+      }).then(function() {
+        return registrationInfo;
       });
     });
   };
@@ -374,7 +377,8 @@ function factory($http, config) {
    *          privateKeyPem the private key PEM for the identity.
    *          [scope] a scope to emit progress events with.
    *
-   * @return a Promise that resolves to the identity object.
+   * @return a Promise that resolves to an object containing the new identity
+   *    and its DID document: `{identity: ..., didDocument: ...}`.
    */
   function _registerIdentity(options) {
     // create signed DID document
@@ -441,7 +445,10 @@ function factory($http, config) {
       if(response.status !== 201) {
         throw response;
       }
-      return options.identity;
+      return {
+        identity: options.identity,
+        didDocument: didDocument
+      };
     });
   }
 
