@@ -6,11 +6,9 @@
 var _ = require('lodash');
 var async = require('async');
 var bedrock = require('bedrock');
-var bodyParser = require('body-parser');
 var config = require('bedrock').config;
 var database = require('bedrock-mongodb');
 var forge = require('node-forge');
-var views = require('bedrock-views');
 var jsigs = require('jsonld-signatures');
 
 // mock issuer keypair

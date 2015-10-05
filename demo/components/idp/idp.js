@@ -21,9 +21,9 @@ module.config(function($routeProvider) {
       title: 'Identity Provider',
       templateUrl: requirejs.toUrl('authio-demo/idp/register.html')
     })
-    .when('/idp/credentials', {
-      title: 'Credential Composer',
-      templateUrl: requirejs.toUrl('authio-demo/idp/credentials.html')
+    .when('/idp/credential-manager', {
+      title: 'Credential Manager',
+      templateUrl: requirejs.toUrl('authio-demo/idp/credential-manager.html')
     });
 });
 

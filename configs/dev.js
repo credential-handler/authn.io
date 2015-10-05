@@ -10,10 +10,9 @@ var _ = require('lodash');
 
 config.views.paths.push(path.join(__dirname, '..', 'tests', 'views'));
 
-// load the development-specific extensions to the site
-// FIXME: rename "tests" to "demo"
-require('../tests/lib/idp');
-require('../tests/lib/issuer');
+// load the demo extensions to the site
+require('../demo/lib/idp');
+require('../demo/lib/issuer');
 
 // pseudo bower package for demo idp, issuer, and consumer
 config.requirejs.bower.packages.push({
