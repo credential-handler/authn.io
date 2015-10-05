@@ -1,0 +1,9 @@
+<div class="row" ng-controller="ProxyController as model">
+  <aio-identity-chooser ng-if="model.display.identityChooser"
+    aio-identity-chooser-filter="model.did"
+    aio-identity-chooser-callback="model.complete(err)">
+  </aio-identity-chooser>
+  <div ng-if="model.display.redirectOrigin">
+    <p>Redirecting to: {{model.display.redirectOrigin}}...</p>
+  </div>
+</div>
