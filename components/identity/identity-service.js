@@ -93,6 +93,7 @@ function factory($http, config) {
       });
       return _registerIdentity({
         identity: identity,
+        idp: options.idp,
         password: options.password,
         privateKeyPem: forge.pki.privateKeyToPem(kp.privateKey),
         scope: options.scope
