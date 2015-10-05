@@ -100,12 +100,11 @@ function factory($http, config) {
       });
     }).then(function(registrationInfo) {
       // permanently store identity
-      return storage.insert({
+      storage.insert({
         identity: registrationInfo.identity,
         permanent: true
-      }).then(function() {
-        return registrationInfo;
       });
+      return registrationInfo;
     });
   };
 
@@ -382,8 +381,8 @@ function factory($http, config) {
     }
     var identities = storage.getAll(options);
     identities[options.identity.id] = options.identity;
-    var storage = options.permanent ? localStorage : sessionStorage;
-    storage.setItem(STORAGE_KEYS.IDENTITIES, JSON.stringify(identities));
+    var db = options.permanent ? localStorage : sessionStorage;
+    db.setItem(STORAGE_KEYS.IDENTITIES, JSON.stringify(identities));
     return options.identity;
   };
 
@@ -427,8 +426,8 @@ function factory($http, config) {
         storage.getAll({permanent: true}));
     }
     var identities;
-    var storage = options.permanent ? localStorage : sessionStorage;
-    identities = storage.getItem(STORAGE_KEYS.IDENTITIES);
+    var db = options.permanent ? localStorage : sessionStorage;
+    identities = db.getItem(STORAGE_KEYS.IDENTITIES);
     if(identities) {
       try {
         identities = JSON.parse(identities);
