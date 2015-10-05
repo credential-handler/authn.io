@@ -1,47 +1,59 @@
-<h1 align="center">Identity Provider: Registration</h1>
+<div class="ng-cloak" ng-controller="aiodRegisterController as model">
 
-<p>
-  Clicking the button below will create a new account with this demo IdP and
-  then take you through the process to link it to a new decentralized identity.
-</p>
+  <div class="row">
+    <div class="col-md-12">
+      <h1 class="headline">Identity Provider: Registration</h1>
+    </div>
+  </div>
 
-<!-- TODO: remove username input entirely ... just use button, but add
-  notes to page about how a typical IdP would collect other information
-  like username and so on before doing decentralized identity registration
-  and linking -->
+  <div class="row">
+    <p>This is an account registration page for a simple demonstration Identity
+      Provider (IdP).</p>
+    <p>An IdP would normally ask you for some basic information
+      like a username, email address, or other details in order to create a
+      local account. A demo username has been provided here. The IdP can then
+      link the local account to a decentralized account by asking your browser
+      to generate a decentralized identity.</p>
+    <p>Clicking the button below will create a new account with this demo
+      IdP and then take you through the process to link it to a new
+      decentralized identity.</p>
+  </div>
 
-<div ng-controller="aiotRegisterController as model">
-  <form name="regForm" class="form-horizontal" role="form" novalidate
-    ng-submit="model.validateForm()">
-    <fieldset>
-      <br-input br-model="model.username"
-        br-options="{name: 'username', label: 'Username', disabled: true}"
-        ng-minlength="3" ng-maxlength="128" required>
-        <div name="br-input-help">
-          Please enter a username to associated with your local account.
+  <hr/>
+
+  <div class="row">
+    <form name="regForm" class="form-horizontal" role="form" novalidate
+      ng-submit="model.validateForm()">
+      <fieldset>
+        <br-input br-model="model.username"
+          br-options="{name: 'username', label: 'Username'}"
+          ng-minlength="3" ng-maxlength="128" required>
+          <div name="br-input-help">
+            Please enter a username to associated with your local account.
+          </div>
+          <div name="br-input-validation-errors">
+            <p ng-show="regForm.username.$error.required">
+              Username is required.
+            </p>
+            <p ng-show="regForm.username.$error.minlength">
+              Username is required to be at least 3 characters.
+            </p>
+            <p ng-show="regForm.username.$error.maxlength">
+              Username must not be longer than 128 characters.
+            </p>
+          </div>
+        </br-input>
+
+        <div class="form-group">
+          <div class="col-md-offset-3">
+            <button type="submit" ng-disabled="model.loading || regForm.$invalid"
+              class="btn btn-primary btn-lg">Register</button>
+            <span ng-show="model.loading">
+              <i class="fa fa-refresh fa-spin fa-lg"></i>
+            </span>
+          </div>
         </div>
-        <div name="br-input-validation-errors">
-          <p ng-show="regForm.username.$error.required">
-            Username is required.
-          </p>
-          <p ng-show="regForm.username.$error.minlength">
-            Username is required to be at least 3 characters.
-          </p>
-          <p ng-show="regForm.username.$error.maxlength">
-            Username must not be longer than 128 characters.
-          </p>
-        </div>
-      </br-input>
-
-      <div class="form-group">
-        <div class="col-md-offset-3">
-          <button type="submit" ng-disabled="model.loading || regForm.$invalid"
-            class="btn btn-primary btn-lg">Register</button>
-          <span ng-show="model.loading">
-            <i class="fa fa-refresh fa-spin fa-lg"></i>
-          </span>
-        </div>
-      </div>
-    </fieldset>
-  </form>
+      </fieldset>
+    </form>
+  </div>
 </div>

@@ -16,8 +16,8 @@ module.controller(registerController);
 
 /* @ngInject */
 module.config(function($routeProvider) {
-  $routeProvider.
-    when('/idp/register', {
+  $routeProvider
+    .when('/idp/register', {
       title: 'Identity Provider',
       templateUrl: requirejs.toUrl('authio-demo/idp/register.html')
     })
