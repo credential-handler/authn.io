@@ -214,24 +214,24 @@ function factory($http, config) {
     } catch(err) {
       authenticated = {};
     }
-    authenticated[id] = {
-      privateKeyPem: forge.pki.privateKeyToPem(privateKey),
-      expires: Date.now() + SESSION_EXPIRATION
-    };
+    // to prevent authenticated identities from getting out-of-sync with
+    // permanent storage, merge all identity information
+    identity.privateKeyPem = forge.pki.privateKeyToPem(privateKey);
+    identity.expires = Date.now() + SESSION_EXPIRATION;
+    authenticated[id] = identity;
     localStorage.setItem(
       STORAGE_KEYS.AUTHENTICATED, JSON.stringify(authenticated));
   };
 
   /**
-   * Checks whether or not the identity associated with the given DID is
-   * authenticated.
+   * Gets an authenticated identity.
    *
-   * @param id the ID (DID) of the identity to check.
+   * @param id the ID (DID) of the identity to get.
    *
-   * @return true if the identity is authenticated, false if not.
+   * @return the authenticated identity or null.
    */
-  service.isAuthenticated = function(id) {
-    var rval = false;
+  service.getAuthenticated = function(id) {
+    var rval = null;
 
     var authenticated = localStorage.getItem(STORAGE_KEYS.AUTHENTICATED);
     try {
@@ -246,13 +246,25 @@ function factory($http, config) {
         delete authenticated[id];
       } else {
         // update authenticated identity
-        authenticated[id].expires = Date.now() + SESSION_EXPIRATION;
-        rval = true;
+        rval = authenticated[id];
+        rval.expires = Date.now() + SESSION_EXPIRATION;
       }
       localStorage.setItem(
         STORAGE_KEYS.AUTHENTICATED, JSON.stringify(authenticated));
     }
     return rval;
+  };
+
+  /**
+   * Checks whether or not the identity associated with the given DID is
+   * authenticated.
+   *
+   * @param id the ID (DID) of the identity to check.
+   *
+   * @return true if the identity is authenticated, false if not.
+   */
+  service.isAuthenticated = function(id) {
+    return !!service.getAuthenticated(id);
   };
 
   /**
@@ -266,18 +278,19 @@ function factory($http, config) {
    * @return a Promise that resolves once the session has been created.
    */
   service.createSession = function(id) {
-    if(!service.isAuthenticated(id)) {
+    var authenticated = service.getAuthenticated(id);
+    if(!authenticated) {
       return Promise.reject(new Error('Not authenticated.'));
     }
 
     // check identity's IdP's config
     return service.getIdPConfig(id).then(function(config) {
+      // merge authenticated identity information into session to prevent
+      // session from getting out-of-sync
+      var session = authenticated;
+      session.idpConfig = config;
       // use `localStorage` because the session needs to persist across
       // multiple windows
-      var session = {
-        id: id,
-        idpConfig: config
-      };
       localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session));
     });
   };
@@ -322,6 +335,30 @@ function factory($http, config) {
       return Promise.resolve($http.get(url));
     }).then(function(response) {
       return response.data;
+    });
+  };
+
+  /**
+   * Digitally signs a document.
+   *
+   * @param options the options to use:
+   *          document the document to sign.
+   *          publicKeyId the ID of the public key.
+   *          privateKeyPem the unencrypted private key PEM to use.
+   *
+   * @return a Promise that resolves to the signed document.
+   */
+  service.sign = function(options) {
+    return new Promise(function(resolve, reject) {
+      jsig.sign(options.document, {
+        privateKeyPem: options.privateKeyPem,
+        creator: options.publicKeyId
+      }, function(err, signed) {
+        if(err) {
+          return reject(err);
+        }
+        resolve(signed);
+      });
     });
   };
 
@@ -447,7 +484,7 @@ function factory($http, config) {
         publicKeyPem: options.identity.publicKey.publicKeyPem
       }]
     };
-    return _sign({
+    return service.sign({
       document: didDocument,
       publicKeyId: options.identity.publicKey.id,
       privateKeyPem: options.privateKeyPem
@@ -477,7 +514,7 @@ function factory($http, config) {
           }]
         }
       };
-      return _sign({
+      return service.sign({
         document: mapping,
         publicKeyId: options.identity.publicKey.id,
         privateKeyPem: options.privateKeyPem
@@ -541,30 +578,6 @@ function factory($http, config) {
     // reuse `didio.generateHash` but do not use the same hash as the
     // public mapping by duplicating password
     return didio.generateHash(identifier, password + password);
-  }
-
-  /**
-   * Digitally signs a document.
-   *
-   * @param options the options to use:
-   *          document the document to sign.
-   *          publicKeyId the ID of the public key.
-   *          privateKeyPem the unencrypted private key PEM to use.
-   *
-   * @return a Promise that resolves to the signed document.
-   */
-  function _sign(options) {
-    return new Promise(function(resolve, reject) {
-      jsig.sign(options.document, {
-        privateKeyPem: options.privateKeyPem,
-        creator: options.publicKeyId
-      }, function(err, signed) {
-        if(err) {
-          return reject(err);
-        }
-        resolve(signed);
-      });
-    });
   }
 
   /**
