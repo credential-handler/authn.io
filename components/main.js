@@ -9,7 +9,7 @@ define([
 
 'use strict';
 
-var module = angular.module('authio.authorizationio', [
+var module = angular.module('authio', [
   'authio.agent', 'authio.identity', 'authio.identityChooser',
   'authio.registerDid', 'authio.idp-test']);
 
