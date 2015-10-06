@@ -63,18 +63,20 @@ bedrock.events.on('bedrock-mongodb.ready', function(callback) {
 bedrock.events.on('bedrock-express.configure.routes', function(app) {
   // mock issuer credentials generator
   app.post('/issuer/credentials', function(req, res, next) {
-    var privateKeyPem =
-      forge.pki.privateKeyToPem(gIssuerKeypair.privateKey);
-    var targetDid = req.cookies.did;
+    var privateKeyPem = forge.pki.privateKeyToPem(gIssuerKeypair.privateKey);
+    var did = req.cookies.did;
     var identity = {
       '@context': 'https://w3id.org/identity/v1',
-      id: targetDid,
+      id: did,
       credential: {}
     };
     var credentials = req.body.credential;
 
     // sign each credential
     async.map(credentials, function(item, callback) {
+      if(item['@graph'].claim.id !== did) {
+        return callback(new Error('Permission denied.'));
+      }
       jsigs.sign(item['@graph'], {
         privateKeyPem: privateKeyPem,
         creator: config.server.baseUri + '/issuer/keys/1'
