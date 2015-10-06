@@ -26,6 +26,9 @@ function factory($scope, $http, $window, brAlertService, config) {
         throw new Error('DID not provided.');
       }
       self.did = identity.id;
+      return _generateCredentials();
+    }).then(function(identity) {
+      self.identity = identity;
       self.view = 'dashboard';
     }).catch(function(err) {
       brAlertService.add('error', err);
@@ -34,8 +37,26 @@ function factory($scope, $http, $window, brAlertService, config) {
     });
   };
 
-  self.generateCredential = function() {
-    Promise.resolve($http.post('/issuer/credentials', {
+  self.issueCredentials = function() {
+    return navigator.credentials.store(self.identity, {
+      agentUrl: '/agent?op=store&route=params'
+    }).then(function(identity) {
+      self.identity = identity;
+      self.view = 'acknowledgement';
+    }).catch(function(err) {
+      console.error('Failed to store credential.', err);
+      brAlertService.add('error', 'Failed to store credential.');
+    }).then(function() {
+      $scope.$apply();
+    });
+  };
+
+  self.home = function() {
+    $window.location = config.data.baseUri;
+  };
+
+  function _generateCredentials() {
+    return Promise.resolve($http.post('/issuer/credentials', {
       '@context': CONTEXT,
       id: self.did,
       credential: [{
@@ -64,29 +85,15 @@ function factory($scope, $http, $window, brAlertService, config) {
       }]
     }))
     .then(function(response) {
-      console.log('generateCredential', response.data);
       if(response.status !== 200) {
         throw response;
       }
       return response.data;
-    }).then(function(identity) {
-      return navigator.credentials.store(identity, {
-        agentUrl: '/agent?op=store&route=params'
-      }).then(function(identity) {
-        self.identity = identity;
-        self.view = 'acknowledgement';
-      });
     }).catch(function(err) {
-      console.error('Failed to store credential', err);
-      brAlertService.add('error', 'Failed to store credential.');
-    }).then(function() {
-      $scope.$apply();
+      console.error('Failed to generate credential.', err);
+      throw err;
     });
-  };
-
-  self.home = function() {
-    $window.location = config.data.baseUri;
-  };
+  }
 }
 
 return {aiodIssuerController: factory};

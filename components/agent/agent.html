@@ -4,7 +4,7 @@
     aio-identity-chooser-callback="model.complete(err, session)">
   </aio-identity-chooser>
   <div ng-if="model.display.redirectOrigin">
-    <p>Redirecting to: {{model.display.redirectOrigin}}...</p>
+    <p>Redirecting to <strong>{{model.display.redirectOrigin}}</strong> ...</p>
   </div>
   <div ng-if="model.display.confirm">
     <p>Do you want to send this information to
