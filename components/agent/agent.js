@@ -17,14 +17,11 @@ module.service(proxyService);
 
 /* @ngInject */
 module.config(function($routeProvider/*, localStorageServiceProvider*/) {
-  /* @ngInject */
-  module.config(function($routeProvider) {
-    $routeProvider
-      .when('/agent', {
-        title: 'Credential Agent',
-        templateUrl: requirejs.toUrl('authio/agent/agent.html')
-      });
-  });
+  $routeProvider
+    .when('/agent', {
+      title: 'Credential Agent',
+      templateUrl: requirejs.toUrl('authio/agent/agent.html')
+    });
 /*
   localStorageServiceProvider
     .setPrefix('authio')

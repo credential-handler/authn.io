@@ -100,22 +100,25 @@ function factory(
   }
 
   // we're receiving the result from the IdP or sending it to the RP
-
-  if(aioProxyService.needsResult(query)) {
-    // no result received from IdP yet, we're invisibly proxying it and
-    // then we'll reload as the main application in the flow to do something
-    // further with the result
-    return aioProxyService.proxy(query);
+  if(query.route === 'result') {
+    if(aioProxyService.needsResult(query)) {
+      // no result received from IdP yet, we're invisibly proxying it and
+      // then we'll reload as the main application in the flow to do something
+      // further with the result
+      return aioProxyService.proxy(query);
+    }
+  
+    // if this is a storage request, proxy the result w/o need to confirm
+    if(query.op === 'store') {
+      self.display.redirectOrigin = query.origin;
+      return aioProxyService.proxy(query);
+    }
+  
+    // display confirmation page before transmitting result
+    self.display.confirm = true;
   }
-
-  // if this is a storage request, proxy the result w/o need to confirm
-  if(query.op === 'store') {
-    self.display.redirectOrigin = query.origin;
-    return aioProxyService.proxy(query);
-  }
-
-  // display confirmation page before transmitting result
-  self.display.confirm = true;
+  
+  // TODO: handle bad query
 
   function _getOwnerId(identity) {
     return identity.credential[0]['@graph'].claim.id;

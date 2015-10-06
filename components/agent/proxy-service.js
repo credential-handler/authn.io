@@ -36,20 +36,19 @@ function factory($window, aioIdentityService) {
    */
   service.proxy = function(options) {
     var message = _load(options.route);
-    return aioIdentityService.getSession().then(function(session) {
-      if(!session) {
-        // TODO: need better error handling for expired sessions
-        // and for different scenarios (auth.io loaded invisibly vs. visibly)
-        var origin = (options.route === 'params' ?
-          options.origin : message.origin);
-        new Router(options.route, origin).send('error');
-        return;
-      }
-      if(message) {
-        return _send(session, message, options);
-      }
-      return _receive(session, options);
-    });
+    var session = aioIdentityService.getSession();
+    if(!session) {
+      // TODO: need better error handling for expired sessions
+      // and for different scenarios (auth.io loaded invisibly vs. visibly)
+      var origin = (options.route === 'params' ?
+        options.origin : message.origin);
+      new Router(options.route, origin).send('error');
+      return;
+    }
+    if(message) {
+      return _send(session, message, options);
+    }
+    return _receive(session, options);
   };
 
   // TODO: document
