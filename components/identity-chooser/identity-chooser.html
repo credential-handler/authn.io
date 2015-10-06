@@ -9,7 +9,7 @@
           <i class="col-md-offset-1 fa fa-user fa-2x"></i>
           <span class="col-md-offset-2"><strong>{{identity.label}}</strong></span>
         </div>
-        <div ng-if="ctrl.display.loginForm && ctrl.selected">
+        <div ng-if="ctrl.display.loginForm && ctrl.selected === id">
           <hr/>
           <form class="form-horizontal" name="loginForm"
             ng-submit="ctrl.authenticate(id, ctrl.password)">
