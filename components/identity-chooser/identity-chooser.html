@@ -1,13 +1,13 @@
 <div class="row">
-  <div ng-if="ctrl.display.identityChooser">
+  <div ng-if="ctrl.display.identityChooser" class="col-sm-offset-2 col-sm-8">
     <br-headline br-title="Select an Identity" br-loading="ctrl.loading"
       br-options="{menu: false}"></br-headline>
     <ul ng-hide="ctrl.loading" class="list-unstyled">
       <li class="br-item-hover well" ng-repeat="(id, identity) in ctrl.identities"
         ng-click="ctrl.select(id)">
         <div>
-          <i class="col-md-offset-1 fa fa-user fa-2x"></i>
-          <span class="col-md-offset-2"><strong>{{identity.label}}</strong></span>
+          <i class="col-sm-offset-1 fa fa-user fa-2x"></i>
+          <span class="col-sm-offset-2"><strong>{{identity.label}}</strong></span>
         </div>
         <div ng-if="ctrl.display.loginForm && ctrl.selected === id">
           <hr/>
@@ -32,7 +32,7 @@
                 </div>
               </br-input>
               <div class="form-group">
-                <div class="input-group col-md-offset-2 col-md-9">
+                <div class="input-group col-sm-offset-3">
                   <div class="btn-group">
                     <button class="btn btn-primary" type="submit"
                       ng-disabled="ctrl.loading || loginForm.$invalid"><i
