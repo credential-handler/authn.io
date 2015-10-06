@@ -93,6 +93,6 @@ function factory($http, $scope, brAlertService, config, ipCookie) {
   }
 }
 
-return {aoidCredentialManagerController: factory};
+return {aiodCredentialManagerController: factory};
 
 });
