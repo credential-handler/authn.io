@@ -15,6 +15,8 @@
     "bedrock-angular-identity-composer": "git://github.com/digitalbazaar/bedrock-angular-identity-composer.git#master",
     "bedrock-angular-modal": "^1.0.0",
     "bedrock-angular-model": "^1.0.0",
+    "bedrock-angular-selector": "^1.0.0",
+    "bedrock-angular-ui": "^1.0.0",
     "bootstrap": "~3.3.4",
     "credentials-polyfill": "git://github.com/digitalbazaar/credentials-polyfill.git#master",
     "did-io": "^0.4.4",
