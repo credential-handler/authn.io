@@ -12,7 +12,9 @@ function factory(aioIdentityService, brAlertService) {
     controller: function() {},
     controllerAs: 'ctrl',
     bindToController: true,
-    link: Link
+    link: Link,
+    templateUrl: requirejs.toUrl(
+      'authio/identity-chooser/identity-chooser.html'),
   };
 
   function Link(scope, element, attrs, ctrl) {
