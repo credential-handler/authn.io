@@ -15,9 +15,11 @@ function factory($http, $scope, brAlertService, config, ipCookie) {
   }).then(function(op) {
     operation = op;
     if(op.name === 'get') {
-      self.request = op.options;
-      return _getCredentials(self.request);
+      self.view = 'get';
+      self.query = op.options.query;
+      return _getCredentials(op.options.publicKey);
     } else {
+      self.view = 'store';
       return Promise.resolve(op.credential);
     }
   }).then(function(identity) {
@@ -42,14 +44,14 @@ function factory($http, $scope, brAlertService, config, ipCookie) {
   };
 
   // gets credentials for the identity composer
-  function _getCredentials(request) {
+  function _getCredentials(publicKey) {
     var did = ipCookie('did');
     if(!did) {
       return Promise.reject(
         new Error('Not authenticated. Please restart the demo.'));
     }
     return Promise.resolve(
-      $http.post('/idp/credentials/public-key', request.publicKey))
+      $http.post('/idp/credentials/public-key', publicKey))
       .then(function(response) {
         if(response.status !== 200) {
           throw response;
@@ -62,7 +64,7 @@ function factory($http, $scope, brAlertService, config, ipCookie) {
         credentials = Object.keys(credentials).map(function(key) {
           return credentials[key];
         });
-        identity.credentials.push.apply(identity.credentials, credentials);
+        identity.credential.push.apply(identity.credential, credentials);
         return identity;
       });
   }
