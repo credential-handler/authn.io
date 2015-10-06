@@ -27,12 +27,78 @@ function factory($window, aioIdentityService) {
   };
 
   /**
+   * Gets the parameters for the given operation. This method will
+   * request the parameters from the consumer.
+   *
+   * @param options the options to use:
+   *          op the name of the operation to receive parameters for.
+   *          origin the origin to receive from.
+   *
+   * @return a Promise that resolves to the parameters for the operation.
+   */
+  service.getParameters = function(options) {
+    var router = new Router('params', options.origin);
+    return router.request(options.op).then(function(message) {
+      _save(options.op, 'params', message);
+      return message.data;
+    });
+  };
+
+  /**
+   * Gets the result for the given operation. This method will return
+   * the locally-cached result.
+   *
+   * @param options the options to use:
+   *          op the name of the operation to get the result for.
+   *          origin the origin to receive from.
+   *
+   * @return the result for the operation.
+   */
+  service.getResult = function(options) {
+    var message = _load('result');
+    if(!message || message.origin !== options.origin) {
+      throw new Error('Credential protocol error.');
+    }
+    return message.data;
+  };
+
+  /**
+   * Navigates to the IdP for the identity of the current session.
+   *
+   * @param session the session to use.
+   */
+  service.navigateToIdp = function(session) {
+    var idpUrl = session.idpConfig.credentialManagementUrl;
+    $window.location.replace(idpUrl);
+  };
+
+  /**
+   * Sends an identity containing a CryptographicKeyCredential to the consumer
+   * as the result of a query.
+   *
+   * @param query the query for the credential.
+   * @param identity the identity to send.
+   */
+  service.sendCryptographicKeyCredential = function(query, identity) {
+    _save('get', 'result', {origin: query.origin, data: identity});
+    service.proxy({
+      op: 'get',
+      route: 'result',
+      origin: query.origin
+    });
+  };
+
+  /**
    * Proxies a message based on the given options. If there is a pending
    * message in session storage for the given options, it will be sent, if
    * there isn't, one will be received and stored and then navigation will
    * occur to handle that message.
    *
-   * TODO: document
+   * This call handles messages when no user-mediation is required.
+   *
+   * @param options the options to use:
+   *          op the name of the operation to proxy messages for.
+   *          origin the origin to receive from.
    */
   service.proxy = function(options) {
     var message = _load(options.route);
@@ -48,30 +114,17 @@ function factory($window, aioIdentityService) {
     if(message) {
       return _send(session, message, options);
     }
-    return _receive(session, options);
+    return _receive(options);
   };
 
-  // TODO: document
-
-  service.sendCryptographicKeyCredential = function(query, identity) {
-    sessionStorage.setItem('operation.result', JSON.stringify({
-      id: new Date().getTime() + '-' + Math.floor(Math.random() * 100000),
-      origin: query.origin,
-      data: identity
-    }));
-    service.proxy({
-      op: 'get',
-      route: 'result',
-      origin: query.origin
-    });
-  };
+  // TODO: document helpers
 
   function _send(session, message, options) {
     var router;
     var idpUrl = session.idpConfig.credentialManagementUrl;
 
     if(options.route === 'params') {
-      console.log('credential agent sending to IdP...');
+      // credential agent sending to IdP...
       if(_parseOrigin(idpUrl) !== options.origin) {
         throw new Error('Origin mismatch.');
       }
@@ -89,7 +142,7 @@ function factory($window, aioIdentityService) {
       }
       router = new Router(options.route, options.origin);
     } else {
-      console.log('credential agent sending to RP...');
+      // credential agent sending to RP...
       if(message.origin !== options.origin) {
         throw new Error('Origin mismatch.');
       }
@@ -114,25 +167,12 @@ function factory($window, aioIdentityService) {
     router.send(message.op, message.data);
   }
 
-  function _receive(session, options) {
-    var idpUrl = session.idpConfig.credentialManagementUrl;
+  function _receive(options) {
     var router = new Router(options.route, options.origin);
-
-    if(options.route === 'params') {
-      console.log('credential agent receiving from RP...');
-    } else {
-      console.log('credential agent receiving from IdP...');
-    }
     router.request(options.op).then(function(message) {
-      console.log('credential agent received', message);
       _save(options.op, options.route, message);
-      if(options.route === 'params') {
-        // navigate to IdP
-        $window.location.replace(idpUrl);
-      } else {
-        // request navigation
-        router.navigate();
-      }
+      // request navigation
+      router.navigate();
     });
   }
 
@@ -167,7 +207,7 @@ function factory($window, aioIdentityService) {
 
   return service;
 }
-
+// TODO: rename aoiOperationService
 return {aioProxyService: factory};
 
 });

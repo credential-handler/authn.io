@@ -32,6 +32,10 @@ function factory(
       return brAlertService.add('error', err);
     }
     if(!self.isCryptoKeyRequest || !_isKeyPermanent(session)) {
+      if(query.op === 'get' && query.route === 'params') {
+        // go to IdP to handle query
+        return aioProxyService.navigateToIdp(session);
+      }
       return aioProxyService.proxy(query);
     }
 
@@ -70,7 +74,7 @@ function factory(
   if(query.route === 'params') {
     if(aioProxyService.needsParameters(query)) {
       // flow is just starting, get parameters from RP
-      return aioProxyService.proxy(query).then(function(params) {
+      return aioProxyService.getParameters(query).then(function(params) {
         if(query.op === 'get') {
           // special handle request for public key credential
           self.isCryptoKeyRequest = _.isEqual(params, CRYPTO_KEY_REQUEST);
@@ -92,6 +96,8 @@ function factory(
             $scope.$apply();
           });
         }
+
+        // TODO: handle invalid op
       });
     }
 
@@ -107,18 +113,19 @@ function factory(
       // further with the result
       return aioProxyService.proxy(query);
     }
-  
+
     // if this is a storage request, proxy the result w/o need to confirm
     if(query.op === 'store') {
       self.display.redirectOrigin = query.origin;
       return aioProxyService.proxy(query);
     }
-  
+
     // display confirmation page before transmitting result
     self.display.confirm = true;
+    self.identity = aioProxyService.getResult(query);
   }
-  
-  // TODO: handle bad query
+
+  // TODO: handle invalid query
 
   function _getOwnerId(identity) {
     return identity.credential[0]['@graph'].claim.id;
