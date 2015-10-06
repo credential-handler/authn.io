@@ -14,11 +14,12 @@
     "bedrock-mail": "^1.0.0",
     "bedrock-mongodb": "^1.0.0",
     "bedrock-server": "^1.0.0",
-    "body-parser": "^1.13.3",
     "bedrock-views": "^1.2.0",
+    "body-parser": "^1.13.3",
     "bower": "^1.5.0",
     "did-io": "^0.4.4",
-    "lodash": "^3.9.2"
+    "lodash": "^3.9.2",
+    "node-uuid": "^1.4.3"
   },
   "devDependencies": {
     "bedrock-protractor": "^2.0.0",

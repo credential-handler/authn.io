@@ -10,6 +10,7 @@ var config = require('bedrock').config;
 var database = require('bedrock-mongodb');
 var forge = require('node-forge');
 var jsigs = require('jsonld-signatures');
+var uuid = require('node-uuid');
 
 // mock IdP keypair
 var gIdPKeypair = null;
@@ -92,6 +93,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       return next(new Error('Not authenticated. Please restart demo.'));
     }
     var identity = {
+      '@context': 'https://w3id.org/identity/v1',
       id: did,
       type: 'Identity',
       credential: []
@@ -109,6 +111,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
         'https://w3id.org/identity/v1',
         'https://w3id.org/credentials/v1'
       ],
+      id: 'urn:uuid:' + uuid.v4(),
       type: [
         'Credential',
         'sec:CryptographicKeyCredential'
@@ -139,6 +142,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       return next(new Error('Not authenticated. Please restart demo.'));
     }
     var identity = {
+      '@context': 'https://w3id.org/identity/v1',
       id: did,
       type: 'Identity',
       credential: []
@@ -156,6 +160,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       if(credential.claim.id !== did) {
         return callback(new Error('Permission denied.'));
       }
+      credential.id = 'urn:uuid:' + uuid.v4();
       jsigs.sign(credential, {
         privateKeyPem: forge.pki.privateKeyToPem(gIdPKeypair.privateKey),
         creator: config.server.baseUri + '/idp/keys/1'
