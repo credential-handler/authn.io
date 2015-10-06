@@ -391,6 +391,281 @@
           "property": "sec:publicKeyPem"
         }
       ]
+    },
+
+
+
+
+    {
+      "id": "schema:label",
+      "type": "Property",
+      "label": "Label",
+      "range": "String"
+    },
+    {
+      "id": "schema:gender",
+      "type": "Property",
+      "label": "Gender",
+      "range": "String"
+    },
+    {
+      "id": "schema:name",
+      "type": "Property",
+      "label": "Name",
+      "range": "String"
+    },
+    {
+      "id": "schema:nationality",
+      "type": "Property",
+      "label": "Nationality",
+      "range": "URL",
+      "collapsed": true
+    },
+    {
+      "id": "cred:expires",
+      "type": "Property",
+      "label": "Expires",
+      "range": "Date"
+    },
+    {
+      "id": "br:test:card",
+      "type": "Property",
+      "label": "Card",
+      "range": "URL",
+      "collapsed": true
+    },
+    {
+      "id": "br:test:documentId",
+      "type": "Property",
+      "label": "Document ID",
+      "range": "String"
+    },
+    {
+      "id": "br:test:brand",
+      "type": "Property",
+      "label": "Brand",
+      "range": "String"
+    },
+    {
+      "id": "br:test:eyeColor",
+      "type": "Property",
+      "label": "Eye Color",
+      "range": "String"
+    },
+    {
+      "id": "br:test:motorVehicleLicense",
+      "type": "Property",
+      "label": "Motor Vehicle License",
+      "range": "URL",
+      "collapsed": true
+    },
+    {
+      "id": "br:test:passport",
+      "type": "Property",
+      "label": "Passport",
+      "range": "URL",
+      "collapsed": true
+    },
+    {
+      "id": "br:test:NationalityPropertyGroup",
+      "type": "PropertyGroup",
+      "collapsed": true,
+      "layout": [
+        {
+          "property": "schema:name"
+        }
+      ]
+    },
+    {
+      "id": "br:test:LoyaltyCardCredential",
+      "type": "PropertyGroup",
+      "label": "Loyalty Card",
+      "layout": [
+        {
+          "property": "schema:image"
+        },
+        {
+          "property": "cred:issuer"
+        },
+        {
+          "property": "cred:issued"
+        },
+        {
+          "property": "cred:claim",
+          "propertyGroup": "br:test:LoyaltyCardClaimPropertyGroup"
+        }
+      ]
+    },
+    {
+      "id": "br:test:LoyaltyCardClaimPropertyGroup",
+      "type": "PropertyGroup",
+      "label": "Loyalty Card",
+      "layout": [
+        {
+          "property": "br:test:card",
+          "propertyGroup": "br:test:LoyaltyCardPropertyGroup"
+        }
+      ]
+    },
+    {
+      "id": "br:test:LoyaltyCardPropertyGroup",
+      "type": "PropertyGroup",
+      "collapsed": true,
+      "layout": [
+        {
+          "property": "schema:label"
+        },
+        {
+          "property": "br:test:documentId"
+        },
+        {
+          "property": "br:test:brand"
+        }
+      ]
+    },
+
+    {
+      "id": "br:test:MotorVehicleLicenseCredential",
+      "type": "PropertyGroup",
+      "label": "Motor Vehicle License",
+      "layout": [
+        {
+          "property": "schema:image"
+        },
+        {
+          "property": "cred:issuer"
+        },
+        {
+          "property": "cred:issued"
+        },
+        {
+          "property": "cred:claim",
+          "propertyGroup": "br:test:MotorVehicleLicenseClaimPropertyGroup"
+        }
+      ]
+    },
+    {
+      "id": "br:test:MotorVehicleLicenseClaimPropertyGroup",
+      "type": "PropertyGroup",
+      "label": "Motor Vehicle License",
+      "layout": [
+        {
+          "property": "schema:name"
+        },
+        {
+          "property": "schema:image"
+        },
+        {
+          "property": "schema:birthDate"
+        },
+        {
+          "property": "schema:gender"
+        },
+        {
+          "property": "schema:height"
+        },
+        {
+          "property": "br:test:eyeColor"
+        },
+        {
+          "property": "schema:address",
+          "propertyGroup": "br:test:AddressPropertyGroup"
+        },
+        {
+          "property": "br:test:motorVehicleLicense",
+          "propertyGroup": "br:test:MotorVehicleLicensePropertyGroup"
+        }
+      ]
+    },
+    {
+      "id": "br:test:MotorVehicleLicensePropertyGroup",
+      "type": "PropertyGroup",
+      "collapsed": true,
+      "layout": [
+        {
+          "property": "br:test:documentId"
+        }
+      ]
+    },
+
+    {
+      "id": "br:test:PassportCredential",
+      "type": "PropertyGroup",
+      "label": "Passport",
+      "layout": [
+        {
+          "property": "schema:image"
+        },
+        {
+          "property": "cred:issuer"
+        },
+        {
+          "property": "cred:issued"
+        },
+        {
+          "property": "cred:claim",
+          "propertyGroup": "br:test:PassportClaimPropertyGroup"
+        }
+      ]
+    },
+    {
+      "id": "br:test:PassportClaimPropertyGroup",
+      "type": "PropertyGroup",
+      "label": "Passport",
+      "layout": [
+        {
+          "property": "schema:name"
+        },
+        {
+          "property": "schema:image"
+        },
+        {
+          "property": "schema:birthDate"
+        },
+        {
+          "property": "schema:gender"
+        },
+        {
+          "property": "schema:height"
+        },
+        {
+          "property": "br:test:eyeColor"
+        },
+        {
+          "property": "schema:nationality",
+          "propertyGroup": "br:test:NationalityPropertyGroup"
+        },
+        {
+          "property": "schema:address",
+          "propertyGroup": "br:test:AddressPropertyGroup"
+        },
+        {
+          "property": "br:test:passport",
+          "propertyGroup": "br:test:PassportPropertyGroup"
+        }
+      ]
+    },
+    {
+      "id": "br:test:PassportPropertyGroup",
+      "type": "PropertyGroup",
+      "collapsed": true,
+      "layout": [
+        {
+          "property": "schema:name"
+        },
+        {
+          "property": "br:test:documentId"
+        },
+        {
+          "property": "cred:issuer"
+        },
+        {
+          "property": "cred:issued"
+        },
+        {
+          "property": "cred:expires"
+        }
+      ]
     }
   ]
 }
