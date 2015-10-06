@@ -129,9 +129,9 @@ function factory($window, aioIdentityService) {
         throw new Error('Origin mismatch.');
       }
       // include public key in parameters
-      if(options.op === 'get') {
+      if(message.op === 'get') {
         var publicKey = message.data.publicKey = {
-          '@context': session.publicKey['@context']
+          '@context': session['@context']
         };
         if(session.publicKey.id) {
           publicKey.id = session.publicKey.id;
