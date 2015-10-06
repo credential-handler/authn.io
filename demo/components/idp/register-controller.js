@@ -25,7 +25,7 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
       agentUrl: '/register'
     }).then(function(didDocument) {
       var did = didDocument.id;
-      ipCookie('did', did);
+      ipCookie('did', did, {path: '/'});
       var emailHost = did.split(':')[1];
       var identity = {
         '@context': [
