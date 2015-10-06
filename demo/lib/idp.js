@@ -121,14 +121,59 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
     jsigs.sign(publicKeyCredential, {
       privateKeyPem: forge.pki.privateKeyToPem(gIdPKeypair.privateKey),
       creator: config.server.baseUri + '/idp/keys/1'
-    }, function(err, signedPublicKeyCredential) {
+    }, function(err, signed) {
       if(err) {
         return next(err);
       }
       identity.credential.push({
-        '@graph': signedPublicKeyCredential
+        '@graph': signed
       });
-      res.sendStatus(200).json(identity);
+      res.status(200).json(identity);
+    });
+  });
+
+  // mock IdP credential route to get signed email credentials
+  app.post('/idp/credentials/email', function(req, res, next) {
+    var did = req.cookies.did;
+    if(!did) {
+      return next(new Error('Not authenticated. Please restart demo.'));
+    }
+    var identity = {
+      id: did,
+      type: 'Identity',
+      credential: []
+    };
+
+    // validate public key
+    var view = req.body;
+    if(view.id !== did) {
+      return next(new Error('Permission denied.'));
+    }
+
+    var credentials = [];
+    async.eachSeries(view.credential, function(credential, callback) {
+      credential = credential['@graph'];
+      if(credential.claim.id !== did) {
+        return callback(new Error('Permission denied.'));
+      }
+      jsigs.sign(credential, {
+        privateKeyPem: forge.pki.privateKeyToPem(gIdPKeypair.privateKey),
+        creator: config.server.baseUri + '/idp/keys/1'
+      }, function(err, signed) {
+        if(err) {
+          return callback(err);
+        }
+        credentials.push({
+          '@graph': signed
+        });
+        callback();
+      });
+    }, function(err) {
+      if(err) {
+        return next(err);
+      }
+      identity.credential = credentials;
+      res.status(200).json(identity);
     });
   });
 });
