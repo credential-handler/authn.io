@@ -21,6 +21,7 @@ function factory(
   var router = new navigator.credentials._Router('params', origin);
   router.request('registerDid').then(function(message) {
     // TODO: handle other parameters
+    self.origin = message.origin;
     self.idp = message.data.idp;
   }).catch(function(err) {
     brAlertService.add('error', err);
