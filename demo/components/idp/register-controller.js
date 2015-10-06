@@ -1,4 +1,4 @@
-define([], function() {
+define(['angular'], function(angular) {
 
 'use strict';
 
@@ -26,14 +26,12 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
     }).then(function(didDocument) {
       var did = didDocument.id;
       ipCookie('did', did);
-      var exHost = did.split(':')[1];
-      var emailCredential = {
+      var emailHost = did.split(':')[1];
+      var identity = {
         '@context': [
           'https://w3id.org/identity/v1',
           'https://w3id.org/credentials/v1',
-          {
-            'br': 'urn:bedrock:'
-          }
+          {'br': 'urn:bedrock:'}
         ],
         id: did,
         credential: [{
@@ -41,14 +39,12 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
             '@context': [
               'https://w3id.org/identity/v1',
               'https://w3id.org/credentials/v1',
-              {
-                'br': 'urn:bedrock:'
-              }
+              {'br': 'urn:bedrock:'}
             ],
             type: ['Credential', 'br:test:EmailCredential'],
             claim: {
               id: did,
-              email: 'test@' + exHost + '.example.com'
+              email: 'test@' + emailHost + '.example.com'
             }
           }
         }, {
@@ -56,31 +52,55 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
             '@context': [
               'https://w3id.org/identity/v1',
               'https://w3id.org/credentials/v1',
-              {
-                'br': 'urn:bedrock:'
-              }
+              {'br': 'urn:bedrock:'}
             ],
             type: ['Credential', 'br:test:EmailCredential'],
             claim: {
               id: did,
-              email: 'test@' + exHost + '.example.org'
+              email: 'test@' + emailHost + '.example.org'
             }
           }
         }]
       };
-      return Promise.resolve($http.post('/idp/credentials', emailCredential))
-        .then(function(response) {
-          if(response.status !== 200) {
-            throw response;
-          }
-          $location.path('/');
-        });
+      return Promise.resolve($http.post('/idp/credentials/email', identity));
+    }).then(function(response) {
+      if(response.status !== 200) {
+        throw response;
+      }
+      _storeCredentials(response.data);
+      $location.path('/');
     }).catch(function(err) {
       brAlertService.add('error', err);
     }).then(function() {
       self.loading = false;
       $scope.$apply();
     });
+  }
+
+  // stores credentials in session storage
+  // TODO: convert to a service, share w/credential manager controller
+  function _storeCredentials(identity) {
+    var all = _loadCredentials();
+    var owned = all[identity.id] || {};
+    angular.forEach(identity.credentials, function(credential) {
+      owned[credential['@graph'].id] = credential;
+    });
+    all[identity.id] = owned;
+    sessionStorage.setItem('authio.idp.credentials', JSON.stringify(all));
+  }
+
+  // loads credentials from session storage
+  function _loadCredentials() {
+    var credentials = sessionStorage.getItem('authio.idp.credentials');
+    if(!credentials) {
+      return {};
+    }
+    try {
+      credentials = JSON.parse(credentials);
+    } catch(err) {
+      credentials = {};
+    }
+    return credentials;
   }
 }
 
