@@ -16,9 +16,8 @@ function factory($scope, $window, brAlertService, config) {
   self.get = function() {
     navigator.credentials.get({
       query: {
-        '@context': 'https://w3id.org/identity/v1',
-        // TODO: change to passport
-        email: ''
+        '@context': {'br': 'urn:bedrock:'},
+        'br:test:passport': ''
       },
       agentUrl: '/agent?op=get&route=params'
     }).then(function(identity) {
