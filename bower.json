@@ -18,7 +18,7 @@
     "bedrock-angular-selector": "^1.0.0",
     "bedrock-angular-ui": "^1.0.0",
     "bootstrap": "~3.3.4",
-    "credentials-polyfill": "git://github.com/digitalbazaar/credentials-polyfill.git#master",
+    "credentials-polyfill": "git://github.com/digitalbazaar/credentials-polyfill.git#credential-management-api",
     "did-io": "^0.4.4",
     "es6-promise": "~2.1",
     "forge": "~0.6.28",
