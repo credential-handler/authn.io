@@ -1,6 +1,8 @@
 <div class="row">
   <div ng-if="ctrl.display.identityChooser" class="col-sm-offset-2 col-sm-8">
-    <br-headline br-title="Select an Identity" br-loading="ctrl.loading"
+    <br-headline
+      ng-attr-br-title="{{ctrl.display.loginForm && 'Login' || 'Select an Identity'}}"
+      br-loading="ctrl.loading"
       br-options="{menu: false}"></br-headline>
     <ul ng-hide="ctrl.loading" class="list-unstyled">
       <li class="br-item-hover well" ng-repeat="(id, identity) in ctrl.identities"
