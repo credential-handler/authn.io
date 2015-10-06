@@ -32,6 +32,9 @@ function factory($http, $scope, brAlertService, config, ipCookie) {
   });
 
   self.complete = function(identity) {
+    if(operation.name === 'store') {
+      _storeCredentials(identity);
+    }
     operation.complete(identity, {
       agentUrl: '/agent?op=' + operation.name + '&route=result'
     }).catch(function(err) {
