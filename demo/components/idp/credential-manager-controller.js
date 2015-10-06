@@ -69,7 +69,7 @@ function factory($http, $scope, brAlertService, config, ipCookie) {
       });
   }
 
-  // stores credentials in session storage
+  // stores credentials in local storage
   function _storeCredentials(identity) {
     var all = _loadCredentials();
     var owned = all[identity.id] || {};
@@ -77,12 +77,12 @@ function factory($http, $scope, brAlertService, config, ipCookie) {
       owned[credential['@graph'].id] = credential;
     });
     all[identity.id] = owned;
-    sessionStorage.setItem('authio.idp.credentials', JSON.stringify(all));
+    localStorage.setItem('authio.idp.credentials', JSON.stringify(all));
   }
 
-  // loads credentials from session storage
+  // loads credentials from local storage
   function _loadCredentials() {
-    var credentials = sessionStorage.getItem('authio.idp.credentials');
+    var credentials = localStorage.getItem('authio.idp.credentials');
     if(!credentials) {
       return {};
     }
