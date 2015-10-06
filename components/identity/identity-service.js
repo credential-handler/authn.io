@@ -284,7 +284,7 @@ function factory($http, config) {
    *
    * @param id the ID (DID) for the identity.
    *
-   * @return a Promise that resolves once the session has been created.
+   * @return a Promise that resolves to the created session.
    */
   service.createSession = function(id) {
     var authenticated = service.getAuthenticated(id);
@@ -301,6 +301,7 @@ function factory($http, config) {
       // use `localStorage` because the session needs to persist across
       // multiple windows
       localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session));
+      return session;
     });
   };
 
@@ -334,7 +335,7 @@ function factory($http, config) {
    */
   service.getIdPConfig = function(id) {
     // get user's DID document
-    Promise.resolve($http.get('/dids/' + id)).then(function(response) {
+    return Promise.resolve($http.get('/dids/' + id)).then(function(response) {
       // get IdP's DID document
       var didDocument = response.data;
       return Promise.resolve($http.get('/dids/' + didDocument.idp));
