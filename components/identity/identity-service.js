@@ -204,10 +204,14 @@ function factory($http, config) {
     // use `localStorage` because authenticated identities need to persist
     // across different windows
     var authenticated = localStorage.getItem(STORAGE_KEYS.AUTHENTICATED);
-    try {
-      authenticated = JSON.parse(authenticated);
-    } catch(err) {
+    if(!authenticated) {
       authenticated = {};
+    } else {
+      try {
+        authenticated = JSON.parse(authenticated);
+      } catch(err) {
+        authenticated = {};
+      }
     }
     // to prevent authenticated identities from getting out-of-sync with
     // permanent storage, merge all identity information
@@ -229,10 +233,14 @@ function factory($http, config) {
     var rval = null;
 
     var authenticated = localStorage.getItem(STORAGE_KEYS.AUTHENTICATED);
-    try {
-      authenticated = JSON.parse(authenticated);
-    } catch(err) {
+    if(!authenticated) {
       authenticated = {};
+    } else {
+      try {
+        authenticated = JSON.parse(authenticated);
+      } catch(err) {
+        authenticated = {};
+      }
     }
     if(id in authenticated) {
       // ensure identity hasn't expired and is loaded
@@ -297,6 +305,9 @@ function factory($http, config) {
    */
   service.getSession = function() {
     var session = localStorage.getItem(STORAGE_KEYS.SESSION);
+    if(!session) {
+      return null;
+    }
     try {
       session = JSON.parse(session);
     } catch(err) {
