@@ -34,14 +34,14 @@ function factory($scope, $http, $window, brAlertService, config) {
   self.generateCredential = function() {
     Promise.resolve($http.post('/issuer/credentials', {
       '@context': CONTEXT,
-      id: config.data.issuer.identity.id,
+      id: self.did,
       credential: [{
         '@graph': {
           '@context': CONTEXT,
           id: config.data.baseUri + '/issuer/credentials/' + Date.now(),
           type: ['Credential', 'br:test:PassportCredential'],
           claim: {
-            id: config.data.issuer.identity.id,
+            id: self.did,
             name: 'Pat Doe',
             addressCountry: 'USA',
             'br:test:governmentId': '123-45-6789',
@@ -54,7 +54,7 @@ function factory($scope, $http, $window, brAlertService, config) {
           id: config.data.baseUri + '/issuer/credentials/' + (Date.now() + 1),
           type: ['Credential', 'br:test:ProofOfAgeCredential'],
           claim: {
-            id: config.data.issuer.identity.id,
+            id: self.did,
             'br:test:ageOver': 21
           }
         }
@@ -71,7 +71,7 @@ function factory($scope, $http, $window, brAlertService, config) {
         agentUrl: '/agent?op=store&route=params'
       }).then(function(identity) {
         self.identity = identity;
-        self.view = 'acknowledgement'
+        self.view = 'acknowledgement';
       });
     }).catch(function(err) {
       console.error('Failed to store credential', err);
