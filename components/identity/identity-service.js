@@ -141,8 +141,11 @@ function factory($http, config) {
       var identity = storage.get(did);
       if(identity) {
         var password = _getKeyPassword(options.identifier, options.password);
-        var privateKey = forge.pki.decryptRsaPrivateKey(
-          identity.publicKey.privateKeyPem, password);
+        var privateKey;
+        try {
+          privateKey = forge.pki.decryptRsaPrivateKey(
+            identity.publicKey.privateKeyPem, password);
+        } catch(err) {}
         if(!privateKey) {
           throw new Error('Invalid password.');
         }
@@ -193,9 +196,12 @@ function factory($http, config) {
       throw new Error('Identity not found.');
     }
 
-    password = _getKeyPassword(identity.identifier, password);
-    var privateKey = forge.pki.decryptRsaPrivateKey(
-      identity.publicKey.privateKeyPem, password);
+    password = _getKeyPassword(identity.label, password);
+    var privateKey;
+    try {
+      privateKey = forge.pki.decryptRsaPrivateKey(
+        identity.publicKey.privateKeyPem, password);
+    } catch(err) {}
     if(!privateKey) {
       throw new Error('Invalid password.');
     }
@@ -414,7 +420,8 @@ function factory($http, config) {
     }
     if(!('permanent' in options)) {
       // check local, then session
-      return storage.get({permanent: true}) || storage.get({permanent: false});
+      return storage.get(id, {permanent: true}) ||
+        storage.get(id, {permanent: false});
     }
     return storage.getAll(options)[id] || null;
   };
