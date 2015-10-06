@@ -77,6 +77,10 @@ function factory(aioIdentityService, brAlertService) {
     };
 
     ctrl.select = function(id) {
+      if(ctrl.selected === id) {
+        // do nothing if the identity is already selected
+        return;
+      }
       ctrl.selected = id;
       if(aioIdentityService.isAuthenticated(id)) {
         // no further user mediation required, generate session
