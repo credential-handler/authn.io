@@ -2,8 +2,8 @@ define([
   'angular',
   /*'angular-local-storage',*/
   './agent-controller',
-  './proxy-service'
-], function(angular, agentController, proxyService) {
+  './operation-service'
+], function(angular, agentController, operationService) {
 
 'use strict';
 
@@ -13,7 +13,7 @@ var module = angular.module(
   'LocalStorageModule'*/]);
 
 module.controller(agentController);
-module.service(proxyService);
+module.service(operationService);
 
 /* @ngInject */
 module.config(function($routeProvider/*, localStorageServiceProvider*/) {
