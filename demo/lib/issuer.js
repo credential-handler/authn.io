@@ -68,7 +68,7 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
     var identity = {
       '@context': 'https://w3id.org/identity/v1',
       id: did,
-      credential: {}
+      credential: []
     };
     var credentials = req.body.credential;
 
@@ -80,13 +80,11 @@ bedrock.events.on('bedrock-express.configure.routes', function(app) {
       jsigs.sign(item['@graph'], {
         privateKeyPem: privateKeyPem,
         creator: config.server.baseUri + '/issuer/keys/1'
-      }, function(err, signedCredential) {
+      }, function(err, signed) {
         if(err) {
           return callback(err);
         }
-        callback(null, {
-          '@graph': signedCredential
-        });
+        callback(null, {'@graph': signed});
       });
     }, function(err, results) {
       if(err) {
