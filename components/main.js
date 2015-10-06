@@ -13,6 +13,10 @@ var module = angular.module('authio', [
   'authio.agent', 'authio.identity', 'authio.identityChooser',
   'authio.registerDid', 'authio.idp-test']);
 
+// TODO: use this instead of the above line
+// var module = angular.module(
+//   'authio', Array.prototype.slice.call(arguments, 1));
+
 /* @ngInject */
 module.config(function($routeProvider) {
   $routeProvider
