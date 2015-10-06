@@ -73,7 +73,7 @@ function factory($http, $scope, brAlertService, config, ipCookie) {
   function _storeCredentials(identity) {
     var all = _loadCredentials();
     var owned = all[identity.id] || {};
-    angular.forEach(identity.credentials, function(credential) {
+    angular.forEach(identity.credential, function(credential) {
       owned[credential['@graph'].id] = credential;
     });
     all[identity.id] = owned;

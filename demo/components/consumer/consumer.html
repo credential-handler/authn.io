@@ -24,8 +24,8 @@
 
     <div class="row">
       <p>This is the information you sent this consumer:</p>
-      <pre class="pre-scrollable">{{self.identity | json}}</pre>
-     <button onclick="model.home()" type="button"
+      <pre class="pre-scrollable">{{model.identity | json}}</pre>
+      <button ng-click="model.home()" type="button"
         class="btn btn-primary">Back to demo page</button>
     </div>
   </div>
