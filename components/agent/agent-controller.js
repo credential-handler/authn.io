@@ -4,7 +4,7 @@ define(['jsonld', 'underscore'], function(jsonld, _) {
 
 /* @ngInject */
 function factory(
-  $location, $scope, aioIdentityService, aioProxyService,
+  $location, $scope, aioIdentityService, aioOperationService,
   brAlertService, config) {
   var self = this;
   self.isCryptoKeyRequest = false;
@@ -34,9 +34,9 @@ function factory(
     if(!self.isCryptoKeyRequest || !_isKeyPermanent(session)) {
       if(query.op === 'get' && query.route === 'params') {
         // go to IdP to handle query
-        return aioProxyService.navigateToIdp(session);
+        return aioOperationService.navigateToIdp(session);
       }
-      return aioProxyService.proxy(query);
+      return aioOperationService.proxy(query);
     }
 
     // special handle request for permanent public key credential:
@@ -62,7 +62,7 @@ function factory(
       privateKeyPem: session.privateKeyPem
     }).then(function(signed) {
       identity.credential[0]['@graph'] = signed;
-      aioProxyService.sendCryptographicKeyCredential(query, identity);
+      aioOperationService.sendCryptographicKeyCredential(query, identity);
     }).catch(function(err) {
       brAlertService.add('error', err);
     }).then(function() {
@@ -72,9 +72,9 @@ function factory(
 
   // we're receiving parameters from the RP or sending them to the IdP
   if(query.route === 'params') {
-    if(aioProxyService.needsParameters(query)) {
+    if(aioOperationService.needsParameters(query)) {
       // flow is just starting, get parameters from RP
-      return aioProxyService.getParameters(query).then(function(params) {
+      return aioOperationService.getParameters(query).then(function(params) {
         if(query.op === 'get') {
           // special handle request for public key credential
           self.isCryptoKeyRequest = _.isEqual(params, CRYPTO_KEY_REQUEST);
@@ -102,27 +102,27 @@ function factory(
     }
 
     // already have parameters, we're invisibly proxing them to the IdP
-    return aioProxyService.proxy(query);
+    return aioOperationService.proxy(query);
   }
 
   // we're receiving the result from the IdP or sending it to the RP
   if(query.route === 'result') {
-    if(aioProxyService.needsResult(query)) {
+    if(aioOperationService.needsResult(query)) {
       // no result received from IdP yet, we're invisibly proxying it and
       // then we'll reload as the main application in the flow to do something
       // further with the result
-      return aioProxyService.proxy(query);
+      return aioOperationService.proxy(query);
     }
 
     // if this is a storage request, proxy the result w/o need to confirm
     if(query.op === 'store') {
       self.display.redirectOrigin = query.origin;
-      return aioProxyService.proxy(query);
+      return aioOperationService.proxy(query);
     }
 
     // display confirmation page before transmitting result
     self.display.confirm = true;
-    self.identity = aioProxyService.getResult(query);
+    self.identity = aioOperationService.getResult(query);
   }
 
   // TODO: handle invalid query

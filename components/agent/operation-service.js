@@ -207,7 +207,7 @@ function factory($window, aioIdentityService) {
 
   return service;
 }
-// TODO: rename aoiOperationService
-return {aioProxyService: factory};
+
+return {aioOperationService: factory};
 
 });
