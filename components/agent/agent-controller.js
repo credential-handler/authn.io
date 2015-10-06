@@ -62,12 +62,19 @@ function factory(
       privateKeyPem: session.privateKeyPem
     }).then(function(signed) {
       identity.credential[0]['@graph'] = signed;
-      aioOperationService.sendCryptographicKeyCredential(query, identity);
+      aioOperationService.sendResult(identity);
     }).catch(function(err) {
       brAlertService.add('error', err);
     }).then(function() {
       $scope.$apply();
     });
+  };
+
+  /**
+   * Cancels sending any information to the consumer.
+   */
+  self.cancel = function() {
+    aioOperationService.sendResult(null);
   };
 
   // we're receiving parameters from the RP or sending them to the IdP
@@ -122,7 +129,7 @@ function factory(
 
     // display confirmation page before transmitting result
     self.display.confirm = true;
-    self.identity = aioOperationService.getResult(query);
+    self.result = aioOperationService.getResult(query);
   }
 
   // TODO: handle invalid query

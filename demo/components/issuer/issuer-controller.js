@@ -22,6 +22,9 @@ function factory($scope, $http, $window, brAlertService, config) {
       },
       agentUrl: '/agent?op=get&route=params'
     }).then(function(identity) {
+      if(!identity || !identity.id) {
+        throw new Error('DID not provided.');
+      }
       self.did = identity.id;
       self.view = 'dashboard';
     }).catch(function(err) {

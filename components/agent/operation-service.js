@@ -52,14 +52,19 @@ function factory($window, aioIdentityService) {
    *          op the name of the operation to get the result for.
    *          origin the origin to receive from.
    *
-   * @return the result for the operation.
+   * @return the destination origin and result for the operation:
+   *   `{origin: ..., result: ...}`.
    */
   service.getResult = function(options) {
-    var message = _load('result');
-    if(!message || message.origin !== options.origin) {
+    var rpMessage = _load('params');
+    var idpMessage = _load('result');
+    if(!rpMessage || !idpMessage || idpMessage.origin !== options.origin) {
       throw new Error('Credential protocol error.');
     }
-    return message.data;
+    return {
+      origin: rpMessage.origin,
+      result: idpMessage.data
+    };
   };
 
   /**
@@ -73,18 +78,20 @@ function factory($window, aioIdentityService) {
   };
 
   /**
-   * Sends an identity containing a CryptographicKeyCredential to the consumer
-   * as the result of a query.
+   * Sends an identity as to the consumer as the result of a query.
    *
-   * @param query the query for the credential.
    * @param identity the identity to send.
    */
-  service.sendCryptographicKeyCredential = function(query, identity) {
-    _save('get', 'result', {origin: query.origin, data: identity});
+  service.sendResult = function(identity) {
+    var rpMessage = _load('params');
+    if(!rpMessage) {
+      throw new Error('Credential protocol error.');
+    }
+    _save('get', 'result', {origin: rpMessage.origin, data: identity});
     service.proxy({
       op: 'get',
       route: 'result',
-      origin: query.origin
+      origin: rpMessage.origin
     });
   };
 

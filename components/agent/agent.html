@@ -6,4 +6,29 @@
   <div ng-if="model.display.redirectOrigin">
     <p>Redirecting to: {{model.display.redirectOrigin}}...</p>
   </div>
+  <div ng-if="model.display.confirm">
+    <p>Do you want to send this information to
+      <strong>{{model.result.origin}}?</strong></p>
+
+    <!-- FIXME: use br-identity directive once implemented
+    <!-- <br-identity
+      br-identity="model.identity"
+      br-show-actions="false"></br-identity> -->
+    <pre class="pre-scrollable">{{model.result.result | json}}</pre>
+
+    <!--
+    <div class="checkbox">
+      <label>
+        <input ng-model="model.bypassConfirmation"
+          ng-click="model.setBypass()" type="checkbox">
+        Forward credentials to <strong>{{model.result.origin}}</strong> without confirmation from now on.
+      </label>
+    </div>
+    -->
+
+    <button ng-click="model.complete()" type="button"
+      class="btn btn-primary">Send Credentials</button>
+    <button ng-click="model.cancel()" type="button"
+      class="btn btn-primary">Cancel</button>
+  </div>
 </div>
