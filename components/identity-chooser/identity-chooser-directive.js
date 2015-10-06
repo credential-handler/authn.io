@@ -77,7 +77,7 @@ function factory(aioIdentityService, brAlertService) {
     };
 
     ctrl.select = function(id) {
-      if(ctrl.selected === id) {
+      if(ctrl.selected === id && !aioIdentityService.isAuthenticated(id)) {
         // do nothing if the identity is already selected
         return;
       }
