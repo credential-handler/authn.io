@@ -94,14 +94,19 @@ function factory(
         if(query.op === 'store') {
           // only show identity chooser if can't auto-authenticate as owner
           var owner = _getOwnerId(params);
-          aioIdentityService.createSession(owner).then(function() {
-            self.display.redirectOrigin = query.origin;
-          }).catch(function(err) {
-            self.did = owner;
-            self.display.identityChooser = true;
-          }).then(function() {
-            $scope.$apply();
-          });
+          return aioIdentityService.createSession(owner)
+            .catch(function(err) {
+              self.did = owner;
+              self.display.identityChooser = true;
+            }).then(function(session) {
+              if(session) {
+                self.display.redirectOrigin = query.origin;
+                // go to IdP to handle storage request
+                return aioOperationService.navigateToIdp(session);
+              }
+            }).then(function() {
+              $scope.$apply();
+            });
         }
 
         // TODO: handle invalid op
