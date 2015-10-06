@@ -562,6 +562,7 @@ function factory($http, config) {
    */
   function _createIdentity(options) {
     var identity = {
+      '@context': 'https://w3id.org/identity/v1',
       id: options.did,
       label: options.identifier,
       publicKey: {}
