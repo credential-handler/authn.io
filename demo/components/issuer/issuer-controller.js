@@ -94,8 +94,8 @@ function factory($scope, $http, $window, brAlertService, config) {
             "br:test:passport": {
               "type": "br:test:Passport",
               "name": "Test Passport",
-              "br:test:documentId": Date.now(),
-              "issuer": "https://us.gov",
+              "br:test:documentId": Date.now().toString(),
+              "issuer": "https://example.gov/",
               "issued": "2010-01-07T01:02:03Z",
               "expires": "2020-01-07T01:02:03Z"
             }
