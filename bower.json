@@ -18,7 +18,7 @@
     "bedrock-angular-selector": "git://github.com/digitalbazaar/bedrock-angular-selector.git#master",
     "bedrock-angular-ui": "^1.0.0",
     "bootstrap": "~3.3.4",
-    "credentials-polyfill": "git://github.com/digitalbazaar/credentials-polyfill.git#credential-management-api",
+    "credentials-polyfill": "~0.6.0",
     "did-io": "^0.4.4",
     "es6-promise": "~2.1",
     "forge": "~0.6.28",
@@ -30,7 +30,6 @@
   "resolutions": {
     "angular": "~1.3.15",
     "es6-promise": "^2.0.0",
-    "bedrock-angular-resource": "master",
-    "bedrock-angular-form": "master"
+    "bedrock-angular-resource": "master"
   }
 }
