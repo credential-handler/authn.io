@@ -84,7 +84,7 @@ function factory(
       return aioOperationService.getParameters(query).then(function(params) {
         if(query.op === 'get') {
           // special handle request for public key credential
-          self.isCryptoKeyRequest = _.isEqual(params, CRYPTO_KEY_REQUEST);
+          self.isCryptoKeyRequest = _.isEqual(params.query, CRYPTO_KEY_REQUEST);
           // always show identity chooser for `get` requests
           self.display.identityChooser = true;
           $scope.$apply();
