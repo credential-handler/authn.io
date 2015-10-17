@@ -14,7 +14,7 @@ function factory(aioIdentityService, brAlertService) {
     bindToController: true,
     link: Link,
     templateUrl: requirejs.toUrl(
-      'authio/identity-chooser/identity-chooser.html'),
+      'authio/identity-chooser/identity-chooser.html')
   };
 
   function Link(scope, element, attrs, ctrl) {
