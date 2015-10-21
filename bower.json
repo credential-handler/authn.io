@@ -8,7 +8,7 @@
     "angular-bootstrap": "~0.12.0",
     "angular-cookie": "~4.0.6",
     "angular-stackables": "~0.0.3",
-    "bedrock-angular": "^1.3.0",
+    "bedrock-angular": "^1.4.0",
     "bedrock-angular-alert": "^1.0.0",
     "bedrock-angular-credential": "git://github.com/digitalbazaar/bedrock-angular-credential.git#master",
     "bedrock-angular-form": "^1.5.2",

@@ -88,6 +88,14 @@ require('./authorization.io-secrets');
 // serve demo contexts and vocabs
 config.express.static.push(path.join(__dirname, '..', 'static'));
 
+// setup to load contexts locally
+config.views.vars.contextMap[config.constants.SECURITY_CONTEXT_V1_URL] =
+  config.server.baseUri + '/contexts/security-v1.jsonld';
+config.views.vars.contextMap[config.constants.IDENTITY_CONTEXT_V1_URL] =
+  config.server.baseUri + '/contexts/identity-v1.jsonld';
+config.views.vars.contextMap[config.constants.CREDENTIALS_CONTEXT_V1_URL] =
+  config.server.baseUri + '/contexts/credentials-v1.jsonld';
+
 // setup to load demo vocabs
 config.views.vars['bedrock-angular-credential'] =
   config.views.vars['bedrock-angular-credential'] || {};

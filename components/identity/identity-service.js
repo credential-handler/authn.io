@@ -23,20 +23,6 @@ function factory($http, config) {
   // TODO: make configurable (30 mins)
   var SESSION_EXPIRATION = 30 * 60 * 1000;
 
-  // setup custom document loader for identity JSON-LD context
-  jsonld = jsonld();
-  var _oldLoader = jsonld.documentLoader;
-  jsonld.documentLoader = function(url) {
-    if(url in config.data.CONTEXTS) {
-      return Promise.resolve({
-        contextUrl: null,
-        document: config.data.CONTEXTS[url],
-        documentUrl: url
-      });
-    }
-    return _oldLoader(url);
-  };
-
   // initialize libs using the AMD-loaded helper libraries
   var jsig = jsigjs({inject: {
     async: async,
