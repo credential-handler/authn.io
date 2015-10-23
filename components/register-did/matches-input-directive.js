@@ -2,6 +2,7 @@ define([], function() {
 
 'use strict';
 
+/* @ngInject */
 function factory() {
   return {
     restrict: 'A',

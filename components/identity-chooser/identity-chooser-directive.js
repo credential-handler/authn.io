@@ -2,6 +2,7 @@ define([], function() {
 
 'use strict';
 
+/* @ngInject */
 function factory(aioIdentityService, brAlertService) {
   return {
     restrict: 'E',
