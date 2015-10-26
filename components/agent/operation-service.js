@@ -127,7 +127,6 @@ function factory($window, aioIdentityService) {
   // TODO: document helpers
 
   function _send(session, message, options) {
-    var router;
     var idpUrl = session.idpConfig.credentialManagementUrl;
 
     if(options.route === 'params') {
@@ -147,31 +146,32 @@ function factory($window, aioIdentityService) {
         publicKey.owner = session.publicKey.owner;
         publicKey.publicKeyPem = session.publicKey.publicKeyPem;
       }
-      router = new Router(options.route, options.origin);
-    } else {
-      // credential agent sending to RP...
-      if(message.origin !== options.origin) {
-        throw new Error('Origin mismatch.');
-      }
-      // get RP origin
-      var rpMessage = _load('params');
-      if(!rpMessage) {
-        throw new Error('Credential protocol error.');
-      }
-      router = new Router(options.route, rpMessage.origin);
-      // TODO: update session.publicKey.id if unset and IdP has set it
-      // in `message.data` and the DID document now reflects it
-      // TODO: digitally-sign message.data
-      /*aioIdentityService.sign({
-        document: message.data,
-        publicKeyId: session.publicKey.id,
-        privateKeyPem: session.privateKeyPem
-      }).then(function(signed) {
-        message.data = signed;
-      });*/
+      var router = new Router(options.route, options.origin);
+      return router.send(message.op, message.data);
     }
 
-    router.send(message.op, message.data);
+    // credential agent sending to RP...
+    if(message.origin !== options.origin) {
+      throw new Error('Origin mismatch.');
+    }
+    // get RP origin
+    var rpMessage = _load('params');
+    if(!rpMessage) {
+      throw new Error('Credential protocol error.');
+    }
+    router = new Router(options.route, rpMessage.origin);
+    // TODO: if session.publicKey.id is unset it is set in `message.data`
+    // (by the IdP) and the DID document now reflects it, update
+    // `session.publicKey.id` to match the value from `message.data`
+    return aioIdentityService.sign({
+      document: message.data,
+      publicKeyId: session.publicKey.id,
+      privateKeyPem: session.privateKeyPem,
+      domain: rpMessage.origin
+    }).then(function(signed) {
+      message.data = signed;
+      router.send(message.op, message.data);
+    });
   }
 
   function _receive(options) {

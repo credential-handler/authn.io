@@ -5,9 +5,8 @@ define([
   'forge/js/forge',
   'jsonld',
   'jsonld-signatures',
-  'underscore',
   'node-uuid'],
-  function(angular, async, didiojs, forge, jsonld, jsigjs, _, uuid) {
+  function(angular, async, didio, forge, jsonld, jsigs, uuid) {
 
 'use strict';
 
@@ -24,16 +23,14 @@ function factory($http, config) {
   var SESSION_EXPIRATION = 30 * 60 * 1000;
 
   // initialize libs using the AMD-loaded helper libraries
-  var jsig = jsigjs({inject: {
-    async: async,
-    forge: forge,
-    jsonld: jsonld,
-    _: _
-  }});
-  var didio = didiojs({inject: {
-    forge: forge,
-    uuid: uuid
-  }});
+  jsigs = jsigs();
+  jsigs.use('async', async);
+  jsigs.use('forge', forge);
+  jsigs.use('jsonld', jsonld);
+  didio = didio();
+  didio.use('forge', forge);
+  didio.use('jsonld', jsonld);
+  didio.use('uuid', uuid);
 
   /* Note: This service presently assumes locally-stored identities have at
   most one local key pair. Users that want to use more than one local
@@ -349,7 +346,7 @@ function factory($http, config) {
    */
   service.sign = function(options) {
     return new Promise(function(resolve, reject) {
-      jsig.sign(options.document, {
+      jsigs.sign(options.document, {
         algorithm: 'LinkedDataSignature2015',
         privateKeyPem: options.privateKeyPem,
         creator: options.publicKeyId

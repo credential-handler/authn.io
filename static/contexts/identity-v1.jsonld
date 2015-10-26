@@ -3,6 +3,7 @@
     "id": "@id",
     "type": "@type",
 
+    "cred": "https://w3id.org/credentials#",
     "dc": "http://purl.org/dc/terms/",
     "identity": "https://w3id.org/identity#",
     "perm": "https://w3id.org/permissions#",
@@ -12,6 +13,13 @@
     "sec": "https://w3id.org/security#",
     "schema": "http://schema.org/",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
+
+    "claim": {"@id": "cred:claim", "@type": "@id"},
+    "issued": {"@id": "cred:issued", "@type": "xsd:dateTime"},
+    "issuer": {"@id": "cred:issuer", "@type": "@id"},
+    "recipient": {"@id": "cred:recipient", "@type": "@id"},
+    "Credential": "cred:Credential",
+    "CryptographicKeyCredential": "cred:CryptographicKeyCredential",
 
     "about": {"@id": "schema:about", "@type": "@id"},
     "address": {"@id": "schema:address", "@type": "@id"},
@@ -32,26 +40,24 @@
     "streetAddress": "schema:streetAddress",
     "title": "dc:title",
     "url": {"@id": "schema:url", "@type": "@id"},
-    "PostalAddress": "schema:PostalAddress",
-
-    "Identity": "identity:Identity",
     "Person": "schema:Person",
+    "PostalAddress": "schema:PostalAddress",
     "Organization": "schema:Organization",
 
-    "paymentProcessor": "ps:processor",
+    "identityService": {"@id": "identity:identityService", "@type": "@id"},
+    "idp": {"@id": "identity:idp", "@type": "@id"},
+    "Identity": "identity:Identity",
 
+    "paymentProcessor": "ps:processor",
     "preferences": {"@id": "ps:preferences", "@type": "@vocab"},
 
-    "credential": {"@id": "sec:credential", "@type": "@id"},
     "cipherAlgorithm": "sec:cipherAlgorithm",
     "cipherData": "sec:cipherData",
     "cipherKey": "sec:cipherKey",
-    "claim": {"@id": "sec:claim", "@type": "@id"},
     "digestAlgorithm": "sec:digestAlgorithm",
     "digestValue": "sec:digestValue",
     "domain": "sec:domain",
     "expires": {"@id": "sec:expiration", "@type": "xsd:dateTime"},
-    "identityService": {"@id": "identity:identityService", "@type": "@id"},
     "initializationVector": "sec:initializationVector",
     "nonce": "sec:nonce",
     "normalizationAlgorithm": "sec:normalizationAlgorithm",
@@ -66,17 +72,12 @@
     "signature": "sec:signature",
     "signatureAlgorithm": "sec:signatureAlgorithm",
     "signatureValue": "sec:signatureValue",
-    "Credential": "sec:Credential",
     "CryptographicKey": "sec:Key",
     "EncryptedMessage": "sec:EncryptedMessage",
     "GraphSignature2012": "sec:GraphSignature2012",
-    "CryptographicKeyCredential": "sec:CryptographicKeyCredential",
+    "LinkedDataSignature2015": "sec:LinkedDataSignature2015",
 
     "accessControl": {"@id": "perm:accessControl", "@type": "@id"},
-    "owner": {"@id": "sec:owner", "@type": "@id"},
-    "writePermission": {"@id": "perm:writePermission", "@type": "@id"},
-
-    "Identity": "identity:Identity",
-    "idp": {"@id": "identity:idp", "@type": "@id"}
+    "writePermission": {"@id": "perm:writePermission", "@type": "@id"}
   }
 }

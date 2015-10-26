@@ -9,16 +9,15 @@
 
     "EncryptedMessage": "sec:EncryptedMessage",
     "GraphSignature2012": "sec:GraphSignature2012",
+    "LinkedDataSignature2015": "sec:LinkedDataSignature2015",
     "CryptographicKey": "sec:Key",
 
     "authenticationTag": "sec:authenticationTag",
     "cipherAlgorithm": "sec:cipherAlgorithm",
     "cipherData": "sec:cipherData",
     "cipherKey": "sec:cipherKey",
-    "claim": {"@id": "sec:claim", "@type": "@id"},
     "created": {"@id": "dc:created", "@type": "xsd:dateTime"},
     "creator": {"@id": "dc:creator", "@type": "@id"},
-    "credential": {"@id": "sec:credential", "@type": "@id"},
     "digestAlgorithm": "sec:digestAlgorithm",
     "digestValue": "sec:digestValue",
     "domain": "sec:domain",

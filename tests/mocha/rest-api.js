@@ -3,7 +3,7 @@
  */
 'use strict';
 var config = require('bedrock').config;
-var didio = require('did-io')();
+var didio = require('did-io');
 var jsonld = require('jsonld');
 var jsig = require('jsonld-signatures')({inject:{jsonld: jsonld}});
 var forge = require('node-forge');
