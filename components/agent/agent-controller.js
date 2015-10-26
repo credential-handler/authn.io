@@ -45,7 +45,7 @@ function factory(
     var identity = JSON.parse(JSON.stringify(
       config.data.identityWithCryptographicKeyCredentialTemplate));
     identity.id = session.id;
-    identity.signature.creator = session.publicKey.id;
+    // identity.signature.creator = session.publicKey.id;
     var credential = identity.credential[0]['@graph'];
     credential.claim = {
       id: session.id,
@@ -55,14 +55,19 @@ function factory(
         publicKeyPem: session.publicKey.publicKeyPem
       }
     };
-    delete credential.signature;
     aioIdentityService.sign({
       document: credential,
       publicKeyId: session.publicKey.id,
       privateKeyPem: session.privateKeyPem
     }).then(function(signed) {
       identity.credential[0]['@graph'] = signed;
-      aioOperationService.sendResult(identity);
+      return aioIdentityService.sign({
+        document: identity,
+        publicKeyId: session.publicKey.id,
+        privateKeyPem: session.privateKeyPem
+      });
+    }).then(function(signedIdentity) {
+      aioOperationService.sendResult(signedIdentity);
     }).catch(function(err) {
       brAlertService.add('error', err);
     }).then(function() {
