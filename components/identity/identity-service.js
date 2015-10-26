@@ -350,6 +350,7 @@ function factory($http, config) {
   service.sign = function(options) {
     return new Promise(function(resolve, reject) {
       jsig.sign(options.document, {
+        algorithm: 'LinkedDataSignature2015',
         privateKeyPem: options.privateKeyPem,
         creator: options.publicKeyId
       }, function(err, signed) {
