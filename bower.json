@@ -12,6 +12,7 @@
     "bedrock-angular-alert": "^1.0.0",
     "bedrock-angular-credential": "git://github.com/digitalbazaar/bedrock-angular-credential.git#master",
     "bedrock-angular-form": "^1.5.2",
+    "bedrock-angular-filters": "^1.0.0",
     "bedrock-angular-identity-composer": "git://github.com/digitalbazaar/bedrock-angular-identity-composer.git#master",
     "bedrock-angular-modal": "^1.0.0",
     "bedrock-angular-model": "^1.0.0",
@@ -23,7 +24,7 @@
     "es6-promise": "~2.1",
     "forge": "~0.6.28",
     "jquery": "~1.11.1",
-    "jsonld-signatures": "^1.1.1",
+    "jsonld-signatures": "^1.1.2",
     "requirejs": "~2.1.15",
     "angular-local-storage": "~0.2.2",
     "node-uuid": "~1.4.3"
