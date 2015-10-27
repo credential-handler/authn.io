@@ -134,8 +134,11 @@ function factory($window, aioIdentityService) {
       if(_parseOrigin(idpUrl) !== options.origin) {
         throw new Error('Origin mismatch.');
       }
-      // include public key in parameters
       if(message.op === 'get') {
+        // include public key in parameters
+        // TODO: wrap public key in a CryptographicKeyCredential and
+        // sign it (sending the public key at all may only be necessary
+        // for ephemeral keys)
         var publicKey = message.data.publicKey = {
           '@context': session['@context']
         };
