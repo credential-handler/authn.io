@@ -1,4 +1,4 @@
-define(['jsonld', 'underscore'], function(jsonld, _) {
+define(['jsonld', 'node-uuid', 'underscore'], function(jsonld, uuid, _) {
 
 'use strict';
 
@@ -46,6 +46,7 @@ function factory(
       config.data.identityWithCryptographicKeyCredentialTemplate));
     identity.id = session.id;
     var credential = identity.credential[0]['@graph'];
+    credential.id = 'urn:ephemeral:' + uuid.v4();
     credential.claim = {
       id: session.id,
       publicKey: {
