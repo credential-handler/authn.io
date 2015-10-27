@@ -170,7 +170,7 @@ function factory($window, aioIdentityService) {
       document: message.data,
       publicKeyId: session.publicKey.id,
       privateKeyPem: session.privateKeyPem,
-      domain: rpMessage.origin
+      domain: _parseDomain(rpMessage.origin)
     }).then(function(signed) {
       message.data = signed;
       router.send(message.op, message.data);
@@ -213,6 +213,13 @@ function factory($window, aioIdentityService) {
     var parser = document.createElement('a');
     parser.href = url;
     return parser.protocol + '//' + parser.host;
+  }
+
+  function _parseDomain(url) {
+    // `URL` API not supported on IE, use DOM to parse URL
+    var parser = document.createElement('a');
+    parser.href = url;
+    return parser.host;
   }
 
   return service;

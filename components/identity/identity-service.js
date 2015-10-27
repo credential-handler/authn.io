@@ -341,16 +341,21 @@ function factory($http, config) {
    *          document the document to sign.
    *          publicKeyId the ID of the public key.
    *          privateKeyPem the unencrypted private key PEM to use.
+   *          [domain] the domain to use.
    *
    * @return a Promise that resolves to the signed document.
    */
   service.sign = function(options) {
+    var opts = {
+      algorithm: 'LinkedDataSignature2015',
+      privateKeyPem: options.privateKeyPem,
+      creator: options.publicKeyId
+    };
+    if('domain' in options) {
+      opts.domain = options.domain;
+    }
     return new Promise(function(resolve, reject) {
-      jsigs.sign(options.document, {
-        algorithm: 'LinkedDataSignature2015',
-        privateKeyPem: options.privateKeyPem,
-        creator: options.publicKeyId
-      }, function(err, signed) {
+      jsigs.sign(options.document, opts, function(err, signed) {
         if(err) {
           return reject(err);
         }
