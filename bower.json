@@ -12,7 +12,6 @@
     "bedrock-angular-alert": "^1.0.0",
     "bedrock-angular-credential": "git://github.com/digitalbazaar/bedrock-angular-credential.git#master",
     "bedrock-angular-form": "^1.5.2",
-    "bedrock-angular-filters": "^1.0.0",
     "bedrock-angular-identity-composer": "git://github.com/digitalbazaar/bedrock-angular-identity-composer.git#master",
     "bedrock-angular-modal": "^1.0.0",
     "bedrock-angular-model": "^1.0.0",
