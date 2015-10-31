@@ -2,7 +2,7 @@ define([
   'angular',
   'async',
   'did-io',
-  'forge/js/forge',
+  'forge',
   'jsonld',
   'jsonld-signatures',
   'node-uuid'],
