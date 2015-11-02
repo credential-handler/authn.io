@@ -1,4 +1,4 @@
-define([], function() {
+define(['node-uuid'], function(uuid) {
 
 'use strict';
 
@@ -119,6 +119,9 @@ function factory($window, aioIdentityService) {
       return;
     }
     if(message) {
+      // TODO: need better error handling during _send, perhaps simply
+      // catch (and ensure _send returns a promise) and route an error
+      // new Router(options.route, origin).send('error');
       return _send(session, message, options);
     }
     return _receive(options);
@@ -134,23 +137,47 @@ function factory($window, aioIdentityService) {
       if(_parseOrigin(idpUrl) !== options.origin) {
         throw new Error('Origin mismatch.');
       }
-      if(message.op === 'get') {
-        // include public key in parameters
-        // TODO: wrap public key in a CryptographicKeyCredential and
-        // sign it (sending the public key at all may only be necessary
-        // for ephemeral keys)
-        var publicKey = message.data.publicKey = {
-          '@context': session['@context']
-        };
-        if(session.publicKey.id) {
-          publicKey.id = session.publicKey.id;
-        }
-        publicKey.type = session.publicKey.type;
-        publicKey.owner = session.publicKey.owner;
-        publicKey.publicKeyPem = session.publicKey.publicKeyPem;
-      }
       var router = new Router(options.route, options.origin);
-      return router.send(message.op, message.data);
+      if(message.op !== 'get') {
+        return router.send(message.op, message.data);
+      }
+
+      // TODO: sending the public key is only necessary for ephemeral keys and
+      // non-DID based keys so this could be optimized away in other cases
+
+      // add cryptographic key credential w/public key to parameters
+      var publicKey = {
+        '@context': session['@context']
+      };
+      if(session.publicKey.id) {
+        publicKey.id = session.publicKey.id;
+      }
+      publicKey.type = session.publicKey.type;
+      publicKey.owner = session.publicKey.owner;
+      publicKey.publicKeyPem = session.publicKey.publicKeyPem;
+
+      // TODO: remove (only present for temporary backwards compatibility)
+      message.data.publicKey = publicKey;
+
+      // wrap public key in a CryptographicKeyCredential and sign it
+      var credential = {
+        '@context': 'https://w3id.org/identity/v1',
+        id: 'urn:uuid:' + uuid.v4(),
+        type: ['Credential', 'CryptographicKeyCredential'],
+        claim: {
+          id: publicKey.owner,
+          publicKey: publicKey
+        }
+      };
+      return aioIdentityService.sign({
+        document: credential,
+        publicKeyId: session.publicKey.id,
+        privateKeyPem: session.privateKeyPem,
+        domain: _parseDomain(options.origin)
+      }).then(function(signed) {
+        message.data.credential = {'@graph': signed};
+        router.send(message.op, message.data);
+      });
     }
 
     // credential agent sending to RP...
