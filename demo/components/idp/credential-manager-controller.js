@@ -11,7 +11,7 @@ function factory($http, $scope, brAlertService, config, ipCookie) {
   var operation;
 
   navigator.credentials.getPendingOperation({
-    agentUrl: '/agent?route=params'
+    agentUrl: '/agent'
   }).then(function(op) {
     operation = op;
     if(op.name === 'get') {
@@ -36,7 +36,7 @@ function factory($http, $scope, brAlertService, config, ipCookie) {
       _storeCredentials(identity);
     }
     operation.complete(identity, {
-      agentUrl: '/agent?op=' + operation.name + '&route=result'
+      agentUrl: '/agent'
     }).catch(function(err) {
       console.error('Failed to ' + operation.name + ' credential', err);
       brAlertService.add(

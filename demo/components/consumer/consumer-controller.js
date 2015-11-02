@@ -15,13 +15,15 @@ function factory($scope, $window, brAlertService, config) {
 
   self.get = function() {
     navigator.credentials.get({
-      query: {
-        '@context': {'br': 'urn:bedrock:'},
-        'br:test:passport': ''
-      },
-      agentUrl: '/agent?op=get&route=params'
-    }).then(function(identity) {
-      self.identity = identity;
+      identity: {
+        query: {
+          '@context': {'br': 'urn:bedrock:'},
+          'br:test:passport': ''
+        },
+        agentUrl: '/agent'
+      }
+    }).then(function(credential) {
+      self.identity = credential.identity;
       self.view = 'response';
     }).catch(function(err) {
       brAlertService.add('error', err);

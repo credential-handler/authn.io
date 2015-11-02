@@ -15,12 +15,14 @@ function factory($scope, $http, $window, brAlertService, config) {
 
   self.login = function() {
     navigator.credentials.get({
-      query: {
-        '@context': 'https://w3id.org/identity/v1',
-        id: '',
-        publicKey: ''
-      },
-      agentUrl: '/agent?op=get&route=params'
+      identity: {
+        query: {
+          '@context': 'https://w3id.org/identity/v1',
+          id: '',
+          publicKey: ''
+        },
+        agentUrl: '/agent'
+      }
     }).then(function(identity) {
       if(!identity || !identity.id) {
         throw new Error('DID not provided.');
@@ -38,8 +40,8 @@ function factory($scope, $http, $window, brAlertService, config) {
   };
 
   self.issueCredentials = function() {
-    return navigator.credentials.store(self.identity, {
-      agentUrl: '/agent?op=store&route=params'
+    return navigator.credentials.store(new IdentityCredential(self.identity), {
+      agentUrl: '/agent'
     }).then(function(identity) {
       self.identity = identity;
       self.view = 'acknowledgement';

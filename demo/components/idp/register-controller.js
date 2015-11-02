@@ -20,7 +20,7 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
 
   function _register() {
     self.loading = true;
-    navigator.credentials.registerDid({
+    IdentityCredential.register({
       idp: self.idp,
       agentUrl: '/register'
     }).then(function(didDocument) {
