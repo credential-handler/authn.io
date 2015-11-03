@@ -84,7 +84,11 @@ function factory(
         if(query.op === 'get') {
           // special handle request for public key credential
           self.isCryptoKeyRequest = _isCryptoKeyRequest(params.query);
-          // always show identity chooser for `get` requests
+          // always show identity chooser for `get` requests even if a
+          // specific DID was requested
+          if('id' in params.query && params.query.id) {
+            self.did = params.query.id;
+          }
           self.display.identityChooser = true;
           $scope.$apply();
           return;
@@ -148,6 +152,12 @@ function factory(
   }
 
   function _isCryptoKeyRequest(query) {
+    // query may have `id` set -- this doesn't affect whether or not it is
+    // a crypto key request
+    query = _.extend({}, query);
+    if('id' in query) {
+      query.id = '';
+    }
     return _.isEqual(query, CRYPTO_KEY_REQUEST);
   }
 }
