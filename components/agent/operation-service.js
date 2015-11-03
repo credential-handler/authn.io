@@ -175,7 +175,11 @@ function factory($window, aioIdentityService) {
         privateKeyPem: session.privateKeyPem,
         domain: _parseDomain(options.origin)
       }).then(function(signed) {
-        message.data.credential = {'@graph': signed};
+        message.data.identity = {
+          '@context': 'https://w3id.org/identity/v1',
+          id: publicKey.owner,
+          credential: {'@graph': signed}
+        };
         router.send(message.op, message.data);
       });
     }
