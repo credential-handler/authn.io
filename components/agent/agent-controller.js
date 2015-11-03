@@ -83,7 +83,7 @@ function factory(
       return aioOperationService.getParameters(query).then(function(params) {
         if(query.op === 'get') {
           // special handle request for public key credential
-          self.isCryptoKeyRequest = _.isEqual(params.query, CRYPTO_KEY_REQUEST);
+          self.isCryptoKeyRequest = _isCryptoKeyRequest(params.query);
           // always show identity chooser for `get` requests
           self.display.identityChooser = true;
           $scope.$apply();
@@ -145,6 +145,10 @@ function factory(
   function _isKeyPermanent(identity) {
     return ('id' in identity.publicKey && !jsonld.hasValue(
       identity.publicKey, 'type', 'EphemeralCryptographicKey'));
+  }
+
+  function _isCryptoKeyRequest(query) {
+    return _.isEqual(query, CRYPTO_KEY_REQUEST);
   }
 }
 
