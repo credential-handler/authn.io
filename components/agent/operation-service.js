@@ -175,11 +175,21 @@ function factory($window, aioIdentityService) {
         privateKeyPem: session.privateKeyPem,
         domain: _parseDomain(options.origin)
       }).then(function(signed) {
-        message.data.identity = {
+        // digitally-sign identity for use at IdP
+        var identity = {
           '@context': 'https://w3id.org/identity/v1',
           id: publicKey.owner,
+          type: 'Identity',
           credential: {'@graph': signed}
         };
+        return aioIdentityService.sign({
+          document: identity,
+          publicKeyId: session.publicKey.id,
+          privateKeyPem: session.privateKeyPem,
+          domain: _parseDomain(options.origin)
+        });
+      }).then(function(signed) {
+        message.data.identity = signed;
         router.send(message.op, message.data);
       });
     }
