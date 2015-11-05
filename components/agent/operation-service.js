@@ -138,14 +138,24 @@ function factory($window, aioIdentityService) {
         throw new Error('Origin mismatch.');
       }
       var router = new Router(options.route, options.origin);
-      if(message.op !== 'get') {
-        return router.send(message.op, message.data);
+
+      // build params to send from message data
+      var params = {};
+      if(message.op === 'get') {
+        params.options = message.data;
+      } else {
+        params.options = {};
+        params.options.store = message.data;
       }
 
-      // TODO: sending the public key is only necessary for ephemeral keys and
-      // non-DID based keys so this could be optimized away in other cases
+      // add a signed identity w/a cryptographic key credential to the
+      // parameters so the IdP can:
+      // 1. authenticate the user if necessary and if the key is not ephemeral
+      // 2. vouch for a public key by resigning the credential to prevent the
+      //   consumer from having to fetch it and leak information about
+      //   consumer+user interactions or to allow an ephemeral key to be used
+      // 3. register a new key on behalf of the user
 
-      // add cryptographic key credential w/public key to parameters
       var publicKey = {
         '@context': session['@context']
       };
@@ -157,12 +167,14 @@ function factory($window, aioIdentityService) {
       publicKey.publicKeyPem = session.publicKey.publicKeyPem;
 
       // TODO: remove (only present for temporary backwards compatibility)
-      message.data.publicKey = publicKey;
+      if(message.op === 'get') {
+        params.publicKey = publicKey;
+      }
 
       // wrap public key in a CryptographicKeyCredential and sign it
       var credential = {
         '@context': 'https://w3id.org/identity/v1',
-        id: 'urn:uuid:' + uuid.v4(),
+        id: 'urn:ephemeral:' + uuid.v4(),
         type: ['Credential', 'CryptographicKeyCredential'],
         claim: {
           id: publicKey.owner,
@@ -189,8 +201,15 @@ function factory($window, aioIdentityService) {
           domain: _parseDomain(options.origin)
         });
       }).then(function(signed) {
-        message.data.identity = signed;
-        router.send(message.op, message.data);
+        // TODO: remove if+else (only present for temporary backwards
+        // compatibility)
+        if(message.op === 'get') {
+          params.identity = signed;
+        } else {
+          params.identity = params.options.store;
+        }
+        params.options.identity = signed;
+        router.send(message.op, params);
       });
     }
 

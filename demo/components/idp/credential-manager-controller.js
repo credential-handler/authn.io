@@ -20,7 +20,7 @@ function factory($http, $scope, brAlertService, config, ipCookie) {
       return _getCredentials(op.options.publicKey);
     } else {
       self.view = 'store';
-      return Promise.resolve(op.identity);
+      return Promise.resolve(op.options.store);
     }
   }).then(function(identity) {
     self.identity = identity;

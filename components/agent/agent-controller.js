@@ -41,6 +41,10 @@ function factory(
 
     // special handle request for permanent public key credential:
 
+    // TODO: this could be potentially optimized away by reusing the
+    // identity created during aioOperationService.sendResult() that is
+    // attached to the message data
+
     // clone template
     var identity = JSON.parse(JSON.stringify(
       config.data.identityWithCryptographicKeyCredentialTemplate));
