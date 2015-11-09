@@ -17,7 +17,7 @@ function factory($http, $scope, brAlertService, config, ipCookie) {
     if(op.name === 'get') {
       self.view = 'get';
       self.query = op.options.query;
-      return _getCredentials(op.options.publicKey);
+      return _getCredentials(op.options.identity);
     } else {
       self.view = 'store';
       return Promise.resolve(op.options.store);
@@ -47,12 +47,13 @@ function factory($http, $scope, brAlertService, config, ipCookie) {
   };
 
   // gets credentials for the identity composer
-  function _getCredentials(publicKey) {
+  function _getCredentials(identity) {
     var did = ipCookie('did');
     if(!did) {
       return Promise.reject(
         new Error('Not authenticated. Please restart the demo.'));
     }
+    var publicKey = identity.credential['@graph'].claim.publicKey;
     return Promise.resolve(
       $http.post('/idp/credentials/public-key', publicKey))
       .then(function(response) {
