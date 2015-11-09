@@ -17,8 +17,11 @@ function factory($scope, $window, brAlertService, config) {
     navigator.credentials.get({
       identity: {
         query: {
-          '@context': {'br': 'urn:bedrock:'},
-          'br:test:passport': ''
+          '@context': {
+            'br': 'urn:bedrock:',
+            'cred': 'https://w3id.org/credentials#'
+          },
+          'br:test:passport': {'cred:isOptional': true}
         },
         agentUrl: '/agent'
       }
