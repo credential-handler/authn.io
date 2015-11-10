@@ -11,7 +11,7 @@ define([
 'use strict';
 
 /* @ngInject */
-function factory($http, config) {
+function factory($http) {
   var service = {};
 
   var STORAGE_KEYS = {
@@ -147,7 +147,7 @@ function factory($http, config) {
           opts.temporary = options.temporary;
           if(opts.temporary) {
             // generate a sha-256 public key fingerprint for the key ID
-            var fingerprint = pki.getPublicKeyFingerprint(
+            var fingerprint = forge.pki.getPublicKeyFingerprint(
               kp.publicKey, {
                 md: forge.md.sha256.create(),
                 encoding: 'hex',
