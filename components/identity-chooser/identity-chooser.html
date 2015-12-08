@@ -1,5 +1,5 @@
 <div class="row">
-  <div ng-if="ctrl.display.identityChooser" class="col-sm-offset-2 col-sm-8">
+  <div ng-if="!ctrl.loading && !(ctrl.identities | isEmpty)" class="col-sm-offset-2 col-sm-8">
     <br-headline
       ng-attr-br-title="{{ctrl.display.loginForm && 'Login' || 'Select an Identity'}}"
       br-loading="ctrl.loading"
@@ -49,12 +49,26 @@
           </form>
         </div>
       </li>
+      <li class="br-item-hover well" ng-if="ctrl.identities | isEmpty">
+        None found.
+      </li>
     </ul>
   </div>
-  <div ng-if="ctrl.display.newIdentity">
+</div>
+<div class="row">
+  <div ng-if="!ctrl.loading">
     <br-headline br-title="Load an Identity" br-loading="ctrl.loading"
       br-options="{menu: false}"></br-headline>
-    <!-- FIXME:
+    <div class="well col-md-offset-3 col-md-6">
+      Not yet implemented.
+      <span ng-if="ctrl.identities | isEmpty">
+        Please visit your identity provider.
+      </span>
+      <span ng-if="!(ctrl.identities | isEmpty)">
+        Please select an identity above or visit your identity provider.
+      </span>
+    </div>
+    <!-- FIXME
     <div class="well col-md-offset-3 col-md-6">
       <form name="newIdentityForm">
         <fieldset>
@@ -103,6 +117,7 @@
           </div>
         </fieldset>
       </form>
-    </div> -->
+    </div>
+    -->
   </div>
 </div>
