@@ -24,7 +24,6 @@ function factory(aioIdentityService, brAlertService) {
 
     ctrl.display = {};
     ctrl.display.identityChooser = true;
-    ctrl.display.newIdentity = false;
 
     var init = false;
     scope.$watch(function() {
@@ -33,38 +32,15 @@ function factory(aioIdentityService, brAlertService) {
       if(filter === undefined) {
         return;
       }
-      if(filter === null) {
-        ctrl.identities = aioIdentityService.identities.getAll();
-      } else {
-        var identity = aioIdentityService.identities.get(filter);
-        ctrl.identities = {};
-        if(identity) {
-          ctrl.identities[identity.id] = identity;
-        }
-      }
+      updateIdentities(filter);
       if(!init) {
         ctrl.loading = false;
         init = true;
       }
     });
 
-    ctrl.load = function() {
-      ctrl.loading = true;
-      aioIdentityService.load({
-        identifier: ctrl.email,
-        password: ctrl.password,
-        temporary: ctrl.remember
-      }).then(function(identity) {
-        aioIdentityService.authenticate(identity.id, ctrl.password);
-        return identity;
-      }).then(function(identity) {
-        return ctrl.select(identity.id);
-      }).catch(function(err) {
-        brAlertService.add('error', err, {scope: scope});
-      }).then(function() {
-        ctrl.loading = false;
-        scope.$apply();
-      });
+    ctrl.identityAdded = function() {
+      updateIdentities(ctrl.filter);
     };
 
     ctrl.authenticate = function(id, password) {
@@ -91,6 +67,18 @@ function factory(aioIdentityService, brAlertService) {
       }
       ctrl.display.loginForm = true;
     };
+
+    function updateIdentities(filter) {
+      if(filter === null) {
+        ctrl.identities = aioIdentityService.identities.getAll();
+      } else {
+        var identity = aioIdentityService.identities.get(filter);
+        ctrl.identities = {};
+        if(identity) {
+          ctrl.identities[identity.id] = identity;
+        }
+      }
+    }
   }
 }
 

@@ -1,9 +1,16 @@
 <div class="row">
-  <div ng-if="!ctrl.loading && !(ctrl.identities | isEmpty)" class="col-sm-offset-2 col-sm-8">
+  <div class="col-sm-offset-2 col-sm-8">
     <br-headline
-      ng-attr-br-title="{{ctrl.display.loginForm && 'Login' || 'Select an Identity'}}"
-      br-loading="ctrl.loading"
-      br-options="{menu: false}"></br-headline>
+      br-title="{{ctrl.display.loginForm && 'Login' || 'Select an Identity'}}"
+      br-loading="ctrl.loading" br-options="{menu:false}"></br-headline>
+    <stackable-modal stackable="ctrl.showAddIdentityModal"
+      stackable-closed="!err && ctrl.identityAdded(result)"
+      br-lazy-compile="ctrl.showAddIdentityModal"
+      br-lazy-id="aio-add-identity-modal">
+      <!-- TODO: include identity filter as parameter to modal -->
+      <aio-add-identity-modal></aio-add-identity-modal>
+    </stackable-modal>
+    <hr/>
     <ul ng-hide="ctrl.loading" class="list-unstyled">
       <li class="br-item-hover well" ng-repeat="(id, identity) in ctrl.identities"
         ng-click="ctrl.select(id)">
@@ -49,75 +56,19 @@
           </form>
         </div>
       </li>
-      <li class="br-item-hover well" ng-if="ctrl.identities | isEmpty">
-        None found.
-      </li>
     </ul>
-  </div>
-</div>
-<div class="row">
-  <div ng-if="!ctrl.loading">
-    <br-headline br-title="Load an Identity" br-loading="ctrl.loading"
-      br-options="{menu: false}"></br-headline>
-    <div class="well col-md-offset-3 col-md-6">
-      Not yet implemented.
-      <span ng-if="ctrl.identities | isEmpty">
-        Please visit your identity provider.
-      </span>
-      <span ng-if="!(ctrl.identities | isEmpty)">
-        Please select an identity above or visit your identity provider.
-      </span>
+    <div ng-if="!ctrl.loading">
+      <div ng-if="ctrl.identities | isEmpty">
+        <div class="alert alert-warning"><strong>No identities found</strong>.</div>
+        <p>
+          Please <a ng-click="ctrl.showAddIdentityModal=true">register
+          an existing identity with this device</a> or visit an identity
+          provider of your choice to create a new one.
+        </p>
+      </div>
+      <div ng-if="!(ctrl.identities | isEmpty)">
+        <h4><a ng-click="ctrl.showAddIdentityModal=true"><strong>NONE OF THE ABOVE</strong></a></h4>
+      </div>
     </div>
-    <!-- FIXME
-    <div class="well col-md-offset-3 col-md-6">
-      <form name="newIdentityForm">
-        <fieldset>
-          <br-input br-model="ctrl.email"
-            br-options="{name: 'email', label: 'Email', showValidation: true, autofocus: true}"
-            ng-maxlength="128" required>
-            <div name="br-input-help">
-              Please enter your email address.
-            </div>
-            <div name="br-input-validation-errors">
-              <p ng-show="newIdentityForm.email.$error.required">
-                Email is required.
-              </p>
-              <p ng-show="newIdentityForm.email.$error.maxlength">
-                Email must not be longer than 128 characters.
-              </p>
-            </div>
-          </br-input>
-          <br-input br-model="ctrl.password"
-            br-options="{name: 'password', label: 'Passphrase', type: 'password', showValidation: true}"
-            required>
-            <div name="br-input-help">
-              Please enter your passphrase.
-            </div>
-            <div name="br-input-validation-errors">
-              <p ng-show="newIdentityForm.password.$error.required">
-                Password is required.
-              </p>
-            </div>
-          </br-input>
-          <div class="checkbox col-md-offset-3" style="clear:both;" >
-            <label>
-              <input name="remember" ng-model="ctrl.remember" type="checkbox">
-              Remember me next time
-            </label>
-          </div>
-          <div align="center">
-            <button class="btn btn-primary" ng-disabled="newIdentityForm.$invalid || ctrl.generating"
-              ng-click="ctrl.login({username: ctrl.email, password: ctrl.password, remember: ctrl.remember})">
-              Login
-            </button>
-          </div>
-          <div style="text-align:center; padding-top: 15px;" ng-show="ctrl.generating">
-            Securing your connection, this may take a minute...
-            <i class="fa fa-refresh fa-spin text-muted"></i>
-          </div>
-        </fieldset>
-      </form>
-    </div>
-    -->
   </div>
 </div>

@@ -1,0 +1,86 @@
+<br-modal br-title="Add Identity">
+  <div name="br-modal-body">
+    <p>
+      If you have another identity you'd like to use with this device, please
+      enter the email address and passphrase associated with it. If you do not
+      have another identity, you'll need to visit an identity provider of
+      your choice and register a new one.
+    </p>
+    <hr/>
+    <div class="row">
+      <form name="addIdentityForm" class="form-horizontal" role="form">
+        <fieldset>
+          <br-input br-model="model.email"
+            br-options="{
+              name: 'email',
+              label: 'Email',
+              showValidation: true,
+              autofocus: true,
+              disabled: {{model.loading}}
+            }" ng-minlength="6" ng-maxlength="128" required>
+            <div name="br-input-help">
+              Please enter your email address.
+            </div>
+            <div name="br-input-validation-errors">
+              <p ng-show="addIdentityForm.email.$error.required">
+                Email is required.
+              </p>
+              <p ng-show="addIdentityForm.email.$error.minlength">
+                Email is required to be at least 6 characters.
+              </p>
+              <p ng-show="addIdentityForm.email.$error.maxlength">
+                Email must not be longer than 128 characters.
+              </p>
+            </div>
+          </br-input>
+          <br-input br-model="model.passphrase"
+            br-options="{
+              name: 'passphrase',
+              label: 'Passphrase',
+              type: 'password',
+              showValidation: true,
+              disabled: {{model.loading}}
+            }" ng-minlength="6" ng-maxlength="128" required>
+            <div name="br-input-help">
+              Please enter a passphrase.
+            </div>
+            <div name="br-input-validation-errors">
+              <p ng-show="addIdentityForm.passphrase.$error.required">
+                Passphrase is required.
+              </p>
+              <p ng-show="addIdentityForm.passphrase.$error.minlength">
+                Passphrase is required to be at least 6 characters.
+              </p>
+              <p ng-show="addIdentityForm.passphrase.$error.maxlength">
+                Passphrase must not be longer than 128 characters.
+              </p>
+            </div>
+          </br-input>
+          <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-8">
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" ng-model="model.permanent">
+                    Remember me on this device
+                </label>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+  <div name="br-modal-footer">
+    <span ng-show="model.generating">Please wait, this may take a minute...</span>
+    <span ng-show="model.loading">
+      <i class="fa fa-refresh fa-spin text-muted"></i>
+    </span>
+    <span>
+      <button type="button" class="btn btn-primary"
+        ng-disabled="model.loading"
+        ng-click="model.add()"><i class="fa fa-check"></i> Add</button>
+    </span>
+    <button type="button" class="btn btn-default stackable-cancel"
+      ng-disabled="model.loading">Cancel</button>
+  </div>
+</br-modal>

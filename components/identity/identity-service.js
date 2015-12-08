@@ -114,7 +114,8 @@ function factory($http) {
 
     // fetch the hash(identifier + passphrase) mapping
     var hash = didio.generateHash(options.identifier, options.password);
-    Promise.resolve($http.get('/mappings/' + hash)).then(function(response) {
+    var url = '/mappings/' + hash;
+    return Promise.resolve($http.get(url)).then(function(response) {
       if(!(response.data && response.data.did)) {
         throw new Error('DID lookup failed.');
       }
@@ -370,7 +371,7 @@ function factory($http) {
    * Inserts an identity into storage.
    *
    * @param options the options to use:
-   *          identity
+   *          identity the identity to insert.
    *          [permanent] true to only get a permanent identity, false to only
    *            get a session-only identity.
    *
