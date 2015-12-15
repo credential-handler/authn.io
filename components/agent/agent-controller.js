@@ -133,15 +133,17 @@ function factory(
       return aioOperationService.proxy(query);
     }
 
-    // if this is a storage request, proxy the result w/o need to confirm
-    if(query.op === 'store') {
+    // if this is a storage request or a crypto key get request, proxy the
+    // result w/o need to confirm
+    var result = aioOperationService.getResult(query);
+    if(query.op === 'store' || _isCryptoKeyRequest(result.params.query)) {
       self.display.redirectOrigin = query.origin;
       return aioOperationService.proxy(query);
     }
 
     // display confirmation page before transmitting result
     self.display.confirm = true;
-    self.result = aioOperationService.getResult(query);
+    self.result = result;
   }
 
   // TODO: handle invalid query

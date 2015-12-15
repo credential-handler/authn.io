@@ -52,8 +52,8 @@ function factory($window, aioIdentityService) {
    *          op the name of the operation to get the result for.
    *          origin the origin to receive from.
    *
-   * @return the destination origin and result for the operation:
-   *   `{origin: ..., result: ...}`.
+   * @return the destination origin, original params, and result for the
+   *   operation: `{origin: ..., params: ..., result: ...}`.
    */
   service.getResult = function(options) {
     var rpMessage = _load('params');
@@ -63,6 +63,7 @@ function factory($window, aioIdentityService) {
     }
     return {
       origin: rpMessage.origin,
+      params: rpMessage.data,
       result: idpMessage.data
     };
   };
