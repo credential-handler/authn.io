@@ -68,10 +68,10 @@ function factory($http) {
     return _generateKeyPair().then(function(kp) {
       var did = didio.generateDid();
       var identity = _createIdentity({
-        did: did,
+        id: did,
         keypair: kp,
         publicKeyId: did + '/keys/1',
-        identifier: options.identifier,
+        label: options.identifier,
         password: options.password
       });
       return _registerIdentity({
@@ -116,6 +116,7 @@ function factory($http) {
     var hash = didio.generateHash(options.identifier, options.password);
     var url = '/mappings/' + hash;
     return Promise.resolve($http.get(url)).then(function(response) {
+      // FIXME: use `response.data.decentralizedId`
       if(!(response.data && response.data.did)) {
         throw new Error('DID lookup failed.');
       }
@@ -136,14 +137,17 @@ function factory($http) {
         return identity;
       }
 
-      // generate keypair for temporary identity
+      // generate keypair for identity that isn't yet locally-stored
       return _generateKeyPair().then(function(kp) {
         var opts = {
-          did: did,
+          id: did,
           keypair: kp,
-          identifier: options.identifier,
+          label: options.identifier,
           password: options.password
         };
+        // only set public key ID if key is temporary, otherwise leave it
+        // as a blank node to be updated once the user's IdP saves the key
+        // in the WebDHT
         if('temporary' in options) {
           opts.temporary = options.temporary;
           if(opts.temporary) {
@@ -510,6 +514,7 @@ function factory($http) {
       var mapping = {
         '@context': 'https://w3id.org/identity/v1',
         id: didio.generateHash(options.identity.label, options.password),
+        // FIXME: use 'decentralizedId' as property
         did: did,
         accessControl: {
           writePermission: [{
@@ -541,8 +546,8 @@ function factory($http) {
    * Creates an identity object from the given options.
    *
    * @param options the options to use:
-   *          did the DID for the identity.
-   *          identifier the local identifier for the identity.
+   *          id the DID for the identity.
+   *          label the local identifier for the identity.
    *          [publicKeyId] an identifier for the identity's public key.
    *          [keypair] a new keypair for the identity.
    *          [temporary] true to create a temporary identity.
@@ -553,8 +558,8 @@ function factory($http) {
   function _createIdentity(options) {
     var identity = {
       '@context': 'https://w3id.org/identity/v1',
-      id: options.did,
-      label: options.identifier,
+      id: options.id,
+      label: options.label,
       publicKey: {}
     };
     if(options.publicKeyId) {
@@ -562,12 +567,12 @@ function factory($http) {
     }
     identity.publicKey.type = (options.temporary ?
       ['EphemeralCryptographicKey', 'CryptographicKey'] : 'CryptographicKey');
-    identity.publicKey.owner = options.did;
+    identity.publicKey.owner = options.id;
     identity.publicKey.publicKeyPem = forge.pki.publicKeyToPem(
       options.keypair.publicKey);
     identity.publicKey.privateKeyPem = forge.pki.encryptRsaPrivateKey(
       options.keypair.privateKey,
-      _getKeyPassword(options.identifier, options.password));
+      _getKeyPassword(identity.label, options.password));
     return identity;
   }
 
