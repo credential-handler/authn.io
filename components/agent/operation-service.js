@@ -226,9 +226,9 @@ function factory($window, aioIdentityService) {
     }
     router = new Router(options.route, rpMessage.origin);
     // TODO: if session.identity.sysRegisterKey is set to true and
-    // `message.data` contains a public key credential with a did-based id,
-    // and the DID document reflects that public key, update
-    // `session.publicKey.id` to match the value publicKey ID from
+    // `message.data` contains a public key credential with a did-based id
+    // and matching key data, and the DID document reflects that public key,
+    // update `session.publicKey.id` to match the value publicKey ID from
     // `message.data` and update the identity by removing `sysRegisterKey` and
     // set the publicKey ID there as well
     return aioIdentityService.sign({
