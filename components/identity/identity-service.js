@@ -145,21 +145,8 @@ function factory($http) {
           label: options.identifier,
           password: options.password
         };
-        // only set public key ID if key is temporary, otherwise leave it
-        // as a blank node to be updated once the user's IdP saves the key
-        // in the WebDHT
         if('temporary' in options) {
           opts.temporary = options.temporary;
-          if(opts.temporary) {
-            // generate a sha-256 public key fingerprint for the key ID
-            var fingerprint = forge.pki.getPublicKeyFingerprint(
-              kp.publicKey, {
-                md: forge.md.sha256.create(),
-                encoding: 'hex',
-                delimiter: ':'
-              });
-            opts.publicKeyId = 'urn:rsa-public-key-sha256:' + fingerprint;
-          }
         }
         var identity = _createIdentity(opts);
         return storage.insert({
@@ -564,6 +551,18 @@ function factory($http) {
     };
     if(options.publicKeyId) {
       identity.publicKey.id = options.publicKeyId;
+    } else {
+      // generate a sha-256 public key fingerprint for the key ID
+      var fingerprint = forge.pki.getPublicKeyFingerprint(
+        options.keypair.publicKey, {
+          md: forge.md.sha256.create(),
+          encoding: 'hex',
+          delimiter: ':'
+        });
+      identity.publicKey.id = 'urn:rsa-public-key-sha256:' + fingerprint;
+      if(!options.temporary) {
+        identity.sysRegisterKey = true;
+      }
     }
     identity.publicKey.type = (options.temporary ?
       ['EphemeralCryptographicKey', 'CryptographicKey'] : 'CryptographicKey');

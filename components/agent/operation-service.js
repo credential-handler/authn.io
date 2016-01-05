@@ -160,9 +160,7 @@ function factory($window, aioIdentityService) {
       var publicKey = {
         '@context': session['@context']
       };
-      if(session.publicKey.id) {
-        publicKey.id = session.publicKey.id;
-      }
+      publicKey.id = session.publicKey.id;
       publicKey.type = session.publicKey.type;
       publicKey.owner = session.publicKey.owner;
       publicKey.publicKeyPem = session.publicKey.publicKeyPem;
@@ -210,6 +208,9 @@ function factory($window, aioIdentityService) {
           params.identity = params.options.store;
         }
         params.options.identity = signed;
+        if(session.sysRegisterKey) {
+          params.options.registerKey = true;
+        }
         router.send(message.op, params);
       });
     }
@@ -224,9 +225,12 @@ function factory($window, aioIdentityService) {
       throw new Error('Credential protocol error.');
     }
     router = new Router(options.route, rpMessage.origin);
-    // TODO: if session.publicKey.id is unset it is set in `message.data`
-    // (by the IdP) and the DID document now reflects it, update
-    // `session.publicKey.id` to match the value from `message.data`
+    // TODO: if session.identity.sysRegisterKey is set to true and
+    // `message.data` contains a public key credential with a did-based id,
+    // and the DID document reflects that public key, update
+    // `session.publicKey.id` to match the value publicKey ID from
+    // `message.data` and update the identity by removing `sysRegisterKey` and
+    // set the publicKey ID there as well
     return aioIdentityService.sign({
       document: message.data,
       publicKeyId: session.publicKey.id,
