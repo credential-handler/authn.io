@@ -31,7 +31,7 @@ function factory(
     if(err) {
       return brAlertService.add('error', err);
     }
-    if(!self.isCryptoKeyRequest || !_isKeyPermanent(session)) {
+    if(!self.isCryptoKeyRequest || !_isKeyDidBased(session)) {
       if(query.op === 'get' && query.route === 'params') {
         // go to IdP to handle query
         return aioOperationService.navigateToIdp(session);
@@ -152,9 +152,8 @@ function factory(
     return identity.credential[0]['@graph'].claim.id;
   }
 
-  function _isKeyPermanent(identity) {
-    return ('id' in identity.publicKey && !jsonld.hasValue(
-      identity.publicKey, 'type', 'EphemeralCryptographicKey'));
+  function _isKeyDidBased(identity) {
+    return (identity.publicKey.id.indexOf('did') === 0);
   }
 
   function _isCryptoKeyRequest(query) {
