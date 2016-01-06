@@ -1,4 +1,4 @@
-define(['node-uuid'], function(uuid) {
+define(['jsonld', 'node-uuid'], function(jsonld, uuid) {
 
 'use strict';
 
@@ -219,18 +219,33 @@ function factory($window, aioIdentityService) {
     if(message.origin !== options.origin) {
       throw new Error('Origin mismatch.');
     }
-    // get RP origin
+
+    // if key registration was requested, check to see if it occurred
+    if(session.sysRegisterKey) {
+      // determine if session key was registered by finding matching key
+      // in a credential in the message with a new DID-based identifier
+      var matchingKey = _getCryptographicKeyFromCredential(
+        message.data, session.publicKey);
+      if(matchingKey.id !== session.publicKey.id &&
+        matchingKey.id.indexOf(session.id) === 0) {
+        // TODO: do a look up on the key to ensure it actually exists in DHT,
+        // don't assume
+
+        // key matches, make identity permanent
+        session.sysRegisterKey = false;
+        session.publicKey.id = matchingKey.id;
+        aioIdentityService.makePermanent(session.id, matchingKey.id);
+      }
+    }
+
+    // get RP origin to route to it
     var rpMessage = _load('params');
     if(!rpMessage) {
       throw new Error('Credential protocol error.');
     }
     router = new Router(options.route, rpMessage.origin);
-    // TODO: if session.identity.sysRegisterKey is set to true and
-    // `message.data` contains a public key credential with a did-based id
-    // and matching key data, and the DID document reflects that public key,
-    // update `session.publicKey.id` to match the value publicKey ID from
-    // `message.data` and update the identity by removing `sysRegisterKey` and
-    // set the publicKey ID there as well
+
+    // sign message and route it
     return aioIdentityService.sign({
       document: message.data,
       publicKeyId: session.publicKey.id,
@@ -285,6 +300,25 @@ function factory($window, aioIdentityService) {
     var parser = document.createElement('a');
     parser.href = url;
     return parser.host;
+  }
+
+  function _getCryptographicKeyFromCredential(identity, keyToMatch) {
+    // TODO: make more robust by framing identity, etc.?
+    var credentials = jsonld.getValues(identity, 'credential');
+    for(var i = 0; i < credentials.length; ++i) {
+      var credential = credentials[0]['@graph'];
+      if(jsonld.hasValue(credential, 'type', 'CryptographicKeyCredential')) {
+        var key = credential.claim.publicKey;
+        if(credential.claim.id === identity.id && key.owner === identity.id &&
+          key.owner === keyToMatch.owner &&
+          // TODO: parse key PEM and compare key components, do not assume
+          // that a change in PEM means its not the same key
+          key.publicKeyPem === keyToMatch.publicKeyPem) {
+          return key;
+        }
+      }
+    }
+    return null;
   }
 
   return service;

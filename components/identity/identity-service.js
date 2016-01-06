@@ -252,6 +252,61 @@ function factory($http) {
   };
 
   /**
+   * Makes a temporary identity permanent.
+   *
+   * @param id the ID (DID) of the identity to make permanent.
+   * @param publicKeyId the new ID for the identity's public key.
+   */
+  service.makePermanent = function(id, publicKeyId, options) {
+    options = options || {};
+    if(!id || typeof id !== 'string') {
+      throw new Error('id must be a non-empty string.');
+    }
+    if(!publicKeyId || typeof publicKeyId !== 'string') {
+      throw new Error('publicKeyId must be a non-empty string.');
+    }
+
+    // update session storage
+    var identities = storage.getAll({permanent: false});
+    if(id in identities) {
+      var identity = identities[id];
+      delete identity.sysRegisterKey;
+      identity.publicKey.id = publicKeyId;
+      sessionStorage.setItem(
+        STORAGE_KEYS.IDENTITIES, JSON.stringify(identities));
+
+      // update permanent public key ID
+      identities = storage.getAll({permanent: true});
+      identities[id] = identity;
+      localStorage.setItem(STORAGE_KEYS.IDENTITIES, JSON.stringify(identities));
+    }
+
+    // update authenticated storage
+    var authenticated = localStorage.getItem(STORAGE_KEYS.AUTHENTICATED);
+    if(authenticated) {
+      try {
+        authenticated = JSON.parse(authenticated);
+      } catch(err) {
+        authenticated = {};
+      }
+    }
+    if(authenticated && id in authenticated) {
+      // ensure identity hasn't expired and is loaded
+      if(authenticated[id].expires < Date.now() || !storage.get(id)) {
+        // expire authenticated identity
+        delete authenticated[id];
+      } else {
+        // update authenticated identity
+        authenticated[id].expires = Date.now() + SESSION_EXPIRATION;
+        delete authenticated[id].sysRegisterKey;
+        authenticated[id].publicKey.id = publicKeyId;
+      }
+      localStorage.setItem(
+        STORAGE_KEYS.AUTHENTICATED, JSON.stringify(authenticated));
+    }
+  };
+
+  /**
    * Creates a session for an authenticated identity. Creating a session
    * establishes which identity should be used in credential flows. Only
    * one session can be set at a time. A sessions can only be set for an
@@ -366,8 +421,6 @@ function factory($http) {
    *          [permanent] true to only get a permanent identity, false to only
    *            get a session-only identity.
    *
-   * @param id the ID (DID) of the identity to look for.
-   *
    * @return the identity if found, null if not.
    */
   storage.insert = function(options) {
@@ -398,7 +451,7 @@ function factory($http) {
   storage.get = function(id, options) {
     options = options || {};
     if(!id || typeof id !== 'string') {
-      throw new Error('options.id must be a non-empty string.');
+      throw new Error('id must be a non-empty string.');
     }
     if(!('permanent' in options)) {
       // check local, then session
