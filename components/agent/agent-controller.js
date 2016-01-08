@@ -83,7 +83,8 @@ function factory(
   // we're receiving parameters from the RP or sending them to the IdP
   if(query.route === 'params') {
     if(aioOperationService.needsParameters(query)) {
-      // flow is just starting, get parameters from RP
+      // flow is just starting, clear old session and get parameters from RP
+      aioIdentityService.clearSession();
       return aioOperationService.getParameters(query).then(function(params) {
         if(query.op === 'get') {
           // special handle request for public key credential

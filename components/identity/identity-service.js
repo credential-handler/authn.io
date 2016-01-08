@@ -357,6 +357,13 @@ function factory($http) {
   };
 
   /**
+   * Clears the current session, if one exists.
+   */
+  service.clearSession = function() {
+    localStorage.removeItem(STORAGE_KEYS.SESSION);
+  };
+
+  /**
    * Gets the service end point configuration for an identity's IdP.
    *
    * @param id the identity's ID (DID).
