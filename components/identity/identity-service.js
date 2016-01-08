@@ -328,9 +328,7 @@ function factory($http) {
       // session from getting out-of-sync
       var session = authenticated;
       session.idpConfig = config;
-      // use `localStorage` because the session needs to persist across
-      // multiple windows
-      localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session));
+      sessionStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session));
       return session;
     });
   };
@@ -341,7 +339,7 @@ function factory($http) {
    * @return the session, null if none exists.
    */
   service.getSession = function() {
-    var session = localStorage.getItem(STORAGE_KEYS.SESSION);
+    var session = sessionStorage.getItem(STORAGE_KEYS.SESSION);
     if(!session) {
       return null;
     }
@@ -360,7 +358,7 @@ function factory($http) {
    * Clears the current session, if one exists.
    */
   service.clearSession = function() {
-    localStorage.removeItem(STORAGE_KEYS.SESSION);
+    sessionStorage.removeItem(STORAGE_KEYS.SESSION);
   };
 
   /**
