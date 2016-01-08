@@ -245,6 +245,9 @@ function factory($window, aioIdentityService) {
     }
     router = new Router(options.route, rpMessage.origin);
 
+    // flow complete, clear session
+    aioIdentityService.clearSession();
+
     // sign message and route it
     return aioIdentityService.sign({
       document: message.data,
