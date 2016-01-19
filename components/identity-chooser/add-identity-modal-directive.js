@@ -28,7 +28,7 @@ function factory(aioIdentityService, brAlertService) {
         temporary: !model.permanent
       }).then(function(identity) {
         // auto-authenticate
-        aioIdentityService.authenticate(identity.id, model.passphrase)
+        aioIdentityService.authenticate(identity.id, model.passphrase);
         stackable.close(null, identity);
       }).catch(function(err) {
         if(err.type === 'MappingLookupFailed') {
