@@ -2,13 +2,16 @@
 
 A solution to the [NASCAR login problem][NASCAR].
 
-This software enables a person to find their identity provider using an
-email address and passphrase known to them.
+A live version and demo of this site can be found at [authorization.io][].
+
+This software enables a person to find their credential curator (previously
+known as their identity provider) using an email address and passphrase known
+to them.
 
 In general, the site accomplishes this by providing a Web polyfill to
 enable the decentralized lookup of services associated with a person,
-organization, or entity. It does this by providing a number of REST APIs
-that identity provider websites can integrate with as well as front-end
+organization, or entity. It does this by providing a number of HTTP APIs
+that credential curator websites can integrate with as well as front-end
 code that can be used as a polyfill on websites that want to support
 [Identity Credentials][IC]-based login.
 
@@ -29,11 +32,9 @@ This software enables a person to:
    decentralized identifier document in a decentralized network.
 3. Map an email address / passphrase combination to a decentralized
    identifier document.
-4. Map a decentralized identifier document to
-   a credential vault / identity provider.
+4. Map a decentralized identifier document to a credential curator.
 5. Proxy read and write requests for credentials between
-   credential issuers, credential consumers, and credential vaults /
-   identity providers.
+   credential issuers, credential consumers, and credential curators.
 
 # Development
 
@@ -87,5 +88,6 @@ Access the server at the following URL:
 
 * https://authorization.dev:33443/
 
+[authorization.io]: https://authorization.io
 [NASCAR]: https://indiewebcamp.com/NASCAR_problem "The NASCAR Problem"
 [IC]: http://opencreds.org/specs/source/identity-credentials/ "Identity Credentials"
