@@ -8,8 +8,6 @@ var config = bedrock.config;
 var path = require('path');
 var _ = require('lodash');
 
-config.views.paths.push(path.join(__dirname, '..', 'tests', 'views'));
-
 // load the demo extensions to the site
 require('../demo/lib/idp');
 require('../demo/lib/issuer');
