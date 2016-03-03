@@ -1,6 +1,6 @@
 {
   "name": "authorization.io",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "scripts": {
     "start": "node authorization.dev.js",
     "test": "node authorization.dev.js test",
@@ -9,19 +9,19 @@
   "dependencies": {
     "async": "^1.4.2",
     "bedrock": "^1.0.0",
-    "bedrock-docs": "^1.0.0",
-    "bedrock-express": "^1.4.0",
-    "bedrock-mongodb": "^1.0.0",
-    "bedrock-server": "^1.0.0",
-    "bedrock-views": "^1.5.1",
+    "bedrock-docs": "^2.0.0",
+    "bedrock-express": "^2.0.0",
+    "bedrock-mongodb": "^2.0.0",
+    "bedrock-server": "^2.0.0",
+    "bedrock-views": "^2.0.0",
     "bignumber.js": "^2.1.4",
     "bower": "^1.7.7",
     "did-io": "^0.6.1",
-    "lodash": "^3.9.2",
+    "lodash": "^4.0.0",
     "node-uuid": "^1.4.3"
   },
   "devDependencies": {
-    "bedrock-protractor": "^2.0.0",
+    "bedrock-protractor": "^3.0.0",
     "jsonld": "~0.4.2",
     "jsonld-signatures": "^1.1.3",
     "node-forge": "~0.6.28",

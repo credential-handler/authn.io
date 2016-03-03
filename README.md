@@ -22,6 +22,10 @@ core of a browser. While the WebDHT work is a multi-year R&D effort, this
 software is provided as a placeholder so that other work that depends
 on [Identity Credentials][IC] can proceed in parallel.
 
+## Requirements
+
+- npm v3+
+
 # Core Functionality
 
 This software enables a person to:
