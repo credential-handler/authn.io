@@ -1,4 +1,5 @@
-define(['jsonld', 'node-uuid', 'underscore'], function(jsonld, uuid, _) {
+define(['angular', 'jsonld', 'node-uuid', 'lodash'], function(
+  angular, jsonld, uuid, _) {
 
 'use strict';
 
@@ -11,6 +12,13 @@ function factory(
   self.did = null;
   self.display = {};
   var query = $location.search();
+  // TODO: might need to be `document.referrer`
+  var relyingParty = window.opener.location.href;
+  self.relyingParty = aioOperationService.parseDomain(relyingParty);
+  console.log('relyingParty', self.relyingParty);
+  self.op = query.op;
+
+  // TODO: handle invalid query
 
   var CRYPTO_KEY_REQUEST = {
     '@context': 'https://w3id.org/identity/v1',
@@ -19,10 +27,8 @@ function factory(
   };
 
   /**
-   * Resumes the flow by proxying a message. This function is called
-   * for a `get` operation after an identity is chosen and then again later
-   * to confirm credential transmission. It is called for a `store` operation
-   * after an identity is chosen.
+   * Resumes the flow by proxying a message. This function is called after an
+   * identity has been chosen.
    *
    * @param err an error if one occurred.
    * @param session set to the selected session if an identity chooser was used.
@@ -32,11 +38,36 @@ function factory(
       return brAlertService.add('error', err);
     }
     if(!self.isCryptoKeyRequest || !_isKeyDidBased(session)) {
-      if(query.op === 'get' && query.route === 'params') {
-        // go to Repo to handle query
-        return aioOperationService.navigateToIdp(session);
-      }
-      return aioOperationService.proxy(query);
+      // display Repo in iframe to handle request
+      self.repoUrl = session.idpConfig.credentialManagementUrl;
+      self.display.repo = true;
+      $scope.$apply();
+
+      // get iframe handle
+      var iframe = angular.element('iframe[name="repo"]')[0];
+      var repoHandle = iframe.contentWindow;
+
+      // delegate to Repo
+      return aioOperationService.delegateToRepo({
+        op: query.op,
+        params: self.params,
+        repoUrl: self.repoUrl,
+        repoHandle: repoHandle
+      }).catch(function(err) {
+        // TODO: need better error handling -- we need to send an error back
+        // to the relying party after displaying the problem on auth.io
+        brAlertService.add('error', err);
+        $scope.$apply();
+      }).then(function(result) {
+        if(result) {
+          // send result
+          return aioOperationService.sendResult(query.op, result, relyingParty);
+        }
+      }).catch(function(err) {
+        brAlertService.add('error', err);
+      }).then(function() {
+        $scope.$apply();
+      });
     }
 
     // special handle request for permanent public key credential:
@@ -65,7 +96,7 @@ function factory(
       privateKeyPem: session.privateKeyPem
     }).then(function(signed) {
       identity.credential[0]['@graph'] = signed;
-      return aioOperationService.sendResult(identity);
+      return aioOperationService.sendResult(query.op, identity);
     }).catch(function(err) {
       brAlertService.add('error', err);
     }).then(function() {
@@ -74,80 +105,67 @@ function factory(
   };
 
   /**
-   * Cancels sending any information to the consumer.
+   * Cancels sending any information to the relying party.
    */
   self.cancel = function() {
     aioOperationService.sendResult(null);
   };
 
-  // we're receiving parameters from the RP or sending them to the Repo
-  if(query.route === 'params') {
-    if(aioOperationService.needsParameters(query)) {
-      // flow is just starting, clear old session and get parameters from RP
-      aioIdentityService.clearSession();
-      return aioOperationService.getParameters(query).then(function(params) {
-        if(query.op === 'get') {
-          // special handle request for public key credential
-          self.isCryptoKeyRequest = _isCryptoKeyRequest(params.query);
-          // always show identity chooser for `get` requests even if a
-          // specific DID was requested
-          if('id' in params.query && params.query.id) {
-            self.did = params.query.id;
-          }
+  // caller is using credentials-polyfill < 0.8.x
+  if(window.frameElement) {
+    // handle legacy iframe proxy
+    return aioOperationService.proxy(query.route);
+  }
+
+  // caller is using credentials-polyfill >= 0.8.x
+
+  // flow is just starting, clear old session
+  aioIdentityService.clearSession();
+
+  // request parameters from RP
+  return aioOperationService.getParameters(relyingParty).then(function(params) {
+    self.params = params;
+
+    if(query.op === 'get') {
+      // special handle request for public key credential
+      self.isCryptoKeyRequest = _isCryptoKeyRequest(params.query);
+      // always show identity chooser for `get` requests even if a
+      // specific DID was requested
+      if('id' in params.query && params.query.id) {
+        self.did = params.query.id;
+      }
+      self.display.identityChooser = true;
+      $scope.$apply();
+      return;
+    }
+
+    if(query.op === 'store') {
+      // only show identity chooser if can't auto-authenticate as owner
+      var owner = _getOwnerId(params);
+      return aioIdentityService.createSession(owner)
+        .catch(function(err) {
+          // should not auto-authenticate, show identity chooser
+          self.did = owner;
           self.display.identityChooser = true;
+        }).then(function(session) {
+          if(session) {
+            // auto-authenticate worked, complete flow
+            self.complete(null, session);
+          }
+        }).then(function() {
           $scope.$apply();
-          return;
-        }
-
-        if(query.op === 'store') {
-          // only show identity chooser if can't auto-authenticate as owner
-          var owner = _getOwnerId(params);
-          return aioIdentityService.createSession(owner)
-            .catch(function(err) {
-              self.did = owner;
-              self.display.identityChooser = true;
-            }).then(function(session) {
-              if(session) {
-                self.display.redirectOrigin = query.origin;
-                // go to Repo to handle storage request
-                return aioOperationService.navigateToIdp(session);
-              }
-            }).then(function() {
-              $scope.$apply();
-            });
-        }
-
-        // TODO: handle invalid op
-      });
+        });
     }
 
-    // already have parameters, we're invisibly proxing them to the Repo
-    return aioOperationService.proxy(query);
-  }
-
-  // we're receiving the result from the Repo or sending it to the RP
-  if(query.route === 'result') {
-    if(aioOperationService.needsResult(query)) {
-      // no result received from Repo yet, we're invisibly proxying it and
-      // then we'll reload as the main application in the flow to do something
-      // further with the result
-      return aioOperationService.proxy(query);
-    }
-
-    // if this is a storage request or a crypto key get request, proxy the
-    // result w/o need to confirm
-    var result = aioOperationService.getResult(query);
-    if(query.op === 'store' || _isCryptoKeyRequest(result.params.query)) {
-      self.display.redirectOrigin = query.origin;
-      return aioOperationService.proxy(query);
-    }
-
-    // display confirmation page before transmitting result
-    self.display.confirm = true;
-    self.result = result;
-  }
-
-  // TODO: handle invalid query
+    // TODO: handle invalid op better, provide more guidance to user and
+    // send error back to relying party
+    throw new Error(
+      'The website you visited made an unsupported credential request. ' +
+      'Please contact their technical support team for assistance.');
+  }).catch(function(err) {
+    brAlertService.add('error', err);
+    $scope.$apply();
+  });
 
   function _getOwnerId(identity) {
     return identity.credential[0]['@graph'].claim.id;
@@ -160,7 +178,7 @@ function factory(
   function _isCryptoKeyRequest(query) {
     // query may have `id` set -- this doesn't affect whether or not it is
     // a crypto key request
-    query = _.extend({}, query);
+    query = _.assign({}, query);
     if('id' in query) {
       query.id = '';
     }

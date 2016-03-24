@@ -9,123 +9,289 @@ function factory($window, aioIdentityService) {
   var Router = navigator.credentials._Router;
 
   /**
-   * Returns true if the current operation's parameters need to be received.
-   *
-   * @return true if parameters need to be received, false if not.
-   */
-  service.needsParameters = function() {
-    return !_load('params');
-  };
-
-  /**
-   * Returns true if the current operation's result needs to be received.
-   *
-   * @return true if the result needs to be received, false if not.
-   */
-  service.needsResult = function() {
-    return !_load('result');
-  };
-
-  /**
    * Gets the parameters for the given operation. This method will
-   * request the parameters from the consumer.
+   * request the parameters from the relying party.
    *
-   * @param options the options to use:
-   *          op the name of the operation to receive parameters for.
-   *          origin the origin to receive from.
+   * @param origin the relying party's origin.
    *
    * @return a Promise that resolves to the parameters for the operation.
    */
-  service.getParameters = function(options) {
-    var router = new Router('params', options.origin);
-    return router.request(options.op).then(function(message) {
-      _save(options.op, 'params', message);
-      return message.data;
+  service.getParameters = function(origin) {
+    var router = new Router(service.parseOrigin(origin));
+    return router.request('params').then(function(message) {
+      // build params from message data
+      var params = {};
+      if(message.op === 'get') {
+        params.options = message.data;
+      } else {
+        params.options = {};
+        params.options.store = message.data;
+      }
+      return params;
     });
   };
 
   /**
-   * Gets the result for the given operation. This method will return
-   * the locally-cached result.
+   * Delegates the credential operation to the loaded credential repository.
    *
    * @param options the options to use:
-   *          op the name of the operation to get the result for.
-   *          origin the origin to receive from.
+   *          op the API operation.
+   *          params the parameters to send.
+   *          repoUrl the Repo URL.
+   *          repoHandle the handle to the repo iframe.
    *
-   * @return the destination origin, original params, and result for the
-   *   operation: `{origin: ..., params: ..., result: ...}`.
+   * @return a Promise that resolves to the result returned from the Repo.
    */
-  service.getResult = function(options) {
-    var rpMessage = _load('params');
-    var idpMessage = _load('result');
-    if(!rpMessage || !idpMessage || idpMessage.origin !== options.origin) {
-      throw new Error('Credential protocol error.');
+  service.delegateToRepo = function(options) {
+    var session = aioIdentityService.getSession();
+    var op = options.op;
+    var params = options.params;
+    var repoOrigin = service.parseOrigin(options.repoUrl);
+
+    /* use once credentials-polyfill < 0.8.x is no longer supported
+    // serve params to Repo
+    var router = new Router(repoOrigin, {handle: options.repoHandle});
+    return router.receive('request').then(function() {
+      return updateParameters();
+    }).then(function() {
+      router.send(op + '.params', params);
+    }).then(function() {
+      // receive result from Repo
+      return router.receive(op + '.result');
+    });*/
+
+    // the code path below includes backwards compatibility for potentially
+    // receiving from a legacy iframe proxy, remove once no longer supported:
+
+    // receive request for parameters
+    console.log('agent serving params...');
+    return receiveFromRepoOrProxy().then(function(e) {
+      // update parameters
+      return updateParameters().then(function() {
+        // send parameters
+        e.source.postMessage({type: op + '.params', data: params}, e.origin);
+
+        // receive result
+        console.log('agent receiving result...');
+        receiveFromRepoOrProxy().then(function(e) {
+          return e.data;
+        });
+      });
+    }).then(function(result) {
+      // if key registration was requested, check to see if it occurred
+      if(session.sysRegisterKey) {
+        // determine if session key was registered by finding matching key
+        // in a credential in the message with a new DID-based identifier
+        var matchingKey = _getCryptographicKeyFromCredential(
+          message.data, session.publicKey);
+        if(matchingKey.id !== session.publicKey.id &&
+          matchingKey.id.indexOf(session.id) === 0) {
+          // TODO: do a look up on the key to ensure it actually exists in DHT,
+          // don't assume
+
+          // key matches, make identity permanent
+          session.sysRegisterKey = false;
+          session.publicKey.id = matchingKey.id;
+          aioIdentityService.makePermanent(session.id, matchingKey.id);
+        }
+      }
+      return result;
+    });
+
+    function receiveFromRepoOrProxy() {
+      // will either receive a message from the repo (>= 0.8.x) or from
+      // the iframe auth.io proxy (< 0.8.x)
+      return new Promise(function(resolve, reject) {
+        // TODO: add timeout
+        window.addEventListener('message', listener);
+        function listener(e) {
+          console.log('receive listener', e);
+          console.log('got type', e.data.type);
+          console.log('e.source.origin', e.origin);
+          // validate message
+          if(typeof e.data === 'object' && e.data.type === 'request' &&
+            'data' in e.data) {
+            // ensure source is either `Repo window + Repo origin`
+            // or `this site`
+            if((e.source === options.repoHandle &&
+              e.origin === repoOrigin) ||
+              e.origin === window.location.origin) {
+              console.log('received data', e.data);
+              return resolve(e);
+            }
+          }
+          reject(new Error('Credential protocol error.'));
+        }
+      });
     }
-    return {
-      origin: rpMessage.origin,
-      params: rpMessage.data,
-      result: idpMessage.data
-    };
+
+    function updateParameters() {
+      // add a signed identity w/a cryptographic key credential to the
+      // parameters so the Repo can:
+      // 1. authenticate the user if necessary and if the key is not ephemeral
+      // 2. vouch for a public key by resigning the credential to prevent the
+      //   consumer from having to fetch it and leak information about
+      //   consumer+user interactions or to allow an ephemeral key to be used
+      // 3. register a new key on behalf of the user
+
+      var publicKey = {'@context': session['@context']};
+      publicKey.id = session.publicKey.id;
+      publicKey.type = session.publicKey.type;
+      publicKey.owner = session.publicKey.owner;
+      publicKey.publicKeyPem = session.publicKey.publicKeyPem;
+
+      // TODO: remove (only present for temporary backwards compatibility)
+      if(op === 'get') {
+        params.publicKey = publicKey;
+      }
+
+      // wrap public key in a CryptographicKeyCredential and sign it
+      var credential = {
+        '@context': 'https://w3id.org/identity/v1',
+        id: 'urn:ephemeral:' + uuid.v4(),
+        type: ['Credential', 'CryptographicKeyCredential'],
+        claim: {
+          id: publicKey.owner,
+          publicKey: publicKey
+        }
+      };
+      return aioIdentityService.sign({
+        document: credential,
+        publicKeyId: session.publicKey.id,
+        privateKeyPem: session.privateKeyPem,
+        domain: service.parseDomain(options.origin)
+      }).then(function(signed) {
+        // digitally-sign identity for use at IdP
+        var identity = {
+          '@context': 'https://w3id.org/identity/v1',
+          id: publicKey.owner,
+          type: 'Identity',
+          credential: {'@graph': signed}
+        };
+        return aioIdentityService.sign({
+          document: identity,
+          publicKeyId: session.publicKey.id,
+          privateKeyPem: session.privateKeyPem,
+          domain: service.parseDomain(options.origin)
+        });
+      }).then(function(signed) {
+        // TODO: remove if+else (only present for temporary backwards
+        // compatibility)
+        if(op === 'get') {
+          params.identity = signed;
+        } else {
+          params.identity = params.options.store;
+        }
+        params.options.identity = signed;
+        if(session.sysRegisterKey) {
+          params.options.registerKey = true;
+        }
+      });
+    }
   };
 
   /**
-   * Navigates to the IdP for the identity of the current session.
+   * Digitally-signs and sends an identity to the relying party as the result
+   * of an API operation.
    *
-   * @param session the session to use.
-   */
-  service.navigateToIdp = function(session) {
-    var idpUrl = session.idpConfig.credentialManagementUrl;
-    $window.location.replace(idpUrl);
-  };
-
-  /**
-   * Sends an identity as to the consumer as the result of a query.
-   *
+   * @param op the API operation.
    * @param identity the identity to send.
+   * @param origin the relying party's origin.
    */
-  service.sendResult = function(identity) {
-    var rpMessage = _load('params');
-    if(!rpMessage) {
-      throw new Error('Credential protocol error.');
-    }
-    _save('get', 'result', {origin: rpMessage.origin, data: identity});
-    service.proxy({
-      op: 'get',
-      route: 'result',
-      origin: rpMessage.origin
-    });
-  };
-
-  /**
-   * Proxies a message based on the given options. If there is a pending
-   * message in session storage for the given options, it will be sent, if
-   * there isn't, one will be received and stored and then navigation will
-   * occur to handle that message.
-   *
-   * This call handles messages when no user-mediation is required.
-   *
-   * @param options the options to use:
-   *          op the name of the operation to proxy messages for.
-   *          origin the origin to receive from.
-   */
-  service.proxy = function(options) {
-    var message = _load(options.route);
+  service.sendResult = function(op, identity, origin) {
+    // ensure session has not expired
     var session = aioIdentityService.getSession();
     if(!session) {
       // TODO: need better error handling for expired sessions
       // and for different scenarios (auth.io loaded invisibly vs. visibly)
-      var origin = (options.route === 'params' ?
-        options.origin : message.origin);
-      new Router(options.route, origin).send('error');
+      new Router(document.referrer, {handle: window.parent}).send('error');
       return;
     }
-    if(message) {
-      // TODO: need better error handling during _send, perhaps simply
-      // catch (and ensure _send returns a promise) and route an error
-      // new Router(options.route, origin).send('error');
-      return _send(session, message, options);
+
+    var router = new Router(service.parseOrigin(origin));
+
+    // flow complete, clear session
+    aioIdentityService.clearSession();
+
+    // sign identity and route it
+    return aioIdentityService.sign({
+      document: identity,
+      publicKeyId: session.publicKey.id,
+      privateKeyPem: session.privateKeyPem,
+      domain: service.parseDomain(origin)
+    }).then(function(signed) {
+      identity = signed;
+      router.send(op, 'result', identity);
+    });
+  };
+
+  /**
+   * **deprecated since credentials-polyfill 0.8.x**
+   *
+   * Proxies a message based on the given options.
+   *
+   * @param route either `params` or `result`.
+   */
+  service.proxy = function(route) {
+    // ensure session has not expired
+    var session = aioIdentityService.getSession();
+    if(!session) {
+      // TODO: need better error handling for expired sessions
+      // and for different scenarios (auth.io loaded invisibly vs. visibly)
+      new Router(document.referrer, {handle: window.parent}).send('error');
+      return;
     }
-    return _receive(options);
+
+    // define end points to proxy between
+    var agent = {origin: window.location.origin, handle: window.top};
+    var repo = {
+      origin: service.parseOrigin(session.idpConfig.credentialManagementUrl),
+      handle: window.parent
+    };
+    var order;
+    if(route === 'params') {
+      // proxy from agent -> repo
+      console.log('proxy params from credential agent to repo...');
+      order = [agent, repo];
+    } else {
+      // proxy from repo -> agent
+      console.log('proxy result from repo to credential agent...');
+      order = [repo, agent];
+    }
+    var router = new Router(order[0].origin, {handle: order[0].handle});
+    return router.request(route).then(function(message) {
+      router = new Router(order[1].origin, {handle: order[1].handle});
+      var split = message.type.split('.');
+      router.send(split[0], split[1], message.data);
+    });
+  };
+
+  /**
+   * Parses out the origin for the given URL.
+   *
+   * @param url the URL to parse.
+   *
+   * @return the URL's origin.
+   */
+  service.parseOrigin = function(url) {
+    // `URL` API not supported on IE, use DOM to parse URL
+    var parser = document.createElement('a');
+    parser.href = url;
+    return parser.protocol + '//' + parser.host;
+  };
+
+  /**
+   * Parses out the domain for the given URL.
+   *
+   * @param url the URL to parse.
+   *
+   * @return the URL's domain.
+   */
+  service.parseDomain = function(url) {
+    // `URL` API not supported on IE, use DOM to parse URL
+    var parser = document.createElement('a');
+    parser.href = url;
+    return parser.host;
   };
 
   // TODO: document helpers
@@ -135,7 +301,7 @@ function factory($window, aioIdentityService) {
 
     if(options.route === 'params') {
       // credential agent sending to IdP...
-      if(_parseOrigin(idpUrl) !== options.origin) {
+      if(service.parseOrigin(idpUrl) !== options.origin) {
         throw new Error('Origin mismatch.');
       }
       var router = new Router(options.route, options.origin);
@@ -184,7 +350,7 @@ function factory($window, aioIdentityService) {
         document: credential,
         publicKeyId: session.publicKey.id,
         privateKeyPem: session.privateKeyPem,
-        domain: _parseDomain(options.origin)
+        domain: service.parseDomain(options.origin)
       }).then(function(signed) {
         // digitally-sign identity for use at IdP
         var identity = {
@@ -197,7 +363,7 @@ function factory($window, aioIdentityService) {
           document: identity,
           publicKeyId: session.publicKey.id,
           privateKeyPem: session.privateKeyPem,
-          domain: _parseDomain(options.origin)
+          domain: service.parseDomain(options.origin)
         });
       }).then(function(signed) {
         // TODO: remove if+else (only present for temporary backwards
@@ -253,7 +419,7 @@ function factory($window, aioIdentityService) {
       document: message.data,
       publicKeyId: session.publicKey.id,
       privateKeyPem: session.privateKeyPem,
-      domain: _parseDomain(rpMessage.origin)
+      domain: service.parseDomain(rpMessage.origin)
     }).then(function(signed) {
       message.data = signed;
       router.send(message.op, message.data);
@@ -289,20 +455,6 @@ function factory($window, aioIdentityService) {
       }
     }
     return item;
-  }
-
-  function _parseOrigin(url) {
-    // `URL` API not supported on IE, use DOM to parse URL
-    var parser = document.createElement('a');
-    parser.href = url;
-    return parser.protocol + '//' + parser.host;
-  }
-
-  function _parseDomain(url) {
-    // `URL` API not supported on IE, use DOM to parse URL
-    var parser = document.createElement('a');
-    parser.href = url;
-    return parser.host;
   }
 
   function _getCryptographicKeyFromCredential(identity, keyToMatch) {

@@ -1,7 +1,4 @@
-define([
-  'underscore',
-  'node-uuid'
-], function(_, uuid) {
+define(['lodash', 'node-uuid'], function(_, uuid) {
 
 'use strict';
 
