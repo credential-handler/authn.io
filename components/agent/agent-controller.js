@@ -12,11 +12,12 @@ function factory(
   self.did = null;
   self.display = {};
   var query = $location.search();
+  self.op = query.op;
+
   // TODO: might need to be `document.referrer`
   var relyingParty = window.opener.location.href;
   self.relyingParty = aioOperationService.parseDomain(relyingParty);
   console.log('relyingParty', self.relyingParty);
-  self.op = query.op;
 
   // TODO: handle invalid query
 
@@ -37,7 +38,12 @@ function factory(
     if(err) {
       return brAlertService.add('error', err);
     }
+
+    // get result (from either Repo or ourselves)
+    var getResult;
     if(!self.isCryptoKeyRequest || !_isKeyDidBased(session)) {
+      // need Repo to fulfill the request...
+
       // display Repo in iframe to handle request
       self.repoUrl = session.idpConfig.credentialManagementUrl;
       self.display.repo = true;
@@ -48,56 +54,46 @@ function factory(
       var repoHandle = iframe.contentWindow;
 
       // delegate to Repo
-      return aioOperationService.delegateToRepo({
+      getResult = aioOperationService.delegateToRepo({
         op: query.op,
         params: self.params,
         repoUrl: self.repoUrl,
         repoHandle: repoHandle
-      }).catch(function(err) {
-        // TODO: need better error handling -- we need to send an error back
-        // to the relying party after displaying the problem on auth.io
-        brAlertService.add('error', err);
-        $scope.$apply();
-      }).then(function(result) {
-        if(result) {
-          // send result
-          return aioOperationService.sendResult(query.op, result, relyingParty);
+      });
+    } else {
+      // can special handle request for permanent public key credential
+      // on our own (no Repo required)...
+
+      // clone identity template
+      var identity = JSON.parse(JSON.stringify(
+        config.data.identityWithCryptographicKeyCredentialTemplate));
+      identity.id = session.id;
+      var credential = identity.credential[0]['@graph'];
+      credential.id = 'urn:ephemeral:' + uuid.v4();
+      credential.claim = {
+        id: session.id,
+        publicKey: {
+          id: session.publicKey.id,
+          owner: session.publicKey.owner,
+          publicKeyPem: session.publicKey.publicKeyPem
         }
-      }).catch(function(err) {
-        brAlertService.add('error', err);
-      }).then(function() {
-        $scope.$apply();
+      };
+      getResult = aioIdentityService.sign({
+        document: credential,
+        publicKeyId: session.publicKey.id,
+        privateKeyPem: session.privateKeyPem
+      }).then(function(signed) {
+        identity.credential[0]['@graph'] = signed;
+        return identity;
       });
     }
 
-    // special handle request for permanent public key credential:
-
-    // TODO: this could be potentially optimized away by reusing the
-    // identity created during aioOperationService.sendResult() that is
-    // attached to the message data
-
-    // clone template
-    var identity = JSON.parse(JSON.stringify(
-      config.data.identityWithCryptographicKeyCredentialTemplate));
-    identity.id = session.id;
-    var credential = identity.credential[0]['@graph'];
-    credential.id = 'urn:ephemeral:' + uuid.v4();
-    credential.claim = {
-      id: session.id,
-      publicKey: {
-        id: session.publicKey.id,
-        owner: session.publicKey.owner,
-        publicKeyPem: session.publicKey.publicKeyPem
-      }
-    };
-    aioIdentityService.sign({
-      document: credential,
-      publicKeyId: session.publicKey.id,
-      privateKeyPem: session.privateKeyPem
-    }).then(function(signed) {
-      identity.credential[0]['@graph'] = signed;
-      return aioOperationService.sendResult(query.op, identity);
+    // send result to RP
+    getResult.then(function(result) {
+      return aioOperationService.sendResult(query.op, result, relyingParty);
     }).catch(function(err) {
+      // TODO: need better error handling -- we need to send an error back
+      // to the relying party after displaying the problem on auth.io
       brAlertService.add('error', err);
     }).then(function() {
       $scope.$apply();
@@ -112,6 +108,7 @@ function factory(
   };
 
   // caller is using credentials-polyfill < 0.8.x
+  // FIXME: remove once support for < 0.8.x dropped
   if(window.frameElement) {
     // handle legacy iframe proxy
     return aioOperationService.proxy(query.route);
