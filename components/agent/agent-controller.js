@@ -33,7 +33,7 @@ function factory(
     }
     if(!self.isCryptoKeyRequest || !_isKeyDidBased(session)) {
       if(query.op === 'get' && query.route === 'params') {
-        // go to IdP to handle query
+        // go to Repo to handle query
         return aioOperationService.navigateToIdp(session);
       }
       return aioOperationService.proxy(query);
@@ -80,7 +80,7 @@ function factory(
     aioOperationService.sendResult(null);
   };
 
-  // we're receiving parameters from the RP or sending them to the IdP
+  // we're receiving parameters from the RP or sending them to the Repo
   if(query.route === 'params') {
     if(aioOperationService.needsParameters(query)) {
       // flow is just starting, clear old session and get parameters from RP
@@ -109,7 +109,7 @@ function factory(
             }).then(function(session) {
               if(session) {
                 self.display.redirectOrigin = query.origin;
-                // go to IdP to handle storage request
+                // go to Repo to handle storage request
                 return aioOperationService.navigateToIdp(session);
               }
             }).then(function() {
@@ -121,14 +121,14 @@ function factory(
       });
     }
 
-    // already have parameters, we're invisibly proxing them to the IdP
+    // already have parameters, we're invisibly proxing them to the Repo
     return aioOperationService.proxy(query);
   }
 
-  // we're receiving the result from the IdP or sending it to the RP
+  // we're receiving the result from the Repo or sending it to the RP
   if(query.route === 'result') {
     if(aioOperationService.needsResult(query)) {
-      // no result received from IdP yet, we're invisibly proxying it and
+      // no result received from Repo yet, we're invisibly proxying it and
       // then we'll reload as the main application in the flow to do something
       // further with the result
       return aioOperationService.proxy(query);
