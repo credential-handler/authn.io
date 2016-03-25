@@ -3,7 +3,7 @@ define(['jsonld', 'node-uuid'], function(jsonld, uuid) {
 'use strict';
 
 /* @ngInject */
-function factory($window, aioIdentityService) {
+function factory($document, $window, aioIdentityService) {
   var service = {};
 
   var Router = navigator.credentials._Router;
@@ -12,13 +12,15 @@ function factory($window, aioIdentityService) {
    * Gets the parameters for the given operation. This method will
    * request the parameters from the relying party.
    *
-   * @param origin the relying party's origin.
+   * @param options the options to use:
+   *          op the name of the API operation.
+   *          origin the relying party's origin.
    *
    * @return a Promise that resolves to the parameters for the operation.
    */
-  service.getParameters = function(origin) {
-    var router = new Router(service.parseOrigin(origin));
-    return router.request('params').then(function(message) {
+  service.getParameters = function(options) {
+    var router = new Router(service.parseOrigin(options.origin));
+    return router.request(options.op, 'params').then(function(message) {
       // build params from message data
       var params = {};
       if(message.op === 'get') {
@@ -35,7 +37,7 @@ function factory($window, aioIdentityService) {
    * Delegates the credential operation to the loaded credential repository.
    *
    * @param options the options to use:
-   *          op the API operation.
+   *          op the name of the API operation.
    *          params the parameters to send.
    *          repoUrl the Repo URL.
    *          repoHandle the handle to the repo iframe.
@@ -73,8 +75,8 @@ function factory($window, aioIdentityService) {
 
         // receive result
         console.log('agent receiving result...');
-        receiveFromRepoOrProxy().then(function(e) {
-          return e.data;
+        return receiveFromRepoOrProxy().then(function(e) {
+          return e.data.data;
         });
       });
     }).then(function(result) {
@@ -95,12 +97,15 @@ function factory($window, aioIdentityService) {
           aioIdentityService.makePermanent(session.id, matchingKey.id);
         }
       }
+      console.log('result', result);
       return result;
     });
 
     function receiveFromRepoOrProxy() {
       // will either receive a message from the repo (>= 0.8.x) or from
       // the iframe auth.io proxy (< 0.8.x)
+      var expect = [
+        'request', 'get.params', 'store.params', 'get.result', 'store.result'];
       return new Promise(function(resolve, reject) {
         // TODO: add timeout
         $window.addEventListener('message', listener);
@@ -109,7 +114,8 @@ function factory($window, aioIdentityService) {
           console.log('got type', e.data.type);
           console.log('e.source.origin', e.origin);
           // validate message
-          if(typeof e.data === 'object' && e.data.type === 'request' &&
+          if(typeof e.data === 'object' &&
+            expect.indexOf(e.data.type) !== -1 &&
             'data' in e.data) {
             // ensure source is either `Repo window + Repo origin`
             // or `this site`
@@ -155,13 +161,14 @@ function factory($window, aioIdentityService) {
           publicKey: publicKey
         }
       };
+      // digitally-sign credential for use at Repo
       return aioIdentityService.sign({
         document: credential,
         publicKeyId: session.publicKey.id,
         privateKeyPem: session.privateKeyPem,
-        domain: service.parseDomain(options.origin)
+        domain: service.parseDomain(options.repoUrl)
       }).then(function(signed) {
-        // digitally-sign identity for use at IdP
+        // digitally-sign identity for use at Repo
         var identity = {
           '@context': 'https://w3id.org/identity/v1',
           id: publicKey.owner,
@@ -172,7 +179,7 @@ function factory($window, aioIdentityService) {
           document: identity,
           publicKeyId: session.publicKey.id,
           privateKeyPem: session.privateKeyPem,
-          domain: service.parseDomain(options.origin)
+          domain: service.parseDomain(options.repoUrl)
         });
       }).then(function(signed) {
         // TODO: remove if+else (only present for temporary backwards
@@ -194,7 +201,7 @@ function factory($window, aioIdentityService) {
    * Digitally-signs and sends an identity to the relying party as the result
    * of an API operation.
    *
-   * @param op the API operation.
+   * @param op the name of the API operation.
    * @param identity the identity to send.
    * @param origin the relying party's origin.
    */
@@ -213,6 +220,12 @@ function factory($window, aioIdentityService) {
     // flow complete, clear session
     aioIdentityService.clearSession();
 
+    if(!identity) {
+      // send null
+      router.send(op, 'result', null);
+      return;
+    }
+
     // sign identity and route it
     return aioIdentityService.sign({
       document: identity,
@@ -230,15 +243,16 @@ function factory($window, aioIdentityService) {
    *
    * Proxies a message based on the given options.
    *
+   * @param op the name of the API operation.
    * @param route either `params` or `result`.
    */
-  service.proxy = function(route) {
+  service.proxy = function(op, route) {
     // ensure session has not expired
     var session = aioIdentityService.getSession();
     if(!session) {
       // TODO: need better error handling for expired sessions
       // and for different scenarios (auth.io loaded invisibly vs. visibly)
-      new Router(document.referrer, {handle: $window.parent}).send('error');
+      new Router($document.referrer, {handle: $window.parent}).send('error');
       return;
     }
 
@@ -259,7 +273,7 @@ function factory($window, aioIdentityService) {
       order = [repo, agent];
     }
     var router = new Router(order[0].origin, {handle: order[0].handle});
-    return router.request(route).then(function(message) {
+    return router.request(op, route).then(function(message) {
       router = new Router(order[1].origin, {handle: order[1].handle});
       var split = message.type.split('.');
       router.send(split[0], split[1], message.data);

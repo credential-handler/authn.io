@@ -1,15 +1,16 @@
 <div class="row" ng-controller="aioAgentController as model">
+  <span><button ng-click="model.cancel()" type="button" class="btn btn-primary">Cancel</button>
+    <strong>{{model.relyingParty}}</strong> has requested <span ng-show="model.op === 'store'">to store </span> credentials.
+  </span>
+  <hr/>
   <aio-identity-chooser ng-if="model.display.identityChooser"
     aio-identity-chooser-filter="model.did"
     aio-identity-chooser-callback="model.complete(err, session)">
   </aio-identity-chooser>
   <!-- TODO: fix style -->
   <div ng-if="model.display.repo">
-    <p><strong>{{model.relyingParty}}</strong> has requested <span ng-show="model.op === 'store'">to store </span> credentials.</p>
-    <button ng-click="model.cancel()" type="button" class="btn btn-primary">Cancel</button>
     <div style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;">
       <iframe name="repo" ng-src="{{model.repoUrl}}"
-        scrolling="no"
-        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: #ddd 1px solid;"></iframe>
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: #ddd 1px solid; overflow-x: hidden"></iframe>
     </div>
 </div>

@@ -5,8 +5,8 @@ define(['angular', 'jsonld', 'node-uuid', 'lodash'], function(
 
 /* @ngInject */
 function factory(
-  $location, $scope, aioIdentityService, aioOperationService,
-  brAlertService, config) {
+  $document, $location, $sce, $scope, $window,
+  aioIdentityService, aioOperationService, brAlertService, config) {
   var self = this;
   self.isCryptoKeyRequest = false;
   self.did = null;
@@ -14,8 +14,7 @@ function factory(
   var query = $location.search();
   self.op = query.op;
 
-  // TODO: might need to be `document.referrer`
-  var relyingParty = window.opener.location.href;
+  var relyingParty = query.origin;
   self.relyingParty = aioOperationService.parseDomain(relyingParty);
   console.log('relyingParty', self.relyingParty);
 
@@ -45,7 +44,9 @@ function factory(
       // need Repo to fulfill the request...
 
       // display Repo in iframe to handle request
-      self.repoUrl = session.idpConfig.credentialManagementUrl;
+      self.repoUrl = $sce.trustAsResourceUrl(
+        session.idpConfig.credentialManagementUrl);
+      self.display.identityChooser = false;
       self.display.repo = true;
       $scope.$apply();
 
@@ -57,7 +58,7 @@ function factory(
       getResult = aioOperationService.delegateToRepo({
         op: query.op,
         params: self.params,
-        repoUrl: self.repoUrl,
+        repoUrl: session.idpConfig.credentialManagementUrl,
         repoHandle: repoHandle
       });
     } else {
@@ -90,6 +91,7 @@ function factory(
 
     // send result to RP
     getResult.then(function(result) {
+      console.log('send result', result);
       return aioOperationService.sendResult(query.op, result, relyingParty);
     }).catch(function(err) {
       // TODO: need better error handling -- we need to send an error back
@@ -104,14 +106,14 @@ function factory(
    * Cancels sending any information to the relying party.
    */
   self.cancel = function() {
-    aioOperationService.sendResult(null);
+    aioOperationService.sendResult(self.op, null, relyingParty);
   };
 
   // caller is using credentials-polyfill < 0.8.x
   // FIXME: remove once support for < 0.8.x dropped
-  if(window.frameElement) {
+  if($window.self !== $window.top) {
     // handle legacy iframe proxy
-    return aioOperationService.proxy(query.route);
+    return aioOperationService.proxy(query.op, query.route);
   }
 
   // caller is using credentials-polyfill >= 0.8.x
@@ -120,16 +122,20 @@ function factory(
   aioIdentityService.clearSession();
 
   // request parameters from RP
-  return aioOperationService.getParameters(relyingParty).then(function(params) {
+  return aioOperationService.getParameters({
+    op: self.op,
+    origin: relyingParty
+  }).then(function(params) {
     self.params = params;
+    var options = params.options;
 
     if(query.op === 'get') {
       // special handle request for public key credential
-      self.isCryptoKeyRequest = _isCryptoKeyRequest(params.query);
+      self.isCryptoKeyRequest = _isCryptoKeyRequest(options.query);
       // always show identity chooser for `get` requests even if a
       // specific DID was requested
-      if('id' in params.query && params.query.id) {
-        self.did = params.query.id;
+      if('id' in options.query && options.query.id) {
+        self.did = options.query.id;
       }
       self.display.identityChooser = true;
       $scope.$apply();
@@ -138,7 +144,7 @@ function factory(
 
     if(query.op === 'store') {
       // only show identity chooser if can't auto-authenticate as owner
-      var owner = _getOwnerId(params);
+      var owner = _getOwnerId(options.store);
       return aioIdentityService.createSession(owner)
         .catch(function(err) {
           // should not auto-authenticate, show identity chooser
