@@ -4,7 +4,8 @@ define([], function() {
 
 /* @ngInject */
 function factory(
-  $location, $scope, $timeout, aioIdentityService, brAlertService) {
+  $location, $scope, $timeout,
+  aioIdentityService, aioOperationService, brAlertService) {
   var self = this;
   self.email = '';
   self.passphraseConfirmation = '';
@@ -18,10 +19,10 @@ function factory(
   // get register parameters
   self.loading = true;
   var origin = $location.search().origin;
-  var router = new navigator.credentials._Router('params', origin);
-  router.request('registerDid').then(function(message) {
+  var router = new navigator.credentials._Router(origin);
+  router.request('registerDid', 'params').then(function(message) {
     // TODO: handle other parameters
-    self.origin = message.origin;
+    self.domain = aioOperationService.parseDomain(message.origin);
     self.idp = message.data.idp;
   }).catch(function(err) {
     brAlertService.add('error', err);
@@ -52,8 +53,8 @@ function factory(
       scope: $scope
     }).then(function(registrationInfo) {
       self.registering = false;
-      var router = new navigator.credentials._Router('result', origin);
-      router.send('registerDid', registrationInfo.didDocument);
+      var router = new navigator.credentials._Router(origin);
+      router.send('registerDid', 'result', registrationInfo.didDocument);
     }).catch(function(err) {
       self.generating = false;
       self.registering = false;

@@ -1,11 +1,10 @@
-define(['angular', 'jsonld', 'node-uuid', 'lodash'], function(
-  angular, jsonld, uuid, _) {
+define(['angular', 'node-uuid', 'lodash'], function(angular, uuid, _) {
 
 'use strict';
 
 /* @ngInject */
 function factory(
-  $document, $location, $sce, $scope, $window,
+  $location, $sce, $scope, $window,
   aioIdentityService, aioOperationService, brAlertService, config) {
   var self = this;
   self.isCryptoKeyRequest = false;
