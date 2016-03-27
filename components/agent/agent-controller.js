@@ -17,6 +17,8 @@ function factory(
   self.relyingParty = aioOperationService.parseDomain(relyingParty);
   console.log('relyingParty', self.relyingParty);
 
+  var resultSent = false;
+
   // TODO: handle invalid query
 
   var CRYPTO_KEY_REQUEST = {
@@ -90,8 +92,7 @@ function factory(
 
     // send result to RP
     getResult.then(function(result) {
-      console.log('send result', result);
-      return aioOperationService.sendResult(query.op, result, relyingParty);
+      return _sendResult(result);
     }).catch(function(err) {
       // TODO: need better error handling -- we need to send an error back
       // to the relying party after displaying the problem on auth.io
@@ -105,7 +106,7 @@ function factory(
    * Cancels sending any information to the relying party.
    */
   self.cancel = function() {
-    aioOperationService.sendResult(self.op, null, relyingParty);
+    _sendResult(null);
   };
 
   // caller is using credentials-polyfill < 0.8.x
@@ -116,6 +117,14 @@ function factory(
   }
 
   // caller is using credentials-polyfill >= 0.8.x
+
+  $window.addEventListener('beforeunload', function() {
+    // TODO: this will handle case where auth.io has loaded and the user
+    // closes the window, but in the case that the user closes the window
+    // before auth.io has loaded, the polyfill will get stuck waiting for a
+    // response -- this needs a remedy in credentials-polyfill
+    _sendResult(null);
+  });
 
   // flow is just starting, clear old session
   aioIdentityService.clearSession();
@@ -185,6 +194,14 @@ function factory(
       query.id = '';
     }
     return _.isEqual(query, CRYPTO_KEY_REQUEST);
+  }
+
+  function _sendResult(result) {
+    if(resultSent) {
+      return;
+    }
+    resultSent = true;
+    return aioOperationService.sendResult(self.op, result, relyingParty);
   }
 }
 
