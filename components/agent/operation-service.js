@@ -206,16 +206,17 @@ function factory($document, $window, aioIdentityService) {
    * @param origin the relying party's origin.
    */
   service.sendResult = function(op, identity, origin) {
+    var router = new Router(service.parseOrigin(origin));
+
     // ensure session has not expired
     var session = aioIdentityService.getSession();
-    if(!session) {
+    if(identity && !session) {
       // TODO: need better error handling for expired sessions
       // and for different scenarios (auth.io loaded invisibly vs. visibly)
-      new Router(document.referrer, {handle: $window.parent}).send('error');
+      router.send(op, 'error', null);
       return;
     }
 
-    var router = new Router(service.parseOrigin(origin));
 
     // flow complete, clear session
     aioIdentityService.clearSession();
@@ -252,7 +253,8 @@ function factory($document, $window, aioIdentityService) {
     if(!session) {
       // TODO: need better error handling for expired sessions
       // and for different scenarios (auth.io loaded invisibly vs. visibly)
-      new Router($document.referrer, {handle: $window.parent}).send('error');
+      new Router($document.referrer, {handle: $window.parent}).send(
+        op, 'error', null);
       return;
     }
 
