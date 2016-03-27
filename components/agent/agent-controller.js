@@ -15,7 +15,6 @@ function factory(
 
   var relyingParty = query.origin;
   self.relyingParty = aioOperationService.parseDomain(relyingParty);
-  console.log('relyingParty', self.relyingParty);
 
   var resultSent = false;
 

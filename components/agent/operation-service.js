@@ -66,7 +66,6 @@ function factory($document, $window, aioIdentityService) {
     // receiving from a legacy iframe proxy, remove once no longer supported:
 
     // receive request for parameters
-    console.log('agent serving params...');
     return receiveFromRepoOrProxy().then(function(e) {
       // update parameters
       return updateParameters().then(function() {
@@ -74,7 +73,6 @@ function factory($document, $window, aioIdentityService) {
         e.source.postMessage({type: op + '.params', data: params}, e.origin);
 
         // receive result
-        console.log('agent receiving result...');
         return receiveFromRepoOrProxy().then(function(e) {
           return e.data.data;
         });
@@ -97,7 +95,6 @@ function factory($document, $window, aioIdentityService) {
           aioIdentityService.makePermanent(session.id, matchingKey.id);
         }
       }
-      console.log('result', result);
       return result;
     });
 
@@ -110,9 +107,6 @@ function factory($document, $window, aioIdentityService) {
         // TODO: add timeout
         $window.addEventListener('message', listener);
         function listener(e) {
-          console.log('receive listener', e);
-          console.log('got type', e.data.type);
-          console.log('e.source.origin', e.origin);
           // validate message
           if(typeof e.data === 'object' &&
             expect.indexOf(e.data.type) !== -1 &&
@@ -122,7 +116,6 @@ function factory($document, $window, aioIdentityService) {
             if((e.source === options.repoHandle &&
               e.origin === repoOrigin) ||
               e.origin === $window.location.origin) {
-              console.log('received data', e.data);
               return resolve(e);
             }
           }
@@ -267,11 +260,9 @@ function factory($document, $window, aioIdentityService) {
     var order;
     if(route === 'params') {
       // proxy from agent -> repo
-      console.log('proxy params from credential agent to repo...');
       order = [agent, repo];
     } else {
       // proxy from repo -> agent
-      console.log('proxy result from repo to credential agent...');
       order = [repo, agent];
     }
     var router = new Router(order[0].origin, {handle: order[0].handle});
