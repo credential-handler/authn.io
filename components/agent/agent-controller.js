@@ -119,10 +119,6 @@ function factory(
   // caller is using credentials-polyfill >= 0.8.x
 
   $window.addEventListener('beforeunload', function() {
-    // TODO: this will handle case where auth.io has loaded and the user
-    // closes the window, but in the case that the user closes the window
-    // before auth.io has loaded, the polyfill will get stuck waiting for a
-    // response -- this needs a remedy in credentials-polyfill
     _sendResult(null);
   });
 
