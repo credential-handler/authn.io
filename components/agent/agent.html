@@ -1,17 +1,24 @@
 <div class="row" ng-controller="aioAgentController as model">
-  <br/>
-  <span><button ng-click="model.cancel()" type="button" class="btn btn-primary">Cancel</button>
-    <strong>{{model.relyingParty}}</strong> has requested <span ng-show="model.op === 'store'">to store </span> credentials.
-  </span>
-  <hr/>
-  <aio-identity-chooser ng-if="model.display.identityChooser"
-    aio-identity-chooser-filter="model.did"
-    aio-identity-chooser-callback="model.complete(err, session)">
-  </aio-identity-chooser>
-  <!-- TODO: fix style -->
-  <div ng-if="model.display.repo">
-    <div style="position: relative; padding-bottom: 100%; height: 0; overflow: hidden;">
-      <iframe name="repo" ng-src="{{model.repoUrl}}" frameborder="0" scrolling="no"
-        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden"></iframe>
+  <div class="aio-op-header">
+    <div class="callout callout-primary">
+      <h4>
+        Credential {{(model.op === 'store' && 'Storage') || ''}} Request <small>(<a ng-click="model.cancel()">Cancel</a>)</small>
+      </h4>
+      <p>
+        <strong>{{model.relyingParty}}</strong> has requested <span ng-show="model.op === 'store'">to store </span> credentials.
+      </p>
     </div>
+  </div>
+  <div class="aio-op-content">
+    <aio-identity-chooser ng-if="model.display.identityChooser"
+      aio-identity-chooser-filter="model.did"
+      aio-identity-chooser-callback="model.complete(err, session)">
+    </aio-identity-chooser>
+    <div ng-if="model.display.repo">
+      <div class="aio-repo-iframe-wrapper">
+        <iframe name="repo" ng-src="{{model.repoUrl}}" class="aio-repo-iframe"
+          frameborder="0" scrolling="no"></iframe>
+      </div>
+    </div>
+  </div>
 </div>

@@ -1,0 +1,44 @@
+/*
+ * Authorization.io style
+ *
+ * Copyright (c) 2016 Digital Bazaar, Inc. All rights reserved.
+ */
+@aio-op-header-margin: (@line-height-computed / 2);
+
+.aio-op-header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: @zindex-navbar;
+  background-color: @body-bg;
+}
+
+.aio-op-header .callout {
+  margin-top: @aio-op-header-margin;
+  margin-bottom: @aio-op-header-margin;
+}
+
+.aio-op-content {
+  padding-top: (
+    @callout-padding * 2 +
+    1 * 2 +                         /* callout border is hard-coded to 1px */
+    @aio-op-header-margin * 2 +     /* callout margins */
+    @line-height-computed + 5 +     /* callout header */
+    @line-height-computed);         /* callout content */
+}
+
+.aio-repo-iframe-wrapper {
+  position: relative;
+  padding-bottom: 100%;
+  height: 0;
+  overflow: hidden;
+}
+
+.aio-repo-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
