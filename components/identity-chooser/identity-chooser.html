@@ -14,21 +14,16 @@
     <ul ng-hide="ctrl.loading" class="list-unstyled">
       <li class="br-item-hover well" ng-repeat="(id, identity) in ctrl.identities"
         ng-click="ctrl.select(id)">
-        <div class="container">
-          <div class="row">
-            <div class="col-sm-6" style="height 80px; padding: 10px;">
-              <i class="fa fa-user fa-3x pull-left"></i>
-              <div class="text" style="margin-left: 60px;">
-                <strong>{{identity.label}}</strong>
-                <h6 class="text-muted" style="margin-top: 4px; margin-bottom: 4px;">Managed by {{identity.sysRepoDomain || 'Loading repository information...'}}</h6>
-              </div>
+        <div class="row">
+          <!-- TODO: move style to less -->
+          <div class="col-sm-12" style="height 80px; padding: 10px;">
+            <i class="fa fa-user fa-3x pull-left" style="padding-left: 8px"></i>
+            <div class="text" style="margin-left: 60px;">
+              <strong>{{identity.label}}</strong>
+              <h6 class="text-muted" style="margin-top: 4px; margin-bottom: 4px;">Managed by {{identity.sysRepoDomain || 'Loading repository information...'}}</h6>
             </div>
           </div>
         </div>
-        <!-- <div>
-          <i class="col-sm-offset-1 fa fa-user fa-2x"></i>
-          <span class="col-sm-offset-2"><strong>{{identity.label}}</strong></span>
-        </div> -->
         <div ng-if="ctrl.display.loginForm && ctrl.selected === id">
           <hr/>
           <form class="form-horizontal" name="loginForm"
