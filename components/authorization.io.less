@@ -4,6 +4,14 @@
  * Copyright (c) 2016 Digital Bazaar, Inc. All rights reserved.
  */
 @aio-op-header-margin: (@line-height-computed / 2);
+@aio-op-content-padding: @aio-op-header-margin;
+/* callout border is hard-coded to 1px, add margins, header, content */
+@aio-op-content-padding-top: (
+  @callout-padding * 2 +
+  1 * 2 +
+  @aio-op-header-margin * 2 +
+  @line-height-computed + 5 +
+  @line-height-computed);
 
 .aio-op-header-wrapper {
   position: absolute;
@@ -30,12 +38,12 @@
 }
 
 .aio-op-content {
-  padding-top: (
-    @callout-padding * 2 +
-    1 * 2 +                         /* callout border is hard-coded to 1px */
-    @aio-op-header-margin * 2 +     /* callout margins */
-    @line-height-computed + 5 +     /* callout header */
-    @line-height-computed);         /* callout content */
+  padding: @aio-op-content-padding;
+  padding-top: (@aio-op-content-padding-top + 30);
+
+  @media (min-width: @screen-sm-min) {
+    padding: @aio-op-content-padding-top 0 0 0;
+  }
 }
 
 .aio-repo-iframe-wrapper {
