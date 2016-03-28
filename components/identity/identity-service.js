@@ -370,18 +370,43 @@ function factory($http) {
    */
   service.getIdPConfig = function(id) {
     // get user's DID document
-    return Promise.resolve($http.get('/dids/' + id)).then(function(response) {
+    return service.getDidDocument(id).then(function(didDocument) {
+      // FIXME: don't assume IdP uses a DID, may use HTTPS
       // get IdP's DID document
-      var didDocument = response.data;
-      return Promise.resolve($http.get('/dids/' + didDocument.idp));
-    }).then(function(response) {
-      var idpDidDocument = response.data;
+      return service.getDidDocument(didDocument.idp);
+    }).then(function(idpDidDocument) {
       // get the IdP's config
       // TODO: hit `url` directly with JSON-LD request instead of using
       // .well-known
       var url = idpDidDocument.url + '/.well-known/identity';
       return Promise.resolve($http.get(url));
     }).then(function(response) {
+      return response.data;
+    });
+  };
+
+  /**
+   * Gets an identity's DID document.
+   *
+   * @param id the identity's ID (DID).
+   *
+   * @return a Promise that resolves to the identity's DID document.
+   */
+  service.getDidDocument = function(id) {
+    return Promise.resolve($http.get('/dids/' + id)).then(function(response) {
+      return response.data;
+    });
+  };
+
+  /**
+   * Gets an identity's DID document.
+   *
+   * @param id the identity's ID (DID).
+   *
+   * @return a Promise that resolves to the identity's DID document.
+   */
+  service.getDidDocument = function(id) {
+    return Promise.resolve($http.get('/dids/' + id)).then(function(response) {
       return response.data;
     });
   };

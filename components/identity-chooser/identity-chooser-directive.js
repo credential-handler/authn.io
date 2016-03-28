@@ -1,9 +1,9 @@
-define([], function() {
+define(['angular'], function(angular) {
 
 'use strict';
 
 /* @ngInject */
-function factory(aioIdentityService, brAlertService) {
+function factory(aioIdentityService, aioOperationService, brAlertService) {
   return {
     restrict: 'E',
     scope: {
@@ -78,6 +78,20 @@ function factory(aioIdentityService, brAlertService) {
           ctrl.identities[identity.id] = identity;
         }
       }
+      angular.forEach(ctrl.identities, function(identity, id) {
+        aioIdentityService.getDidDocument(id).then(function(doc) {
+          return aioIdentityService.getDidDocument(doc.idp);
+        }).then(function(doc) {
+          ctrl.identities[id].sysRepoDomain =
+            aioOperationService.parseDomain(doc.url);
+          // TODO: check repo URL for a label to use instead of the domain
+        }).catch(function(err) {
+          ctrl.identities[id].sysRepoDomain =
+            'Error: Could not find repository domain.';
+        }).then(function() {
+          scope.$apply();
+        });
+      });
     }
   }
 }
