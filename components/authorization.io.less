@@ -5,6 +5,12 @@
  */
 @aio-op-header-margin: (@line-height-computed / 2);
 
+.aio-op-header-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 .aio-op-header {
   position: fixed;
   top: 0;
@@ -14,8 +20,13 @@
 }
 
 .aio-op-header .callout {
-  margin-top: @aio-op-header-margin;
-  margin-bottom: @aio-op-header-margin;
+  margin: @aio-op-header-margin;
+
+  .close {
+    position: relative;
+    top: -10px;
+    right: -5px;
+  }
 }
 
 .aio-op-content {

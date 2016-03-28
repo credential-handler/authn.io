@@ -1,12 +1,15 @@
 <div class="row" ng-controller="aioAgentController as model">
-  <div class="aio-op-header">
-    <div class="callout callout-primary">
-      <h4>
-        Credential {{(model.op === 'store' && 'Storage') || ''}} Request <small>(<a ng-click="model.cancel()">Cancel</a>)</small>
-      </h4>
-      <p>
-        <strong>{{model.relyingParty}}</strong> has requested <span ng-show="model.op === 'store'">to store </span> credentials.
-      </p>
+  <div class="aio-op-header-wrapper">
+    <div class="aio-op-header">
+      <div class="callout callout-primary">
+        <a ng-click="model.cancel()" class="close">&times;<span class="sr-only">Close</span></a>
+        <h4>
+          Credential {{(model.op === 'store' && 'Storage') || ''}} Request
+        </h4>
+        <p>
+          <strong>{{model.relyingParty}}</strong> has requested <span ng-show="model.op === 'store'">to store </span> credentials.
+        </p>
+      </div>
     </div>
   </div>
   <div class="aio-op-content">
