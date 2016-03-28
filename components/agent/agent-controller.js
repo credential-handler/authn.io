@@ -48,18 +48,23 @@ function factory(
         session.idpConfig.credentialManagementUrl);
       self.display.identityChooser = false;
       self.display.repo = true;
+      self.display.repoLoading = true;
       $scope.$apply();
 
       // get iframe handle
-      var iframe = angular.element('iframe[name="repo"]')[0];
-      var repoHandle = iframe.contentWindow;
+      var iframe = angular.element('iframe[name="repo"]');
+      var repoHandle = iframe[0].contentWindow;
 
       // delegate to Repo
       getResult = aioOperationService.delegateToRepo({
         op: query.op,
         params: self.params,
         repoUrl: session.idpConfig.credentialManagementUrl,
-        repoHandle: repoHandle
+        repoHandle: repoHandle,
+        onload: function() {
+          self.display.repoLoading = false;
+          $scope.$apply();
+        }
       });
     } else {
       // can special handle request for permanent public key credential

@@ -18,7 +18,10 @@
       aio-identity-chooser-callback="model.complete(err, session)">
     </aio-identity-chooser>
     <div ng-if="model.display.repo">
-      <div class="aio-repo-iframe-wrapper">
+      <span ng-if="model.display.repoLoading">
+        <i class="fa fa-refresh fa-spin text-muted"></i> Loading your credential repository...
+      </span>
+      <div ng-show="!model.display.repoLoading" class="aio-repo-iframe-wrapper">
         <iframe name="repo" ng-src="{{model.repoUrl}}" class="aio-repo-iframe"
           frameborder="0" scrolling="no"></iframe>
       </div>

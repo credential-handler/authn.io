@@ -41,6 +41,7 @@ function factory($document, $window, aioIdentityService) {
    *          params the parameters to send.
    *          repoUrl the Repo URL.
    *          repoHandle the handle to the repo iframe.
+   *          onload handler for when the repo has requested parameters.
    *
    * @return a Promise that resolves to the result returned from the Repo.
    */
@@ -67,6 +68,9 @@ function factory($document, $window, aioIdentityService) {
 
     // receive request for parameters
     return receiveFromRepoOrProxy().then(function(e) {
+      if(options.onload) {
+        options.onload();
+      }
       // update parameters
       return updateParameters().then(function() {
         // send parameters
