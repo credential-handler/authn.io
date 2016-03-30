@@ -1,7 +1,7 @@
 /*
  * authorization.io production configuration.
  *
- * Copyright (c) 2015 The Open Payments Foundation. All rights reserved.
+ * Copyright (c) 2015-2016 The Open Payments Foundation. All rights reserved.
  */
 var config = require('bedrock').config;
 var path = require('path');
@@ -27,10 +27,13 @@ config.core.running.userId = 'authorizationio';
 // logging
 config.loggers.logdir = _logdir;
 config.loggers.app.filename = path.join(_logdir, 'authorization.io-app.log');
+config.loggers.app.bedrock.enableChownDir = true;
 config.loggers.access.filename = path.join(
   _logdir, 'authorization.io-access.log');
+config.loggers.access.bedrock.enableChownDir = true;
 config.loggers.error.filename = path.join(
   _logdir, 'authorization.io-error.log');
+config.loggers.error.bedrock.enableChownDir = true;
 config.loggers.email.silent = true;
 
 // server info
