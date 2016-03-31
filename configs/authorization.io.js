@@ -66,6 +66,7 @@ config.views.vars.title = config.views.brand.name;
 config.views.vars.siteTitle = config.views.brand.name;
 config.views.vars.supportDomain = config.server.domain;
 config.views.vars.style.brand.alt = config.views.brand.name;
+config.views.vars.minify = true;
 
 // FIXME: Everything below here is temporary for testing purposes
 
