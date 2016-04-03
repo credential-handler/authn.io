@@ -399,19 +399,6 @@ function factory($http) {
   };
 
   /**
-   * Gets an identity's DID document.
-   *
-   * @param id the identity's ID (DID).
-   *
-   * @return a Promise that resolves to the identity's DID document.
-   */
-  service.getDidDocument = function(id) {
-    return Promise.resolve($http.get('/dids/' + id)).then(function(response) {
-      return response.data;
-    });
-  };
-
-  /**
    * Digitally signs a document.
    *
    * @param options the options to use:
