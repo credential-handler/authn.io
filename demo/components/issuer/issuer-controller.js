@@ -24,10 +24,10 @@ function factory($scope, $http, $window, brAlertService, config) {
         agentUrl: '/agent'
       }
     }).then(function(identity) {
-      if(!identity || !identity.id) {
+      if(!identity || !identity.identity || !identity.identity.id) {
         throw new Error('DID not provided.');
       }
-      self.did = identity.id;
+      self.did = identity.identity.id;
       return _generateCredentials();
     }).then(function(identity) {
       self.identity = identity;
