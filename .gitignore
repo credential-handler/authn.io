@@ -5,6 +5,7 @@
 .settings
 TAGS
 bower_components
+configs/*-secrets.js
 coverage
 node_modules
 npm-debug.log
