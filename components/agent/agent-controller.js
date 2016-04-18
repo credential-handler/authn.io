@@ -130,7 +130,7 @@ function factory(
   aioIdentityService.clearSession();
 
   // request parameters from RP
-  return aioOperationService.getParameters({
+  aioOperationService.getParameters({
     op: self.op,
     origin: relyingParty
   }).then(function(params) {
