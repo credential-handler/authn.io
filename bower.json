@@ -17,7 +17,7 @@
     "bedrock-angular-ui": "^2.0.0",
     "credentials-polyfill": "~0.8.0",
     "did-io": "^0.6.1",
-    "es6-promise": "~2.1",
+    "es6-promise": "^2.0.1",
     "forge": "~0.6.28",
     "jsonld-signatures": "^1.1.3",
     "node-uuid": "^1.4.3",
