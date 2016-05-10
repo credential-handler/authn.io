@@ -66,7 +66,7 @@ To setup an admin user on mongodb:
 
     Enter the mongo shell
     use admin
-    db.addUser( { user: "admin", pwd: "password", roles: [ "clusterAdmin", "readWriteAnyDatabase", "userAdminAnyDatabase", "dbAdminAnyDatabase"] } )
+    db.createUser( { user: "admin", pwd: "password", roles: [ "clusterAdmin", "readWriteAnyDatabase", "userAdminAnyDatabase", "dbAdminAnyDatabase"] } )
 
 To install dependencies, do the following:
 
