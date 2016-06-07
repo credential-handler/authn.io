@@ -94,8 +94,6 @@ function factory($document, $window, aioIdentityService) {
           // don't assume
 
           // key matches, make identity permanent
-          session.sysRegisterKey = false;
-          session.publicKey.id = matchingKey.id;
           aioIdentityService.makePermanent(session.id, matchingKey.id);
         }
       }
@@ -213,7 +211,6 @@ function factory($document, $window, aioIdentityService) {
       router.send(op, 'error', null);
       return;
     }
-
 
     // flow complete, clear session
     aioIdentityService.clearSession();

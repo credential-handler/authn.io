@@ -303,6 +303,13 @@ function factory($http) {
       }
       localStorage.setItem(
         STORAGE_KEYS.AUTHENTICATED, JSON.stringify(authenticated));
+
+      // update session
+      var session = service.getSession();
+      if(session && session.id === id) {
+        session.publicKey.id = publicKeyId;
+        sessionStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session));
+      }
     }
   };
 
