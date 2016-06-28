@@ -24,6 +24,9 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
       idp: self.idp,
       agentUrl: '/register'
     }).then(function(didDocument) {
+      if(!didDocument) {
+        throw new Error('Registration canceled.');
+      }
       var did = didDocument.id;
       ipCookie('did', did, {path: '/'});
       var emailHost = did.split(':')[1];
