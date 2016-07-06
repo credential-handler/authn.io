@@ -7,7 +7,7 @@ var bedrock = require('bedrock');
 var config = require('bedrock').config;
 var path = require('path');
 
-require('./lib/authorizationio');
+require('./lib/index');
 require('./configs/dev');
 
 // configure for tests

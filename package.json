@@ -35,5 +35,5 @@
     "node": ">=0.10.0"
   },
   "directories": {},
-  "main": "./lib/authorizationio"
+  "main": "./lib/index"
 }
