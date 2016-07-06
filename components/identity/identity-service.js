@@ -386,7 +386,10 @@ function factory($http) {
       // TODO: hit `url` directly with JSON-LD request instead of using
       // .well-known
       var url = idpDidDocument.url + '/.well-known/identity';
-      return Promise.resolve($http.get(url));
+      return Promise.resolve($http.get(url)).catch(function(err) {
+        throw new Error(
+          'Could not communicate with "' + idpDidDocument.url + '".');
+      });
     }).then(function(response) {
       return response.data;
     });

@@ -35,7 +35,9 @@ function factory(
    */
   self.complete = function(err, session) {
     if(err) {
-      return brAlertService.add('error', err);
+      brAlertService.add('error', err);
+      $scope.$apply();
+      return;
     }
 
     // get result (from either Repo or ourselves)

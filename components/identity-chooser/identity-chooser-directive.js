@@ -61,8 +61,12 @@ function factory(aioIdentityService, aioOperationService, brAlertService) {
       ctrl.selected = id;
       if(aioIdentityService.isAuthenticated(id)) {
         // no further user mediation required, generate session
-        return aioIdentityService.createSession(id).then(function(session) {
-          ctrl.callback({err: null, session: session});
+        return aioIdentityService.createSession(id).catch(function(err) {
+          ctrl.callback({err: err, session: null});
+        }).then(function(session) {
+          if(session) {
+            ctrl.callback({err: null, session: session});
+          }
         });
       }
       ctrl.display.loginForm = true;
