@@ -2,8 +2,16 @@ define([], function() {
 
 'use strict';
 
+function register(module) {
+  module.component('aioRegisterDid', {
+    controller: Ctrl,
+    templateUrl: requirejs.toUrl(
+      'authio/register-did/register-did-component.html')
+  });
+}
+
 /* @ngInject */
-function factory(
+function Ctrl(
   $location, $scope, $timeout,
   aioIdentityService, aioOperationService, brAlertService) {
   var self = this;
@@ -35,10 +43,6 @@ function factory(
    * Validates the form, and if valid, performs registration.
    */
   self.validateForm = function() {
-    // TODO: is this check necessary or is it prevented by other mechanisms?
-    if(!$scope.regForm.$valid) {
-      return;
-    }
     $scope.$on('identityService.register.progress', function(e, data) {
       self.generating = false;
       self.registering = true;
@@ -83,6 +87,6 @@ function factory(
   }
 }
 
-return {aioRegisterDidController: factory};
+return register;
 
 });

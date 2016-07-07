@@ -2,6 +2,10 @@ define([], function() {
 
 'use strict';
 
+function register(module) {
+  module.directive('aioMatchesInput', factory);
+}
+
 /* @ngInject */
 function factory() {
   return {
@@ -17,6 +21,6 @@ function factory() {
   };
 }
 
-return {aioMatchesInput: factory};
+return register;
 
 });

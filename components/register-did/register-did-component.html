@@ -1,0 +1,97 @@
+<div class="ng-cloak">
+
+  <div class="row">
+    <div class="col-md-12">
+      <h1 class="headline">DID Registration</h1>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="row">
+    <div class="col-md-12">
+      <p>The domain <strong>{{$ctrl.domain}}</strong> has requested that you
+        create a decentralized identity.</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <form name="$ctrl.regForm" class="form-horizontal" role="form" novalidate
+      ng-submit="$ctrl.validateForm()">
+      <fieldset>
+        <br-input br-model="$ctrl.email"
+          br-options="{name: 'email', label: 'Email', showValidation: true}"
+          ng-minlength="6" ng-maxlength="128" required>
+          <br-input-help>
+            Please enter your email address.
+          </br-input-help>
+          <br-input-validation-errors>
+            <p ng-show="$ctrl.regForm.email.$error.required">
+              Email is required.
+            </p>
+            <p ng-show="$ctrl.regForm.email.$error.minlength">
+              Email is required to be at least 6 characters.
+            </p>
+            <p ng-show="$ctrl.regForm.email.$error.maxlength">
+              Email must not be longer than 128 characters.
+            </p>
+          </br-input-validation-errors>
+        </br-input>
+        <br-input br-model="$ctrl.passphrase"
+          br-options="{
+            name: 'passphrase',
+            label: 'Passphrase',
+            showValidation: true,
+            type: 'password'
+          }" ng-minlength="8" ng-maxlength="128" required>
+          <br-input-help>
+            Please enter a passphrase.
+          </br-input-help>
+          <br-input-validation-errors>
+            <p ng-show="$ctrl.regForm.passphrase.$error.required">
+              Passphrase is required.
+            </p>
+            <p ng-show="$ctrl.regForm.passphrase.$error.minlength">
+              Passphrase is required to be at least 8 characters.
+            </p>
+            <p ng-show="$ctrl.regForm.passphrase.$error.maxlength">
+              Passphrase must not be longer than 128 characters.
+            </p>
+          </br-input-validation-errors>
+        </br-input>
+        <br-input br-model="$ctrl.passphraseConfirmation"
+          br-options="{
+            name: 'passphraseConfirmation',
+            label: 'Confirm Passphrase',
+            showValidation: true,
+            type: 'password'
+          }" br-input-aio-matches-input="$ctrl.passphrase">
+          <div name="br-input-help">
+            Please confirm your passphrase.
+          </div>
+          <br-input-validation-errors>
+            <p ng-show="$ctrl.regForm.passphraseConfirmation.$error.inputMatch">
+              Passphrase and Confirm Passphrase must match.
+            </p>
+          </br-input-validation-errors>
+        </br-input>
+        <div style="text-align:center;">
+          <button
+            ng-disabled="$ctrl.registering || $ctrl.generating || $ctrl.regForm.$invalid"
+            type="submit" class="btn btn-primary">Register</button>
+        </div>
+        <div style="text-align:center;" ng-show="$ctrl.generating">
+          Securing your login information, this may take a minute...
+          <i class="fa fa-refresh fa-spin text-muted"></i>
+        </div>
+        <div style="text-align:center;" ng-show="$ctrl.registering">
+          Waiting in line to register... {{$ctrl.secondsLeft}} seconds
+          remaining.
+        </div>
+      </fieldset>
+    </form>
+  </div>
+
+  <hr>
+
+</div>
