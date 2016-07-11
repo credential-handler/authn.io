@@ -32,6 +32,9 @@ function Ctrl(
     // TODO: handle other parameters
     self.domain = aioOperationService.parseDomain(message.origin);
     self.idp = message.data.idp;
+    if('name' in message.data) {
+      self.email = message.data.name;
+    }
   }).catch(function(err) {
     brAlertService.add('error', err);
   }).then(function() {
