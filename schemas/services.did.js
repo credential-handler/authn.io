@@ -52,6 +52,8 @@ var createDidObject = {
         title: 'Identity Public Key',
         type: 'object',
         properties: {
+          '@context': schemas.jsonldContext(
+            constants.IDENTITY_CONTEXT_V1_URL, {required: false}),
           id: schemas.identifier(),
           type: schemas.jsonldType('CryptographicKey'),
           label: schemas.label({required: false}),
