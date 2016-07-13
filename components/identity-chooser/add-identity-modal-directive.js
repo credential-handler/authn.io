@@ -25,7 +25,8 @@ function factory(aioIdentityService, brAlertService) {
       aioIdentityService.load({
         identifier: model.email,
         password: model.passphrase,
-        temporary: !model.permanent
+        temporary: !model.permanent,
+        create: true
       }).then(function(identity) {
         // auto-authenticate
         aioIdentityService.authenticate(identity.id, model.passphrase);

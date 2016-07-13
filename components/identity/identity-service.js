@@ -92,16 +92,26 @@ function factory($http) {
   };
 
   /**
-   * Loads an identity. The identity will be loaded into session storage. It
-   * can be promoted to permanent storage later if requested.
+   * Loads an existing identity that may not be stored on the local device yet.
+   *
+   * If `temporary` is set to true, then loading this identity on this device
+   * will be considered temporary. This means that any key pair generated for
+   * the identity will not be marked for future permanent registration with
+   * the WebDHT. This setting is typically used for public devices.
+   *
+   * If `create` is true and the identity is not already stored on the local
+   * device, it and a new key pair will be created and stored in session
+   * storage. It can be promoted to permanent storage later if requested,
+   * provided that `temporary` is not also set.
    *
    * @param options the options to use:
    *          [identifier] the identifier to use.
    *          [password] the password to use.
-   *          [temporary] true to load the identity only temporarily; note
-   *            this will be ignored if the identity is already permanent.
+   *          [temporary] true to indicate that loading the identity on the
+   *            local device is temporary
+   *          [create] true to create the identity if it doesn't exist
    *
-   * @return a Promise that resolves to the new identity.
+   * @return a Promise that resolves to the loaded identity.
    */
   service.load = function(options) {
     options = options || {};
@@ -118,7 +128,7 @@ function factory($http) {
     return Promise.resolve($http.get(url)).then(function(response) {
       // FIXME: use `response.data.decentralizedId`
       if(!(response.data && response.data.did)) {
-        throw new Error('DID lookup failed.');
+        throw new Error('Decentralized identifier lookup failed.');
       }
       return response.data.did;
     }).then(function(did) {
@@ -135,6 +145,10 @@ function factory($http) {
           throw new Error('Invalid password.');
         }
         return identity;
+      }
+
+      if(!options.create) {
+        throw new Error('Identity not found.');
       }
 
       // generate keypair for identity that isn't yet locally-stored

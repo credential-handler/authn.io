@@ -53,23 +53,53 @@ function Ctrl(
       $timeout(_updateSecondsLeft, 1000);
     });
     self.generating = true;
-    aioIdentityService.register({
+
+    // first check to see if requested email+password already stored locally
+    aioIdentityService.load({
       identifier: self.email,
       password: self.passphrase,
-      idp: self.idp,
-      scope: $scope
+      temporary: false,
+      create: false
+    }).catch(function(err) {
+      // ignore, proceed with registration
+    }).then(function(identity) {
+      if(identity) {
+        // get DID document to return as registration info
+        return aioIdentityService.getDidDocument(identity.id)
+          .then(function(didDocument) {
+            if(didDocument.idp === self.idp) {
+              return {didDocument: didDocument};
+            }
+            return null;
+          });
+      }
+      return null;
+    }).then(function(registrationInfo) {
+      if(registrationInfo) {
+        // TODO: show a message indicating that an existing identity
+        // was reused ... or give user option to create a new one?
+        // already registered
+        return registrationInfo;
+      }
+
+      return aioIdentityService.register({
+        identifier: self.email,
+        password: self.passphrase,
+        idp: self.idp,
+        scope: $scope
+      });
     }).then(function(registrationInfo) {
       self.registering = false;
       var router = new navigator.credentials._Router(origin);
       router.send('registerDid', 'result', registrationInfo.didDocument);
     }).catch(function(err) {
-      self.generating = false;
-      self.registering = false;
       console.error('Failed to register with the network.', err);
       brAlertService.add('error',
         'Failed to register with the network. Please try a different email ' +
         'address and passphrase.');
     }).then(function() {
+      self.generating = false;
+      self.registering = false;
       $scope.$apply();
     });
   };
