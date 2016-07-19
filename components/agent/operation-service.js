@@ -61,7 +61,10 @@ function factory($document, $window, aioIdentityService) {
     }).then(function() {
       // receive result from Repo
       return router.receive(op + '.result');
-    });*/
+    }).then(function(result) {
+      // if key registration was requested, check to see if it occurred
+      if(session.sysRegisterKey) {...
+    */
 
     // the code path below includes backwards compatibility for potentially
     // receiving from a legacy iframe proxy, remove once no longer supported:
@@ -100,6 +103,7 @@ function factory($document, $window, aioIdentityService) {
       return result;
     });
 
+    // TODO: remove once support for < 0.8.x is dropped
     function receiveFromRepoOrProxy() {
       // will either receive a message from the repo (>= 0.8.x) or from
       // the iframe auth.io proxy (< 0.8.x)
