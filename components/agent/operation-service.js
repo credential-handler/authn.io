@@ -51,40 +51,20 @@ function factory($document, $window, aioIdentityService) {
     var params = options.params;
     var repoOrigin = service.parseOrigin(options.repoUrl);
 
-    /* use once credentials-polyfill < 0.8.x is no longer supported
     // serve params to Repo
     var router = new Router(repoOrigin, {handle: options.repoHandle});
     return router.receive('request').then(function() {
-      return updateParameters();
-    }).then(function() {
-      router.send(op + '.params', params);
-    }).then(function() {
-      // receive result from Repo
-      return router.receive(op + '.result');
-    }).then(function(result) {
-      // if key registration was requested, check to see if it occurred
-      if(session.sysRegisterKey) {...
-    */
-
-    // the code path below includes backwards compatibility for potentially
-    // receiving from a legacy iframe proxy, remove once no longer supported:
-
-    // receive request for parameters
-    return receiveFromRepoOrProxy().then(function(e) {
       if(options.onload) {
         options.onload();
       }
-      // update parameters
-      return updateParameters().then(function() {
-        // send parameters
-        e.source.postMessage({type: op + '.params', data: params}, e.origin);
-
-        // receive result
-        return receiveFromRepoOrProxy().then(function(e) {
-          return e.data.data;
-        });
-      });
-    }).then(function(result) {
+      return updateParameters();
+    }).then(function() {
+      router.send(op, 'params', params);
+    }).then(function() {
+      // receive result from Repo
+      return router.receive(op + '.result');
+    }).then(function(message) {
+      var result = message.data;
       // if key registration was requested, check to see if it occurred
       if(session.sysRegisterKey) {
         // determine if session key was registered by finding matching key
@@ -102,33 +82,6 @@ function factory($document, $window, aioIdentityService) {
       }
       return result;
     });
-
-    // TODO: remove once support for < 0.8.x is dropped
-    function receiveFromRepoOrProxy() {
-      // will either receive a message from the repo (>= 0.8.x) or from
-      // the iframe auth.io proxy (< 0.8.x)
-      var expect = [
-        'request', 'get.params', 'store.params', 'get.result', 'store.result'];
-      return new Promise(function(resolve, reject) {
-        // TODO: add timeout
-        $window.addEventListener('message', listener);
-        function listener(e) {
-          // validate message
-          if(typeof e.data === 'object' &&
-            expect.indexOf(e.data.type) !== -1 &&
-            'data' in e.data) {
-            // ensure source is either `Repo window + Repo origin`
-            // or `this site`
-            if((e.source === options.repoHandle &&
-              e.origin === repoOrigin) ||
-              e.origin === $window.location.origin) {
-              return resolve(e);
-            }
-          }
-          reject(new Error('Credential protocol error.'));
-        }
-      });
-    }
 
     function updateParameters() {
       // add a signed identity w/a cryptographic key credential to the
@@ -234,47 +187,6 @@ function factory($document, $window, aioIdentityService) {
     }).then(function(signed) {
       identity = signed;
       router.send(op, 'result', identity);
-    });
-  };
-
-  /**
-   * **deprecated since credentials-polyfill 0.8.x**
-   *
-   * Proxies a message based on the given options.
-   *
-   * @param op the name of the API operation.
-   * @param route either `params` or `result`.
-   */
-  service.proxy = function(op, route) {
-    // ensure session has not expired
-    var session = aioIdentityService.getSession();
-    if(!session) {
-      // TODO: need better error handling for expired sessions
-      // and for different scenarios (auth.io loaded invisibly vs. visibly)
-      new Router($document.referrer, {handle: $window.parent}).send(
-        op, 'error', null);
-      return;
-    }
-
-    // define end points to proxy between
-    var agent = {origin: $window.location.origin, handle: $window.top};
-    var repo = {
-      origin: service.parseOrigin(session.idpConfig.credentialManagementUrl),
-      handle: $window.parent
-    };
-    var order;
-    if(route === 'params') {
-      // proxy from agent -> repo
-      order = [agent, repo];
-    } else {
-      // proxy from repo -> agent
-      order = [repo, agent];
-    }
-    var router = new Router(order[0].origin, {handle: order[0].handle});
-    return router.request(op, route).then(function(message) {
-      router = new Router(order[1].origin, {handle: order[1].handle});
-      var split = message.type.split('.');
-      router.send(split[0], split[1], message.data);
     });
   };
 

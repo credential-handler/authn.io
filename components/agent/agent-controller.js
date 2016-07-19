@@ -115,15 +115,6 @@ function factory(
     _sendResult(null);
   };
 
-  // caller is using credentials-polyfill < 0.8.x
-  // FIXME: remove once support for < 0.8.x dropped
-  if($window.self !== $window.top) {
-    // handle legacy iframe proxy
-    return aioOperationService.proxy(query.op, query.route);
-  }
-
-  // caller is using credentials-polyfill >= 0.8.x
-
   $window.addEventListener('beforeunload', function() {
     _sendResult(null);
   });
