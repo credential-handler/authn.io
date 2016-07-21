@@ -201,7 +201,20 @@ function factory($document, $window, aioIdentityService) {
     // `URL` API not supported on IE, use DOM to parse URL
     var parser = document.createElement('a');
     parser.href = url;
-    return parser.protocol + '//' + parser.host;
+    var origin = (parser.protocol || window.location.protocol) + '//';
+    if(parser.host) {
+      // use hostname when using default ports
+      // (IE adds always adds port to `parser.host`)
+      if((parser.protocol === 'http:' && parser.port === '80') ||
+        (parser.protocol === 'https:' && parser.port === '443')) {
+        origin += parser.hostname;
+      } else {
+        origin += parser.host;
+      }
+    } else {
+      origin += window.location.host;
+    }
+    return origin;
   };
 
   /**
@@ -215,7 +228,16 @@ function factory($document, $window, aioIdentityService) {
     // `URL` API not supported on IE, use DOM to parse URL
     var parser = document.createElement('a');
     parser.href = url;
-    return parser.host;
+    if(parser.host) {
+      // use hostname when using default ports
+      // (IE adds always adds port to `parser.host`)
+      if((parser.protocol === 'http:' && parser.port === '80') ||
+        (parser.protocol === 'https:' && parser.port === '443')) {
+        return parser.hostname;
+      }
+      return parser.host;
+    }
+    return window.location.host;
   };
 
   // TODO: document helpers
