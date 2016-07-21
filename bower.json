@@ -15,7 +15,7 @@
     "bedrock-angular-model": "^2.0.0",
     "bedrock-angular-selector": "^2.0.0",
     "bedrock-angular-ui": "^2.0.0",
-    "credentials-polyfill": "~0.8.3",
+    "credentials-polyfill": "~0.10.0",
     "did-io": "^0.6.1",
     "es6-promise": "^2.0.1",
     "forge": "~0.6.40",
