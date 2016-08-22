@@ -117,6 +117,7 @@ function Ctrl(
       $timeout(_updateSecondsLeft, 1000);
     }
     self.secondsLeft -= 1;
+    self.secondsLeft = Math.max(0, self.secondsLeft);
   }
 }
 
