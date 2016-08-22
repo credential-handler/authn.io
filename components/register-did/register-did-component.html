@@ -78,15 +78,22 @@
         <div style="text-align:center;">
           <button
             ng-disabled="$ctrl.registering || $ctrl.generating || $ctrl.regForm.$invalid"
-            type="submit" class="btn btn-primary">Register</button>
+            type="submit" class="btn btn-primary">Register <span
+              ng-if="$ctrl.registering || $ctrl.generating"><i
+              class="fa fa-refresh fa-spin"></i></span></button>
         </div>
+        <hr>
         <div style="text-align:center;" ng-show="$ctrl.generating">
           Securing your login information, this may take a minute...
-          <i class="fa fa-refresh fa-spin text-muted"></i>
         </div>
         <div style="text-align:center;" ng-show="$ctrl.registering">
-          Waiting in line to register... {{$ctrl.secondsLeft}} seconds
-          remaining.
+          <div ng-if="$ctrl.secondsLeft > 0">
+            Waiting in line to register... {{$ctrl.secondsLeft}} seconds
+            remaining.
+          </div>
+          <div ng-if="$ctrl.secondsLeft === 0">
+            Waiting for response...
+          </div>
         </div>
       </fieldset>
     </form>
