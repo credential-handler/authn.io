@@ -77,7 +77,7 @@
     </span>
     <span>
       <button type="button" class="btn btn-primary"
-        ng-disabled="model.loading"
+        ng-disabled="model.loading || !model.email || !model.passphrase"
         ng-click="model.add()"><i class="fa fa-check"></i> Add</button>
     </span>
     <button type="button" class="btn btn-default stackable-cancel"
