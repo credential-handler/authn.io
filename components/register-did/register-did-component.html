@@ -82,7 +82,7 @@
               ng-if="$ctrl.registering || $ctrl.generating"><i
               class="fa fa-refresh fa-spin"></i></span></button>
         </div>
-        <hr>
+        <hr ng-show="$ctrl.generating || $ctrl.registering">
         <div style="text-align:center;" ng-show="$ctrl.generating">
           Securing your login information, this may take a minute...
         </div>
