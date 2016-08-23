@@ -11,6 +11,8 @@
       <form name="addIdentityForm" class="form-horizontal" role="form">
         <fieldset>
           <br-input br-model="model.email"
+            br-input-ng-keyup="$event.keyCode === 13 && !model.loading &&
+              model.email && model.passphrase && model.add()"
             br-options="{
               name: 'email',
               label: 'Email',
@@ -34,6 +36,8 @@
             </div>
           </br-input>
           <br-input br-model="model.passphrase"
+            br-input-ng-keyup="$event.keyCode === 13 && !model.loading &&
+              model.email && model.passphrase && model.add()"
             br-options="{
               name: 'passphrase',
               label: 'Passphrase',
