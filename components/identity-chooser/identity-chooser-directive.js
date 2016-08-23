@@ -20,6 +20,7 @@ function factory(aioIdentityService, aioOperationService, brAlertService) {
 
   function Link(scope, element, attrs, ctrl) {
     ctrl.loading = true;
+    ctrl.authenticating = false;
     ctrl.selected = null;
 
     ctrl.display = {};
@@ -44,19 +45,25 @@ function factory(aioIdentityService, aioOperationService, brAlertService) {
     };
 
     ctrl.authenticate = function(id, password) {
+      ctrl.authenticating = true;
       try {
         aioIdentityService.authenticate(id, password);
       } catch(err) {
+        ctrl.authenticating = false;
         brAlertService.add('error', err, {scope: scope});
+        scope.$apply();
         return;
       }
-      return ctrl.select(id);
+      return ctrl.select(id).catch(function() {}).then(function() {
+        ctrl.authenticating = false;
+        scope.$apply();
+      });
     };
 
     ctrl.select = function(id) {
       if(ctrl.selected === id && !aioIdentityService.isAuthenticated(id)) {
         // do nothing if the identity is already selected
-        return;
+        return Promise.resolve();
       }
       ctrl.selected = id;
       if(aioIdentityService.isAuthenticated(id)) {
@@ -72,6 +79,7 @@ function factory(aioIdentityService, aioOperationService, brAlertService) {
       // clear password and show login form
       ctrl.password = '';
       ctrl.display.loginForm = true;
+      return Promise.resolve();
     };
 
     function updateIdentities(filter) {

@@ -50,8 +50,9 @@
                 <div class="input-group col-sm-offset-3">
                   <div class="btn-group">
                     <button class="btn btn-primary" type="submit"
-                      ng-disabled="ctrl.loading || loginForm.$invalid"><i
-                      class="fa fa-sign-in"></i> Login</button>
+                      ng-disabled="ctrl.loading || ctrl.authenticating || loginForm.$invalid"><i
+                      class="fa fa-sign-in"></i> Login<span
+                        ng-show="ctrl.authenticating"> <i class="fa fa-refresh fa-spin"></i></span></button>
                   </div>
                   <span ng-show="ctrl.loading">
                     <i class="fa fa-refresh fa-spin fa-lg text-muted"></i>

@@ -71,6 +71,9 @@ function factory(
     } else {
       // can special handle request for permanent public key credential
       // on our own (no Repo required)...
+      self.display.identityChooser = false;
+      self.display.authenticating = true;
+      $scope.$apply();
 
       // clone identity template
       var identity = JSON.parse(JSON.stringify(
@@ -104,6 +107,7 @@ function factory(
       // to the relying party after displaying the problem on auth.io
       brAlertService.add('error', err);
     }).then(function() {
+      self.display.authenticating = false;
       $scope.$apply();
     });
   };

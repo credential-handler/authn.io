@@ -17,6 +17,11 @@
       aio-identity-chooser-filter="model.did"
       aio-identity-chooser-callback="model.complete(err, session)">
     </aio-identity-chooser>
+    <div ng-if="model.display.authenticating">
+      <span>
+        <i class="fa fa-refresh fa-spin text-muted"></i> Authenticating...
+      </span>
+    </div>
     <div ng-if="model.display.repo">
       <span ng-if="model.display.repoLoading">
         <i class="fa fa-refresh fa-spin text-muted"></i> Loading your credential repository...
