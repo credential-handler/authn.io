@@ -112,5 +112,5 @@ config.views.vars['bedrock-angular-credential'].libraries.default = {
 };
 
 // lower minimum wait time for proofs
-config.authio.proofs.minWaitTimeInSecs = 2;
-config.authio.proofs.maxWaitTimeInSecs = 3;
+config.authio.proofs.proofOfPatience.minWaitTimeInSecs = 2;
+config.authio.proofs.proofOfPatience.maxWaitTimeInSecs = 3;

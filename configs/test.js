@@ -78,5 +78,5 @@ protractor.params.config.onPrepare.push(prepare);
 protractor.params.config.maxTimeout = 30000;
 
 // lower minimum wait time for proofs
-config.authio.proofs.minWaitTimeInSecs = 1;
-config.authio.proofs.maxWaitTimeInSecs = 2;
+config.authio.proofs.proofOfPatience.minWaitTimeInSecs = 1;
+config.authio.proofs.proofOfPatience.maxWaitTimeInSecs = 2;
