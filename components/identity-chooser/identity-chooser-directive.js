@@ -69,6 +69,8 @@ function factory(aioIdentityService, aioOperationService, brAlertService) {
           }
         });
       }
+      // clear password and show login form
+      ctrl.password = '';
       ctrl.display.loginForm = true;
     };
 
