@@ -26,6 +26,9 @@ function factory($scope, $window, brAlertService, config) {
         agentUrl: '/agent'
       }
     }).then(function(credential) {
+      if(!credential) {
+        throw new Error('No credential provided.');
+      }
       self.identity = credential.identity;
       self.view = 'response';
     }).catch(function(err) {
