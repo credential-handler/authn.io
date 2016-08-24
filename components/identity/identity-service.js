@@ -126,11 +126,14 @@ function factory($http) {
     var hash = didio.generateHash(options.identifier, options.password);
     var url = '/mappings/' + hash;
     return Promise.resolve($http.get(url)).then(function(response) {
-      // FIXME: use `response.data.decentralizedId`
-      if(!(response.data && response.data.did)) {
+      if(!(response.data && response.data.url)) {
         throw new Error('Decentralized identifier lookup failed.');
       }
-      return response.data.did;
+      // TODO: support more than one DID result for a given hash
+      // by showing possible DID choices, their created time, and their
+      // associated credential repos
+      var did = jsonld.getValues(response.data, 'url')[0];
+      return did;
     }).then(function(did) {
       // check locally-stored identities
       var identity = storage.get(did);
@@ -595,8 +598,7 @@ function factory($http) {
       var mapping = {
         '@context': 'https://w3id.org/identity/v1',
         id: didio.generateHash(options.identity.label, options.password),
-        // FIXME: use 'decentralizedId' as property
-        did: did,
+        url: did,
         accessControl: {
           writePermission: [{
             id: options.identity.publicKey.id,
