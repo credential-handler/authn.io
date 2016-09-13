@@ -6,6 +6,11 @@
     "test": "node authorization.dev.js test",
     "postinstall": "bower install && node authorization.dev.js compile-less"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/digitalbazaar/authorization.io"
+  },
+  "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "async": "^1.4.2",
     "base64url": "^2.0.0",
