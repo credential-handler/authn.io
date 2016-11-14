@@ -1,7 +1,10 @@
-/*
+/*!
  * The module interface file for a mock issuer.
  *
- * Copyright (c) 2015 The Open Payments Foundation. All rights reserved.
+ * New BSD License (3-clause)
+ * Copyright (c) 2015-2016, Digital Bazaar, Inc.
+ * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
+ * All rights reserved.
  */
 var _ = require('lodash');
 var async = require('async');
