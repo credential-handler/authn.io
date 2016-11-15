@@ -65,12 +65,13 @@
             label: 'Confirm Passphrase',
             showValidation: true,
             type: 'password'
-          }" br-input-aio-matches-input="$ctrl.passphrase">
+          }"
+          br-input-br-validator-same-as="$ctrl.passphrase">
           <div name="br-input-help">
             Please confirm your passphrase.
           </div>
           <br-input-validation-errors>
-            <p ng-show="$ctrl.regForm.passphraseConfirmation.$error.inputMatch">
+            <p ng-show="$ctrl.regForm.passphraseConfirmation.$error.brValidatorSameAs">
               Passphrase and Confirm Passphrase must match.
             </p>
           </br-input-validation-errors>
