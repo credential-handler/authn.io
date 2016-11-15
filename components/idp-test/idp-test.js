@@ -17,6 +17,4 @@ var module = angular.module(
 
 module.controller(idpTestController);
 
-return module.name;
-
 });

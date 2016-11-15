@@ -22,9 +22,6 @@ var module = angular.module('authio', [
 
 matchesInputDirective(module);
 registerDidComponent(module);
-// TODO: use this instead of the above line
-// var module = angular.module(
-//   'authio', Array.prototype.slice.call(arguments, 1));
 
 /* @ngInject */
 module.config(function($routeProvider) {
@@ -46,7 +43,5 @@ module.config(function($routeProvider) {
       templateUrl: requirejs.toUrl('components/idp-test/idp-test.html')
     });
 });
-
-return module.name;
 
 });

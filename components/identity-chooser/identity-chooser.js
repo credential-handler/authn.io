@@ -18,6 +18,4 @@ var module = angular.module(
 module.directive(identityChooserDirective);
 module.directive(addIdentityModalDirective);
 
-return module.name;
-
 });
