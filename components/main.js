@@ -7,11 +7,12 @@
 define([
   'angular',
   './register-did/register-did-component',
+  './splash-component',
   './agent/agent',
   './identity/identity',
   './identity-chooser/identity-chooser',
   './idp-test/idp-test'
-], function(angular, registerDidComponent) {
+], function(angular, registerDidComponent, splashComponent) {
 
 'use strict';
 
@@ -20,10 +21,15 @@ var module = angular.module('authio', [
   'authio.idp-test']);
 
 registerDidComponent(module);
+splashComponent(module);
 
 /* @ngInject */
 module.config(function($routeProvider) {
   $routeProvider
+    .when('/splash', {
+      title: 'Splash',
+      template: '<aio-splash></aio-splash>'
+    })
     .when('/register', {
       title: 'Register',
       template: '<aio-register-did></aio-register-did>'
