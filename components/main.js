@@ -6,13 +6,12 @@
  */
 define([
   'angular',
-  './register-did/matches-input-directive',
   './register-did/register-did-component',
   './agent/agent',
   './identity/identity',
   './identity-chooser/identity-chooser',
   './idp-test/idp-test'
-], function(angular, matchesInputDirective, registerDidComponent) {
+], function(angular, registerDidComponent) {
 
 'use strict';
 
@@ -20,7 +19,6 @@ var module = angular.module('authio', [
   'authio.agent', 'authio.identity', 'authio.identityChooser',
   'authio.idp-test']);
 
-matchesInputDirective(module);
 registerDidComponent(module);
 
 /* @ngInject */
