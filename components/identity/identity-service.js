@@ -44,12 +44,14 @@ function factory($http) {
 
   /**
    * Registers a new identity. This call will register a new decentralized
-   * identifier and create a hash(identifier + password) mapping to it.
+   * identifier and create a hash(identifier + password) mapping to it if
+   * a password is provided.
    *
    * @param options the options to use:
    *          identifier the identifier to use.
-   *          password the password to use.
    *          idp the DID for the IdP to use.
+   *          [password] the password to use, if encrypting, and to
+   *            create mapping.
    *          [scope] a scope to emit progress events with; the events
    *            emitted will be: `identityService.register.progress`
    *              with an object `{secondsLeft: <value>}`.
@@ -62,7 +64,7 @@ function factory($http) {
     if(!options.identifier || typeof options.identifier !== 'string') {
       throw new Error('options.identifier must be a non-empty string.');
     }
-    if(!options.password || typeof options.identifier !== 'string') {
+    if('password' in options && typeof options.password !== 'string') {
       throw new Error('options.password must be a non-empty string.');
     }
     // TODO: support `https` identifiers for IdPs
@@ -78,12 +80,12 @@ function factory($http) {
         keypair: kp,
         publicKeyId: did + '/keys/1',
         label: options.identifier,
-        password: options.password
+        password: 'password' in options ? options.password : undefined
       });
       return _registerIdentity({
         identity: identity,
         idp: options.idp,
-        password: options.password,
+        password: 'password' in options ? options.password : undefined,
         privateKeyPem: forge.pki.privateKeyToPem(kp.privateKey),
         scope: options.scope
       });
@@ -111,8 +113,9 @@ function factory($http) {
    * provided that `temporary` is not also set.
    *
    * @param options the options to use:
-   *          [identifier] the identifier to use.
+   *          identifier the identifier to use.
    *          [password] the password to use.
+   *          [repo] the credential repo that must match.
    *          [temporary] true to indicate that loading the identity on the
    *            local device is temporary
    *          [create] true to create the identity if it doesn't exist
@@ -122,48 +125,59 @@ function factory($http) {
   service.load = function(options) {
     options = options || {};
     if(!options.identifier || typeof options.identifier !== 'string') {
-      throw new Error('options.identifier must be a non-empty string.');
+      throw new TypeError('options.identifier must be a non-empty string.');
     }
-    if(!options.password || typeof options.identifier !== 'string') {
-      throw new Error('options.password must be a non-empty string.');
+    if('password' in options && typeof options.password !== 'string') {
+      throw new TypeError('options.password must be a non-empty string.');
+    }
+    if('repo' in options && typeof options.repo !== 'string') {
+      throw new TypeError('options.repo must be a string.');
+    }
+
+    var getIdentity;
+    if('password' in options) {
+      // fetch the hash(identifier + passphrase) mapping
+      var hash = didio.generateHash(options.identifier, options.password);
+      var url = '/mappings/' + hash;
+      getIdentity = Promise.resolve($http.get(url)).then(function(response) {
+        if(!(response.data && response.data.url)) {
+          throw new Error('Decentralized identifier lookup failed.');
+        }
+        // TODO: support more than one DID result for a given hash
+        // by showing possible DID choices, their created time, and their
+        // associated credential repos
+        var did = jsonld.getValues(response.data, 'url')[0];
+        return did;
+      }).then(function(did) {
+        // check locally-stored identities
+        var identity = storage.get(did);
+        if(identity) {
+          var password = _getKeyPassword(options.identifier, options.password);
+          var privateKey;
+          try {
+            privateKey = forge.pki.decryptRsaPrivateKey(
+              identity.publicKey.privateKeyPem, password);
+          } catch(err) {}
+          if(!privateKey) {
+            throw new Error('Invalid password.');
+          }
+          return identity;
+        }
+      });
+    } else {
+      getIdentity = storage.getByLabel(options.identifier);
     }
 
     // fetch the hash(identifier + passphrase) mapping
-    var hash = didio.generateHash(options.identifier, options.password);
-    var url = '/mappings/' + hash;
-    return Promise.resolve($http.get(url)).then(function(response) {
-      if(!(response.data && response.data.url)) {
-        throw new Error('Decentralized identifier lookup failed.');
-      }
-      // TODO: support more than one DID result for a given hash
-      // by showing possible DID choices, their created time, and their
-      // associated credential repos
-      var did = jsonld.getValues(response.data, 'url')[0];
-      return did;
-    }).then(function(did) {
-      // check locally-stored identities
-      var identity = storage.get(did);
-      if(identity) {
-        var password = _getKeyPassword(options.identifier, options.password);
-        var privateKey;
-        try {
-          privateKey = forge.pki.decryptRsaPrivateKey(
-            identity.publicKey.privateKeyPem, password);
-        } catch(err) {}
-        if(!privateKey) {
-          throw new Error('Invalid password.');
-        }
-        return identity;
-      }
-
-      if(!options.create) {
+    return getIdentity.then(function(identity) {
+      if(!identity && !options.create) {
         throw new Error('Identity not found.');
       }
 
       // generate keypair for identity that isn't yet locally-stored
       return _generateKeyPair().then(function(kp) {
         var opts = {
-          id: did,
+          id: identity.id,
           keypair: kp,
           label: options.identifier,
           password: options.password
@@ -234,8 +248,6 @@ function factory($http) {
    * @return the authenticated identity or null.
    */
   service.getAuthenticated = function(id) {
-    var rval = null;
-
     var authenticated = localStorage.getItem(STORAGE_KEYS.AUTHENTICATED);
     if(!authenticated) {
       authenticated = {};
@@ -246,20 +258,32 @@ function factory($http) {
         authenticated = {};
       }
     }
-    if(id in authenticated) {
-      // ensure identity hasn't expired and is loaded
-      if(authenticated[id].expires < Date.now() || !storage.get(id)) {
-        // expire authenticated identity
-        delete authenticated[id];
-      } else {
-        // update authenticated identity
-        rval = authenticated[id];
-        rval.expires = Date.now() + SESSION_EXPIRATION;
+    var identity;
+    if(!(id in authenticated)) {
+      identity = storage.get(id);
+      if(!identity) {
+        return null;
       }
-      localStorage.setItem(
-        STORAGE_KEYS.AUTHENTICATED, JSON.stringify(authenticated));
+      var pem = identity.publicKey.privateKeyPem;
+      if(typeof pem === 'string' &&
+        pem.indexOf('-----BEGIN ENCRYPTED') === -1) {
+        identity.expires = Date.now() + SESSION_EXPIRATION;
+        return identity;
+      }
+      return null;
     }
-    return rval;
+    // ensure identity hasn't expired and is loaded
+    if(authenticated[id].expires < Date.now() || !storage.get(id)) {
+      // expire authenticated identity
+      delete authenticated[id];
+    } else {
+      // update authenticated identity
+      identity = authenticated[id];
+      identity.expires = Date.now() + SESSION_EXPIRATION;
+    }
+    localStorage.setItem(
+      STORAGE_KEYS.AUTHENTICATED, JSON.stringify(authenticated));
+    return identity;
   };
 
   /**
@@ -548,12 +572,34 @@ function factory($http) {
   };
 
   /**
-   * Registers a new decentralized identity and hash mapping for its DID.
+   * Gets an identity by label.
+   *
+   * @param label the local identifier (e.g. email) for the identity.
+   * @param options the options to use.
+   *          [permanent] true to get only permanent identities, false to
+   *            get only session-only identities.
+   *
+   * @return the identity if found, null if not.
+   */
+  storage.getByLabel = function(label, options) {
+    var identities = storage.getAll(options);
+    for(var id in identities) {
+      if(identities[id].label === label) {
+        return identities[id];
+      }
+    }
+    return null;
+  };
+
+  /**
+   * Registers a new decentralized identity and, if a password is given,
+   * a hash mapping for its DID.
    *
    * @param options the options to use:
    *          identity the identity to create.
    *          idp the DID for the identity's IdP.
    *          privateKeyPem the private key PEM for the identity.
+   *          [password] the password to use to create a hash mapping.
    *          [scope] a scope to emit progress events with.
    *
    * @return a Promise that resolves to an object containing the new identity
@@ -600,6 +646,10 @@ function factory($http) {
       if(response.status !== 201) {
         throw response;
       }
+      if(typeof options.password !== 'string') {
+        // do not create mapping
+        return;
+      }
       // create signed mapping from the hash to the DID
       var mapping = {
         '@context': 'https://w3id.org/identity/v1',
@@ -616,14 +666,15 @@ function factory($http) {
         document: mapping,
         publicKeyId: options.identity.publicKey.id,
         privateKeyPem: options.privateKeyPem
+      }).then(function(signed) {
+        // register mapping
+        return Promise.resolve($http.post('/mappings', signed));
+      }).then(function(response) {
+        if(response.status !== 201) {
+          throw response;
+        }
       });
-    }).then(function(signed) {
-      // register mapping
-      return Promise.resolve($http.post('/mappings', signed));
-    }).then(function(response) {
-      if(response.status !== 201) {
-        throw response;
-      }
+    }).then(function() {
       return {
         identity: options.identity,
         didDocument: didDocument
@@ -671,9 +722,14 @@ function factory($http) {
     identity.publicKey.owner = options.id;
     identity.publicKey.publicKeyPem = forge.pki.publicKeyToPem(
       options.keypair.publicKey);
-    identity.publicKey.privateKeyPem = forge.pki.encryptRsaPrivateKey(
-      options.keypair.privateKey,
-      _getKeyPassword(identity.label, options.password));
+    if(typeof options.password === 'string') {
+      identity.publicKey.privateKeyPem = forge.pki.encryptRsaPrivateKey(
+        options.keypair.privateKey,
+        _getKeyPassword(identity.label, options.password));
+    } else {
+      identity.publicKey.privateKeyPem = forge.pki.privateKeyToPem(
+        options.keypair.privateKey);
+    }
     return identity;
   }
 
