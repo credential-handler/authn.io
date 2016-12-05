@@ -269,6 +269,10 @@ function factory($http) {
       var pem = identity.publicKey.privateKeyPem;
       if(typeof pem === 'string' &&
         pem.indexOf('-----BEGIN ENCRYPTED') === -1) {
+        // TODO: other code requires `privateKeyPem` to be on authenticated
+        // identity which is strange; move to `identity.publicKey.privateKeyPem`
+        // if possible and remove this extra copy of the data here
+        identity.privateKeyPem = pem;
         identity.expires = Date.now() + SESSION_EXPIRATION;
         return identity;
       }
