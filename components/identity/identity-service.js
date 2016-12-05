@@ -165,15 +165,17 @@ function factory($http) {
         }
       });
     } else {
-      getIdentity = storage.getByLabel(options.identifier);
+      getIdentity = Promise.resolve(
+        storage.getByLabel(options.identifier, options));
     }
 
-    // fetch the hash(identifier + passphrase) mapping
     return getIdentity.then(function(identity) {
+      if(identity && 'repo' in options && options.repo !== identity.idp) {
+        identity = null;
+      }
       if(!identity && !options.create) {
         throw new Error('Identity not found.');
       }
-
       // generate keypair for identity that isn't yet locally-stored
       return _generateKeyPair().then(function(kp) {
         var opts = {
@@ -576,6 +578,7 @@ function factory($http) {
    *
    * @param label the local identifier (e.g. email) for the identity.
    * @param options the options to use.
+   *          [repo] the credential repo that must match.
    *          [permanent] true to get only permanent identities, false to
    *            get only session-only identities.
    *
@@ -585,7 +588,9 @@ function factory($http) {
     var identities = storage.getAll(options);
     for(var id in identities) {
       if(identities[id].label === label) {
-        return identities[id];
+        if('repo' in options && options.repo === identities[id].idp) {
+          return identities[id];
+        }
       }
     }
     return null;
