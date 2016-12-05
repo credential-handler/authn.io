@@ -1,4 +1,5 @@
-<div class="aio-centered" style="width: 400px; height: 100%">
+<aio-splash aio-on-timeout="$ctrl.splashDone=true"></aio-splash>
+<div ng-if="$ctrl.splashDone" class="aio-centered" style="width: 400px; height: 100%">
   <div class="row">
     <div class="col-md-12">
       <h4 class="text-center"><span class="text-muted"><strong>WELCOME TO</strong></span></h4>
@@ -17,7 +18,7 @@
       width="200px"
       src="/images/key.png">
     <div style="margin-top: 20px">
-      Authorization.io helps you sign in with your device and
+      Authorization.io helps you sign in using your device and
       privately share information as you see fit.
     </div>
     <div style="margin-top: 10px; text-align: right">
@@ -27,7 +28,7 @@
         <div style="text-align: left">
           <p>
           Authorization.io is a community run service that helps you sign
-          into websites using devices such as your smart phone or home computer.
+          into websites using devices such as your phone or home computer.
           <p>
           Authorization.io also helps you share information from your
           digital wallet without revealing the websites you choose to share
@@ -47,11 +48,10 @@
           </p>
           <p>
           <strong>Note:</strong>
-          This service will collect your email address during
-          registration, but this information is only stored in your local
-          Web browser. It is not sent to or stored on a server. It is used
-          to help you choose which account you want to use when storing
-          or retrieving items from a digital wallet.</p>
+          This page asks for your email address, but this information is
+          only stored in your local Web browser. It is not sent to or stored
+          on a server. It is used to help you choose which account you want
+          to use when storing or retrieving items from a digital wallet.</p>
         </div>
       </div>
     </div>
