@@ -20,8 +20,10 @@ function register(module) {
 function Ctrl($timeout) {
   var self = this;
   self.show = true;
-  // default timeout
-  self.timeout = 2000;
+  if(!('timeout' in self)) {
+    // default timeout
+    self.timeout = 2000;
+  }
 
   self.$onInit = function() {
     $timeout(function() {
