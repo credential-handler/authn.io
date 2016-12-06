@@ -13,7 +13,7 @@
     </div>
   </div>
 
-  <div style="background: #337ab7; color: #fff; padding: 20px 20px; margin-top: 20px">
+  <div style="background: #337ab7; color: #fff; padding: 20px; margin-top: 15px">
     <img style="display: block; margin: 0 auto; padding-top: 10px"
       width="200px"
       src="/images/key.png">
@@ -31,7 +31,7 @@
           into websites using devices such as your phone or home computer.
           <p>
           Authorization.io also helps you share information from your
-          digital wallet without revealing the websites you choose to share
+          digital wallet without revealing the websites you share
           with to your wallet provider.
           </p>
           <p>
@@ -72,8 +72,6 @@
       </div>
     </div>
 
-    <br>
-
     <div class="row">
       <form name="$ctrl.regForm" class="form-horizontal" role="form" novalidate
         ng-submit="$ctrl.validateForm()">
@@ -108,8 +106,8 @@
             </br-input-validation-errors>
           </br-input> -->
         </fieldset>
-        <div class="form-group">
-          <div class="input-group col-xs-offset-4 col-xs-7">
+        <div class="form-group" style="margin-top: 10px; margin-bottom: 0">
+          <div class="input-group col-xs-12 text-center">
             <button
               ng-disabled="$ctrl.registering || $ctrl.generating || $ctrl.regForm.$invalid"
               type="submit" class="btn btn-primary">Register
@@ -134,4 +132,6 @@
       </form>
     </div>
   </div>
+
+  <br>
 </div>
