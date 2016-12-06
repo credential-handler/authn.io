@@ -1,0 +1,13 @@
+[Service]
+ExecStart=/usr/bin/node /home/bedrock/authorization.io/demo.authorization.io.js
+WorkingDirectory=/home/bedrock/authorization.io
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=authio
+User=root
+Group=root
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
