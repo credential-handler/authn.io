@@ -3,12 +3,22 @@
     <div class="aio-op-header">
       <div class="callout callout-primary">
         <a ng-click="model.cancel()" class="close">&times;<span class="sr-only">Close</span></a>
-        <h4>
-          Credential {{(model.op === 'store' && 'Storage') || ''}} Request
-        </h4>
-        <p>
-          <strong>{{model.relyingParty}}</strong> has requested <span ng-show="model.op === 'store'">to store </span> credentials.
-        </p>
+        <div ng-if="model.isCryptoKeyRequest">
+          <h4>
+            Sign in Request
+          </h4>
+          <p>
+            <strong>{{model.relyingParty}}</strong> wants you to sign in.
+          </p>
+        </div>
+        <div ng-if="!model.isCryptoKeyRequest">
+          <h4>
+            Credential {{(model.op === 'store' && 'Storage') || ''}} Request
+          </h4>
+          <p>
+            <strong>{{model.relyingParty}}</strong> has requested <span ng-show="model.op === 'store'">to store </span> credentials.
+          </p>
+        </div>
       </div>
     </div>
   </div>
