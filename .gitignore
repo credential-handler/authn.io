@@ -15,5 +15,4 @@ authorization.dev-app.log
 authorization.dev-access.log
 authorization.dev-access1.log
 bedrock
-static/images/authorization-io-logo-*.png
 cache
