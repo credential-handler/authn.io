@@ -16,6 +16,10 @@ define([
 
 'use strict';
 
+function register(module) {
+  module.service('aioIdentityService', factory);
+}
+
 /* @ngInject */
 function factory($http) {
   var service = {};
@@ -824,6 +828,6 @@ function factory($http) {
   return service;
 }
 
-return {aioIdentityService: factory};
+return register;
 
 });

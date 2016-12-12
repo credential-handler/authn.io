@@ -7,10 +7,10 @@
 define([
   'angular',
   './agent-component',
+  './identity-service',
   './operation-service',
   './register-component',
   './splash-component',
-  './identity/identity',
   './identity-chooser/identity-chooser',
   './idp-test/idp-test'
 ], function(angular) {
@@ -18,10 +18,10 @@ define([
 'use strict';
 
 var module = angular.module('authio', [
-  'authio.identity', 'authio.identityChooser',
-  'authio.idp-test', 'bedrock.alert', 'bedrock.form', 'bedrock-navbar']);
+  'authio.identityChooser', 'authio.idp-test',
+  'bedrock.alert', 'bedrock.form', 'bedrock-navbar']);
 
-Array.prototype.slice.call(arguments, 1, 5).forEach(function(register) {
+Array.prototype.slice.call(arguments, 1, 6).forEach(function(register) {
   register(module);
 });
 

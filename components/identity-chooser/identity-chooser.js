@@ -13,7 +13,7 @@ define([
 'use strict';
 
 var module = angular.module(
-  'authio.identityChooser', ['authio.identity', 'bedrock.alert']);
+  'authio.identityChooser', ['bedrock.alert']);
 
 module.directive(identityChooserDirective);
 module.directive(addIdentityModalDirective);
