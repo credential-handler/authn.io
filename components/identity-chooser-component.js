@@ -67,6 +67,10 @@ function Ctrl($scope, aioIdentityService, aioOperationService, brAlertService) {
     self.display.loginForm = true;
   };
 
+  self.isAuthenticated = function(id) {
+    return aioIdentityService.isAuthenticated(id);
+  };
+
   function updateIdentities(filter) {
     if(filter === null) {
       self.identities = aioIdentityService.identities.getAll();

@@ -17,32 +17,41 @@
         <div class="row">
           <!-- TODO: move style to less -->
           <div class="col-sm-12" style="height 80px; padding: 10px;">
-            <i class="fa fa-user fa-3x pull-left" style="padding-left: 8px"></i>
+            <!-- <i class="fa fa-user fa-3x pull-left" style="padding-left: 8px"></i> -->
+            <span class="fa-stack fa-lg pull-left">
+              <i class="fa fa-user fa-stack-2x"></i>
+              <i ng-if="!$ctrl.isAuthenticated(identity.id)"
+                class="fa fa-lock fa-stack-1x" style="margin-top: -7px; margin-left: 20px"
+                br-tooltip="This identity is password-protected."></i>
+              <i ng-if="$ctrl.isAuthenticated(identity.id)"
+                class="fa fa-unlock fa-stack-1x" style="margin-top: -7px; margin-left: 20px"
+                br-tooltip="This identity is not password-protected or its password was entered recently."></i>
+            </span>
             <div class="text" style="margin-left: 60px;">
               <strong>{{identity.label}}</strong>
               <h6 class="text-muted" style="margin-top: 4px; margin-bottom: 4px;">Managed by {{identity.sysRepoDomain || 'Loading repository information...'}}</h6>
             </div>
           </div>
         </div>
-        <div ng-if="$ctrl.display.loginForm && $ctrl.selected === id">
-          <hr>
+        <div ng-show="$ctrl.display.loginForm && $ctrl.selected === id">
           <form class="form-horizontal" name="$ctrl.loginForm"
             ng-submit="$ctrl.authenticate(id, $ctrl.password)">
             <fieldset>
               <br-input br-model="$ctrl.password"
                 br-options="{
                   name: 'password',
-                  label: 'Passphrase',
+                  label: 'Password',
                   type: 'password',
+                  helpTogglePosition: 'label',
                   showValidation: true,
                   autofocus: true
                 }" required>
                 <br-input-help>
-                  Please enter your passphrase.
+                  Please enter the password to unlock this identity.
                 </br-input-help>
                 <br-input-validation-errors>
                   <p ng-show="$ctrl.loginForm.password.$error.required">
-                    Passphrase is required.
+                    A password is required to unlock this identity.
                   </p>
                 </br-input-validation-errors>
               </br-input>
