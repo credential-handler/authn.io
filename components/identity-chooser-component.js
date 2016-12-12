@@ -12,8 +12,7 @@ function register(module) {
   module.component('aioIdentityChooser', {
     bindings: {
       filter: '=?aioIdentityChooserFilter',
-      // TODO: update to naming convention: `&aioOnSelect`
-      callback: '&aioIdentityChooserCallback'
+      onIdentitySelected: '&aioOnIdentitySelected'
     },
     controller: Ctrl,
     templateUrl: requirejs.toUrl('authio/identity-chooser-component.html')
@@ -56,32 +55,25 @@ function Ctrl($scope, aioIdentityService, aioOperationService, brAlertService) {
       $scope.$apply();
       return;
     }
-    return self.select(id).catch(function() {}).then(function() {
-      self.authenticating = false;
-      $scope.$apply();
-    });
+    self.select(id);
+    self.authenticating = false;
+    $scope.$apply();
   };
 
   self.select = function(id) {
     if(self.selected === id && !aioIdentityService.isAuthenticated(id)) {
-      // do nothing if the identity is already selected
-      return Promise.resolve();
+      // do nothing if the identity is already selected but not authenticated
+      return;
     }
+    // select new identity
     self.selected = id;
     if(aioIdentityService.isAuthenticated(id)) {
-      // no further user mediation required, generate session
-      return aioIdentityService.createSession(id).catch(function(err) {
-        self.callback({err: err, session: null});
-      }).then(function(session) {
-        if(session) {
-          self.callback({err: null, session: session});
-        }
-      });
+      // notify that the identity has been selected
+      return self.onIdentitySelected({identity: id});
     }
     // clear password and show login form
     self.password = '';
     self.display.loginForm = true;
-    return Promise.resolve();
   };
 
   function updateIdentities(filter) {

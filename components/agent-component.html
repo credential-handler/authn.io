@@ -26,7 +26,7 @@
   <div class="aio-op-content">
     <aio-identity-chooser ng-if="$ctrl.display.identityChooser"
       aio-identity-chooser-filter="$ctrl.did"
-      aio-identity-chooser-callback="$ctrl.complete(err, session)">
+      aio-on-identity-selected="$ctrl.identitySelected(identity)">
     </aio-identity-chooser>
     <div ng-if="$ctrl.display.authenticating">
       <span>

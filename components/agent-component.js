@@ -41,11 +41,23 @@ function Ctrl(
   };
 
   /**
+   * Called when an identity is selected in the identity chooser.
+   *
+   * @param id the ID of the identity that was selected.
+   */
+  self.identitySelected = function(id) {
+    // create a session based on the selected identity
+    return aioIdentityService.createSession(id).then(
+      self.complete.bind(self, null),
+      self.complete.bind(self));
+  };
+
+  /**
    * Resumes the flow by proxying a message. This function is called after an
    * identity has been chosen.
    *
    * @param err an error if one occurred.
-   * @param session set to the selected session if an identity chooser was used.
+   * @param session the session associated with the selected identity.
    */
   self.complete = function(err, session) {
     if(err) {
