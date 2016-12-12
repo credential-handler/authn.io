@@ -8,8 +8,12 @@ define(['jsonld', 'node-uuid'], function(jsonld, uuid) {
 
 'use strict';
 
+function register(module) {
+  module.service('aioOperationService', factory);
+}
+
 /* @ngInject */
-function factory($document, $window, aioIdentityService) {
+function factory(aioIdentityService) {
   var service = {};
 
   var Router = navigator.credentials._Router;
@@ -270,6 +274,6 @@ function factory($document, $window, aioIdentityService) {
   return service;
 }
 
-return {aioOperationService: factory};
+return register;
 
 });

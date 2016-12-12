@@ -6,28 +6,35 @@
  */
 define([
   'angular',
-  './register-did/register-did-component',
+  './agent-component',
+  './operation-service',
   './register-component',
   './splash-component',
-  './agent/agent',
   './identity/identity',
   './identity-chooser/identity-chooser',
   './idp-test/idp-test'
-], function(angular, registerDidComponent, registerComponent, splashComponent) {
+], function(angular) {
 
 'use strict';
 
 var module = angular.module('authio', [
-  'authio.agent', 'authio.identity', 'authio.identityChooser',
-  'authio.idp-test']);
+  'authio.identity', 'authio.identityChooser',
+  'authio.idp-test', 'bedrock.alert', 'bedrock.form', 'bedrock-navbar']);
 
-registerDidComponent(module);
-registerComponent(module);
-splashComponent(module);
+Array.prototype.slice.call(arguments, 1, 5).forEach(function(register) {
+  register(module);
+});
 
 /* @ngInject */
 module.config(function($routeProvider) {
   $routeProvider
+    .when('/agent', {
+      vars: {
+        title: 'Credential Agent',
+        navbar: false
+      },
+      template: '<aio-agent></aio-agent>'
+    })
     .when('/register', {
       vars: {
         title: 'Register',
