@@ -2,7 +2,7 @@
   <div class="col-sm-offset-2 col-sm-8">
     <br-headline
       br-title="{{$ctrl.display.loginForm && 'Login' || 'Select an Identity'}}"
-      br-loading="$ctrl.loading" br-options="{menu:false}"></br-headline>
+      br-options="{menu:false}"></br-headline>
     <stackable-modal stackable="$ctrl.showAddIdentityModal"
       stackable-closed="!err && $ctrl.identityAdded(result)"
       br-lazy-compile="$ctrl.showAddIdentityModal"
@@ -11,7 +11,7 @@
       <aio-add-identity-modal></aio-add-identity-modal>
     </stackable-modal>
     <hr>
-    <ul ng-hide="$ctrl.loading" class="list-unstyled">
+    <ul class="list-unstyled">
       <li class="br-item-hover well" ng-repeat="(id, identity) in $ctrl.identities"
         ng-click="$ctrl.select(id)">
         <div class="row">
@@ -50,13 +50,10 @@
                 <div class="input-group col-sm-offset-3">
                   <div class="btn-group">
                     <button class="btn btn-primary" type="submit"
-                      ng-disabled="$ctrl.loading || $ctrl.authenticating || $ctrl.loginForm.$invalid"><i
+                      ng-disabled="$ctrl.loginForm.$invalid"><i
                       class="fa fa-sign-in"></i> Login<span
                         ng-show="$ctrl.authenticating"> <i class="fa fa-refresh fa-spin"></i></span></button>
                   </div>
-                  <span ng-show="$ctrl.loading">
-                    <i class="fa fa-refresh fa-spin fa-lg text-muted"></i>
-                  </span>
                 </div>
               </div>
             </fieldset>
@@ -64,18 +61,16 @@
         </div>
       </li>
     </ul>
-    <div ng-if="!$ctrl.loading">
-      <div ng-if="$ctrl.identities | isEmpty">
-        <div class="alert alert-warning"><strong>No identities found</strong>.</div>
-        <p>
-          Please <a ng-click="$ctrl.showAddIdentityModal=true">register
-          an existing identity with this device</a> or visit an identity
-          provider of your choice to create a new one.
-        </p>
-      </div>
-      <div ng-if="!($ctrl.identities | isEmpty)">
-        <h4><a ng-click="$ctrl.showAddIdentityModal=true"><strong><i class="fa fa-plus"></i> Add Identity</strong></a></h4>
-      </div>
+    <div ng-if="$ctrl.identities | isEmpty">
+      <div class="alert alert-warning"><strong>No identities found</strong>.</div>
+      <p>
+        Please <a ng-click="$ctrl.showAddIdentityModal=true">register
+        an existing identity with this device</a> or visit an identity
+        provider of your choice to create a new one.
+      </p>
+    </div>
+    <div ng-if="!($ctrl.identities | isEmpty)">
+      <h4><a ng-click="$ctrl.showAddIdentityModal=true"><strong><i class="fa fa-plus"></i> Add Identity</strong></a></h4>
     </div>
   </div>
 </div>

@@ -22,9 +22,6 @@ function register(module) {
 /* @ngInject */
 function Ctrl($scope, aioIdentityService, aioOperationService, brAlertService) {
   var self = this;
-  // TODO: `self.loading` needed? seems to only be used in synchronous code
-  self.loading = true;
-  self.authenticating = false;
   self.selected = null;
 
   self.display = {};
@@ -32,7 +29,6 @@ function Ctrl($scope, aioIdentityService, aioOperationService, brAlertService) {
 
   self.$onInit = function() {
     updateIdentities(self.filter);
-    self.loading = false;
   };
 
   self.$onChanges = function(changes) {
@@ -46,18 +42,13 @@ function Ctrl($scope, aioIdentityService, aioOperationService, brAlertService) {
   };
 
   self.authenticate = function(id, password) {
-    self.authenticating = true;
     try {
       aioIdentityService.authenticate(id, password);
     } catch(err) {
-      self.authenticating = false;
       brAlertService.add('error', err, {scope: $scope});
-      $scope.$apply();
       return;
     }
     self.select(id);
-    self.authenticating = false;
-    $scope.$apply();
   };
 
   self.select = function(id) {
