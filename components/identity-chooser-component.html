@@ -1,19 +1,19 @@
 <div class="row">
   <div class="col-sm-offset-2 col-sm-8">
     <br-headline
-      br-title="{{ctrl.display.loginForm && 'Login' || 'Select an Identity'}}"
-      br-loading="ctrl.loading" br-options="{menu:false}"></br-headline>
-    <stackable-modal stackable="ctrl.showAddIdentityModal"
-      stackable-closed="!err && ctrl.identityAdded(result)"
-      br-lazy-compile="ctrl.showAddIdentityModal"
+      br-title="{{$ctrl.display.loginForm && 'Login' || 'Select an Identity'}}"
+      br-loading="$ctrl.loading" br-options="{menu:false}"></br-headline>
+    <stackable-modal stackable="$ctrl.showAddIdentityModal"
+      stackable-closed="!err && $ctrl.identityAdded(result)"
+      br-lazy-compile="$ctrl.showAddIdentityModal"
       br-lazy-id="aio-add-identity-modal">
       <!-- TODO: include identity filter as parameter to modal -->
       <aio-add-identity-modal></aio-add-identity-modal>
     </stackable-modal>
-    <hr/>
-    <ul ng-hide="ctrl.loading" class="list-unstyled">
-      <li class="br-item-hover well" ng-repeat="(id, identity) in ctrl.identities"
-        ng-click="ctrl.select(id)">
+    <hr>
+    <ul ng-hide="$ctrl.loading" class="list-unstyled">
+      <li class="br-item-hover well" ng-repeat="(id, identity) in $ctrl.identities"
+        ng-click="$ctrl.select(id)">
         <div class="row">
           <!-- TODO: move style to less -->
           <div class="col-sm-12" style="height 80px; padding: 10px;">
@@ -24,12 +24,12 @@
             </div>
           </div>
         </div>
-        <div ng-if="ctrl.display.loginForm && ctrl.selected === id">
-          <hr/>
-          <form class="form-horizontal" name="loginForm"
-            ng-submit="ctrl.authenticate(id, ctrl.password)">
+        <div ng-if="$ctrl.display.loginForm && $ctrl.selected === id">
+          <hr>
+          <form class="form-horizontal" name="$ctrl.loginForm"
+            ng-submit="$ctrl.authenticate(id, $ctrl.password)">
             <fieldset>
-              <br-input br-model="ctrl.password"
+              <br-input br-model="$ctrl.password"
                 br-options="{
                   name: 'password',
                   label: 'Passphrase',
@@ -37,24 +37,24 @@
                   showValidation: true,
                   autofocus: true
                 }" required>
-                <div name="br-input-help">
+                <br-input-help>
                   Please enter your passphrase.
-                </div>
-                <div name="br-input-validation-errors">
-                  <p ng-show="loginForm.password.$error.required">
+                </br-input-help>
+                <br-input-validation-errors>
+                  <p ng-show="$ctrl.loginForm.password.$error.required">
                     Passphrase is required.
                   </p>
-                </div>
+                </br-input-validation-errors>
               </br-input>
               <div class="form-group">
                 <div class="input-group col-sm-offset-3">
                   <div class="btn-group">
                     <button class="btn btn-primary" type="submit"
-                      ng-disabled="ctrl.loading || ctrl.authenticating || loginForm.$invalid"><i
+                      ng-disabled="$ctrl.loading || $ctrl.authenticating || $ctrl.loginForm.$invalid"><i
                       class="fa fa-sign-in"></i> Login<span
-                        ng-show="ctrl.authenticating"> <i class="fa fa-refresh fa-spin"></i></span></button>
+                        ng-show="$ctrl.authenticating"> <i class="fa fa-refresh fa-spin"></i></span></button>
                   </div>
-                  <span ng-show="ctrl.loading">
+                  <span ng-show="$ctrl.loading">
                     <i class="fa fa-refresh fa-spin fa-lg text-muted"></i>
                   </span>
                 </div>
@@ -64,17 +64,17 @@
         </div>
       </li>
     </ul>
-    <div ng-if="!ctrl.loading">
-      <div ng-if="ctrl.identities | isEmpty">
+    <div ng-if="!$ctrl.loading">
+      <div ng-if="$ctrl.identities | isEmpty">
         <div class="alert alert-warning"><strong>No identities found</strong>.</div>
         <p>
-          Please <a ng-click="ctrl.showAddIdentityModal=true">register
+          Please <a ng-click="$ctrl.showAddIdentityModal=true">register
           an existing identity with this device</a> or visit an identity
           provider of your choice to create a new one.
         </p>
       </div>
-      <div ng-if="!(ctrl.identities | isEmpty)">
-        <h4><a ng-click="ctrl.showAddIdentityModal=true"><strong><i class="fa fa-plus"></i> Add Identity</strong></a></h4>
+      <div ng-if="!($ctrl.identities | isEmpty)">
+        <h4><a ng-click="$ctrl.showAddIdentityModal=true"><strong><i class="fa fa-plus"></i> Add Identity</strong></a></h4>
       </div>
     </div>
   </div>

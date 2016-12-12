@@ -6,22 +6,23 @@
  */
 define([
   'angular',
+  './add-identity-modal-component',
   './agent-component',
+  './identity-chooser-component',
   './identity-service',
   './operation-service',
   './register-component',
-  './splash-component',
-  './identity-chooser/identity-chooser',
-  './idp-test/idp-test'
+  './splash-component',/*
+  './idp-test/idp-test'*/
 ], function(angular) {
 
 'use strict';
 
 var module = angular.module('authio', [
-  'authio.identityChooser', 'authio.idp-test',
+  /*'authio.idp-test',*/
   'bedrock.alert', 'bedrock.form', 'bedrock-navbar']);
 
-Array.prototype.slice.call(arguments, 1, 6).forEach(function(register) {
+Array.prototype.slice.call(arguments, 1).forEach(function(register) {
   register(module);
 });
 
