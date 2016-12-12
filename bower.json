@@ -13,6 +13,7 @@
     "bedrock-angular-identity-composer": "^1.0.0",
     "bedrock-angular-modal": "^3.0.0",
     "bedrock-angular-model": "^2.0.0",
+    "bedrock-angular-navbar": "^3.1.0",
     "bedrock-angular-selector": "^3.0.0",
     "bedrock-angular-ui": "^2.0.0",
     "credentials-polyfill": "~0.10.0",
@@ -24,7 +25,6 @@
     "lodash": "^4.6.1"
   },
   "resolutions": {
-    "es6-promise": "~2.1",
-    "bedrock-angular-modal": "^3.0.0"
+    "es6-promise": "~2.1"
   }
 }

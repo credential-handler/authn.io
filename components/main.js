@@ -29,19 +29,28 @@ splashComponent(module);
 module.config(function($routeProvider) {
   $routeProvider
     .when('/register', {
-      title: 'Register',
+      vars: {
+        title: 'Register',
+        navbar: false
+      },
       template: '<aio-register></aio-register>'
     })
     .when('/test/credentials/idpquery', {
-      title: 'Mock Credential Consumer Query',
+      vars: {
+        title: 'Mock Credential Consumer Query'
+      },
       templateUrl: requirejs.toUrl('components/idp-test/idp-test.html')
     })
     .when('/test/credentials/composed-identity', {
-      title: 'Mock Credential Consumer Query Results',
+      vars: {
+        title: 'Mock Credential Consumer Query Results',
+      },
       templateUrl: requirejs.toUrl('components/idp-test/idp-test.html')
     })
     .when('/test/credentials/stored-credential', {
-      title: 'Mock Credential Storage Results',
+      vars: {
+        title: 'Mock Credential Storage Results'
+      },
       templateUrl: requirejs.toUrl('components/idp-test/idp-test.html')
     });
 });
