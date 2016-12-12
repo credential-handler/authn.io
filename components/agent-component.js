@@ -8,11 +8,19 @@ define(['angular', 'node-uuid', 'lodash'], function(angular, uuid, _) {
 
 'use strict';
 
+function register(module) {
+  module.component('aioAgent', {
+    controller: Ctrl,
+    templateUrl: requirejs.toUrl('authio/agent-component.html')
+  });
+}
+
 /* @ngInject */
-function factory(
-  $location, $sce, $scope, $window,
+function Ctrl(
+  $location, $sce, $rootScope, $scope, $window,
   aioIdentityService, aioOperationService, brAlertService, config) {
   var self = this;
+  self.route = $rootScope.route;
   self.isCryptoKeyRequest = false;
   self.did = null;
   self.display = {};
@@ -208,6 +216,6 @@ function factory(
   }
 }
 
-return {aioAgentController: factory};
+return register;
 
 });
