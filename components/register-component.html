@@ -76,7 +76,8 @@
       <form name="$ctrl.regForm" class="form-horizontal" role="form" novalidate
         ng-submit="$ctrl.validateForm()">
         <fieldset>
-          <!-- <br-input br-model="$ctrl.email"
+          <!--
+          <br-input br-model="$ctrl.email"
             br-options="{
               name: 'email',
               label: 'Email',
@@ -105,6 +106,47 @@
               </p>
             </br-input-validation-errors>
           </br-input> -->
+          <!--
+          <br-input br-model="$ctrl.passphrase"
+            br-options="{
+              name: 'passphrase',
+              label: 'Passphrase',
+              showValidation: true,
+              type: 'password'
+            }" ng-minlength="8" ng-maxlength="128" required>
+            <br-input-help>
+              Please enter a passphrase.
+            </br-input-help>
+            <br-input-validation-errors>
+              <p ng-show="$ctrl.regForm.passphrase.$error.required">
+                Passphrase is required.
+              </p>
+              <p ng-show="$ctrl.regForm.passphrase.$error.minlength">
+                Passphrase is required to be at least 8 characters.
+              </p>
+              <p ng-show="$ctrl.regForm.passphrase.$error.maxlength">
+                Passphrase must not be longer than 128 characters.
+              </p>
+            </br-input-validation-errors>
+          </br-input>
+          <br-input br-model="$ctrl.passphraseConfirmation"
+            br-options="{
+              name: 'passphraseConfirmation',
+              label: 'Confirm Passphrase',
+              showValidation: true,
+              type: 'password'
+            }"
+            br-input-br-validator-same-as="$ctrl.passphrase">
+            <div name="br-input-help">
+              Please confirm your passphrase.
+            </div>
+            <br-input-validation-errors>
+              <p ng-show="$ctrl.regForm.passphraseConfirmation.$error.brValidatorSameAs">
+                Passphrase and Confirm Passphrase must match.
+              </p>
+            </br-input-validation-errors>
+          </br-input>
+          -->
         </fieldset>
         <div class="form-group" style="margin-top: 10px; margin-bottom: 0">
           <div class="input-group col-xs-12 text-center">
