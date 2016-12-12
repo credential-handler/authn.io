@@ -1,5 +1,5 @@
 <br-modal br-title="Add Identity">
-  <div name="br-modal-body">
+  <br-modal-body>
     <p>
       If you have another identity you'd like to use with this device, please
       enter the email address and passphrase associated with it. If you do not
@@ -8,63 +8,63 @@
     </p>
     <hr/>
     <div class="row">
-      <form name="addIdentityForm" class="form-horizontal" role="form">
+      <form name="$ctrl.addIdentityForm" class="form-horizontal" role="form">
         <fieldset>
-          <br-input br-model="model.email"
-            br-input-ng-keyup="$event.keyCode === 13 && !model.loading &&
-              model.email && model.passphrase && model.add()"
+          <br-input br-model="$ctrl.email"
+            br-input-ng-keyup="$event.keyCode === 13 && !$ctrl.loading &&
+              $ctrl.email && $ctrl.passphrase && $ctrl.add()"
             br-options="{
               name: 'email',
               label: 'Email',
               showValidation: true,
               autofocus: true,
-              disabled: {{model.loading}}
+              disabled: {{$ctrl.loading}}
             }" ng-minlength="6" ng-maxlength="128" required>
-            <div name="br-input-help">
+            <br-input-help>
               Please enter your email address.
-            </div>
-            <div name="br-input-validation-errors">
-              <p ng-show="addIdentityForm.email.$error.required">
+            </br-input-help>
+            <br-input-validation-errors>
+              <p ng-show="$ctrl.addIdentityForm.email.$error.required">
                 Email is required.
               </p>
-              <p ng-show="addIdentityForm.email.$error.minlength">
+              <p ng-show="$ctrl.addIdentityForm.email.$error.minlength">
                 Email is required to be at least 6 characters.
               </p>
-              <p ng-show="addIdentityForm.email.$error.maxlength">
+              <p ng-show="$ctrl.addIdentityForm.email.$error.maxlength">
                 Email must not be longer than 128 characters.
               </p>
-            </div>
+            </br-input-validation-errors>
           </br-input>
-          <br-input br-model="model.passphrase"
-            br-input-ng-keyup="$event.keyCode === 13 && !model.loading &&
-              model.email && model.passphrase && model.add()"
+          <br-input br-model="$ctrl.passphrase"
+            br-input-ng-keyup="$event.keyCode === 13 && !$ctrl.loading &&
+              $ctrl.email && $ctrl.passphrase && $ctrl.add()"
             br-options="{
               name: 'passphrase',
               label: 'Passphrase',
               type: 'password',
               showValidation: true,
-              disabled: {{model.loading}}
+              disabled: {{$ctrl.loading}}
             }" ng-minlength="6" ng-maxlength="128" required>
-            <div name="br-input-help">
+            <br-input-help>
               Please enter a passphrase.
-            </div>
-            <div name="br-input-validation-errors">
-              <p ng-show="addIdentityForm.passphrase.$error.required">
+            </br-input-help>
+            <br-input-validation-errors>
+              <p ng-show="$ctrl.addIdentityForm.passphrase.$error.required">
                 Passphrase is required.
               </p>
-              <p ng-show="addIdentityForm.passphrase.$error.minlength">
+              <p ng-show="$ctrl.addIdentityForm.passphrase.$error.minlength">
                 Passphrase is required to be at least 6 characters.
               </p>
-              <p ng-show="addIdentityForm.passphrase.$error.maxlength">
+              <p ng-show="$ctrl.addIdentityForm.passphrase.$error.maxlength">
                 Passphrase must not be longer than 128 characters.
               </p>
-            </div>
+            </br-input-validation-errors>
           </br-input>
           <div class="form-group">
             <div class="col-sm-offset-3 col-sm-8">
               <div class="checkbox">
                 <label>
-                  <input type="checkbox" ng-model="model.permanent">
+                  <input type="checkbox" ng-model="$ctrl.permanent">
                     Remember me on this device
                 </label>
               </div>
@@ -73,18 +73,18 @@
         </fieldset>
       </form>
     </div>
-  </div>
-  <div name="br-modal-footer">
-    <span ng-show="model.generating">Please wait, this may take a minute...</span>
-    <span ng-show="model.loading">
+  </br-modal-body>
+  <br-modal-footer>
+    <span ng-show="$ctrl.generating">Please wait, this may take a minute...</span>
+    <span ng-show="$ctrl.loading">
       <i class="fa fa-refresh fa-spin text-muted"></i>
     </span>
     <span>
       <button type="button" class="btn btn-primary"
-        ng-disabled="model.loading || !model.email || !model.passphrase"
-        ng-click="model.add()"><i class="fa fa-check"></i> Add</button>
+        ng-disabled="$ctrl.loading || !$ctrl.email || !$ctrl.passphrase"
+        ng-click="$ctrl.add()"><i class="fa fa-check"></i> Add</button>
     </span>
     <button type="button" class="btn btn-default stackable-cancel"
-      ng-disabled="model.loading">Cancel</button>
-  </div>
+      ng-disabled="$ctrl.loading">Cancel</button>
+  </br-modal-footer>
 </br-modal>
