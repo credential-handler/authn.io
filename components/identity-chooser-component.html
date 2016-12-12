@@ -1,6 +1,7 @@
 <div class="row">
   <div class="col-sm-offset-2 col-sm-8">
     <br-headline
+      ng-if="!($ctrl.identities | isEmpty) || !$ctrl.enableRegistration"
       br-title="{{$ctrl.display.loginForm && 'Login' || 'Select an Identity'}}"
       br-options="{menu:false}"></br-headline>
     <stackable-modal stackable="$ctrl.showAddIdentityModal"
@@ -70,16 +71,31 @@
         </div>
       </li>
     </ul>
-    <div ng-if="$ctrl.identities | isEmpty">
-      <div class="alert alert-warning"><strong>No identities found</strong>.</div>
-      <p>
-        Please <a ng-click="$ctrl.showAddIdentityModal=true">register
-        an existing identity with this device</a> or visit an identity
-        provider of your choice to create a new one.
-      </p>
+    <div ng-if="!$ctrl.enableRegistration">
+      <div ng-if="$ctrl.identities | isEmpty">
+        <div class="alert alert-warning"><strong>No identities found</strong>.</div>
+        <p>
+          Please <a ng-click="$ctrl.showAddIdentityModal=true">register
+          an existing identity with this device</a> or visit a digital
+          wallet provider of your choice to create a new one.
+        </p>
+      </div>
+      <div ng-if="!($ctrl.identities | isEmpty)">
+        <h4><a ng-click="$ctrl.showAddIdentityModal=true"><strong><i class="fa fa-plus"></i> Add Identity</strong></a></h4>
+      </div>
     </div>
-    <div ng-if="!($ctrl.identities | isEmpty)">
-      <h4><a ng-click="$ctrl.showAddIdentityModal=true"><strong><i class="fa fa-plus"></i> Add Identity</strong></a></h4>
-    </div>
+  </div>
+</div>
+<div ng-if="$ctrl.enableRegistration && ($ctrl.identities | isEmpty)"
+  class="row">
+  <div class="col-xs-12 text-center">
+    <p>
+      To enable sign in with this device, you must get a digital wallet.
+    </p>
+    <button class="btn btn-primary" type="button"
+      ng-click="$ctrl.onIdentitySelected({identity: null})"><i
+      class="fa fa-arrow-right"></i> Get a Wallet<span></button>
+    <hr>
+    <a ng-click="$ctrl.showAddIdentityModal=true">I already have a wallet that I want to use with this device.</a>
   </div>
 </div>

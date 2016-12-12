@@ -26,6 +26,7 @@
   <div class="aio-op-content">
     <aio-identity-chooser ng-if="$ctrl.display.identityChooser"
       aio-identity-chooser-filter="$ctrl.did"
+      aio-enable-registration="$ctrl.enableRegistration"
       aio-on-identity-selected="$ctrl.identitySelected(identity)">
     </aio-identity-chooser>
     <div ng-if="$ctrl.display.authenticating">

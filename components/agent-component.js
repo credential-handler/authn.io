@@ -46,6 +46,10 @@ function Ctrl(
    * @param id the ID of the identity that was selected.
    */
   self.identitySelected = function(id) {
+    if(id === null) {
+      // no ID was selected (can only happen when `enableRegistration=true`)
+      return _sendError('NotRegisteredError');
+    }
     // create a session based on the selected identity
     return aioIdentityService.createSession(id).then(
       self.complete.bind(self, null),
@@ -168,6 +172,7 @@ function Ctrl(
       if('id' in options.query && options.query.id) {
         self.did = options.query.id;
       }
+      self.enableRegistration = options.enableRegistration;
       self.display.identityChooser = true;
       $scope.$apply();
       return;
@@ -225,6 +230,14 @@ function Ctrl(
     }
     resultSent = true;
     return aioOperationService.sendResult(self.op, result, relyingParty);
+  }
+
+  function _sendError(error) {
+    if(resultSent) {
+      return;
+    }
+    resultSent = true;
+    return aioOperationService.sendError(self.op, error, relyingParty);
   }
 }
 
