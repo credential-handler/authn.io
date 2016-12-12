@@ -11,7 +11,8 @@ define(['angular'], function(angular) {
 function register(module) {
   module.component('aioIdentityChooser', {
     bindings: {
-      filter: '=?aioIdentityChooserFilter',
+      filter: '<?aioIdentityChooserFilter',
+      enableRegistration: '<?aioEnableRegistration',
       onIdentitySelected: '&aioOnIdentitySelected'
     },
     controller: Ctrl,

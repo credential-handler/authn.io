@@ -1,12 +1,16 @@
 <br-modal br-title="Add Identity">
   <br-modal-body>
     <p>
-      If you have another identity you'd like to use with this device, please
-      enter the email address and passphrase associated with it. If you do not
-      have another identity, you'll need to visit an identity provider of
-      your choice and register a new one.
+      If you have another identity you'd like to use with this device, you
+      must have previously enabled it for use on multiple devices.
     </p>
-    <hr/>
+    <p>
+      If you did this already, please enter the email address and password you
+      associated with it to add it to this device. If you did not, you'll need
+      to use the device you registered with or visit your digital wallet
+      provider to register this device.
+    </p>
+    <hr>
     <div class="row">
       <form name="$ctrl.addIdentityForm" class="form-horizontal" role="form">
         <fieldset>
@@ -16,12 +20,14 @@
             br-options="{
               name: 'email',
               label: 'Email',
+              helpTogglePosition: 'label',
               showValidation: true,
               autofocus: true,
               disabled: {{$ctrl.loading}}
             }" ng-minlength="6" ng-maxlength="128" required>
             <br-input-help>
-              Please enter your email address.
+              Please enter the email address you associated with an identity
+              that can be used on multiple devices.
             </br-input-help>
             <br-input-validation-errors>
               <p ng-show="$ctrl.addIdentityForm.email.$error.required">
@@ -42,21 +48,23 @@
               name: 'passphrase',
               label: 'Passphrase',
               type: 'password',
+              helpTogglePosition: 'label',
               showValidation: true,
               disabled: {{$ctrl.loading}}
             }" ng-minlength="6" ng-maxlength="128" required>
             <br-input-help>
-              Please enter a passphrase.
+              Please enter the password you associated with an identity that
+              can be used on multiple devices.
             </br-input-help>
             <br-input-validation-errors>
               <p ng-show="$ctrl.addIdentityForm.passphrase.$error.required">
-                Passphrase is required.
+                Password is required.
               </p>
               <p ng-show="$ctrl.addIdentityForm.passphrase.$error.minlength">
-                Passphrase is required to be at least 6 characters.
+                Password is required to be at least 6 characters.
               </p>
               <p ng-show="$ctrl.addIdentityForm.passphrase.$error.maxlength">
-                Passphrase must not be longer than 128 characters.
+                Password must not be longer than 128 characters.
               </p>
             </br-input-validation-errors>
           </br-input>

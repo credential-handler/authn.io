@@ -176,6 +176,7 @@ function factory(aioIdentityService) {
       // TODO: need better error handling for expired sessions
       // and for different scenarios (auth.io loaded invisibly vs. visibly)
       router.send(op, 'error', null);
+      //router.send(op, 'error', {message: 'Session expired.'});
       return;
     }
 
@@ -198,6 +199,18 @@ function factory(aioIdentityService) {
       identity = signed;
       router.send(op, 'result', identity);
     });
+  };
+
+  /**
+   * Sends an error as the result of an API operation.
+   *
+   * @param op the name of the API operation.
+   * @param error the error text to send.
+   * @param origin the relying party's origin.
+   */
+  service.sendError = function(op, error, origin) {
+    var router = new Router(service.parseOrigin(origin));
+    router.send(op, 'error', {message: error});
   };
 
   /**
