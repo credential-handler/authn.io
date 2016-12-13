@@ -69,10 +69,14 @@ function Ctrl($scope, aioIdentityService, aioOperationService, brAlertService) {
   };
 
   self.isAuthenticated = function(id) {
-    return aioIdentityService.isAuthenticated(id);
+    return aioIdentityService.isAuthenticated(id, {
+      cache: self.authenticatedCache
+    });
   };
 
   function updateIdentities(filter) {
+    self.authenticatedCache = {};
+
     if(filter === null) {
       self.identities = aioIdentityService.identities.getAll();
     } else {
