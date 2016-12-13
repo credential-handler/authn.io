@@ -19,7 +19,7 @@ define([
 'use strict';
 
 var module = angular.module('authio', [
-  /*'authio.idp-test',*/
+  /* 'authio.idp-test',*/
   'bedrock.alert', 'bedrock.form', 'bedrock-navbar']);
 
 Array.prototype.slice.call(arguments, 1).forEach(function(register) {
@@ -51,7 +51,7 @@ module.config(function($routeProvider) {
     })
     .when('/test/credentials/composed-identity', {
       vars: {
-        title: 'Mock Credential Consumer Query Results',
+        title: 'Mock Credential Consumer Query Results'
       },
       templateUrl: requirejs.toUrl('components/idp-test/idp-test.html')
     })
