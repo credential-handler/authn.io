@@ -1,5 +1,5 @@
 <aio-splash aio-on-timeout="$ctrl.splashDone=true"></aio-splash>
-<div ng-if="::($ctrl.splashDone && ($ctrl.route.vars.navbar=true))" class="row">
+<div ng-show="::($ctrl.splashDone && ($ctrl.route.vars.navbar=true))" class="row">
   <div class="aio-op-header-wrapper">
     <div class="aio-op-header">
       <div class="callout callout-primary">
