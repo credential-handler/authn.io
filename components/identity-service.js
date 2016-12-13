@@ -249,21 +249,41 @@ function factory($http) {
   /**
    * Gets an authenticated identity.
    *
+   * A `cache` object can be provided to this call to optimize getting many
+   * identities in rapid succession. If a cache object is used, then session
+   * expiration updates will not be persisted and no sanity check will be
+   * made to ensure an authenticated identity hasn't been deleted.
+   *
    * @param id the ID (DID) of the identity to get.
+   * @param [options] the options to use.
+   *          [cache] a cache to use to store authenticated identities; pass
+   *            an empty object and it will be populated for reuse, this is
+   *            useful for getting multiple identities in rapid succession).
    *
    * @return the authenticated identity or null.
    */
-  service.getAuthenticated = function(id) {
-    var authenticated = localStorage.getItem(STORAGE_KEYS.AUTHENTICATED);
-    if(!authenticated) {
-      authenticated = {};
-    } else {
-      try {
-        authenticated = JSON.parse(authenticated);
-      } catch(err) {
-        authenticated = {};
+  service.getAuthenticated = function(id, options) {
+    options = options || {};
+    var cached = false;
+    if('cache' in options) {
+      cached = true;
+    }
+    var cache = options.cache || {};
+
+    if(!cache.authenticated) {
+      cache.authenticated = localStorage.getItem(STORAGE_KEYS.AUTHENTICATED);
+      if(!cache.authenticated) {
+        cache.authenticated = {};
+      } else {
+        try {
+          cache.authenticated = JSON.parse(cache.authenticated);
+        } catch(err) {
+          cache.authenticated = {};
+        }
       }
     }
+
+    var authenticated = cache.authenticated;
     var identity;
     if(!(id in authenticated)) {
       identity = storage.get(id);
@@ -278,21 +298,28 @@ function factory($http) {
         // if possible and remove this extra copy of the data here
         identity.privateKeyPem = pem;
         identity.expires = Date.now() + SESSION_EXPIRATION;
+        authenticated[id] = identity;
         return identity;
       }
       return null;
     }
-    // ensure identity hasn't expired and is loaded
-    if(authenticated[id].expires < Date.now() || !storage.get(id)) {
+    // ensure identity hasn't expired and is loaded; skip storage check
+    // when using cache as a fuzzy optimization
+    if(authenticated[id].expires < Date.now() ||
+      (!cached && !storage.get(id))) {
       // expire authenticated identity
       delete authenticated[id];
+      identity = null;
     } else {
       // update authenticated identity
       identity = authenticated[id];
       identity.expires = Date.now() + SESSION_EXPIRATION;
     }
-    localStorage.setItem(
-      STORAGE_KEYS.AUTHENTICATED, JSON.stringify(authenticated));
+    // do not write update when using cache
+    if(!cached) {
+      localStorage.setItem(
+        STORAGE_KEYS.AUTHENTICATED, JSON.stringify(authenticated));
+    }
     return identity;
   };
 
@@ -301,11 +328,15 @@ function factory($http) {
    * authenticated.
    *
    * @param id the ID (DID) of the identity to check.
+   * @param [options] the options to use.
+   *          [cache] a cache to use to store authenticated identities; pass
+   *            an empty object and it will be populated for reuse, this is
+   *            useful for checking multiple identities in rapid succession).
    *
    * @return true if the identity is authenticated, false if not.
    */
-  service.isAuthenticated = function(id) {
-    return !!service.getAuthenticated(id);
+  service.isAuthenticated = function(id, options) {
+    return !!service.getAuthenticated(id, options);
   };
 
   /**
