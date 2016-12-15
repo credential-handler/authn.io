@@ -71,18 +71,16 @@
         </div>
       </li>
     </ul>
-    <div ng-if="!$ctrl.enableRegistration">
-      <div ng-if="$ctrl.identities | isEmpty">
-        <div class="alert alert-warning"><strong>No identities found</strong>.</div>
-        <p>
-          Please <a ng-click="$ctrl.showAddIdentityModal=true">register
-          an existing identity with this device</a> or visit a digital
-          wallet provider of your choice to create a new one.
-        </p>
-      </div>
-      <div ng-if="!($ctrl.identities | isEmpty)">
-        <h4><a ng-click="$ctrl.showAddIdentityModal=true"><strong><i class="fa fa-plus"></i> Add Identity</strong></a></h4>
-      </div>
+    <div ng-if="!$ctrl.enableRegistration && ($ctrl.identities | isEmpty)">
+      <div class="alert alert-warning"><strong>No identities found</strong>.</div>
+      <p>
+        Please <a ng-click="$ctrl.showAddIdentityModal=true">register
+        an existing identity with this device</a> or visit a digital
+        wallet provider of your choice to create a new one.
+      </p>
+    </div>
+    <div ng-if="!($ctrl.identities | isEmpty)">
+      <h4><a ng-click="$ctrl.showAddIdentityModal=true"><strong><i class="fa fa-plus"></i> Add Identity</strong></a></h4>
     </div>
   </div>
 </div>
