@@ -47,19 +47,19 @@ module.config(function($routeProvider) {
       vars: {
         title: 'Mock Credential Consumer Query'
       },
-      templateUrl: requirejs.toUrl('components/idp-test/idp-test.html')
+      templateUrl: requirejs.toUrl('authio/idp-test/idp-test.html')
     })
     .when('/test/credentials/composed-identity', {
       vars: {
         title: 'Mock Credential Consumer Query Results'
       },
-      templateUrl: requirejs.toUrl('components/idp-test/idp-test.html')
+      templateUrl: requirejs.toUrl('authio/idp-test/idp-test.html')
     })
     .when('/test/credentials/stored-credential', {
       vars: {
         title: 'Mock Credential Storage Results'
       },
-      templateUrl: requirejs.toUrl('components/idp-test/idp-test.html')
+      templateUrl: requirejs.toUrl('authio/idp-test/idp-test.html')
     });
 });
 
