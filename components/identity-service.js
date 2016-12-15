@@ -286,7 +286,14 @@ function factory($http) {
     var authenticated = cache.authenticated;
     var identity;
     if(!(id in authenticated)) {
-      identity = storage.get(id);
+      if(cached) {
+        if(!cache.identities) {
+          cache.identities = storage.getAll();
+        }
+        identity = cache.identities[id];
+      } else {
+        identity = storage.get(id);
+      }
       if(!identity) {
         return null;
       }
