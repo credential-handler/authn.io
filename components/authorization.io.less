@@ -29,14 +29,25 @@
 @aio-callout-padding-vertical: 10px;
 @aio-callout-padding-horizontal: 15px;
 
-@aio-op-content-padding: @aio-op-header-margin;
-/* callout border is hard-coded to 1px, add margins, header, content */
-@aio-op-content-padding-top: ((
+/* Compute callout dimensions, sum up margin, padding, border of 1 px, header,
+  header margin, one line of content. */
+@aio-op-content-margin-top: (
+  @aio-op-header-margin * 2 +
   @aio-callout-padding-vertical * 2 +
   1 * 2 +
-  @aio-op-header-margin * 2 +
   @line-height-computed + 5 +
-  @line-height-computed) - @aio-op-header-top);
+  @line-height-computed);
+
+.navbar {
+  position: fixed;
+  width: 100%;
+  z-index: 1000;
+}
+
+br-navbar ~ .container > div[ng-view] {
+  margin-top: @navbar-height;
+  padding-top: 5px;
+}
 
 .aio-op-header-wrapper {
   position: absolute;
@@ -64,12 +75,8 @@
 }
 
 .aio-op-content {
-  padding: @aio-op-content-padding;
-  padding-top: (@aio-op-content-padding-top + 30);
-
-  @media (min-width: @screen-sm-min) {
-    padding: @aio-op-content-padding-top 0 0 0;
-  }
+  margin-top: @aio-op-content-margin-top;
+  padding: 0;
 }
 
 .aio-repo-iframe-wrapper {
