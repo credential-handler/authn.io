@@ -22,7 +22,7 @@ function Ctrl($timeout) {
   self.show = true;
   if(!('timeout' in self)) {
     // default timeout
-    self.timeout = 2000;
+    self.timeout = 1000;
   }
 
   self.$onInit = function() {
