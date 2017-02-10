@@ -4,7 +4,9 @@
   "scripts": {
     "start": "node authorization.dev.js",
     "test": "node authorization.dev.js test",
-    "postinstall": "bower install && node authorization.dev.js compile-less"
+    "postinstall": "bower install && node authorization.dev.js compile-less",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -29,7 +31,8 @@
     "did-io": "^0.6.1",
     "jsonwebtoken": "~7.1.0",
     "lodash": "^4.6.1",
-    "node-uuid": "^1.4.3"
+    "node-uuid": "^1.4.3",
+    "snyk": "^1.25.0"
   },
   "devDependencies": {
     "bedrock-protractor": "^3.0.0",
@@ -42,5 +45,6 @@
     "node": ">=0.10.0"
   },
   "directories": {},
-  "main": "./lib/index"
+  "main": "./lib/index",
+  "snyk": true
 }
