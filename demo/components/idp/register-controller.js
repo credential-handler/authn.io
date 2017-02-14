@@ -28,6 +28,7 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
     self.loading = true;
     IdentityCredential.register({
       idp: self.idp,
+      name: 'a_' + Math.floor(Math.random() * 100000) + '_b@example.org',
       agentUrl: '/register'
     }).then(function(didDocument) {
       if(!didDocument) {

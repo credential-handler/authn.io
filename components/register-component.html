@@ -1,179 +1,30 @@
-<aio-splash aio-on-timeout="$ctrl.splashDone=true"></aio-splash>
-<div ng-if="::$ctrl.splashDone" class="aio-centered" style="height: 100%">
-  <div class="row">
-    <div class="col-md-12">
-      <h4 class="text-center"><span class="text-muted"><strong>WELCOME TO</strong></span></h4>
+<div class="aio-native-modal">
+  <!-- <div class="aio-arrow-up"></div> -->
+  <div class="aio-native-modal-content">
+    <div>
+      <a ng-click="$ctrl.onDeny()" class="close"
+        style="margin-top: -10px; margin-right: -5px">&times;<span class="sr-only">Close</span></a>
+    </div>
+    <div style="min-width: 300px">
+      <span><strong>{{$ctrl.domain}}</strong> wants to:</span>
+    </div>
+    <br>
+    <div><i class="fa fa-id-card"></i> Register a digital wallet</div>
+    <br>
+    <div class="aio-button-bar" style="margin-top: 10px">
+      <button
+        ng-click="$ctrl.onDeny()"
+        ng-disabled="$ctrl.registering || $ctrl.generating"
+        type="button" class="btn btn-default aio-button">Deny
+      </button>
+      <button
+        ng-click="$ctrl.onAllow()"
+        ng-disabled="$ctrl.registering || $ctrl.generating"
+        type="button" class="btn btn-default aio-button">Allow
+        <span ng-if="$ctrl.registering || $ctrl.generating">
+          <i class="fa fa-refresh fa-spin"></i>
+        </span>
+      </button>
     </div>
   </div>
-
-  <div class="row">
-    <div class="col-md-12">
-      <img style="display: block; margin: 0 auto"
-        src="/images/authorization-io-logo.png">
-    </div>
-  </div>
-
-  <div style="background: #337ab7; color: #fff; padding: 20px; margin-top: 15px">
-    <img style="display: block; margin: 0 auto; padding-top: 10px"
-      width="200px"
-      src="/images/key.png">
-    <div style="margin-top: 20px">
-      Authorization.io helps you sign in using your device and
-      privately share information as you see fit.
-    </div>
-    <div style="margin-top: 10px; text-align: right">
-      <a style="color: #fff" href="" ng-click="$ctrl.explanation=!$ctrl.explanation">Click here to learn more.</a>
-      <div uib-collapse="!$ctrl.explanation">
-        <hr>
-        <div style="text-align: left">
-          <p>
-          Authorization.io is a community run service that helps you sign
-          into websites using devices such as your phone or home computer.
-          <p>
-          Authorization.io also helps you share information from your
-          digital wallet without revealing the websites you share
-          with to your wallet provider.
-          </p>
-          <p>
-          You've likely been sent here by your wallet provider to register
-          your current device. Once you've registered, you'll be able
-          to sign into your wallet's website and other sites that may give you
-          items to put in your wallet or that may ask you for items from your
-          wallet.
-          </p>
-          <p>
-          Authorization.io will help you with all of these interactions without
-          collecting your information and by keeping who is requesting
-          the information private.
-          </p>
-          <p>
-          <!-- <strong>Note:</strong>
-          This page asks for your email address, but this information is
-          only stored in your local Web browser. It is not sent to or stored
-          on a server. It is used as a label to help you choose which account
-          you want to use when storing or retrieving items from a digital
-          wallet.</p> -->
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div style="border: 1px solid #ccc; border-top: 0; padding: 20px">
-    <!-- <div class="row">
-      <div class="col-md-12">
-        <h4>Registration</h4>
-      </div>
-    </div> -->
-
-    <div class="row">
-      <div class="col-md-12">
-        <p>The website <strong>{{$ctrl.domain}}</strong> has requested that you
-          register your device so you can sign in with it.</p>
-      </div>
-    </div>
-
-    <div class="row">
-      <form name="$ctrl.regForm" class="form-horizontal" role="form" novalidate
-        ng-submit="$ctrl.validateForm()">
-        <fieldset>
-          <!--
-          <br-input br-model="$ctrl.email"
-            br-options="{
-              name: 'email',
-              label: 'Email',
-              helpTogglePosition: 'label',
-              showValidation: true,
-              classes: {
-                label: 'col-xs-4',
-                content: 'col-xs-7',
-                help: 'col-xs-offset-4 col-xs-7',
-                validation: 'col-xs-offset-4 col-xs-7'
-              }
-            }"
-            ng-minlength="6" ng-maxlength="128" required>
-            <br-input-help>
-              Please enter your email address.
-            </br-input-help>
-            <br-input-validation-errors>
-              <p ng-show="$ctrl.regForm.email.$error.required">
-                Email is required.
-              </p>
-              <p ng-show="$ctrl.regForm.email.$error.minlength">
-                Email is required to be at least 6 characters.
-              </p>
-              <p ng-show="$ctrl.regForm.email.$error.maxlength">
-                Email must not be longer than 128 characters.
-              </p>
-            </br-input-validation-errors>
-          </br-input> -->
-          <!--
-          <br-input br-model="$ctrl.passphrase"
-            br-options="{
-              name: 'passphrase',
-              label: 'Passphrase',
-              showValidation: true,
-              type: 'password'
-            }" ng-minlength="8" ng-maxlength="128" required>
-            <br-input-help>
-              Please enter a passphrase.
-            </br-input-help>
-            <br-input-validation-errors>
-              <p ng-show="$ctrl.regForm.passphrase.$error.required">
-                Passphrase is required.
-              </p>
-              <p ng-show="$ctrl.regForm.passphrase.$error.minlength">
-                Passphrase is required to be at least 8 characters.
-              </p>
-              <p ng-show="$ctrl.regForm.passphrase.$error.maxlength">
-                Passphrase must not be longer than 128 characters.
-              </p>
-            </br-input-validation-errors>
-          </br-input>
-          <br-input br-model="$ctrl.passphraseConfirmation"
-            br-options="{
-              name: 'passphraseConfirmation',
-              label: 'Confirm Passphrase',
-              showValidation: true,
-              type: 'password'
-            }"
-            br-input-br-validator-same-as="$ctrl.passphrase">
-            <div name="br-input-help">
-              Please confirm your passphrase.
-            </div>
-            <br-input-validation-errors>
-              <p ng-show="$ctrl.regForm.passphraseConfirmation.$error.brValidatorSameAs">
-                Passphrase and Confirm Passphrase must match.
-              </p>
-            </br-input-validation-errors>
-          </br-input>
-          -->
-        </fieldset>
-        <div class="form-group" style="margin-top: 10px; margin-bottom: 0">
-          <div class="input-group col-xs-12 text-center">
-            <button
-              ng-disabled="$ctrl.registering || $ctrl.generating || $ctrl.regForm.$invalid"
-              type="submit" class="btn btn-primary">Register
-              <span ng-if="$ctrl.registering || $ctrl.generating">
-                <i class="fa fa-refresh fa-spin"></i>
-              </span>
-            </button>
-          </div>
-        </div>
-        <hr ng-show="$ctrl.generating || $ctrl.registering">
-        <div style="text-align:center;" ng-show="$ctrl.generating">
-          Securing your information, this may take a minute...
-        </div>
-        <div style="text-align:center;" ng-show="$ctrl.registering">
-          <div ng-if="$ctrl.secondsLeft > 0">
-            {{$ctrl.secondsLeft}} seconds remaining.
-          </div>
-          <div ng-if="$ctrl.secondsLeft === 0">
-            Waiting for response...
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <br>
 </div>

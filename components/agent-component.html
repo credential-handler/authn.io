@@ -1,48 +1,41 @@
-<aio-splash aio-on-timeout="$ctrl.splashDone=true"></aio-splash>
-<div ng-show="::($ctrl.splashDone && ($ctrl.route.vars.navbar=true))" class="row">
-  <div class="aio-op-header-wrapper">
-    <div class="aio-op-header">
-      <div class="callout callout-primary">
-        <a ng-click="$ctrl.cancel()" class="close">&times;<span class="sr-only">Close</span></a>
-        <div ng-if="$ctrl.isCryptoKeyRequest">
-          <h4>
-            Sign in Request
-          </h4>
-          <p>
-            <strong>{{$ctrl.relyingParty}}</strong> wants you to sign in.
-          </p>
-        </div>
-        <div ng-if="!$ctrl.isCryptoKeyRequest">
-          <h4>
-            Credential {{($ctrl.op === 'store' && 'Storage') || ''}} Request
-          </h4>
-          <p>
-            <strong>{{$ctrl.relyingParty}}</strong> has requested <span ng-show="$ctrl.op === 'store'">to store </span> credentials.
-          </p>
-        </div>
-      </div>
+<div class="aio-native-modal">
+  <!-- <div class="aio-arrow-up"></div> -->
+  <div class="aio-native-modal-content">
+    <div>
+      <a ng-click="$ctrl.cancel()" class="close"
+        style="margin-top: -10px; margin-right: -5px">&times;<span class="sr-only">Close</span></a>
     </div>
-  </div>
-  <div class="aio-op-content">
-    <aio-identity-chooser ng-if="$ctrl.display.identityChooser"
-      aio-identity-chooser-filter="$ctrl.did"
-      aio-enable-registration="$ctrl.enableRegistration"
-      aio-on-identity-selected="$ctrl.identitySelected(identity)">
-    </aio-identity-chooser>
-    <div ng-if="$ctrl.display.authenticating">
-      <span>
-        <i class="fa fa-refresh fa-spin text-muted"></i> Authenticating...
-      </span>
+    <div style="min-width: 300px">
+      <span><strong>{{$ctrl.relyingParty}}</strong> want you to:</span>
     </div>
-    <div ng-if="$ctrl.display.repo">
-      <span ng-if="$ctrl.display.repoLoading">
-        <i class="fa fa-refresh fa-spin text-muted"></i> Loading your credential repository...
-      </span>
-      <div ng-show="!$ctrl.display.repoLoading" class="aio-repo-iframe-wrapper">
-        <iframe name="repo" ng-src="{{$ctrl.repoUrl}}" class="aio-repo-iframe"
-          frameborder="0"></iframe>
+    <br>
+    <div ng-if="$ctrl.isCryptoKeyRequest"><i class="fa fa-sign-in"></i> Sign in</div>
+    <div ng-if="!$ctrl.isCryptoKeyRequest">
+      <i ng-if="$ctrl.op !== 'store'" class="fa fa-id-card">Share credentials</i>
+      <i ng-if="$ctrl.op === 'store'" class="fa fa-save">Store credentials</i>
+    </div>
+    <div style="border: 0; margin-top: 20px; margin-bottom: 10px; border-top: 1px solid #ccc"></div>
+    <div>
+      <aio-identity-chooser ng-if="$ctrl.display.identityChooser"
+        aio-identity-chooser-filter="$ctrl.did"
+        aio-enable-registration="$ctrl.enableRegistration"
+        aio-on-identity-selected="$ctrl.identitySelected(identity)">
+      </aio-identity-chooser>
+      <div ng-if="$ctrl.display.authenticating">
+        <span>
+          <i class="fa fa-refresh fa-spin text-muted"></i> Authenticating...
+        </span>
       </div>
-      <p></p>
+      <div ng-if="$ctrl.display.repo">
+        <span ng-if="$ctrl.display.repoLoading">
+          <i class="fa fa-refresh fa-spin text-muted"></i> Loading your credential repository...
+        </span>
+        <div ng-show="!$ctrl.display.repoLoading" class="aio-repo-iframe-wrapper">
+          <iframe name="repo" ng-src="{{$ctrl.repoUrl}}" class="aio-repo-iframe"
+            frameborder="0"></iframe>
+        </div>
+        <p></p>
+      </div>
     </div>
   </div>
 </div>
