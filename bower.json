@@ -5,7 +5,7 @@
   "description": "authorization.io website bower dependencies.",
   "dependencies": {
     "angular-cookie": "~4.0.6",
-    "bedrock-angular": "^2.3.1",
+    "bedrock-angular": "^2.5.1",
     "bedrock-angular-alert": "^2.0.0",
     "bedrock-angular-credential": "^2.0.0",
     "bedrock-angular-form": "^2.10.0",
@@ -25,7 +25,6 @@
     "lodash": "^4.6.1"
   },
   "resolutions": {
-    "es6-promise": "~2.1",
-    "font-awesome": "^4.7.0"
+    "es6-promise": "~2.1"
   }
 }
