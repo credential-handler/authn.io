@@ -1,6 +1,7 @@
 *.py[co]
 *.sw[nop]
 *~
+.cache
 .project
 .settings
 TAGS
@@ -10,9 +11,3 @@ coverage
 node_modules
 npm-debug.log
 reports
-authorization.dev-error.log
-authorization.dev-app.log
-authorization.dev-access.log
-authorization.dev-access1.log
-bedrock
-cache

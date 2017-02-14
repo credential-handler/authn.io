@@ -7,20 +7,16 @@
  * All rights reserved.
  */
 var config = require('bedrock').config;
+var os = require('os');
 var path = require('path');
 
-// location of logs
-var _logdir = '/tmp/authorization.io';
+// common paths
+config.paths.cache = path.join(__dirname, '..', '.cache');
+config.paths.log = path.join(os.tmpdir(), 'test.authorization.dev');
 
 // 0 means use # of cpus
 config.core.workers = 0;
 config.core.restartWorkers = true;
-
-// logging
-config.loggers.logdir = _logdir;
-config.loggers.app.filename = _logdir + '/authorization.io-test-app.log';
-config.loggers.access.filename = _logdir + '/authorization.io-test-access.log';
-config.loggers.error.filename = _logdir + '/authorization.io-test-error.log';
 
 // only log critical errors by default
 config.loggers.console.level = 'critical';
@@ -28,8 +24,7 @@ config.loggers.console.level = 'critical';
 // server info
 config.server.port = 34443;
 config.server.httpPort = 34080;
-config.server.host = 'authorization.dev:34443';
-config.server.baseUri = 'https://' + config.server.host;
+config.server.domain = 'authorization.dev';
 
 // mongodb config
 config.mongodb.name = 'authorizationio_test';

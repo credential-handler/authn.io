@@ -6,10 +6,13 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-var bedrock = require('bedrock');
-var config = bedrock.config;
+var config = require('bedrock').config;
+var os = require('os');
 var path = require('path');
-var _ = require('lodash');
+
+// common paths
+config.paths.cache = path.join(__dirname, '..', '.cache');
+config.paths.log = path.join(os.tmpdir(), 'authorization.dev');
 
 // load the demo extensions to the site
 require('../demo/lib/idp');
