@@ -27,19 +27,36 @@ Array.prototype.slice.call(arguments, 1).forEach(function(register) {
 });
 
 /* @ngInject */
-module.config(function($routeProvider) {
+module.config(function($routeProvider, routeResolverProvider) {
+  routeResolverProvider.add('authio-resolver', resolve);
+  /* @ngInject */
+  function resolve($rootScope, $route) {
+    var vars = $route.current.vars;
+    if(!('ngStyle' in vars)) {
+      $rootScope.app.ngStyle = {};
+      return;
+    }
+    $rootScope.app.ngStyle = vars.ngStyle;
+  }
+
   $routeProvider
     .when('/agent', {
       vars: {
         title: 'Credential Agent',
-        navbar: false
+        navbar: false,
+        ngStyle: {
+          body: {'background-color': 'transparent'}
+        }
       },
       template: '<aio-agent></aio-agent>'
     })
     .when('/register', {
       vars: {
         title: 'Register',
-        navbar: false
+        navbar: false,
+        ngStyle: {
+          body: {'background-color': 'transparent'}
+        }
       },
       template: '<aio-register></aio-register>'
     })

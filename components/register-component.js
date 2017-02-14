@@ -43,9 +43,17 @@ function Ctrl(
   });
 
   /**
-   * Validates the form, and if valid, performs registration.
+   * Cancels registration.
    */
-  self.validateForm = function() {
+  self.onDeny = function() {
+    var router = new navigator.credentials._Router(origin);
+    router.send('registerDid', 'result', null);
+  };
+
+  /**
+   * Allows registration to proceed.
+   */
+  self.onAllow = function() {
     $scope.$on('identityService.register.progress', function(e, data) {
       self.generating = false;
       self.registering = true;

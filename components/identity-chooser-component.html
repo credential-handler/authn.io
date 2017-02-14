@@ -1,9 +1,9 @@
 <div class="row">
-  <div class="col-sm-offset-2 col-sm-8">
-    <br-headline
+  <div class="col-sm-12">
+    <!-- <br-headline
       ng-if="!($ctrl.identities | isEmpty) || !$ctrl.enableRegistration"
       br-title="{{$ctrl.display.loginForm && 'Login' || 'Select an Identity'}}"
-      br-options="{menu:false}"></br-headline>
+      br-options="{menu:false}"></br-headline> -->
     <stackable-modal stackable="$ctrl.showAddIdentityModal"
       stackable-closed="!err && $ctrl.identityAdded(result)"
       br-lazy-compile="$ctrl.showAddIdentityModal"
@@ -11,7 +11,7 @@
       <!-- TODO: include identity filter as parameter to modal -->
       <aio-add-identity-modal></aio-add-identity-modal>
     </stackable-modal>
-    <hr>
+    <!-- <hr> -->
     <ul class="list-unstyled">
       <li class="br-item-hover well" ng-repeat="(id, identity) in $ctrl.identities"
         ng-click="$ctrl.select(id)">
