@@ -12,8 +12,9 @@ var path = require('path');
 // location of configuration files
 var _cfgdir = path.join(__dirname, '..');
 
-// location of logs
-var _logdir = '/var/log/demo.authorization.io';
+// common paths
+config.paths.cache = '/var/cache/authorization.io';
+config.paths.log = '/var/log/authorization.io';
 
 // core configuration
 config.core.workers = 1;
@@ -28,24 +29,15 @@ config.core.running.groupId = 'bedrock';
 config.core.running.userId = 'bedrock';
 
 // logging
-config.loggers.logdir = _logdir;
-config.loggers.app.filename = path.join(_logdir, 'authorization.io-app.log');
 config.loggers.app.bedrock.enableChownDir = true;
-config.loggers.access.filename = path.join(
-  _logdir, 'authorization.io-access.log');
 config.loggers.access.bedrock.enableChownDir = true;
-config.loggers.error.filename = path.join(
-  _logdir, 'authorization.io-error.log');
 config.loggers.error.bedrock.enableChownDir = true;
 config.loggers.email.silent = true;
 
 // server info
 config.server.port = 443;
 config.server.httpPort = 80;
-config.server.bindAddr = ['demo.authorization.io'];
 config.server.domain = 'demo.authorization.io';
-config.server.host = 'demo.authorization.io';
-config.server.baseUri = 'https://' + config.server.host;
 // config.server.key = path.join(_cfgdir, 'pki', 'authorization.io.key');
 // config.server.cert = path.join(_cfgdir, 'pki', 'authorization.io.crt');
 // config.server.ca = path.join(_cfgdir, 'pki', 'authorization.io-bundle.crt');
