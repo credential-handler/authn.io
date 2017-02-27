@@ -43,7 +43,7 @@ function Ctrl(
   });
 
   $window.document.addEventListener('keydown', function(e) {
-    if(e.key === 'Escape') {
+    if(e.key === 'Escape' && e.target === $window.document.body) {
       self.onDeny();
     }
   });
