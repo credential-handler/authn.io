@@ -32,11 +32,18 @@ module.config(function($routeProvider, routeResolverProvider) {
   /* @ngInject */
   function resolve($rootScope, $route) {
     var vars = $route.current.vars;
-    if(!('ngStyle' in vars)) {
-      $rootScope.app.ngStyle = {};
-      return;
+
+    if(!vars || !('ngClass' in vars)) {
+      $rootScope.app.ngClass = {};
+    } else {
+      $rootScope.app.ngClass = vars.ngClass;
     }
-    $rootScope.app.ngStyle = vars.ngStyle;
+
+    if(!vars || !('ngStyle' in vars)) {
+      $rootScope.app.ngStyle = {};
+    } else {
+      $rootScope.app.ngStyle = vars.ngStyle;
+    }
   }
 
   $routeProvider
@@ -44,6 +51,9 @@ module.config(function($routeProvider, routeResolverProvider) {
       vars: {
         title: 'Credential Agent',
         navbar: false,
+        ngClass: {
+          rootContainer: {}
+        },
         ngStyle: {
           body: {'background-color': 'transparent'}
         }
@@ -54,6 +64,9 @@ module.config(function($routeProvider, routeResolverProvider) {
       vars: {
         title: 'Register',
         navbar: false,
+        ngClass: {
+          rootContainer: {}
+        },
         ngStyle: {
           body: {'background-color': 'transparent'}
         }

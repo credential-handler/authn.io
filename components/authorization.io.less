@@ -103,6 +103,18 @@ br-navbar ~ .container {
   transform: translate(-50%, -50%);
 }
 
+.aio-flex-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+.aio-flex-item {
+  flex: 0 1 auto;
+}
+
 .aio-native-modal {
   position: static;
   top: 0;
@@ -110,7 +122,7 @@ br-navbar ~ .container {
   bottom: 0;
   left: 0;
   z-index: 1050;
-  margin-top: -@navbar-height;
+  margin-top: 5px;
   box-sizing: border-box;
   overflow: hidden; /* visible? */
   outline: 0;
@@ -159,3 +171,8 @@ br-navbar ~ .container {
   border-bottom: 5px solid black;
   flex: 0 0 auto;
 }*/
+
+.aio-identity-option {
+  border: 1px solid transparent;
+  padding: 10px;
+}
