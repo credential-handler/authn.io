@@ -1,37 +1,32 @@
-<div class="row">
-  <div class="col-sm-12">
-    <!-- <br-headline
-      ng-if="!($ctrl.identities | isEmpty) || !$ctrl.enableRegistration"
-      br-title="{{$ctrl.display.loginForm && 'Login' || 'Select an Identity'}}"
-      br-options="{menu:false}"></br-headline> -->
-    <stackable-modal stackable="$ctrl.showAddIdentityModal"
-      stackable-closed="!err && $ctrl.identityAdded(result)"
-      br-lazy-compile="$ctrl.showAddIdentityModal"
-      br-lazy-id="aio-add-identity-modal">
-      <!-- TODO: include identity filter as parameter to modal -->
-      <aio-add-identity-modal></aio-add-identity-modal>
-    </stackable-modal>
-    <!-- <hr> -->
-    <ul class="list-unstyled">
-      <li class="br-item-hover well" ng-repeat="(id, identity) in $ctrl.identities"
+<div>
+  <stackable-modal stackable="$ctrl.showAddIdentityModal"
+    stackable-closed="!err && $ctrl.identityAdded(result)"
+    br-lazy-compile="$ctrl.showAddIdentityModal"
+    br-lazy-id="aio-add-identity-modal">
+    <!-- TODO: include identity filter as parameter to modal -->
+    <aio-add-identity-modal></aio-add-identity-modal>
+  </stackable-modal>
+  <div class="aio-flex-column" style="align-items: stretch">
+    <!-- TODO: implement better scroll fix than max-height: 70vh -->
+    <div class="aio-flex-column"
+      style="align-items: stretch; flex: 1 1 auto; max-height: 70vh">
+      <div class="aio-flex-item"
+        ng-repeat="(id, identity) in $ctrl.identities"
         ng-click="$ctrl.select(id)">
-        <div class="row">
-          <!-- TODO: move style to less -->
-          <div class="col-sm-12" style="height 80px; padding: 10px;">
-            <!-- <i class="fa fa-user fa-3x pull-left" style="padding-left: 8px"></i> -->
-            <span class="fa-stack fa-lg pull-left">
-              <i class="fa fa-user fa-stack-2x"></i>
-              <i ng-if="!$ctrl.isAuthenticated(identity.id)"
-                class="fa fa-lock fa-stack-1x" style="margin-top: -7px; margin-left: 20px"
-                br-tooltip="This identity is password-protected."></i>
-              <i ng-if="$ctrl.isAuthenticated(identity.id)"
-                class="fa fa-unlock fa-stack-1x" style="margin-top: -7px; margin-left: 20px"
-                br-tooltip="This identity is not password-protected or its password was entered recently."></i>
-            </span>
-            <div class="text" style="margin-left: 60px;">
-              <strong>{{identity.label}}</strong>
-              <h6 class="text-muted" style="margin-top: 4px; margin-bottom: 4px;">Managed by {{identity.sysRepoDomain || 'Loading repository information...'}}</h6>
-            </div>
+        <div class="br-item-hover aio-identity-option">
+          <!-- <i class="fa fa-user fa-3x pull-left" style="padding-left: 8px"></i> -->
+          <span class="fa-stack fa-lg pull-left">
+            <i class="fa fa-user fa-stack-2x"></i>
+            <i ng-if="!$ctrl.isAuthenticated(identity.id)"
+              class="fa fa-lock fa-stack-1x" style="margin-top: -7px; margin-left: 20px"
+              br-tooltip="This identity is password-protected."></i>
+            <i ng-if="$ctrl.isAuthenticated(identity.id)"
+              class="fa fa-unlock fa-stack-1x" style="margin-top: -7px; margin-left: 20px"
+              br-tooltip="This identity is unlocked and ready to use."></i>
+          </span>
+          <div class="text" style="margin-left: 60px;">
+            <strong>{{identity.label}}</strong>
+            <h6 class="text-muted" style="margin-top: 4px; margin-bottom: 4px;">Managed by {{identity.sysRepoDomain || 'Loading repository information...'}}</h6>
           </div>
         </div>
         <div ng-show="$ctrl.display.loginForm && $ctrl.selected === id">
@@ -69,18 +64,22 @@
             </fieldset>
           </form>
         </div>
-      </li>
-    </ul>
-    <div ng-if="!$ctrl.enableRegistration && ($ctrl.identities | isEmpty)">
-      <div class="alert alert-warning"><strong>No identities found</strong>.</div>
-      <p>
-        Please <a ng-click="$ctrl.showAddIdentityModal=true">register
-        an existing identity with this device</a> or visit a digital
-        wallet provider of your choice to create a new one.
-      </p>
+      </div>
+      <div ng-if="!$ctrl.enableRegistration && ($ctrl.identities | isEmpty)"
+        class="aio-flex-item">
+        <div class="alert alert-warning"><strong>No identities found</strong>.</div>
+        <p>
+          Please <a ng-click="$ctrl.showAddIdentityModal=true">register
+          an existing identity with this device</a> or visit a digital
+          wallet provider of your choice to create a new one.
+        </p>
+      </div>
     </div>
-    <div ng-if="!($ctrl.identities | isEmpty)">
-      <h4><a ng-click="$ctrl.showAddIdentityModal=true"><strong><i class="fa fa-plus"></i> Add Identity</strong></a></h4>
+    <div ng-if="!($ctrl.identities | isEmpty)" class="aio-flex-item"
+      style="border: 0; margin-top: 10px; margin-bottom: 10px; border-top: 1px solid #ccc"></div>
+    <div ng-if="!($ctrl.identities | isEmpty)" class="aio-flex-item">
+      <h4><a ng-click="$ctrl.showAddIdentityModal=true"
+        style="text-decoration: none"><strong><i class="fa fa-plus"></i> Add Identity</strong></a></h4>
     </div>
   </div>
 </div>
