@@ -1,6 +1,6 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2015-2016, Digital Bazaar, Inc.
+ * Copyright (c) 2015-2017, Digital Bazaar, Inc.
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
@@ -151,6 +151,12 @@ function Ctrl(
 
   $window.addEventListener('beforeunload', function() {
     _sendResult(null);
+  });
+
+  $window.document.addEventListener('keydown', function(e) {
+    if(e.key === 'Escape') {
+      self.cancel();
+    }
   });
 
   // flow is just starting, clear old session
