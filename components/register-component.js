@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2016 Digtal Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2016-2017 Digtal Bazaar, Inc. All rights reserved.
  */
 define([], function() {
 
@@ -14,7 +14,7 @@ function register(module) {
 
 /* @ngInject */
 function Ctrl(
-  $location, $scope, $timeout,
+  $location, $scope, $timeout, $window,
   aioIdentityService, aioOperationService, brAlertService) {
   var self = this;
   self.email = '';
@@ -40,6 +40,12 @@ function Ctrl(
   }).then(function() {
     self.loading = false;
     $scope.$apply();
+  });
+
+  $window.document.addEventListener('keydown', function(e) {
+    if(e.key === 'Escape') {
+      self.onDeny();
+    }
   });
 
   /**
