@@ -43,12 +43,6 @@ function factory($http, $scope, brAlertService, config, ipCookie) {
     }
     operation.complete(identity, {
       agentUrl: '/agent'
-    }).catch(function(err) {
-      console.error('Failed to ' + operation.name + ' credential', err);
-      brAlertService.add(
-        'error', 'Failed to ' + operation.name + ' the credential.');
-    }).then(function() {
-      $scope.$apply();
     });
   };
 
