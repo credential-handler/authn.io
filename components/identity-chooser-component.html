@@ -20,9 +20,6 @@
             <i ng-if="!$ctrl.isAuthenticated(identity.id)"
               class="fa fa-lock fa-stack-1x" style="margin-top: -7px; margin-left: 20px"
               br-tooltip="This identity is password-protected."></i>
-            <i ng-if="$ctrl.isAuthenticated(identity.id)"
-              class="fa fa-unlock fa-stack-1x" style="margin-top: -7px; margin-left: 20px"
-              br-tooltip="This identity is unlocked and ready to use."></i>
           </span>
           <div class="text" style="margin-left: 60px;">
             <strong>{{identity.label}}</strong>
