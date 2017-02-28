@@ -26,6 +26,7 @@ function Ctrl(
   self.display = {};
   var query = $location.search();
   self.op = query.op;
+  self.loading = false;
 
   var relyingParty = query.origin;
   self.relyingParty = aioOperationService.parseDomain(relyingParty);
@@ -163,6 +164,7 @@ function Ctrl(
   aioIdentityService.clearSession();
 
   // request parameters from RP
+  self.loading = true;
   aioOperationService.getParameters({
     op: self.op,
     origin: relyingParty
@@ -209,6 +211,8 @@ function Ctrl(
       'Please contact their technical support team for assistance.');
   }).catch(function(err) {
     brAlertService.add('error', err);
+  }).then(function() {
+    self.loading = false;
     $scope.$apply();
   });
 
