@@ -14,14 +14,19 @@
       <span ng-if="$ctrl.op !== 'store'"><i class="fa fa-share-alt"></i> Share credentials</span>
       <span ng-if="$ctrl.op === 'store'"><i class="fa fa-cloud-download"></i> Store credentials</span>
     </div>
-    <div ng-if="$ctrl.repoOrigin">
-      <span ng-if="$ctrl.op === 'store'">
+    <div ng-if="$ctrl.repoOrigin && $ctrl.display.repo">
+      <br>
+      <div ng-if="$ctrl.op !== 'store'">From your wallet:</div>
+      <div ng-if="$ctrl.op === 'store'">In your wallet:</div>
+      <span>
         <img style="height: 1em" ng-if="!$ctrl.repoOriginImgError" ng-src="{{$ctrl.repoOrigin}}/favicon.ico" alt="{{$ctrl.repoOrigin" ng-error="$ctrl.repoOriginImgError=true">
         <i class="fa fa-globe" ng-if="$ctrl.repoOriginImgError"></i>
         <strong>{{$ctrl.repoDomain}}</strong>
       </span>
+      <div style="border: 0; margin-top: 10px; margin-bottom: 10px; border-top: 1px solid #ccc"></div>
     </div>
-    <div style="border: 0; margin-top: 20px; margin-bottom: 10px; border-top: 1px solid #ccc"></div>
+    <div ng-if="!($ctrl.repoOrigin && $ctrl.display.repo)"
+      style="border: 0; margin-top: 20px; margin-bottom: 10px; border-top: 1px solid #ccc"></div>
     <div>
       <aio-identity-chooser ng-if="$ctrl.display.identityChooser"
         aio-identity-chooser-filter="$ctrl.did"
@@ -35,7 +40,7 @@
       </div>
       <div ng-if="$ctrl.display.repo">
         <span ng-if="$ctrl.display.repoLoading">
-          <i class="fa fa-refresh fa-spin text-muted"></i> Loading your credential repository...
+          <i class="fa fa-refresh fa-spin text-muted"></i> Loading your wallet...
         </span>
         <div ng-show="!$ctrl.display.repoLoading" class="aio-repo-iframe-wrapper">
           <iframe name="repo" ng-src="{{$ctrl.repoUrl}}" class="aio-repo-iframe"
