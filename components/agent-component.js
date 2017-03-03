@@ -30,6 +30,8 @@ function Ctrl(
 
   var relyingParty = query.origin;
   self.relyingParty = aioOperationService.parseDomain(relyingParty);
+  self.relyingPartyOrigin = aioOperationService.parseOrigin(relyingParty);
+  self.relyingPartyOriginImgError = false;
 
   var resultSent = false;
 
@@ -79,6 +81,9 @@ function Ctrl(
       // display Repo in iframe to handle request
       self.repoUrl = $sce.trustAsResourceUrl(
         session.idpConfig.credentialManagementUrl);
+      self.repoOrigin = aioOperationService.parseOrigin(self.repoUrl);
+      self.repoOriginImgError = false;
+      self.repoDomain = aioOperationService.parseDomain(self.repoUrl);
       self.display.identityChooser = false;
       self.display.repo = true;
       self.display.repoLoading = true;
