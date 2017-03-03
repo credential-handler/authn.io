@@ -30,8 +30,6 @@ function Ctrl(
 
   var relyingParty = query.origin;
   self.relyingParty = aioOperationService.parseDomain(relyingParty);
-  self.relyingPartyOrigin = aioOperationService.parseOrigin(relyingParty);
-  self.relyingPartyOriginImgError = false;
 
   var resultSent = false;
 
