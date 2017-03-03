@@ -6,13 +6,22 @@
         style="margin-top: -10px; margin-right: -5px">&times;<span class="sr-only">Close</span></a>
     </div>
     <div>
-      <span><strong>{{$ctrl.relyingParty}}</strong> wants you to:</span>
+      <img style="height: 1em" ng-if="!$ctrl.relyingPartyOriginImgError" ng-src="{{$ctrl.relyingPartyOrigin}}/favicon.ico" alt="{{$ctrl.relyingPartyOrigin" ng-error="$ctrl.relyingPartyOriginImgError=true">
+      <i class="fa fa-globe" ng-if="$ctrl.relyingPartyOriginImgError"></i>
+      <strong>{{$ctrl.relyingParty}}</strong> wants you to:
     </div>
     <br>
     <div ng-if="$ctrl.isCryptoKeyRequest"><i class="fa fa-sign-in"></i> Sign in</div>
     <div ng-if="!$ctrl.isCryptoKeyRequest">
       <span ng-if="$ctrl.op !== 'store'"><i class="fa fa-share-alt"></i> Share credentials</span>
       <span ng-if="$ctrl.op === 'store'"><i class="fa fa-cloud-download"></i> Store credentials</span>
+    </div>
+    <div ng-if="$ctrl.repoOrigin">
+      <span ng-if="$ctrl.op === 'store'">
+        <img style="height: 1em" ng-if="!$ctrl.repoOriginImgError" ng-src="{{$ctrl.repoOrigin}}/favicon.ico" alt="{{$ctrl.repoOrigin" ng-error="$ctrl.repoOriginImgError=true">
+        <i class="fa fa-globe" ng-if="$ctrl.repoOriginImgError"></i>
+        <strong>{{$ctrl.repoDomain}}</strong>
+      </span>
     </div>
     <div style="border: 0; margin-top: 20px; margin-bottom: 10px; border-top: 1px solid #ccc"></div>
     <div>
