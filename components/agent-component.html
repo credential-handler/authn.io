@@ -6,9 +6,7 @@
         style="margin-top: -10px; margin-right: -5px">&times;<span class="sr-only">Close</span></a>
     </div>
     <div>
-      <img style="height: 1em" ng-if="!$ctrl.relyingPartyOriginImgError" ng-src="{{$ctrl.relyingPartyOrigin}}/favicon.ico" alt="{{$ctrl.relyingPartyOrigin" ng-error="$ctrl.relyingPartyOriginImgError=true">
-      <i class="fa fa-globe" ng-if="$ctrl.relyingPartyOriginImgError"></i>
-      <strong>{{$ctrl.relyingParty}}</strong> wants you to:
+      <span><strong>{{$ctrl.relyingParty}}</strong> wants you to:</span>
     </div>
     <br>
     <div ng-if="$ctrl.isCryptoKeyRequest"><i class="fa fa-sign-in"></i> Sign in</div>
