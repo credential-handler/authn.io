@@ -16,8 +16,8 @@
     </div>
     <div ng-if="$ctrl.repoOrigin && $ctrl.display.repo">
       <br>
-      <span ng-if="$ctrl.op !== 'store'">via: </span>
-      <span ng-if="$ctrl.op === 'store'">via: </span>
+      <span ng-if="$ctrl.op !== 'store'">via </span>
+      <span ng-if="$ctrl.op === 'store'">via </span>
       <span>
         <img style="height: 1em" ng-if="!$ctrl.repoOriginImgError" ng-src="{{$ctrl.repoOrigin}}/favicon.ico" alt="{{$ctrl.repoOrigin" ng-error="$ctrl.repoOriginImgError=true">
         <i class="fa fa-globe" ng-if="$ctrl.repoOriginImgError"></i>
