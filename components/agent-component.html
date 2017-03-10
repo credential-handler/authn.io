@@ -23,10 +23,10 @@
         <i class="fa fa-globe" ng-if="$ctrl.repoOriginImgError"></i>
         <strong>{{$ctrl.repoDomain}}</strong>
       </span>
-      <div style="border: 0; margin-top: 10px; margin-bottom: 10px; border-top: 1px solid #ccc"></div>
+      <div class="aio-separator"></div>
     </div>
     <div ng-if="!($ctrl.repoOrigin && $ctrl.display.repo)"
-      style="border: 0; margin-top: 20px; margin-bottom: 10px; border-top: 1px solid #ccc"></div>
+      class="aio-separator" style="margin-top: 20px"></div>
     <div>
       <aio-identity-chooser ng-if="$ctrl.display.identityChooser"
         aio-identity-chooser-filter="$ctrl.did"

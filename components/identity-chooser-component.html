@@ -72,24 +72,25 @@
         </p>
       </div>
     </div>
-    <div ng-if="!($ctrl.identities | isEmpty)" class="aio-flex-item"
-      style="border: 0; margin-top: 10px; margin-bottom: 10px; border-top: 1px solid #ccc"></div>
-    <div ng-if="!($ctrl.identities | isEmpty)" class="aio-flex-item">
-      <h4><a ng-click="$ctrl.showAddIdentityModal=true"
-        style="text-decoration: none"><strong><i class="fa fa-plus"></i> Add Identity</strong></a></h4>
-    </div>
   </div>
 </div>
-<div ng-if="$ctrl.enableRegistration && ($ctrl.identities | isEmpty)"
-  class="row">
+<div class="aio-separator"></div>
+<div class="row">
   <div class="col-xs-12 text-center">
-    <p>
-      To enable sign in with this device, you must get a digital wallet.
-    </p>
-    <button class="btn btn-primary" type="button"
-      ng-click="$ctrl.onIdentitySelected({identity: null})"><i
-      class="fa fa-arrow-right"></i> Get a Wallet<span></button>
-    <hr>
-    <a ng-click="$ctrl.showAddIdentityModal=true">I already have a wallet that I want to use with this device.</a>
+    <div ng-if="$ctrl.enableRegistration && ($ctrl.identities | isEmpty)">
+      <p>
+        To enable sign in with this device, you must get a digital wallet.
+      </p>
+      <button class="btn btn-default aio-button" type="button"
+        ng-click="$ctrl.onIdentitySelected({identity: null})"><i
+        class="fa fa-arrow-right"></i> Get a Wallet</button>
+      <div class="aio-separator"></div>
+      <a ng-click="$ctrl.showAddIdentityModal=true"
+        style="text-decoration: none">I already have a wallet that I want to use with this device.</a>
+    </div>
+    <div ng-if="!($ctrl.enableRegistration && ($ctrl.identities | isEmpty))">
+      <a ng-click="$ctrl.showAddIdentityModal=true"
+        style="text-decoration: none">I have a wallet but I don't see my identity here.</a>
+    </div>
   </div>
 </div>
