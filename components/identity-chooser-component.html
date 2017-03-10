@@ -13,7 +13,7 @@
       <div class="aio-flex-item"
         ng-repeat="(id, identity) in $ctrl.identities"
         ng-click="$ctrl.select(id)">
-        <div class="br-item-hover aio-identity-option">
+        <div class="aio-identity-option">
           <!-- <i class="fa fa-user fa-3x pull-left" style="padding-left: 8px"></i> -->
           <span class="fa-stack fa-lg pull-left">
             <i class="fa fa-user fa-stack-2x"></i>
@@ -23,7 +23,8 @@
           </span>
           <div class="text" style="margin-left: 60px;">
             <strong>{{identity.label}}</strong>
-            <h6 class="text-muted" style="margin-top: 4px; margin-bottom: 4px;">Managed by {{identity.sysRepoDomain || 'Loading repository information...'}}</h6>
+            <h6 class="text-muted"
+              style="font-size: 11px; margin-top: 4px; margin-bottom: 4px;">Managed by {{identity.sysRepoDomain || 'Loading repository information...'}}</h6>
           </div>
         </div>
         <div ng-show="$ctrl.display.loginForm && $ctrl.selected === id">
@@ -85,12 +86,10 @@
         ng-click="$ctrl.onIdentitySelected({identity: null})"><i
         class="fa fa-arrow-right"></i> Get a Wallet</button>
       <div class="aio-separator"></div>
-      <a ng-click="$ctrl.showAddIdentityModal=true"
-        style="text-decoration: none">I already have a wallet that I want to use with this device.</a>
+      <a ng-click="$ctrl.showAddIdentityModal=true">I already have a wallet that I want to use with this device.</a>
     </div>
     <div ng-if="!($ctrl.enableRegistration && ($ctrl.identities | isEmpty))">
-      <a ng-click="$ctrl.showAddIdentityModal=true"
-        style="text-decoration: none">I have a wallet but I don't see my identity here.</a>
+      <a ng-click="$ctrl.showAddIdentityModal=true">I don't see the identity I want to use here</a>
     </div>
   </div>
 </div>

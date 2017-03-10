@@ -1,4 +1,4 @@
-<br-modal br-title="Add Identity">
+<br-modal class="aio-native-modal" br-title="Add Identity">
   <br-modal-body>
     <p>
       If you have another identity you'd like to use with this device, you
@@ -10,9 +10,8 @@
       to use the device you registered with or visit your digital wallet
       provider to register this device.
     </p>
-    <hr>
     <div class="row">
-      <form name="$ctrl.addIdentityForm" class="form-horizontal" role="form">
+      <form name="$ctrl.addIdentityForm" class="form-horizontal aio-form" role="form">
         <fieldset>
           <br-input br-model="$ctrl.email"
             br-input-ng-keyup="$event.keyCode === 13 && !$ctrl.loading &&
@@ -20,10 +19,16 @@
             br-options="{
               name: 'email',
               label: 'Email',
-              helpTogglePosition: 'label',
+              helpTogglePosition: 'afterLabel',
               showValidation: true,
               autofocus: true,
-              disabled: {{$ctrl.loading}}
+              disabled: {{$ctrl.loading}},
+              classes: {
+                label: 'col-sm-offset-1 col-sm-11',
+                content: 'col-sm-offset-1 col-sm-9',
+                help: 'col-sm-offset-1 col-sm-9',
+                validation: 'col-sm-offset-1 col-sm-9'
+              }
             }" ng-minlength="6" ng-maxlength="128" br-input-autofocus required>
             <br-input-help>
               Please enter the email address you associated with an identity
@@ -48,9 +53,15 @@
               name: 'passphrase',
               label: 'Passphrase',
               type: 'password',
-              helpTogglePosition: 'label',
+              helpTogglePosition: 'afterLabel',
               showValidation: true,
-              disabled: {{$ctrl.loading}}
+              disabled: {{$ctrl.loading}},
+              classes: {
+                label: 'col-sm-offset-1 col-sm-11',
+                content: 'col-sm-offset-1 col-sm-9',
+                help: 'col-sm-offset-1 col-sm-9',
+                validation: 'col-sm-offset-1 col-sm-9'
+              }
             }" ng-minlength="6" ng-maxlength="128" required>
             <br-input-help>
               Please enter the password you associated with an identity that
@@ -69,10 +80,11 @@
             </br-input-validation-errors>
           </br-input>
           <div class="form-group">
-            <div class="col-sm-offset-3 col-sm-8">
+            <div class="col-sm-offset-1 col-sm-9">
               <div class="checkbox">
                 <label>
-                  <input type="checkbox" ng-model="$ctrl.permanent">
+                  <input type="checkbox" ng-model="$ctrl.permanent"
+                    style="margin-top: 1px">
                     Remember me on this device
                 </label>
               </div>
@@ -88,11 +100,11 @@
       <i class="fa fa-refresh fa-spin text-muted"></i>
     </span>
     <span>
-      <button type="button" class="btn btn-primary"
+      <button type="button" class="btn btn-default aio-button"
         ng-disabled="$ctrl.loading || !$ctrl.email || !$ctrl.passphrase"
         ng-click="$ctrl.add()"><i class="fa fa-check"></i> Add</button>
     </span>
-    <button type="button" class="btn btn-default stackable-cancel"
+    <button type="button" class="btn btn-default aio-button stackable-cancel"
       ng-disabled="$ctrl.loading">Cancel</button>
   </br-modal-footer>
 </br-modal>
