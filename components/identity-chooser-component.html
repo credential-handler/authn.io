@@ -1,95 +1,91 @@
-<div>
-  <stackable-modal stackable="$ctrl.showAddIdentityModal"
-    stackable-closed="!err && $ctrl.identityAdded(result)"
-    br-lazy-compile="$ctrl.showAddIdentityModal"
-    br-lazy-id="aio-add-identity-modal">
-    <!-- TODO: include identity filter as parameter to modal -->
-    <aio-add-identity-modal></aio-add-identity-modal>
-  </stackable-modal>
-  <div class="aio-flex-column" style="align-items: stretch">
-    <!-- TODO: implement better scroll fix than max-height: 70vh -->
-    <div class="aio-flex-column"
-      style="align-items: stretch; flex: 1 1 auto; max-height: 70vh">
-      <div class="aio-flex-item"
-        ng-repeat="(id, identity) in $ctrl.identities"
-        ng-click="$ctrl.select(id)">
-        <div class="aio-identity-option">
-          <!-- <i class="fa fa-user fa-3x pull-left" style="padding-left: 8px"></i> -->
-          <span class="fa-stack fa-lg pull-left">
-            <i class="fa fa-user fa-stack-2x"></i>
-            <i ng-if="!$ctrl.isAuthenticated(identity.id)"
-              class="fa fa-lock fa-stack-1x" style="margin-top: -7px; margin-left: 20px"
-              br-tooltip="This identity is password-protected."></i>
-          </span>
-          <div class="text" style="margin-left: 60px;">
-            <strong>{{identity.label}}</strong>
-            <h6 class="text-muted"
-              style="font-size: 11px; margin-top: 4px; margin-bottom: 4px;">Managed by {{identity.sysRepoDomain || 'Loading repository information...'}}</h6>
-          </div>
-        </div>
-        <div ng-show="$ctrl.display.loginForm && $ctrl.selected === id">
-          <form class="form-horizontal" name="$ctrl.loginForm"
-            ng-submit="$ctrl.authenticate(id, $ctrl.password)">
-            <fieldset>
-              <br-input br-model="$ctrl.password"
-                br-options="{
-                  name: 'password',
-                  label: 'Password',
-                  type: 'password',
-                  helpTogglePosition: 'label',
-                  showValidation: true,
-                  autofocus: true
-                }" required>
-                <br-input-help>
-                  Please enter the password to unlock this identity.
-                </br-input-help>
-                <br-input-validation-errors>
-                  <p ng-show="$ctrl.loginForm.password.$error.required">
-                    A password is required to unlock this identity.
-                  </p>
-                </br-input-validation-errors>
-              </br-input>
-              <div class="form-group">
-                <div class="input-group col-sm-offset-3">
-                  <div class="btn-group">
-                    <button class="btn btn-primary" type="submit"
-                      ng-disabled="$ctrl.loginForm.$invalid"><i
-                      class="fa fa-sign-in"></i> Login<span
-                        ng-show="$ctrl.authenticating"> <i class="fa fa-refresh fa-spin"></i></span></button>
-                  </div>
-                </div>
-              </div>
-            </fieldset>
-          </form>
+<div class="aio-flex-column" style="align-items: stretch">
+  <div class="aio-flex-column aio-flex-item-grow" style="align-items: stretch">
+    <div ng-if="!$ctrl.enableRegistration && ($ctrl.identities | isEmpty)"
+      class="aio-flex-item">
+      Please <a ng-click="$ctrl.showAddIdentityModal=true">register
+      an existing identity with this device</a> or visit a digital
+      wallet provider of your choice to create a new one.
+    </div>
+    <div class="aio-flex-item"
+      ng-repeat="(id, identity) in $ctrl.identities"
+      ng-click="$ctrl.select(id)">
+      <div class="aio-identity-option">
+        <!-- <i class="fa fa-user fa-3x pull-left" style="padding-left: 8px"></i> -->
+        <span class="fa-stack fa-lg pull-left">
+          <i class="fa fa-user fa-stack-2x"></i>
+          <i ng-if="!$ctrl.isAuthenticated(identity.id)"
+            class="fa fa-lock fa-stack-1x" style="margin-top: -7px; margin-left: 20px"
+            br-tooltip="This identity is password-protected."></i>
+        </span>
+        <div class="text" style="margin-left: 60px;">
+          <strong>{{identity.label}}</strong>
+          <h6 class="text-muted"
+            style="font-size: 11px; margin-top: 4px; margin-bottom: 4px;">Managed by {{identity.sysRepoDomain || 'Loading repository information...'}}</h6>
         </div>
       </div>
-      <div ng-if="!$ctrl.enableRegistration && ($ctrl.identities | isEmpty)"
-        class="aio-flex-item">
-        <div class="alert alert-warning"><strong>No identities found</strong>.</div>
-        <p>
-          Please <a ng-click="$ctrl.showAddIdentityModal=true">register
-          an existing identity with this device</a> or visit a digital
-          wallet provider of your choice to create a new one.
-        </p>
+      <div ng-show="$ctrl.display.loginForm && $ctrl.selected === id">
+        <form class="form-horizontal" name="$ctrl.loginForm"
+          ng-submit="$ctrl.authenticate(id, $ctrl.password)">
+          <fieldset>
+            <br-input br-model="$ctrl.password"
+              br-options="{
+                name: 'password',
+                label: 'Password',
+                type: 'password',
+                helpTogglePosition: 'label',
+                showValidation: true,
+                autofocus: true
+              }" required>
+              <br-input-help>
+                Please enter the password to unlock this identity.
+              </br-input-help>
+              <br-input-validation-errors>
+                <p ng-show="$ctrl.loginForm.password.$error.required">
+                  A password is required to unlock this identity.
+                </p>
+              </br-input-validation-errors>
+            </br-input>
+            <div class="form-group">
+              <div class="input-group col-sm-offset-3">
+                <div class="btn-group">
+                  <button class="btn btn-primary" type="submit"
+                    ng-disabled="$ctrl.loginForm.$invalid"><i
+                    class="fa fa-sign-in"></i> Login<span
+                      ng-show="$ctrl.authenticating"> <i class="fa fa-refresh fa-spin"></i></span></button>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </form>
       </div>
     </div>
   </div>
-</div>
-<div class="aio-separator"></div>
-<div class="row">
-  <div class="col-xs-12 text-center">
-    <div ng-if="$ctrl.enableRegistration && ($ctrl.identities | isEmpty)">
-      <p>
-        To enable sign in with this device, you must get a digital wallet.
-      </p>
+  <div class="aio-separator aio-flex-item"></div>
+  <div ng-if="$ctrl.enableRegistration && ($ctrl.identities | isEmpty)"
+    class="aio-flex-item">
+    <p>
+      To enable sign in with this device, you must get a digital wallet.
+    </p>
+    <div class="text-center">
       <button class="btn btn-default aio-button" type="button"
         ng-click="$ctrl.onIdentitySelected({identity: null})"><i
         class="fa fa-arrow-right"></i> Get a Wallet</button>
-      <div class="aio-separator"></div>
+    </div>
+    <div class="aio-separator"></div>
+    <div class="text-center">
+      <!-- TODO: tweak language: "Register this device with an existing wallet"? -->
       <a ng-click="$ctrl.showAddIdentityModal=true">I already have a wallet that I want to use with this device.</a>
     </div>
-    <div ng-if="!($ctrl.enableRegistration && ($ctrl.identities | isEmpty))">
-      <a ng-click="$ctrl.showAddIdentityModal=true">I don't see the identity I want to use here</a>
-    </div>
+  </div>
+  <div ng-if="!($ctrl.enableRegistration && ($ctrl.identities | isEmpty))"
+    class="aio-flex-item text-center">
+    <a ng-click="$ctrl.showAddIdentityModal=true">I don't see the identity I want to use here</a>
   </div>
 </div>
+<stackable-modal stackable="$ctrl.showAddIdentityModal"
+  stackable-closed="!err && $ctrl.identityAdded(result)"
+  br-lazy-compile="$ctrl.showAddIdentityModal"
+  br-lazy-id="aio-add-identity-modal">
+  <!-- TODO: include identity filter as parameter to modal -->
+  <aio-add-identity-modal></aio-add-identity-modal>
+</stackable-modal>
