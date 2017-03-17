@@ -24,7 +24,7 @@ function Ctrl(
   self.isCryptoKeyRequest = false;
   self.did = null;
   self.display = {};
-  self.modalContentStyle = {};
+  self.modalContentClass = {};
   var query = $location.search();
   self.op = query.op;
   self.loading = false;
@@ -86,8 +86,8 @@ function Ctrl(
       self.display.identityChooser = false;
       self.display.repo = true;
       self.display.repoLoading = true;
-      self.modalContentStyle = {
-        height: 'calc(100vh - 10px)'
+      self.modalContentClass = {
+        'aio-native-modal-content-with-repo': true
       };
       $scope.$apply();
 
