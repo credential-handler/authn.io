@@ -5,9 +5,10 @@
   "description": "authorization.io website bower dependencies.",
   "dependencies": {
     "angular-cookie": "~4.0.6",
-    "bedrock-angular": "^2.5.1",
+    "bedrock-angular": "^2.6.0",
     "bedrock-angular-alert": "^2.0.0",
     "bedrock-angular-credential": "^2.0.0",
+    "bedrock-angular-footer": "^3.1.0",
     "bedrock-angular-form": "^2.10.0",
     "bedrock-angular-filters": "^2.0.0",
     "bedrock-angular-identity-composer": "^1.0.0",
