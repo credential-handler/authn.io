@@ -20,10 +20,14 @@ function Ctrl(
   $location, $sce, $rootScope, $scope, $window,
   aioIdentityService, aioOperationService, brAlertService, config) {
   var self = this;
+  self.autoIdSelect = false;
   self.route = $rootScope.route;
   self.isCryptoKeyRequest = false;
   self.did = null;
   self.display = {};
+  self.identity = {
+    label: null
+  };
   self.modalContentClass = {};
   var query = $location.search();
   self.op = query.op;
@@ -71,6 +75,8 @@ function Ctrl(
       $scope.$apply();
       return;
     }
+
+    self.identity.label = session.label;
 
     // get result (from either Repo or ourselves)
     var getResult;
@@ -157,6 +163,13 @@ function Ctrl(
     _sendResult(null);
   };
 
+  self.showChooser = function() {
+    aioIdentityService.clearSession();
+    self.autoIdSelect = false;
+    self.display.repo = false;
+    self.display.identityChooser = true;
+  };
+
   $window.addEventListener('beforeunload', function() {
     _sendResult(null);
   });
@@ -189,6 +202,9 @@ function Ctrl(
       }
       self.enableRegistration = options.enableRegistration;
       self.display.identityChooser = true;
+      if(!self.isCryptoKeyRequest) {
+        self.autoIdSelect = true;
+      }
       $scope.$apply();
       return;
     }

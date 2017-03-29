@@ -11,6 +11,7 @@ define(['angular'], function(angular) {
 function register(module) {
   module.component('aioIdentityChooser', {
     bindings: {
+      autoIdSelect: '<?aioAutoIdSelect',
       filter: '<?aioIdentityChooserFilter',
       enableRegistration: '<?aioEnableRegistration',
       onIdentitySelected: '&aioOnIdentitySelected'
@@ -21,8 +22,10 @@ function register(module) {
 }
 
 /* @ngInject */
-function Ctrl($scope, aioIdentityService, aioOperationService, brAlertService) {
+function Ctrl(
+  $q, $scope, aioIdentityService, aioOperationService, brAlertService) {
   var self = this;
+  self.loading = true;
   self.selected = null;
 
   self.display = {};
@@ -30,6 +33,13 @@ function Ctrl($scope, aioIdentityService, aioOperationService, brAlertService) {
 
   self.$onInit = function() {
     updateIdentities(self.filter);
+    if(self.autoIdSelect) {
+      var ids = Object.keys(self.identities);
+      if(ids.length === 1) {
+        return self.select(ids[0]);
+      }
+    }
+    self.loading = false;
   };
 
   self.$onChanges = function(changes) {
@@ -87,18 +97,17 @@ function Ctrl($scope, aioIdentityService, aioOperationService, brAlertService) {
       }
     }
     angular.forEach(self.identities, function(identity, id) {
-      aioIdentityService.getDidDocument(id).then(function(doc) {
-        return aioIdentityService.getDidDocument(doc.idp);
-      }).then(function(doc) {
-        self.identities[id].sysRepoDomain =
-          aioOperationService.parseDomain(doc.url);
-        // TODO: check repo URL for a label to use instead of the domain
-      }).catch(function() {
-        self.identities[id].sysRepoDomain =
-          'Error: Could not find repository domain.';
-      }).then(function() {
-        $scope.$apply();
-      });
+      $q.resolve(aioIdentityService.getDidDocument(id))
+        .then(function(doc) {
+          return aioIdentityService.getDidDocument(doc.idp);
+        }).then(function(doc) {
+          self.identities[id].sysRepoDomain =
+            aioOperationService.parseDomain(doc.url);
+          // TODO: check repo URL for a label to use instead of the domain
+        }).catch(function() {
+          self.identities[id].sysRepoDomain =
+            'Error: Could not find repository domain.';
+        });
     });
   }
 }
