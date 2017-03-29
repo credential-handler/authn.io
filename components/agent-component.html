@@ -7,7 +7,16 @@
           class="close aio-native-modal-close">&times;<span class="sr-only">Close</span></a>
       </div>
       <div>
-        <span><strong>{{$ctrl.relyingParty}}</strong> wants you to:</span>
+        <span>
+          <strong>{{$ctrl.relyingParty}}</strong> wants you
+          <span ng-if="$ctrl.display.repo && $ctrl.op === 'get' && !$ctrl.isCryptoKeyRequest">
+            (<strong><a ng-click="$ctrl.showChooser()">{{$ctrl.identity.label}}</a></strong>)
+          </span>
+          <span ng-if="$ctrl.display.repo && !($ctrl.op === 'get' && !$ctrl.isCryptoKeyRequest)">
+            (<strong>{{$ctrl.identity.label}}</strong>)
+          </span>
+          to:
+        </span>
       </div>
       <br>
       <div ng-if="$ctrl.isCryptoKeyRequest"><i class="fa fa-sign-in"></i> Sign in</div>
@@ -17,12 +26,6 @@
       </div>
       <div ng-if="$ctrl.repoOrigin && $ctrl.display.repo">
         <br>
-        <strong ng-if="$ctrl.op === 'get' && !$ctrl.isCryptoKeyRequest">
-          <a ng-click="$ctrl.showChooser()">{{$ctrl.identity.label}}</a>
-        </strong>
-        <strong ng-if="!($ctrl.op === 'get' && !$ctrl.isCryptoKeyRequest)">
-          {{$ctrl.identity.label}}
-        </strong>
         <span ng-if="$ctrl.op !== 'store'">via </span>
         <span ng-if="$ctrl.op === 'store'">via </span>
         <span>
