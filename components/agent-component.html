@@ -17,6 +17,12 @@
       </div>
       <div ng-if="$ctrl.repoOrigin && $ctrl.display.repo">
         <br>
+        <strong ng-if="$ctrl.op === 'get' && !$ctrl.isCryptoKeyRequest">
+          <a ng-click="$ctrl.showChooser()">{{$ctrl.identity.label}}</a>
+        </strong>
+        <strong ng-if="!($ctrl.op === 'get' && !$ctrl.isCryptoKeyRequest)">
+          {{$ctrl.identity.label}}
+        </strong>
         <span ng-if="$ctrl.op !== 'store'">via </span>
         <span ng-if="$ctrl.op === 'store'">via </span>
         <span>
@@ -31,6 +37,7 @@
       class="aio-separator aio-flex-item" style="margin-top: 20px"></div>
     <aio-identity-chooser ng-if="$ctrl.display.identityChooser"
       class="aio-flex-item-grow aio-flex-column"
+      aio-auto-id-select="$ctrl.autoIdSelect"
       aio-identity-chooser-filter="$ctrl.did"
       aio-enable-registration="$ctrl.enableRegistration"
       aio-on-identity-selected="$ctrl.identitySelected(identity)">
