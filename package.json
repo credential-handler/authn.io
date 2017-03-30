@@ -17,6 +17,7 @@
     "bedrock": "^1.2.0",
     "bedrock-docs": "^2.0.0",
     "bedrock-express": "^2.0.3",
+    "bedrock-letsencrypt": "^0.2.2",
     "bedrock-mail": "^2.0.1",
     "bedrock-mongodb": "^3.0.0",
     "bedrock-requirejs": "^2.0.1",

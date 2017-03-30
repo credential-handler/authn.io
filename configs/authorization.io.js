@@ -46,9 +46,11 @@ config.server.bindAddr = ['authorization.io'];
 config.server.domain = 'authorization.io';
 config.server.host = 'authorization.io';
 config.server.baseUri = 'https://' + config.server.host;
-config.server.key = path.join(_cfgdir, 'pki', 'authorization.io.key');
-config.server.cert = path.join(_cfgdir, 'pki', 'authorization.io.crt');
-config.server.ca = path.join(_cfgdir, 'pki', 'authorization.io-bundle.crt');
+
++// letsencrypt
+config.letsencrypt.domains.push(config.server.domain);
+config.letsencrypt.email = 'admin@authorization.io';
+config.letsencrypt.mode = 'production';
 
 // session info
 config.express.session.key = 'authio.sid';
