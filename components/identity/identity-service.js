@@ -749,9 +749,14 @@ function factory($http) {
             });
           }
           var waitTime = secondsLeft * 1000;
-          setTimeout(function() {
-            return resolve(proof);
-          }, waitTime);
+          // additional 250ms added to account for clock issues
+          var notBefore = Date.now() + waitTime + 250;
+          var i = setInterval(function() {
+            if(Date.now() >= notBefore) {
+              clearInterval(i);
+              return resolve(proof);
+            }
+          }, 500);
         });
     });
   }
