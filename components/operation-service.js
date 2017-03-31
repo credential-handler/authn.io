@@ -32,12 +32,13 @@ function factory(aioIdentityService) {
     var router = new Router(service.parseOrigin(options.origin));
     return router.request(options.op, 'params').then(function(message) {
       // build params from message data
-      var params = {};
+      var params;
       if(message.op === 'get') {
-        params.options = message.data;
+        params = {options: message.data};
+      } else if(message.op === 'store') {
+        params = {options: {store: message.data}};
       } else {
-        params.options = {};
-        params.options.store = message.data;
+        params = message.data;
       }
       return params;
     });
@@ -167,7 +168,7 @@ function factory(aioIdentityService) {
    * @param identity the identity to send.
    * @param origin the relying party's origin.
    */
-  service.sendResult = function(op, identity, origin) {
+  service.sendSignedIdentity = function(op, identity, origin) {
     var router = new Router(service.parseOrigin(origin));
 
     // ensure session has not expired
@@ -199,6 +200,23 @@ function factory(aioIdentityService) {
       identity = signed;
       router.send(op, 'result', identity);
     });
+  };
+
+  /**
+   * Sends the passed result to the relying party as the result of an API
+   * operation.
+   *
+   * @param op the name of the API operation.
+   * @param result the result to send.
+   * @param origin the relying party's origin.
+   */
+  service.sendResult = function(op, result, origin) {
+    // flow complete, clear session
+    aioIdentityService.clearSession();
+
+    // route result to target origin
+    var router = new Router(service.parseOrigin(origin));
+    router.send(op, 'result', result);
   };
 
   /**

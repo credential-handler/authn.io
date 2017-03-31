@@ -6,7 +6,12 @@
         <a ng-click="$ctrl.cancel()"
           class="close aio-native-modal-close">&times;<span class="sr-only">Close</span></a>
       </div>
-      <div>
+      <div ng-if="$ctrl.op === 'requestPermission'">
+        <span>
+          <strong>{{$ctrl.relyingParty}}</strong> wants to:
+        </span>
+      </div>
+      <div ng-if="$ctrl.op !== 'requestPermission'">
         <span>
           <strong>{{$ctrl.relyingParty}}</strong> wants you
           <span ng-if="$ctrl.display.repo && $ctrl.op === 'get' && !$ctrl.isCryptoKeyRequest">
@@ -21,8 +26,24 @@
       <br>
       <div ng-if="$ctrl.isCryptoKeyRequest"><i class="fa fa-sign-in"></i> Sign in</div>
       <div ng-if="!$ctrl.isCryptoKeyRequest">
-        <span ng-if="$ctrl.op !== 'store'"><i class="fa fa-share-alt"></i> Share credentials</span>
+        <span ng-if="$ctrl.op === 'get'"><i class="fa fa-share-alt"></i> Share credentials</span>
         <span ng-if="$ctrl.op === 'store'"><i class="fa fa-cloud-download"></i> Store credentials</span>
+      </div>
+      <div ng-if="$ctrl.op === 'requestPermission'">
+        <div ng-repeat="(permissionId, permission) in $ctrl.permissions">
+          <span><i class="{{permission.icon}}"></i> {{permission.name}}</span>
+        </div>
+        <br>
+        <div class="aio-button-bar" style="margin-top: 10px">
+          <button
+            ng-click="$ctrl.onDeny()"
+            type="button" class="btn btn-default aio-button">Deny
+          </button>
+          <button
+            ng-click="$ctrl.onAllow()"
+            type="button" class="btn btn-default aio-button">Allow
+          </button>
+        </div>
       </div>
       <div ng-if="$ctrl.repoOrigin && $ctrl.display.repo">
         <br>
@@ -36,7 +57,9 @@
         <div class="aio-separator"></div>
       </div>
     </div>
-    <div ng-if="!($ctrl.repoOrigin && $ctrl.display.repo)"
+    <!-- TODO: refactor conditionals to be more semantically clear -->
+    <div ng-if="$ctrl.op !== 'requestPermission' &&
+      !($ctrl.repoOrigin && $ctrl.display.repo)"
       class="aio-separator aio-flex-item" style="margin-top: 20px"></div>
     <aio-identity-chooser ng-if="$ctrl.display.identityChooser"
       class="aio-flex-item-grow aio-flex-column"

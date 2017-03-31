@@ -4,6 +4,7 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
+/* global requirejs */
 define(['angular', 'node-uuid', 'lodash'], function(angular, uuid, _) {
 
 'use strict';
@@ -18,7 +19,8 @@ function register(module) {
 /* @ngInject */
 function Ctrl(
   $location, $sce, $rootScope, $scope, $window,
-  aioIdentityService, aioOperationService, brAlertService, config) {
+  aioIdentityService, aioOperationService, aioPermissionService,
+  brAlertService, config) {
   var self = this;
   self.autoIdSelect = false;
   self.route = $rootScope.route;
@@ -33,6 +35,11 @@ function Ctrl(
   self.op = query.op;
   self.loading = false;
 
+  // TODO: potentially change this to avoid using any URL param at all and
+  // just use whatever comes through from `postMessage`; I believe we're
+  // already checking to make sure what comes through in `postMessage` is
+  // the same as this value as what `postMessage` reports is what we need
+  // to trust, but given that, it seems we could eliminate this extra data?
   var relyingParty = query.origin;
   self.relyingParty = aioOperationService.parseDomain(relyingParty);
 
@@ -80,7 +87,7 @@ function Ctrl(
 
     // get result (from either Repo or ourselves)
     var getResult;
-    if(!self.isCryptoKeyRequest || !_isKeyDidBased(session)) {
+    if(!(self.isCryptoKeyRequest && _isKeyDidBased(session))) {
       // need Repo to fulfill the request...
 
       // display Repo in iframe to handle request
@@ -145,7 +152,7 @@ function Ctrl(
 
     // send result to RP
     getResult.then(function(result) {
-      return _sendResult(result);
+      return _sendSignedIdentity(result);
     }).catch(function(err) {
       // TODO: need better error handling -- we need to send an error back
       // to the relying party after displaying the problem on auth.io
@@ -160,7 +167,11 @@ function Ctrl(
    * Cancels sending any information to the relying party.
    */
   self.cancel = function() {
-    _sendResult(null);
+    if(query.op === 'requestPermission') {
+      _sendResult('default');
+    } else {
+      _sendResult(null);
+    }
   };
 
   self.showChooser = function() {
@@ -168,6 +179,18 @@ function Ctrl(
     self.autoIdSelect = false;
     self.display.repo = false;
     self.display.identityChooser = true;
+  };
+
+  self.onAllow = function() {
+    // set permission allowed
+    aioPermissionService.allow(relyingParty, self.params);
+    return _sendResult('granted');
+  };
+
+  self.onDeny = function() {
+    // set permission blocked
+    aioPermissionService.block(relyingParty, self.params);
+    return _sendResult('denied');
   };
 
   $window.addEventListener('beforeunload', function() {
@@ -190,9 +213,9 @@ function Ctrl(
     origin: relyingParty
   }).then(function(params) {
     self.params = params;
-    var options = params.options;
 
     if(query.op === 'get') {
+      var options = params.options;
       // special handle request for public key credential
       self.isCryptoKeyRequest = _isCryptoKeyRequest(options.query);
       // always show identity chooser for `get` requests even if a
@@ -210,6 +233,7 @@ function Ctrl(
     }
 
     if(query.op === 'store') {
+      var options = params.options;
       // only show identity chooser if can't auto-authenticate as owner
       var owner = _getOwnerId(options.store);
       return aioIdentityService.createSession(owner)
@@ -227,15 +251,42 @@ function Ctrl(
         });
     }
 
+    if(query.op === 'requestPermission') {
+      // get granted permissions for relying party
+      var granted = aioPermissionService.query({
+        origin: relyingParty,
+        granted: true
+      });
+      if(_.difference(self.params, granted).length === 0) {
+        // all permissions granted send result
+        return _sendResult('granted');
+      }
+      // TODO: if permissions `blocked` send 'denied' immediately?
+
+      // get permission meta data for display
+      try {
+        self.permissions = aioPermissionService.getMeta(self.params);
+      } catch(err) {
+        return _sendError('NotSupportedError');
+      }
+      // return to show UI to ask for permission
+      self.loading = false;
+      return;
+    }
+
     // TODO: handle invalid op better, provide more guidance to user and
     // send error back to relying party
     throw new Error(
       'The website you visited made an unsupported credential request. ' +
       'Please contact their technical support team for assistance.');
   }).catch(function(err) {
-    brAlertService.add('error', err);
+    if(query.op !== 'requestPermission') {
+      brAlertService.add('error', err);
+    }
   }).then(function() {
-    self.loading = false;
+    if(query.op !== 'requestPermission') {
+      self.loading = false;
+    }
     $scope.$apply();
   });
 
@@ -255,6 +306,15 @@ function Ctrl(
       query.id = '';
     }
     return _.isEqual(query, CRYPTO_KEY_REQUEST);
+  }
+
+  function _sendSignedIdentity(identity) {
+    if(resultSent) {
+      return;
+    }
+    resultSent = true;
+    return aioOperationService.sendSignedIdentity(
+      self.op, identity, relyingParty);
   }
 
   function _sendResult(result) {
