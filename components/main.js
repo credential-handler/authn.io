@@ -11,6 +11,7 @@ define([
   './identity-chooser-component',
   './identity-service',
   './operation-service',
+  './permission-service',
   './register-component',/*
   './idp-test/idp-test'*/
 ], function(angular) {
