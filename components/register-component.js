@@ -69,11 +69,8 @@ function Ctrl(
 
   /**
    * Allows registration to proceed.
-   *
-   * @param [id] the ID to use when registering, if registration will be
-   *          delegated to the credential repository.
    */
-  self.onAllow = function(id) {
+  self.onAllow = function() {
     // TODO: if `userMediationRequired` is false, can optimize away
     // progress events, etc.
     $scope.$on('identityService.register.progress', function(e, data) {
@@ -117,8 +114,8 @@ function Ctrl(
         repositoryOrigin: origin,
         scope: $scope
       };
-      if(id) {
-        opts.id = id;
+      if(params.id) {
+        opts.id = params.id;
       }
       return aioIdentityService.register(opts);
     }).then(function(registrationInfo) {
