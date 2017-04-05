@@ -69,10 +69,14 @@
       aio-on-identity-selected="$ctrl.identitySelected(identity)">
     </aio-identity-chooser>
     <div ng-if="$ctrl.display.authenticating" class="aio-flex-item">
-      <i class="fa fa-refresh fa-spin text-muted"></i> Authenticating...
+      <i class="fa fa-spin fa-spin text-muted"></i> Authenticating...
     </div>
-    <div ng-if="$ctrl.display.repoLoading" class="aio-flex-item">
-      <i class="fa fa-refresh fa-spin text-muted"></i> Loading your wallet...
+    <div ng-if="$ctrl.display.repoLoading"
+      class="aio-flex-item"
+      style="flex: 1 1 auto; display: flex; flex-direction: row; align-items: center">
+      <div class="text-center" style="flex: 1 1 auto">
+        <i class="fa fa-gear fa-spin text-muted" style="font-size: 10em"></i>
+      </div>
     </div>
     <iframe ng-if="$ctrl.display.repo" ng-show="!$ctrl.display.repoLoading"
       class="aio-repo-iframe aio-flex-item-grow"

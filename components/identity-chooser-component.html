@@ -1,10 +1,16 @@
-<div class="aio-flex-column" style="align-items: stretch">
+<div class="aio-flex-column" style="align-items: stretch; width: 100%">
   <div class="aio-flex-column aio-flex-item-grow" style="align-items: stretch">
     <div ng-if="!$ctrl.enableRegistration && ($ctrl.identities | isEmpty)"
       class="aio-flex-item">
       Please <a ng-click="$ctrl.showAddIdentityModal=true">register
       an existing identity with this device</a> or visit a digital
       wallet provider of your choice to create a new one.
+    </div>
+    <div ng-if="$ctrl.loading" class="aio-flex-item"
+      style="flex: 1 1 auto; display: flex; flex-direction: row; align-items: center">
+      <div class="text-center" style="flex: 1 1 auto">
+        <i class="fa fa-gear fa-spin text-muted" style="font-size: 5em"></i>
+      </div>
     </div>
     <div ng-if="!$ctrl.loading" class="aio-flex-item"
       ng-repeat="(id, identity) in $ctrl.identities"
@@ -20,7 +26,10 @@
         <div class="text" style="margin-left: 60px;">
           <strong>{{identity.label}}</strong>
           <h6 class="text-muted"
-            style="font-size: 11px; margin-top: 4px; margin-bottom: 4px;">Managed by {{identity.sysRepoDomain || 'Loading repository information...'}}</h6>
+            style="font-size: 11px; margin-top: 4px; margin-bottom: 4px;">
+            <span ng-if="identity.sysRepoDomain">via {{identity.sysRepoDomain}}</span>
+            <span ng-if="!identity.sysRepoDomain"><i class="fa fa-refresh fa-spin"></i></span>
+          </h6>
         </div>
       </div>
       <div ng-show="$ctrl.display.loginForm && $ctrl.selected === id">
