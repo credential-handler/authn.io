@@ -20,7 +20,7 @@ function register(module) {
 function Ctrl(
   $location, $sce, $rootScope, $scope, $window,
   aioIdentityService, aioOperationService, aioPermissionService,
-  brAlertService, config) {
+  aioUtilService, brAlertService, config) {
   var self = this;
   self.autoIdSelect = false;
   self.route = $rootScope.route;
@@ -41,7 +41,7 @@ function Ctrl(
   // the same as this value as what `postMessage` reports is what we need
   // to trust, but given that, it seems we could eliminate this extra data?
   var relyingParty = query.origin;
-  self.relyingParty = aioOperationService.parseDomain(relyingParty);
+  self.relyingParty = aioUtilService.parseDomain(relyingParty);
 
   var resultSent = false;
 
@@ -93,9 +93,9 @@ function Ctrl(
       // display Repo in iframe to handle request
       self.repoUrl = $sce.trustAsResourceUrl(
         session.idpConfig.credentialManagementUrl);
-      self.repoOrigin = aioOperationService.parseOrigin(self.repoUrl);
+      self.repoOrigin = aioUtilService.parseOrigin(self.repoUrl);
       self.repoOriginImgError = false;
-      self.repoDomain = aioOperationService.parseDomain(self.repoUrl);
+      self.repoDomain = aioUtilService.parseDomain(self.repoUrl);
       self.display.identityChooser = false;
       self.display.repo = true;
       self.display.repoLoading = true;
@@ -252,13 +252,8 @@ function Ctrl(
     }
 
     if(query.op === 'requestPermission') {
-      // get granted permissions for relying party
-      var granted = aioPermissionService.query({
-        origin: relyingParty,
-        granted: true
-      });
-      if(_.difference(self.params, granted).length === 0) {
-        // all permissions granted send result
+      if(aioPermissionService.isAuthorized(relyingParty, self.params)) {
+        // all permissions already granted; send result
         return _sendResult('granted');
       }
       // TODO: if permissions `blocked` send 'denied' immediately?

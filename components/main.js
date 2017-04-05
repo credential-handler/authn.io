@@ -12,7 +12,8 @@ define([
   './identity-service',
   './operation-service',
   './permission-service',
-  './register-component',/*
+  './register-component',
+  './util-service',/*
   './idp-test/idp-test'*/
 ], function(angular) {
 

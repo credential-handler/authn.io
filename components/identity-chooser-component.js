@@ -1,9 +1,10 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2015-2016, Digital Bazaar, Inc.
- * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
+ * Copyright (c) 2015-2017, Digital Bazaar, Inc.
+ * Copyright (c) 2015-2017, Accreditrust Technologies, LLC
  * All rights reserved.
  */
+/* global requirejs */
 define(['angular'], function(angular) {
 
 'use strict';
@@ -23,7 +24,7 @@ function register(module) {
 
 /* @ngInject */
 function Ctrl(
-  $q, $scope, aioIdentityService, aioOperationService, brAlertService) {
+  $q, $scope, aioIdentityService, aioUtilService, brAlertService) {
   var self = this;
   self.loading = true;
   self.selected = null;
@@ -102,7 +103,7 @@ function Ctrl(
           return aioIdentityService.getDidDocument(doc.idp);
         }).then(function(doc) {
           self.identities[id].sysRepoDomain =
-            aioOperationService.parseDomain(doc.url);
+            aioUtilService.parseDomain(doc.url);
           // TODO: check repo URL for a label to use instead of the domain
         }).catch(function() {
           self.identities[id].sysRepoDomain =
