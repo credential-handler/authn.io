@@ -1,6 +1,7 @@
 /*!
  * Copyright (c) 2016-2017 Digtal Bazaar, Inc. All rights reserved.
  */
+/* global requirejs */
 define([], function() {
 
 'use strict';
@@ -15,31 +16,41 @@ function register(module) {
 /* @ngInject */
 function Ctrl(
   $location, $scope, $timeout, $window,
-  aioIdentityService, aioOperationService, brAlertService) {
+  aioIdentityService, aioPermissionService, aioUtilService,
+  brAlertService) {
   var self = this;
   self.email = '';
   self.loading = false;
   self.generating = false;
   self.registering = false;
-  self.display = {};
-  self.display.polyfill = false;
+  self.userMediationRequired = false;
 
   // get register parameters
   self.loading = true;
   var origin = $location.search().origin;
   var router = new navigator.credentials._Router(origin);
+  var params;
   router.request('registerDid', 'params').then(function(message) {
+    self.domain = aioUtilService.parseDomain(message.origin);
+
     // TODO: handle other parameters
-    self.domain = aioOperationService.parseDomain(message.origin);
-    self.idp = message.data.idp;
-    if('name' in message.data) {
-      self.email = message.data.name;
+    params = message.data;
+    self.idp = params.idp;
+    if('name' in params) {
+      self.email = params.name;
     }
+    // user mediation required if register permission not granted for origin
+    self.userMediationRequired = !aioPermissionService.isAuthorized(
+      message.origin, 'register-identity-credential');
   }).catch(function(err) {
     brAlertService.add('error', err);
   }).then(function() {
     self.loading = false;
     $scope.$apply();
+  }).then(function() {
+    if(!self.userMediationRequired) {
+      return self.onAllow(params.id);
+    }
   });
 
   $window.document.addEventListener('keydown', function(e) {
@@ -58,8 +69,13 @@ function Ctrl(
 
   /**
    * Allows registration to proceed.
+   *
+   * @param [id] the ID to use when registering, if registration will be
+   *          delegated to the credential repository.
    */
-  self.onAllow = function() {
+  self.onAllow = function(id) {
+    // TODO: if `userMediationRequired` is false, can optimize away
+    // progress events, etc.
     $scope.$on('identityService.register.progress', function(e, data) {
       self.generating = false;
       self.registering = true;
@@ -76,18 +92,14 @@ function Ctrl(
       repo: self.idp,
       temporary: false,
       create: false
-    }).catch(function(err) {
-      // ignore, proceed with registration
+    }).catch(function() {
+      // ignore error, proceed with registration
     }).then(function(identity) {
       if(identity) {
         // get DID document to return as registration info
         return aioIdentityService.getDidDocument(identity.id)
           .then(function(didDocument) {
-            if(didDocument.idp === self.idp) {
-              return {didDocument: didDocument};
-            }
-            // IDP not a match, so can't be an incomplete registration
-            return null;
+            return {didDocument: didDocument};
           });
       }
       return null;
@@ -99,11 +111,16 @@ function Ctrl(
         // won't know what to do here so perhaps not useful to ask
         return registrationInfo;
       }
-      return aioIdentityService.register({
+      var opts = {
         identifier: self.email,
         idp: self.idp,
+        repositoryOrigin: origin,
         scope: $scope
-      });
+      };
+      if(id) {
+        opts.id = id;
+      }
+      return aioIdentityService.register(opts);
     }).then(function(registrationInfo) {
       self.registering = false;
       var router = new navigator.credentials._Router(origin);
@@ -117,10 +134,6 @@ function Ctrl(
       self.registering = false;
       $scope.$apply();
     });
-  };
-
-  self.togglePolyfill = function() {
-    self.display.polyfill = !self.display.polyfill;
   };
 
   /**

@@ -1,7 +1,7 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2015-2016, Digital Bazaar, Inc.
- * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
+ * Copyright (c) 2015-2017, Digital Bazaar, Inc.
+ * Copyright (c) 2015-2017, Accreditrust Technologies, LLC
  * All rights reserved.
  */
 define([
@@ -52,8 +52,10 @@ function factory($http) {
    * a password is provided.
    *
    * @param options the options to use:
-   *          identifier the identifier to use.
+   *          identifier the human-readable identifier to use.
    *          idp the DID for the IdP to use.
+   *          repositoryOrigin the origin of the repository.
+   *          [id] the DID to use, `undefined` to generate one.
    *          [password] the password to use, if encrypting, and to
    *            create mapping.
    *          [scope] a scope to emit progress events with; the events
@@ -66,18 +68,41 @@ function factory($http) {
   service.register = function(options) {
     options = options || {};
     if(!options.identifier || typeof options.identifier !== 'string') {
-      throw new Error('options.identifier must be a non-empty string.');
+      throw new TypeError('options.identifier must be a non-empty string.');
     }
     if('password' in options && typeof options.password !== 'string') {
-      throw new Error('options.password must be a non-empty string.');
+      throw new TypeError('options.password must be a non-empty string.');
     }
     // TODO: support `https` identifiers for IdPs
     if(!options.idp || typeof options.idp !== 'string' ||
       options.idp.indexOf('did:') !== 0) {
-      throw new Error('options.idp must be a valid DID.');
+      throw new TypeError('options.idp must be a valid DID.');
     }
-
+    if('id' in options && (typeof options.idp !== 'string' ||
+      options.id.indexOf('did:') !== 0)) {
+      throw new TypeError('options.id must be a valid DID.');
+    }
     return _generateKeyPair().then(function(kp) {
+      if('id' in options) {
+        // `id` given, delegate registration
+        return _delegateRegistration({
+          id: options.id,
+          repositoryOrigin: options.repositoryOrigin,
+          publicKeyPem: forge.pki.publicKeyToPem(kp.publicKey)
+        }).then(function(registrationInfo) {
+          // ensure identity information is uniform
+          registrationInfo.identity = _createIdentity({
+            id: registrationInfo.identity.id,
+            keypair: kp,
+            publicKeyId: registrationInfo.identity.publicKey.id,
+            label: options.identifier,
+            password: 'password' in options ? options.password : undefined
+          });
+          return registrationInfo;
+        });
+      }
+
+      // generate new `did`; handle registration directly
       var did = didio.generateDid();
       var identity = _createIdentity({
         id: did,
@@ -139,7 +164,10 @@ function factory($http) {
     }
 
     var getIdentity;
-    if('password' in options) {
+    if(!('password' in options)) {
+      getIdentity = Promise.resolve(
+        storage.getByLabel(options.identifier, options));
+    } else {
       // fetch the hash(identifier + passphrase) mapping
       var hash = didio.generateHash(options.identifier, options.password);
       var url = '/mappings/' + hash;
@@ -153,7 +181,7 @@ function factory($http) {
         var did = jsonld.getValues(response.data, 'url')[0];
         return did;
       }).then(function(did) {
-        // check locally-stored identities
+        // return locally-stored identity if available
         var identity = storage.get(did);
         if(identity) {
           var password = _getKeyPassword(options.identifier, options.password);
@@ -167,36 +195,46 @@ function factory($http) {
           }
           return identity;
         }
+        // generate keypair for identity that isn't yet locally-stored
+        return _generateKeyPair().then(function(kp) {
+          var opts = {
+            id: did,
+            keypair: kp,
+            label: options.identifier,
+            password: options.password
+          };
+          if('temporary' in options) {
+            opts.temporary = options.temporary;
+          }
+          var identity = _createIdentity(opts);
+          return storage.insert({
+            identity: identity,
+            permanent: false
+          });
+        });
       });
-    } else {
-      getIdentity = Promise.resolve(
-        storage.getByLabel(options.identifier, options));
     }
 
     return getIdentity.then(function(identity) {
-      if(identity && 'repo' in options && options.repo !== identity.idp) {
-        identity = null;
+      if(!identity || !('repo' in options)) {
+        return identity;
       }
-      if(!identity && !options.create) {
-        throw new Error('Identity not found.');
+      // filter identities by `repo`
+      if(!Array.isArray(identity)) {
+        identity = [identity];
       }
-      // generate keypair for identity that isn't yet locally-stored
-      return _generateKeyPair().then(function(kp) {
-        var opts = {
-          id: identity.id,
-          keypair: kp,
-          label: options.identifier,
-          password: options.password
-        };
-        if('temporary' in options) {
-          opts.temporary = options.temporary;
-        }
-        var identity = _createIdentity(opts);
-        return storage.insert({
-          identity: identity,
-          permanent: false
+      return Promise.all(identity.map(function(next) {
+        return service.getDidDocument(next.id);
+      })).then(function(ddos) {
+        return identity.filter(function(next, idx) {
+          return ddos[idx].idp === options.repo;
         });
       });
+    }).then(function(identities) {
+      if(identities.length === 0 && !options.create) {
+        throw new Error('Identity not found.');
+      }
+      return identities[0] || null;
     });
   };
 
@@ -620,27 +658,68 @@ function factory($http) {
   };
 
   /**
-   * Gets an identity by label.
+   * Gets an identity by label. More than one identity will be returned if the
+   * label is not unique.
    *
    * @param label the local identifier (e.g. email) for the identity.
    * @param options the options to use.
-   *          [repo] the credential repo that must match.
    *          [permanent] true to get only permanent identities, false to
    *            get only session-only identities.
    *
    * @return the identity if found, null if not.
    */
   storage.getByLabel = function(label, options) {
+    var rval = null;
     var identities = storage.getAll(options);
     for(var id in identities) {
       if(identities[id].label === label) {
-        if('repo' in options && options.repo === identities[id].idp) {
-          return identities[id];
+        if(!rval) {
+          rval = identities[id];
+        } else if(Array.isArray(rval)) {
+          rval.push(identities[id]);
+        } else {
+          rval = [rval, identities[id]];
         }
       }
     }
-    return null;
+    return rval;
   };
+
+  /**
+   * Delegate registration to a repository's event handler.
+   *
+   * @param options the options to use:
+   *          [id] the ID of the DID to register.
+   *          [repositoryOrigin] the origin of the repository to delegate to.
+   *          [publicKeyPem] the PEM for the public key that was generated.
+   *
+   * @return a Promise that resolves to the registrationInfo when registration
+   *           has completed.
+   */
+  function _delegateRegistration(options) {
+    var router = new navigator.credentials._Router(options.repositoryOrigin);
+    router.emit('registerIdentityCredential', {
+      publicKey: {
+        '@context': 'https://w3id.org/identity/v1',
+        type: 'CryptographicKey',
+        owner: options.id,
+        publicKeyPem: options.publicKeyPem
+      }
+    });
+    return router.receive('continue').then(function(message) {
+      var identity = message.data;
+      if(!identity) {
+        throw new Error('Registration canceled.');
+      }
+      // TODO: validate `identity`
+      return service.getDidDocument(identity.id).then(function(ddo) {
+        return {
+          identity: identity,
+          didDocument: ddo
+        };
+      });
+    });
+  }
 
   /**
    * Registers a new decentralized identity and, if a password is given,

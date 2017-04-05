@@ -143,6 +143,26 @@ function factory() {
   };
 
   /**
+   * Checks to see if the given origin has been granted the given permissions.
+   *
+   * @param origin the origin to check.
+   * @param permissions the permissions to check.
+   *
+   * @return true if all permissions have been granted, false if not.
+   */
+  service.isAuthorized = function(origin, permissions) {
+    if(!Array.isArray(permissions)) {
+      permissions = [permissions];
+    }
+    // get granted permissions for origin
+    var granted = service.query({
+      origin: origin,
+      granted: true
+    });
+    return _.difference(permissions, granted).length === 0;
+  };
+
+  /**
    * Gets permission meta information including icon and name for display.
    *
    * @param permissions the permissions to get info for.

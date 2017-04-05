@@ -1,7 +1,7 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2015-2016, Digital Bazaar, Inc.
- * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
+ * Copyright (c) 2015-2017, Digital Bazaar, Inc.
+ * Copyright (c) 2015-2017, Accreditrust Technologies, LLC
  * All rights reserved.
  */
 define(['jsonld', 'node-uuid'], function(jsonld, uuid) {
@@ -13,7 +13,7 @@ function register(module) {
 }
 
 /* @ngInject */
-function factory(aioIdentityService) {
+function factory(aioIdentityService, aioUtilService) {
   var service = {};
 
   var Router = navigator.credentials._Router;
@@ -29,7 +29,7 @@ function factory(aioIdentityService) {
    * @return a Promise that resolves to the parameters for the operation.
    */
   service.getParameters = function(options) {
-    var router = new Router(service.parseOrigin(options.origin));
+    var router = new Router(aioUtilService.parseOrigin(options.origin));
     return router.request(options.op, 'params').then(function(message) {
       // build params from message data
       var params;
@@ -60,7 +60,7 @@ function factory(aioIdentityService) {
     var session = aioIdentityService.getSession();
     var op = options.op;
     var params = options.params;
-    var repoOrigin = service.parseOrigin(options.repoUrl);
+    var repoOrigin = aioUtilService.parseOrigin(options.repoUrl);
 
     // serve params to Repo
     var router = new Router(repoOrigin, {handle: options.repoHandle});
@@ -129,7 +129,7 @@ function factory(aioIdentityService) {
         document: credential,
         publicKeyId: session.publicKey.id,
         privateKeyPem: session.privateKeyPem,
-        domain: service.parseDomain(options.repoUrl)
+        domain: aioUtilService.parseDomain(options.repoUrl)
       }).then(function(signed) {
         // digitally-sign identity for use at Repo
         var identity = {
@@ -142,7 +142,7 @@ function factory(aioIdentityService) {
           document: identity,
           publicKeyId: session.publicKey.id,
           privateKeyPem: session.privateKeyPem,
-          domain: service.parseDomain(options.repoUrl)
+          domain: aioUtilService.parseDomain(options.repoUrl)
         });
       }).then(function(signed) {
         // TODO: remove if+else (only present for temporary backwards
@@ -169,7 +169,7 @@ function factory(aioIdentityService) {
    * @param origin the relying party's origin.
    */
   service.sendSignedIdentity = function(op, identity, origin) {
-    var router = new Router(service.parseOrigin(origin));
+    var router = new Router(aioUtilService.parseOrigin(origin));
 
     // ensure session has not expired
     var session = aioIdentityService.getSession();
@@ -195,7 +195,7 @@ function factory(aioIdentityService) {
       document: identity,
       publicKeyId: session.publicKey.id,
       privateKeyPem: session.privateKeyPem,
-      domain: service.parseDomain(origin)
+      domain: aioUtilService.parseDomain(origin)
     }).then(function(signed) {
       identity = signed;
       router.send(op, 'result', identity);
@@ -215,7 +215,7 @@ function factory(aioIdentityService) {
     aioIdentityService.clearSession();
 
     // route result to target origin
-    var router = new Router(service.parseOrigin(origin));
+    var router = new Router(aioUtilService.parseOrigin(origin));
     router.send(op, 'result', result);
   };
 
@@ -227,58 +227,8 @@ function factory(aioIdentityService) {
    * @param origin the relying party's origin.
    */
   service.sendError = function(op, error, origin) {
-    var router = new Router(service.parseOrigin(origin));
+    var router = new Router(aioUtilService.parseOrigin(origin));
     router.send(op, 'error', {message: error});
-  };
-
-  /**
-   * Parses out the origin for the given URL.
-   *
-   * @param url the URL to parse.
-   *
-   * @return the URL's origin.
-   */
-  service.parseOrigin = function(url) {
-    // `URL` API not supported on IE, use DOM to parse URL
-    var parser = document.createElement('a');
-    parser.href = url;
-    var origin = (parser.protocol || window.location.protocol) + '//';
-    if(parser.host) {
-      // use hostname when using default ports
-      // (IE adds always adds port to `parser.host`)
-      if((parser.protocol === 'http:' && parser.port === '80') ||
-        (parser.protocol === 'https:' && parser.port === '443')) {
-        origin += parser.hostname;
-      } else {
-        origin += parser.host;
-      }
-    } else {
-      origin += window.location.host;
-    }
-    return origin;
-  };
-
-  /**
-   * Parses out the domain for the given URL.
-   *
-   * @param url the URL to parse.
-   *
-   * @return the URL's domain.
-   */
-  service.parseDomain = function(url) {
-    // `URL` API not supported on IE, use DOM to parse URL
-    var parser = document.createElement('a');
-    parser.href = url;
-    if(parser.host) {
-      // use hostname when using default ports
-      // (IE adds always adds port to `parser.host`)
-      if((parser.protocol === 'http:' && parser.port === '80') ||
-        (parser.protocol === 'https:' && parser.port === '443')) {
-        return parser.hostname;
-      }
-      return parser.host;
-    }
-    return window.location.host;
   };
 
   // TODO: document helpers

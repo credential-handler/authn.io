@@ -1,4 +1,5 @@
-<div ng-hide="$ctrl.loading" class="aio-native-modal">
+<div ng-hide="$ctrl.loading || !$ctrl.userMediationRequired"
+  class="aio-native-modal">
   <!-- <div class="aio-arrow-up"></div> -->
   <div class="aio-native-modal-content">
     <div>
@@ -25,9 +26,9 @@
     </div>
     <div ng-if="$ctrl.generating || $ctrl.registering">
       <div style="border: 0; margin-top: 20px; margin-bottom: 10px; border-top: 1px solid #ccc"></div>
-        <span>
-          <i class="fa fa-refresh fa-spin text-muted"></i> Registering...
-        </span>
+      <span>
+        <i class="fa fa-refresh fa-spin text-muted"></i> Registering...
+      </span>
     </div>
   </div>
 </div>
