@@ -1,14 +1,18 @@
-<br-modal class="aio-native-modal" br-title="Add Identity">
+<br-modal class="aio-native-modal" br-title="Find Your Wallet">
   <br-modal-body>
     <p>
-      If you have another identity you'd like to use with this device, you
-      must have previously enabled it for use on multiple devices.
+      If you have enabled wallet discovery with your provider, please enter
+      your discovery email address and password to find your wallet and
+      register with this device.
     </p>
-    <p>
-      If you did this already, please enter the email address and password you
-      associated with it to add it to this device. If you did not, you'll need
-      to use the device you registered with or visit your digital wallet
-      provider to register this device.
+    <p ng-if="!$ctrl.onCustomRegistration">
+      If you haven't enabled wallet discovery, please visit your wallet
+      provider's website to register.
+    </p>
+    <p ng-if="$ctrl.onCustomRegistration">
+      If you haven't enabled wallet discovery, please
+      <a ng-click="$ctrl.onCustomRegistration()">visit your wallet
+      provider's website</a> to register with this device.
     </p>
     <div class="row">
       <form name="$ctrl.addIdentityForm" class="form-horizontal aio-form" role="form">
@@ -18,7 +22,7 @@
               $ctrl.email && $ctrl.passphrase && $ctrl.add()"
             br-options="{
               name: 'email',
-              label: 'Email',
+              label: 'Discovery Email',
               helpTogglePosition: 'afterLabel',
               showValidation: true,
               autofocus: true,
@@ -51,7 +55,7 @@
               $ctrl.email && $ctrl.passphrase && $ctrl.add()"
             br-options="{
               name: 'passphrase',
-              label: 'Passphrase',
+              label: 'Discovery Password',
               type: 'password',
               helpTogglePosition: 'afterLabel',
               showValidation: true,
