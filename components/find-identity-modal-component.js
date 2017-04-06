@@ -1,22 +1,26 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2015-2016, Digital Bazaar, Inc.
- * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
+ * Copyright (c) 2015-2017, Digital Bazaar, Inc.
+ * Copyright (c) 2015-2017, Accreditrust Technologies, LLC
  * All rights reserved.
  */
+/* global requirejs */
 define([], function() {
 
 'use strict';
 
 function register(module) {
-  module.component('aioAddIdentityModal', {
+  module.component('aioFindIdentityModal', {
     controller: Ctrl,
-    // TODO: add bindings w/aioOnAdd to return the identity instead
-    // of passing via `stackable.close`?
     require: {
       stackable: '^'
     },
-    templateUrl: requirejs.toUrl('authio/add-identity-modal-component.html')
+    // TODO: add bindings w/aioOnAdd to return the identity instead
+    // of passing via `stackable.close`?
+    bindings: {
+      onCustomRegistration: '&?aioOnCustomRegistration',
+    },
+    templateUrl: requirejs.toUrl('authio/find-identity-modal-component.html')
   });
 }
 
@@ -41,7 +45,7 @@ function Ctrl($scope, aioIdentityService, brAlertService) {
       self.stackable.close(null, identity);
     }).catch(function(err) {
       if(err.type === 'MappingLookupFailed') {
-        err = 'Identity not found. Please make sure your email address ' +
+        err = 'Wallet not found. Please make sure your email address ' +
           'and passphrase are correct.';
       }
       brAlertService.add('error', err, {scope: $scope});

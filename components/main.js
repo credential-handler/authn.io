@@ -6,8 +6,8 @@
  */
 define([
   'angular',
-  './add-identity-modal-component',
   './agent-component',
+  './find-identity-modal-component',
   './identity-chooser-component',
   './identity-service',
   './operation-service',
