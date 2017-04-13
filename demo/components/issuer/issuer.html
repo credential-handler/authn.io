@@ -45,9 +45,7 @@
     <div class="row">
       <p>The issuer has verified that the following credentials were
         successfully stored at your identity provider:</p>
-      <pre>
-        {{model.identity | json}}
-      </pre>
+      <pre class="pre-scrollable">{{model.identity | json}}</pre>
       <button ng-click="model.home()" type="button"
         class="btn btn-primary">Back to demo page</button>
       <p></p>

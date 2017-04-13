@@ -4,12 +4,14 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
+/* globals IdentityCredential */
+
 define([], function() {
 
 'use strict';
 
 /* @ngInject */
-function factory($scope, $http, $window, brAlertService, config) {
+function factory($q, $http, $window, brAlertService, config) {
   var self = this;
   self.view = 'login';
 
@@ -20,7 +22,7 @@ function factory($scope, $http, $window, brAlertService, config) {
   ];
 
   self.login = function() {
-    navigator.credentials.get({
+    $q.resolve(navigator.credentials.get({
       identity: {
         query: {
           '@context': 'https://w3id.org/identity/v1',
@@ -29,7 +31,7 @@ function factory($scope, $http, $window, brAlertService, config) {
         },
         agentUrl: '/agent'
       }
-    }).then(function(identity) {
+    })).then(function(identity) {
       if(!identity || !identity.identity || !identity.identity.id) {
         throw new Error('DID not provided.');
       }
@@ -40,22 +42,22 @@ function factory($scope, $http, $window, brAlertService, config) {
       self.view = 'dashboard';
     }).catch(function(err) {
       brAlertService.add('error', err);
-    }).then(function() {
-      $scope.$apply();
     });
   };
 
   self.issueCredentials = function() {
-    return navigator.credentials.store(new IdentityCredential(self.identity), {
+    return $q.resolve(navigator.credentials.store(new IdentityCredential(
+    self.identity), {
       agentUrl: '/agent'
-    }).then(function(identity) {
+    })).then(function(identity) {
+      if(!identity) {
+        return $q.reject('Operation canceled.');
+      }
       self.identity = identity;
       self.view = 'acknowledgement';
     }).catch(function(err) {
       console.error('Failed to store credential.', err);
-      brAlertService.add('error', 'Failed to store credential.');
-    }).then(function() {
-      $scope.$apply();
+      brAlertService.add('error', err);
     });
   };
 
@@ -65,7 +67,7 @@ function factory($scope, $http, $window, brAlertService, config) {
 
   function _generateCredentials() {
     var dateTime = new Date().toJSON();
-    return Promise.resolve($http.post('/issuer/credentials', {
+    return $http.post('/issuer/credentials', {
       '@context': CONTEXT,
       id: self.did,
       credential: [{
@@ -115,18 +117,19 @@ function factory($scope, $http, $window, brAlertService, config) {
             "signatureValue": "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz01234567890ABCDEFGHIJKLM=="
           }
         }
-      }, {
-        '@graph': {
-          '@context': CONTEXT,
-          id: config.data.baseUri + '/issuer/credentials/' + (Date.now() + 1),
-          type: ['Credential', 'br:test:ProofOfAgeCredential'],
-          claim: {
-            id: self.did,
-            'br:test:ageOver': 21
-          }
-        }
-      }]
-    }))
+      } // , {
+      //   '@graph': {
+      //     '@context': CONTEXT,
+      //     id: config.data.baseUri + '/issuer/credentials/' + (Date.now() + 1),
+      //     type: ['Credential', 'br:test:ProofOfAgeCredential'],
+      //     claim: {
+      //       id: self.did,
+      //       'br:test:ageOver': 21
+      //     }
+      //   }
+      // }
+      ]
+    })
     .then(function(response) {
       if(response.status !== 200) {
         throw response;

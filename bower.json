@@ -11,8 +11,8 @@
     "bedrock-angular-footer": "^3.1.0",
     "bedrock-angular-form": "^2.13.0",
     "bedrock-angular-filters": "^2.0.0",
-    "bedrock-angular-identity-composer": "^1.0.0",
-    "bedrock-angular-modal": "^3.0.0",
+    "bedrock-angular-identity-composer": "digitalbazaar/bedrock-angular-identity-composer#2.x",
+    "bedrock-angular-modal": "^4.0.0",
     "bedrock-angular-model": "^2.0.0",
     "bedrock-angular-navbar": "^3.1.0",
     "bedrock-angular-selector": "^3.0.0",
@@ -24,7 +24,9 @@
     "jsonld-signatures": "^1.1.3",
     "node-uuid": "^1.4.3",
     "lodash": "^4.6.1",
-    "ng-error": "^1.0.2"
+    "ng-error": "^1.0.2",
+    "bedrock-angular-card-displayer": "*",
+    "bedrock-angular-media-query": "^1.0.1"
   },
   "resolutions": {
     "es6-promise": "~2.1"

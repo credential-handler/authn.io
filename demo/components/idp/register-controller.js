@@ -4,12 +4,14 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
+/* globals IdentityCredential */
+
 define(['angular'], function(angular) {
 
 'use strict';
 
 /* @ngInject */
-function factory($scope, $http, $location, ipCookie, brAlertService) {
+function factory($q, $http, $location, ipCookie, brAlertService) {
   var self = this;
   self.idp = 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1';
   self.username = 'demo-username';
@@ -18,19 +20,17 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
   /**
    * Validates the form, and if valid, performs a registration.
    */
-  self.validateForm = function() {
-    if($scope.regForm.$valid) {
-      _register();
-    }
+  self.register = function() {
+    _register();
   };
 
   function _register() {
     self.loading = true;
-    IdentityCredential.register({
+    $q.resolve(IdentityCredential.register({
       idp: self.idp,
       name: 'a_' + Math.floor(Math.random() * 100000) + '_b@example.org',
       agentUrl: '/register'
-    }).then(function(didDocument) {
+    })).then(function(didDocument) {
       if(!didDocument) {
         throw new Error('Registration canceled.');
       }
@@ -72,7 +72,7 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
           }
         }]
       };
-      return Promise.resolve($http.post('/idp/credentials/email', identity));
+      return $http.post('/idp/credentials/email', identity);
     }).then(function(response) {
       if(response.status !== 200) {
         throw response;
@@ -83,7 +83,6 @@ function factory($scope, $http, $location, ipCookie, brAlertService) {
       brAlertService.add('error', err);
     }).then(function() {
       self.loading = false;
-      $scope.$apply();
     });
   }
 
