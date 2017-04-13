@@ -9,7 +9,7 @@ define([], function() {
 'use strict';
 
 /* @ngInject */
-function factory($scope, $window, brAlertService, config) {
+function factory($q, $window, brAlertService, config) {
   var self = this;
   self.view = 'request';
 
@@ -20,7 +20,7 @@ function factory($scope, $window, brAlertService, config) {
   ];
 
   self.get = function() {
-    navigator.credentials.get({
+    $q.resolve(navigator.credentials.get({
       identity: {
         query: {
           '@context': {
@@ -31,7 +31,7 @@ function factory($scope, $window, brAlertService, config) {
         },
         agentUrl: '/agent'
       }
-    }).then(function(credential) {
+    })).then(function(credential) {
       if(!credential) {
         throw new Error('No credential provided.');
       }
@@ -39,8 +39,6 @@ function factory($scope, $window, brAlertService, config) {
       self.view = 'response';
     }).catch(function(err) {
       brAlertService.add('error', err);
-    }).then(function() {
-      $scope.$apply();
     });
   };
 

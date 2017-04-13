@@ -4,21 +4,22 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-define(['angular'], function(angular) {
+define(['angular', 'jsonld'], function(angular, jsonld) {
 
 'use strict';
 
 /* @ngInject */
-function factory($http, $scope, brAlertService, config, ipCookie) {
+function factory($http, $q, $rootScope, brAlertService, config, ipCookie) {
   var self = this;
   self.identity = null;
+  self.credentials = [];
   self.loading = true;
 
   var operation;
 
-  navigator.credentials.getPendingOperation({
+  $q.resolve(navigator.credentials.getPendingOperation({
     agentUrl: '/agent'
-  }).then(function(op) {
+  })).then(function(op) {
     operation = op;
     if(op.name === 'get') {
       self.view = 'get';
@@ -26,19 +27,27 @@ function factory($http, $scope, brAlertService, config, ipCookie) {
       return _getCredentials(op.options.identity);
     } else {
       self.view = 'store';
-      return Promise.resolve(op.options.store);
+      return $q.resolve(op.options.store);
     }
   }).then(function(identity) {
     self.identity = identity;
+    var credentials = jsonld.getValues(
+      self.identity, 'credential').map(function(credential) {
+        return jsonld.promises.compact(credential['@graph'], {
+          '@context': 'https://w3id.org/credentials/v1'
+        });
+      });
+    return $q.all(credentials);
+  }).then(function(credentials) {
+    self.credentials = credentials;
   }).catch(function(err) {
     brAlertService.add('error', err);
   }).then(function() {
     self.loading = false;
-    $scope.$apply();
   });
 
   self.complete = function(identity) {
-    if(operation.name === 'store') {
+    if(identity && operation.name === 'store') {
       _storeCredentials(identity);
     }
     operation.complete(identity, {
@@ -50,12 +59,11 @@ function factory($http, $scope, brAlertService, config, ipCookie) {
   function _getCredentials(identity) {
     var did = ipCookie('did');
     if(!did) {
-      return Promise.reject(
+      return $q.reject(
         new Error('Not authenticated. Please restart the demo.'));
     }
     var publicKey = identity.credential['@graph'].claim.publicKey;
-    return Promise.resolve(
-      $http.post('/idp/credentials/public-key', publicKey))
+    return $http.post('/idp/credentials/public-key', publicKey)
       .then(function(response) {
         if(response.status !== 200) {
           throw response;

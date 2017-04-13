@@ -22,31 +22,31 @@
   <hr/>
 
   <div class="row">
-    <form name="regForm" class="form-horizontal" role="form" novalidate
-      ng-submit="model.validateForm()">
+    <form name="model.regForm" class="form-horizontal" role="form" novalidate
+      ng-submit="model.register()">
       <fieldset>
         <br-input br-model="model.username"
           br-options="{name: 'username', label: 'Username'}"
           ng-minlength="3" ng-maxlength="128" required>
-          <div name="br-input-help">
+          <br-input-help>
             Please enter a username to associated with your local account.
-          </div>
-          <div name="br-input-validation-errors">
-            <p ng-show="regForm.username.$error.required">
+          </br-input-help>
+          <br-input-validation-errors>
+            <p ng-show="model.regForm.username.$error.required">
               Username is required.
             </p>
-            <p ng-show="regForm.username.$error.minlength">
+            <p ng-show="model.regForm.username.$error.minlength">
               Username is required to be at least 3 characters.
             </p>
-            <p ng-show="regForm.username.$error.maxlength">
+            <p ng-show="model.regForm.username.$error.maxlength">
               Username must not be longer than 128 characters.
             </p>
-          </div>
+          </br-input-validation-errors>
         </br-input>
 
         <div class="form-group">
           <div class="col-md-offset-3">
-            <button type="submit" ng-disabled="model.loading || regForm.$invalid"
+            <button type="submit" ng-disabled="model.loading || model.regForm.$invalid"
               class="btn btn-primary btn-lg">Register</button>
             <span ng-show="model.loading">
               <i class="fa fa-refresh fa-spin fa-lg"></i>
