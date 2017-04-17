@@ -1,11 +1,10 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2015-2016, Digital Bazaar, Inc.
- * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
+ * Copyright (c) 2015-2017, Digital Bazaar, Inc.
+ * Copyright (c) 2015-2017, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-/* globals IdentityCredential */
-
+/* globals IdentityCredentialRegistration */
 define(['angular'], function(angular) {
 
 'use strict';
@@ -13,22 +12,17 @@ define(['angular'], function(angular) {
 /* @ngInject */
 function factory($q, $http, $location, ipCookie, brAlertService) {
   var self = this;
-  self.idp = 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1';
-  self.username = 'demo-username';
+  self.repository = 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1';
+  self.username = 'a_' + Math.floor(Math.random() * 100000) + '_b@example.org';
   self.loading = false;
 
-  /**
-   * Validates the form, and if valid, performs a registration.
-   */
   self.register = function() {
-    _register();
-  };
-
-  function _register() {
     self.loading = true;
-    $q.resolve(IdentityCredential.register({
-      idp: self.idp,
-      name: 'a_' + Math.floor(Math.random() * 100000) + '_b@example.org',
+    var registration = new IdentityCredentialRegistration({
+      repository: self.repository,
+      name: self.username
+    });
+    $q.resolve(registration.register({
       agentUrl: '/register'
     })).then(function(didDocument) {
       if(!didDocument) {
@@ -84,7 +78,7 @@ function factory($q, $http, $location, ipCookie, brAlertService) {
     }).then(function() {
       self.loading = false;
     });
-  }
+  };
 
   // stores credentials in local storage
   // TODO: convert to a service, share w/credential manager controller
