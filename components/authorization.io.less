@@ -235,7 +235,8 @@ br-modal.aio-native-modal {
 
           & .input-group {
             display: block;
-            margin-left: 35px;
+            padding-left: 15px;
+            padding-right: 15px;
           }
 
           & br-form-control-content > input.form-control {
@@ -298,4 +299,24 @@ br-modal.aio-native-modal {
   margin-top: 10px;
   margin-bottom: 10px;
   border-top: 1px solid #ccc;
+}
+
+.form-horizontal.aio-form {
+  & .control-label {
+    @media (min-width: 768px) {
+      text-align: left;
+      margin-bottom: 5px;
+    }
+  }
+
+  & .form-group {
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+  }
+
+  & .input-group {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
 }

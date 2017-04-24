@@ -24,7 +24,7 @@ function register(module) {
 
 /* @ngInject */
 function Ctrl(
-  $q, $scope, aioIdentityService, aioUtilService, brAlertService) {
+  $q, $scope, $timeout, aioIdentityService, aioUtilService, brAlertService) {
   var self = this;
   self.loading = true;
   self.selected = null;
@@ -54,13 +54,19 @@ function Ctrl(
   };
 
   self.authenticate = function(id, password) {
-    try {
-      aioIdentityService.authenticate(id, password);
-    } catch(err) {
-      brAlertService.add('error', err, {scope: $scope});
-      return;
-    }
-    self.select(id);
+    self.authenticating = true;
+    // allow authentication spinner to show
+    $timeout(function() {
+      try {
+        aioIdentityService.authenticate(id, password);
+      } catch(err) {
+        brAlertService.add('error', err, {scope: $scope});
+        self.authenticating = false;
+        return;
+      }
+      self.authenticating = false;
+      self.select(id);
+    });
   };
 
   self.select = function(id) {
