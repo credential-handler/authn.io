@@ -23,7 +23,7 @@
   <div class="aio-flex-column-stretch aio-flex-item-grow">
     <div class="aio-flex-item"
       ng-repeat="(id, identity) in $ctrl.identities"
-      ng-click="$ctrl.select(id)">
+      ng-click="!ctrl.authenticating && $ctrl.select(id)">
       <div class="aio-identity-option">
         <!-- <i class="fa fa-user fa-3x pull-left" style="padding-left: 8px"></i> -->
         <span class="fa-stack fa-lg pull-left">
@@ -40,41 +40,49 @@
             <span ng-if="!identity.sysRepoDomain"><i class="fa fa-refresh fa-spin"></i></span>
           </h6>
         </div>
-      </div>
-      <div ng-show="$ctrl.display.loginForm && $ctrl.selected === id">
-        <form class="form-horizontal" name="$ctrl.loginForm"
-          ng-submit="$ctrl.authenticate(id, $ctrl.password)">
-          <fieldset>
-            <br-input br-model="$ctrl.password"
-              br-options="{
-                name: 'password',
-                label: 'Password',
-                type: 'password',
-                helpTogglePosition: 'label',
-                showValidation: true,
-                autofocus: true
-              }" required>
-              <br-input-help>
-                Please enter the password to unlock this identity.
-              </br-input-help>
-              <br-input-validation-errors>
-                <p ng-show="$ctrl.loginForm.password.$error.required">
-                  A password is required to unlock this identity.
-                </p>
-              </br-input-validation-errors>
-            </br-input>
-            <div class="form-group">
-              <div class="input-group col-sm-offset-3">
-                <div class="btn-group">
-                  <button class="btn btn-primary" type="submit"
-                    ng-disabled="$ctrl.loginForm.$invalid"><i
-                    class="fa fa-sign-in"></i> Login<span
-                      ng-show="$ctrl.authenticating"> <i class="fa fa-refresh fa-spin"></i></span></button>
+        <div ng-show="$ctrl.display.loginForm && $ctrl.selected === id">
+          <form class="form-horizontal aio-form" name="$ctrl.loginForm"
+            style="margin-left: -5px; margin-right: -5px">
+            <fieldset>
+              <br-input br-model="$ctrl.password"
+                br-options="{
+                  name: 'password',
+                  label: 'Password',
+                  type: 'password',
+                  helpTogglePosition: 'afterLabel',
+                  showValidation: true,
+                  autofocus: true,
+                  classes: {
+                    label: 'col-sm-12',
+                    content: 'col-sm-12',
+                    help: 'col-sm-12',
+                    validation: 'col-sm-12'
+                  }
+                }" br-input-ng-disabled="$ctrl.authenticating"
+                  br-input-autofocus required>
+                <br-input-help>
+                  Please enter the password to unlock this identity.
+                </br-input-help>
+                <br-input-validation-errors>
+                  <p ng-show="$ctrl.loginForm.password.$error.required">
+                    A password is required to unlock this identity.
+                  </p>
+                </br-input-validation-errors>
+              </br-input>
+              <div class="form-group" style="margin-top: 5px; margin-bottom: 0">
+                <div class="input-group col-sm-12">
+                  <div class="btn-group pull-right">
+                    <button class="btn btn-default aio-button"
+                      ng-disabled="$ctrl.authenticating || $ctrl.loginForm.$invalid"
+                      ng-click="$event.stopPropagation(); $ctrl.authenticate(id, $ctrl.password)">
+                        Unlock
+                      <span ng-show="$ctrl.authenticating"> <i class="fa fa-refresh fa-spin"></i></span></button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </fieldset>
-        </form>
+            </fieldset>
+          </form>
+        </div>
       </div>
     </div>
   </div>
