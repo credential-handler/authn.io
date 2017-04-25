@@ -30,7 +30,8 @@
           <i class="fa fa-user fa-stack-2x"></i>
           <i ng-if="!$ctrl.isAuthenticated(identity.id)"
             class="fa fa-lock fa-stack-1x" style="margin-top: -7px; margin-left: 20px"
-            br-tooltip="This identity is password-protected."></i>
+            br-tooltip="This identity is password-protected."
+            br-options="{placement: 'right'}"></i>
         </span>
         <div class="text" style="margin-left: 60px;">
           <strong>{{identity.label}}</strong>
@@ -59,6 +60,7 @@
                     validation: 'col-sm-12'
                   }
                 }" br-input-ng-disabled="$ctrl.authenticating"
+                  br-input-ng-change="$ctrl.authenticationError = ''"
                   br-input-autofocus required>
                 <br-input-help>
                   Please enter the password to unlock this identity.
@@ -69,6 +71,10 @@
                   </p>
                 </br-input-validation-errors>
               </br-input>
+              <p class="col-sm-12 text-danger" style="margin-top: 10px"
+                ng-show="$ctrl.authenticationError">
+                {{$ctrl.authenticationError}}
+              </p>
               <div class="form-group" style="margin-top: 5px; margin-bottom: 0">
                 <div class="input-group col-sm-12">
                   <div class="btn-group pull-right">
