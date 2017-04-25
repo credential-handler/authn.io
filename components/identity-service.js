@@ -216,13 +216,13 @@ function factory($http) {
     }
 
     return getIdentity.then(function(identity) {
-      if(!identity || !('repo' in options)) {
-        return identity;
-      }
-      // filter identities by `repo`
       if(!Array.isArray(identity)) {
         identity = [identity];
       }
+      if(!('repo' in options)) {
+        return identity;
+      }
+      // filter identities by `repo`
       return Promise.all(identity.map(function(next) {
         return service.getDidDocument(next.id);
       })).then(function(ddos) {
@@ -231,7 +231,7 @@ function factory($http) {
         });
       });
     }).then(function(identities) {
-      if(identities.length === 0 && !options.create) {
+      if((identities.length === 0 || !identities[0]) && !options.create) {
         throw new Error('Identity not found.');
       }
       return identities[0] || null;
