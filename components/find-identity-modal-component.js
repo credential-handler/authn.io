@@ -25,13 +25,14 @@ function register(module) {
 }
 
 /* @ngInject */
-function Ctrl($scope, aioIdentityService, brAlertService) {
+function Ctrl($scope, aioIdentityService) {
   var self = this;
   self.loading = false;
   self.generating = false;
+  self.error = null;
 
   self.add = function() {
-    brAlertService.clearFeedback();
+    self.error = null;
     self.loading = true;
     self.generating = true;
     aioIdentityService.load({
@@ -40,15 +41,23 @@ function Ctrl($scope, aioIdentityService, brAlertService) {
       temporary: !self.permanent,
       create: true
     }).then(function(identity) {
+      if(!identity) {
+        var err = new Error();
+        err.type = 'Not Found';
+        throw err;
+      }
       // auto-authenticate
       aioIdentityService.authenticate(identity.id, self.passphrase);
       self.stackable.close(null, identity);
     }).catch(function(err) {
-      if(err.type === 'MappingLookupFailed') {
-        err = 'Wallet not found. Please make sure your email address ' +
-          'and passphrase are correct.';
+      if(err.type === 'NotFound' || err.type === 'MappingLookupFailed') {
+        err = {
+          message:
+            'Wallet not found. Please make sure your email and ' +
+            'password are correct.'
+        };
       }
-      brAlertService.add('error', err, {scope: $scope});
+      self.error = err;
     }).then(function() {
       self.loading = self.generating = false;
       $scope.$apply();

@@ -33,7 +33,8 @@
                 help: 'col-sm-12',
                 validation: 'col-sm-12'
               }
-            }" ng-minlength="6" ng-maxlength="128" br-input-autofocus required>
+            }" ng-minlength="6" ng-maxlength="128" br-input-autofocus
+              br-input-ng-change="$ctrl.error = null" required>
             <br-input-help>
               Please enter the email address you registered for wallet
               discovery.
@@ -66,7 +67,8 @@
                 help: 'col-sm-12',
                 validation: 'col-sm-12'
               }
-            }" ng-minlength="6" ng-maxlength="128" required>
+            }" ng-minlength="6" ng-maxlength="128"
+              br-input-ng-change="$ctrl.error = null" required>
             <br-input-help>
               Please enter the password you registered for wallet discovery.
             </br-input-help>
@@ -87,11 +89,16 @@
               <div class="checkbox">
                 <label>
                   <input type="checkbox" ng-model="$ctrl.permanent"
-                    style="margin-top: 1px">
+                    style="margin-top: 1px"
+                    br-input-ng-change="$ctrl.error = null">
                     Remember wallet on this device
                 </label>
               </div>
             </div>
+          </div>
+          <div class="col-sm-12 text-danger" style="margin-top: 10px"
+            ng-show="$ctrl.error">
+            {{$ctrl.error.message}}
           </div>
         </fieldset>
       </form>
