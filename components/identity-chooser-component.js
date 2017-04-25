@@ -23,8 +23,7 @@ function register(module) {
 }
 
 /* @ngInject */
-function Ctrl(
-  $q, $scope, $timeout, aioIdentityService, aioUtilService) {
+function Ctrl($q, $timeout, aioIdentityService, aioUtilService) {
   var self = this;
   self.loading = true;
   self.selected = null;

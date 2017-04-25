@@ -114,7 +114,7 @@
   </div>
 </div>
 <stackable-modal stackable="$ctrl.showFindIdentityModal"
-  stackable-closed="!err && $ctrl.identityAdded(result)"
+  stackable-closed="!err && $ctrl.onIdentitySelected({identity: result.id})"
   br-lazy-compile="$ctrl.showFindIdentityModal"
   br-lazy-id="aio-add-identity-modal">
   <!-- TODO: include identity filter as parameter to modal -->
