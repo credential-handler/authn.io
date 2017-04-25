@@ -24,7 +24,7 @@ function register(module) {
 
 /* @ngInject */
 function Ctrl(
-  $q, $scope, $timeout, aioIdentityService, aioUtilService, brAlertService) {
+  $q, $scope, $timeout, aioIdentityService, aioUtilService) {
   var self = this;
   self.loading = true;
   self.selected = null;
@@ -60,7 +60,11 @@ function Ctrl(
       try {
         aioIdentityService.authenticate(id, password);
       } catch(err) {
-        brAlertService.add('error', err, {scope: $scope});
+        if(err && typeof err === 'object' && err.message) {
+          self.authenticationError = err.message;
+        } else {
+          self.authenticationError = 'There was a problem. Please try again.';
+        }
         self.authenticating = false;
         return;
       }
