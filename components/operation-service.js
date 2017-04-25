@@ -75,9 +75,9 @@ function factory(aioIdentityService, aioUtilService) {
       // receive result from Repo
       return router.receive(op + '.result');
     }).then(function(message) {
-      var result = message.data;
+      var result = message.data || null;
       // if key registration was requested, check to see if it occurred
-      if(session.sysRegisterKey) {
+      if(result && session.sysRegisterKey) {
         // determine if session key was registered by finding matching key
         // in a credential in the message with a new DID-based identifier
         var matchingKey = _getCryptographicKeyFromCredential(
