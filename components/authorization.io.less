@@ -46,11 +46,9 @@
   z-index: 1000;
 }
 
-br-navbar ~ .container {
-  & > div[ng-view], & > div:first-child  {
-    margin-top: @navbar-height;
-    padding-top: 5px;
-  }
+.br-main-ng-view {
+  margin-top: @navbar-height;
+  padding-top: 5px;
 }
 
 .aio-op-header-wrapper {
