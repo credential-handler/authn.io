@@ -6,11 +6,9 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
+const bedrock = require('bedrock');
 var config = require('bedrock').config;
 var path = require('path');
-
-// location of configuration files
-var _cfgdir = path.join(__dirname, '..');
 
 // common paths
 config.paths.cache = '/var/cache/authorization.io';
@@ -34,13 +32,19 @@ config.loggers.access.bedrock.enableChownDir = true;
 config.loggers.error.bedrock.enableChownDir = true;
 config.loggers.email.silent = true;
 
+// only run application on HTTP port
+bedrock.events.on('bedrock-express.ready', function(app) {
+  // attach express to regular http
+  require('bedrock-server').servers.http.on('request', app);
+  // cancel default behavior of attaching to HTTPS
+  return false;
+});
+
 // server info
-config.server.port = 443;
-config.server.httpPort = 80;
+config.server.port = 8081;
+config.server.httpPort = 8080;
 config.server.domain = 'demo.authorization.io';
-// config.server.key = path.join(_cfgdir, 'pki', 'authorization.io.key');
-// config.server.cert = path.join(_cfgdir, 'pki', 'authorization.io.crt');
-// config.server.ca = path.join(_cfgdir, 'pki', 'authorization.io-bundle.crt');
+config.server.host = config.server.domain;
 
 // session info
 config.express.session.key = 'authio.sid';
