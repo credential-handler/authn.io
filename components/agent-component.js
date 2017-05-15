@@ -228,7 +228,6 @@ function Ctrl(
       if(!self.isCryptoKeyRequest) {
         self.autoIdSelect = true;
       }
-      $scope.$apply();
       return;
     }
 
@@ -246,8 +245,6 @@ function Ctrl(
             // auto-authenticate worked, complete flow
             self.complete(null, session);
           }
-        }).then(function() {
-          $scope.$apply();
         });
     }
 
