@@ -92,7 +92,7 @@ require('./demo-secrets');
 config.express.static.push(path.join(__dirname, '..', 'static'));
 // e-tags are valid for at least 24 hours
 config.express.staticOptions = {
-  maxAge: 24 * 60 * 60
+  maxAge: 24 * 60 * 60 * 1000
 };
 
 // setup to load contexts locally
