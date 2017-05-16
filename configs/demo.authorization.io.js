@@ -90,9 +90,9 @@ require('./demo-secrets');
 
 // serve demo contexts and vocabs
 config.express.static.push(path.join(__dirname, '..', 'static'));
-// e-tags are valid for at least 24 hours
+// e-tags are valid for at least 15 minutes
 config.express.staticOptions = {
-  maxAge: 24 * 60 * 60 * 1000
+  maxAge: 15 * 60 * 1000
 };
 
 // setup to load contexts locally
