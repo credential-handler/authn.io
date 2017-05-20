@@ -28,7 +28,7 @@
     "bower": "^1.7.7",
     "cors": "^2.7.1",
     "did-io": "^0.6.1",
-    "jsonwebtoken": "~7.1.0",
+    "jsonwebtoken": "~7.4.1",
     "lodash": "^4.6.1",
     "node-uuid": "^1.4.3"
   },
