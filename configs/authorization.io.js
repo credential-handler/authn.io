@@ -72,12 +72,10 @@ require('../demo/lib/idp');
 require('../demo/lib/issuer');
 
 // pseudo package for demo idp, issuer, and consumer
+const rootPath = path.join(__dirname, '..', 'demo');
 config.views.system.packages.push({
-  path: path.join(__dirname, '..', 'demo', 'components'),
-  manifest: {
-    name: 'authio-demo',
-    main: './main.js'
-  }
+  path: path.join(rootPath, 'components'),
+  manifest: path.join(rootPath, 'package.json')
 });
 
 require('./authorization.io-secrets');
