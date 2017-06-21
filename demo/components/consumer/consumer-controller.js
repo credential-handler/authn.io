@@ -4,12 +4,9 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-define([], function() {
-
-'use strict';
 
 /* @ngInject */
-function factory($q, $window, brAlertService, config) {
+export default function factory($q, $window, brAlertService, config) {
   var self = this;
   self.view = 'request';
 
@@ -46,7 +43,3 @@ function factory($q, $window, brAlertService, config) {
     $window.location = config.data.baseUri;
   };
 }
-
-return {aiodConsumerController: factory};
-
-});

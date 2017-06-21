@@ -4,17 +4,14 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-/* global requirejs */
-define(['angular', 'node-uuid', 'lodash'], function(angular, uuid, _) {
+import angular from 'angular';
+import uuid from 'node-uuid';
+import _ from 'lodash';
 
-'use strict';
-
-function register(module) {
-  module.component('aioAgent', {
-    controller: Ctrl,
-    templateUrl: requirejs.toUrl('authio/agent-component.html')
-  });
-}
+export default {
+  controller: Ctrl,
+  templateUrl: 'authio/agent-component.html'
+};
 
 /* @ngInject */
 function Ctrl(
@@ -105,7 +102,8 @@ function Ctrl(
       $scope.$apply();
 
       // get iframe handle
-      var iframe = angular.element('iframe[name="repo"]');
+      var iframe = angular.element(
+        document.querySelector('iframe[name="repo"]'));
       var repoHandle = iframe[0].contentWindow;
 
       // delegate to Repo
@@ -325,7 +323,3 @@ function Ctrl(
     return aioOperationService.sendError(self.op, error, relyingParty);
   }
 }
-
-return register;
-
-});

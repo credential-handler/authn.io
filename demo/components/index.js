@@ -4,14 +4,10 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-define([
-  'angular',
-  './consumer/consumer',
-  './idp/idp',
-  './issuer/issuer'
-], function(angular) {
-
-'use strict';
+import angular from 'angular';
+import './consumer/index.js';
+import './idp/index.js';
+import './issuer/index.js';
 
 var module = angular.module('authio-demo', [
   'authio-demo.consumer', 'authio-demo.idp', 'authio-demo.issuer']);
@@ -21,8 +17,6 @@ module.config(function($routeProvider) {
   $routeProvider
     .when('/', {
       title: 'Welcome',
-      templateUrl: requirejs.toUrl('authio-demo/welcome.html')
+      templateUrl: 'authio-demo/welcome.html'
     });
-});
-
 });

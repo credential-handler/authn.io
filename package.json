@@ -1,10 +1,12 @@
 {
-  "name": "authorization.io",
+  "name": "authio",
   "version": "0.4.0",
+  "main": "index.js",
+  "less": "main.less",
   "scripts": {
     "start": "node authorization.dev.js",
     "test": "node authorization.dev.js test",
-    "postinstall": "bower install && node authorization.dev.js compile-less"
+    "postinstall": "node authorization.dev.js compile-less"
   },
   "repository": {
     "type": "git",
@@ -12,36 +14,80 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
+    "angular-cookie": "~4.1.0",
     "async": "^1.4.2",
     "base64url": "^2.0.0",
     "bedrock": "^1.4.1",
+    "bedrock-angular": "^3.0.0",
+    "bedrock-angular-alert": "^3.0.0",
+    "bedrock-angular-bootstrap": "1.0.0",
+    "bedrock-angular-card-displayer": "^2.0.0",
+    "bedrock-angular-credential": "^3.0.0",
+    "bedrock-angular-filters": "^3.0.0",
+    "bedrock-angular-footer": "^4.0.0",
+    "bedrock-angular-form": "^3.0.0",
+    "bedrock-angular-identity-composer": "^3.0.0",
+    "bedrock-angular-media-query": "^2.0.0",
+    "bedrock-angular-modal": "^5.0.0",
+    "bedrock-angular-model": "^3.0.0",
+    "bedrock-angular-navbar": "^4.0.0",
+    "bedrock-angular-selector": "^4.0.0",
+    "bedrock-angular-ui": "^3.0.0",
     "bedrock-docs": "^2.0.0",
     "bedrock-express": "^2.0.3",
     "bedrock-letsencrypt": "^0.2.2",
     "bedrock-mail": "^2.0.1",
     "bedrock-mongodb": "^3.0.0",
-    "bedrock-requirejs": "^2.2.0",
     "bedrock-server": "^2.2.0",
     "bedrock-validation": "^2.1.0",
-    "bedrock-views": "^4.3.0",
+    "bedrock-views": "^5.0.0",
     "bignumber.js": "^2.1.4",
-    "bower": "^1.7.7",
     "cors": "^2.7.1",
+    "credentials-polyfill": "^1.1.5",
     "did-io": "^0.6.1",
+    "jquery": "^3.2.1",
+    "jsonld-signatures": "^1.1.3",
     "jsonwebtoken": "~7.4.1",
     "lodash": "^4.6.1",
+    "ng-error": "^1.0.2",
+    "node-forge": "~0.6.40",
     "node-uuid": "^1.4.3"
   },
-  "devDependencies": {
-    "bedrock-protractor": "^3.0.0",
-    "jsonld": "~0.4.2",
-    "jsonld-signatures": "^1.1.3",
-    "node-forge": "~0.6.28",
-    "request": "~2.55.0"
+  "bedrock": {
+    "browserDependencies": [
+      "angular-cookie",
+      "async",
+      "bedrock-angular",
+      "bedrock-angular-alert",
+      "bedrock-angular-credential",
+      "bedrock-angular-footer",
+      "bedrock-angular-form",
+      "bedrock-angular-filters",
+      "bedrock-angular-identity-composer",
+      "bedrock-angular-modal",
+      "bedrock-angular-model",
+      "bedrock-angular-navbar",
+      "bedrock-angular-selector",
+      "bedrock-angular-ui",
+      "credentials-polyfill",
+      "did-io",
+      "jquery",
+      "jsonld-signatures",
+      "node-forge",
+      "node-uuid",
+      "lodash",
+      "ng-error"
+    ],
+    "systemjs": {
+      "manifest": {
+        "jsbarcode": {
+          "main": "dist/JsBarcode.all.js"
+        }
+      }
+    }
   },
   "engines": {
     "node": ">=0.10.0"
   },
-  "directories": {},
-  "main": "./lib/index"
+  "directories": {}
 }

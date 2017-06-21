@@ -73,16 +73,12 @@ config.views.vars.minify = true;
 require('../demo/lib/idp');
 require('../demo/lib/issuer');
 
-// pseudo bower package for demo idp, issuer, and consumer
-config.requirejs.bower.packages.push({
+// pseudo package for demo idp, issuer, and consumer
+config.views.system.packages.push({
   path: path.join(__dirname, '..', 'demo', 'components'),
   manifest: {
     name: 'authio-demo',
-    moduleType: 'amd',
-    main: './main.js',
-    dependencies: {
-      angular: '~1.3.0'
-    }
+    main: './main.js'
   }
 });
 

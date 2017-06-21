@@ -5,12 +5,11 @@
  * All rights reserved.
  */
 /* globals IdentityCredentialRegistration */
-define(['angular'], function(angular) {
-
-'use strict';
+import angular from 'angular';
 
 /* @ngInject */
-function factory($q, $http, $location, ipCookie, brAlertService) {
+export default function factory(
+  $q, $http, $location, ipCookie, brAlertService) {
   var self = this;
   self.repository = 'did:d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1';
   self.username = 'a_' + Math.floor(Math.random() * 100000) + '_b@example.org';
@@ -106,7 +105,3 @@ function factory($q, $http, $location, ipCookie, brAlertService) {
     return credentials;
   }
 }
-
-return {aiodRegisterController: factory};
-
-});

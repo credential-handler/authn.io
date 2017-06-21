@@ -4,21 +4,18 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-define(['angular', './issuer-controller'], function(angular, issuerController) {
-
-'use strict';
+import angular from 'angular';
+import IssuerController from './issuer-controller.js';
 
 var module = angular.module('authio-demo.issuer', ['bedrock.alert']);
 
-module.controller(issuerController);
+module.controller('aiodIssuerController', IssuerController);
 
 /* @ngInject */
 module.config(function($routeProvider) {
   $routeProvider
     .when('/issuer', {
       title: 'Issuer',
-      templateUrl: requirejs.toUrl('authio-demo/issuer/issuer.html')
+      templateUrl: 'authio-demo/issuer/issuer.html'
     });
-});
-
 });

@@ -4,12 +4,12 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-define(['angular', 'jsonld'], function(angular, jsonld) {
-
-'use strict';
+import angular from 'angular';
+import jsonld from 'jsonld';
 
 /* @ngInject */
-function factory($http, $q, $rootScope, brAlertService, config, ipCookie) {
+export default function factory(
+  $http, $q, $rootScope, brAlertService, config, ipCookie) {
   var self = this;
   self.identity = null;
   self.credentials = [];
@@ -106,7 +106,3 @@ function factory($http, $q, $rootScope, brAlertService, config, ipCookie) {
     return credentials;
   }
 }
-
-return {aiodCredentialManagerController: factory};
-
-});

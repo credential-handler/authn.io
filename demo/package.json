@@ -1,0 +1,13 @@
+{
+  "name": "authio-demo",
+  "version": "0.0.1-0",
+  "main": "index.js",
+  "dependencies": {
+    "bedrock-angular-bootstrap": "^1.0.0",
+    "bedrock-angular-card-displayer": "^2.0.0",
+    "bedrock-angular-form": "^3.0.0"
+  },
+  "bedrock": {
+    "browserDependencies": "all"
+  }
+}

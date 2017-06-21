@@ -1,17 +1,13 @@
 /*!
- * Copyright (c) 2016-2017 Digtal Bazaar, Inc. All rights reserved.
+ * New BSD License (3-clause)
+ * Copyright (c) 2015-2017, Digital Bazaar, Inc.
+ * Copyright (c) 2015-2017, Accreditrust Technologies, LLC
+ * All rights reserved.
  */
-/* global requirejs */
-define([], function() {
-
-'use strict';
-
-function register(module) {
-  module.component('aioRegister', {
-    controller: Ctrl,
-    templateUrl: requirejs.toUrl('authio/register-component.html')
-  });
-}
+export default {
+  controller: Ctrl,
+  templateUrl: 'authio/register-component.html'
+};
 
 /* @ngInject */
 function Ctrl(
@@ -145,7 +141,3 @@ function Ctrl(
     self.secondsLeft = Math.max(0, self.secondsLeft);
   }
 }
-
-return register;
-
-});

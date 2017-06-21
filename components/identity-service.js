@@ -4,24 +4,16 @@
  * Copyright (c) 2015-2017, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-define([
-  'angular',
-  'async',
-  'did-io',
-  'forge',
-  'jsonld',
-  'jsonld-signatures',
-  'node-uuid'],
-  function(angular, async, didio, forge, jsonld, jsigs, uuid) {
-
-'use strict';
-
-function register(module) {
-  module.service('aioIdentityService', factory);
-}
+import angular from 'angular';
+import async from 'async';
+import didio from 'did-io';
+import forge from 'node-forge';
+import jsonld from 'jsonld';
+import jsigs from 'jsonld-signatures';
+import uuid from 'node-uuid';
 
 /* @ngInject */
-function factory($http) {
+export default function factory($http) {
   var service = {};
 
   var STORAGE_KEYS = {
@@ -944,7 +936,3 @@ function factory($http) {
 
   return service;
 }
-
-return register;
-
-});

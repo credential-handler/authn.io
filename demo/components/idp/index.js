@@ -4,21 +4,18 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-define([
-  'angular',
-  './credential-manager-controller',
-  './register-controller'
-], function(
-  angular,
-  credentialManagerController,
-  registerController) {
+import angular from 'angular';
+import CredentialManagerController from './credential-manager-controller.js';
+import RegisterController from './register-controller.js';
 
-'use strict';
+var module = angular.module('authio-demo.idp', [
+  'ipCookie', 'bedrock.alert', 'bedrock.card-displayer', 'bedrock.credential',
+  'bedrock.identity-composer', 'bedrock.resolver'
+]);
 
-var module = angular.module('authio-demo.idp', ['ipCookie', 'bedrock.alert']);
-
-module.controller(credentialManagerController);
-module.controller(registerController);
+module.controller(
+  'aiodCredentialManagerController', CredentialManagerController);
+module.controller('aiodRegisterController', RegisterController);
 
 /* @ngInject */
 module.config(function($routeProvider, routeResolverProvider) {
@@ -65,7 +62,7 @@ module.config(function($routeProvider, routeResolverProvider) {
           }
         }
       },
-      templateUrl: requirejs.toUrl('authio-demo/idp/credential-manager.html')
+      templateUrl: 'authio-demo/idp/credential-manager.html'
     });
 });
 
@@ -84,6 +81,4 @@ module.run(function(brCredentialService) {
       directive: 'br-credential-card-displayer'
     });
   });
-});
-
 });

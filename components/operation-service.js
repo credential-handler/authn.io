@@ -4,16 +4,11 @@
  * Copyright (c) 2015-2017, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-define(['jsonld', 'node-uuid'], function(jsonld, uuid) {
-
-'use strict';
-
-function register(module) {
-  module.service('aioOperationService', factory);
-}
+import jsonld from 'jsonld';
+import uuid from 'node-uuid';
 
 /* @ngInject */
-function factory(aioIdentityService, aioUtilService) {
+export default function factory(aioIdentityService, aioUtilService) {
   var service = {};
 
   var Router = navigator.credentials._Router;
@@ -177,7 +172,7 @@ function factory(aioIdentityService, aioUtilService) {
       // TODO: need better error handling for expired sessions
       // and for different scenarios (auth.io loaded invisibly vs. visibly)
       router.send(op, 'error', null);
-      //router.send(op, 'error', {message: 'Session expired.'});
+      // router.send(op, 'error', {message: 'Session expired.'});
       return;
     }
 
@@ -254,7 +249,3 @@ function factory(aioIdentityService, aioUtilService) {
 
   return service;
 }
-
-return register;
-
-});

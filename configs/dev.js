@@ -18,17 +18,11 @@ config.paths.log = path.join(os.tmpdir(), 'authorization.dev');
 require('../demo/lib/idp');
 require('../demo/lib/issuer');
 
-// pseudo bower package for demo idp, issuer, and consumer
-config.requirejs.bower.packages.push({
-  path: path.join(__dirname, '..', 'demo', 'components'),
-  manifest: {
-    name: 'authio-demo',
-    moduleType: 'amd',
-    main: './main.js',
-    dependencies: {
-      angular: '~1.5.0'
-    }
-  }
+// pseudo package for demo idp, issuer, and consumer
+const rootPath = path.join(__dirname, '..', 'demo');
+config.views.system.packages.push({
+  path: path.join(rootPath, 'components'),
+  manifest: path.join(rootPath, 'package.json')
 });
 
 // serve demo contexts and vocabs

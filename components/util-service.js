@@ -4,16 +4,9 @@
  * Copyright (c) 2015-2017, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-define([], function() {
-
-'use strict';
-
-function register(module) {
-  module.service('aioUtilService', factory);
-}
 
 /* @ngInject */
-function factory() {
+export default function factory() {
   var service = {};
 
   /**
@@ -68,7 +61,3 @@ function factory() {
 
   return service;
 }
-
-return register;
-
-});

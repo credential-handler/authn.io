@@ -4,28 +4,33 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-define([
-  'angular',
-  './agent-component',
-  './find-identity-modal-component',
-  './identity-chooser-component',
-  './identity-service',
-  './operation-service',
-  './permission-service',
-  './register-component',
-  './util-service',/*
-  './idp-test/idp-test'*/
-], function(angular) {
 
-'use strict';
+import angular from 'angular';
+import * as bedrock from 'bedrock-angular';
+import AgentComponent from './agent-component.js';
+import FindIdentityModalComponent from './find-identity-modal-component.js';
+import IdentityChooserComponent from './identity-chooser-component.js';
+import IdentityService from './identity-service.js';
+import OperationService from './operation-service.js';
+import PermissionService from './permission-service.js';
+import RegisterComponent from './register-component.js';
+import UtilService from './util-service.js';
 
 var module = angular.module('authio', [
-  /* 'authio.idp-test',*/
-  'bedrock.alert', 'bedrock.form', 'bedrock-navbar', 'ngError']);
+  'authio-demo', 'bedrock.alert', 'bedrock.filters', 'bedrock.form',
+  'bedrock.modal', 'bedrock.navbar', 'bedrock.resolver', 'ngError'
+]);
 
-Array.prototype.slice.call(arguments, 1).forEach(function(register) {
-  register(module);
-});
+bedrock.setRootModule(module);
+
+module.component('aioAgent', AgentComponent);
+module.component('aioFindIdentityModal', FindIdentityModalComponent);
+module.component('aioIdentityChooser', IdentityChooserComponent);
+module.component('aioRegister', RegisterComponent);
+module.service('aioIdentityService', IdentityService);
+module.service('aioOperationService', OperationService);
+module.service('aioPermissionService', PermissionService);
+module.service('aioUtilService', UtilService);
 
 /* @ngInject */
 module.config(function($routeProvider, routeResolverProvider) {
@@ -78,20 +83,18 @@ module.config(function($routeProvider, routeResolverProvider) {
       vars: {
         title: 'Mock Credential Consumer Query'
       },
-      templateUrl: requirejs.toUrl('authio/idp-test/idp-test.html')
+      templateUrl: 'authio/idp-test/idp-test.html'
     })
     .when('/test/credentials/composed-identity', {
       vars: {
         title: 'Mock Credential Consumer Query Results'
       },
-      templateUrl: requirejs.toUrl('authio/idp-test/idp-test.html')
+      templateUrl: 'authio/idp-test/idp-test.html'
     })
     .when('/test/credentials/stored-credential', {
       vars: {
         title: 'Mock Credential Storage Results'
       },
-      templateUrl: requirejs.toUrl('authio/idp-test/idp-test.html')
+      templateUrl: 'authio/idp-test/idp-test.html'
     });
-});
-
 });

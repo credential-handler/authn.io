@@ -4,16 +4,10 @@
  * Copyright (c) 2017, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-define(['lodash'], function(_) {
-
-'use strict';
-
-function register(module) {
-  module.service('aioPermissionService', factory);
-}
+import _ from 'lodash';
 
 /* @ngInject */
-function factory() {
+export default function factory() {
   var service = {};
 
   var STORAGE_KEYS = {
@@ -196,7 +190,3 @@ function factory() {
 
   return service;
 }
-
-return register;
-
-});

@@ -6,12 +6,8 @@
  */
 /* globals IdentityCredential */
 
-define([], function() {
-
-'use strict';
-
 /* @ngInject */
-function factory($q, $http, $window, brAlertService, config) {
+export default function factory($q, $http, $window, brAlertService, config) {
   var self = this;
   self.view = 'login';
 
@@ -141,7 +137,3 @@ function factory($q, $http, $window, brAlertService, config) {
     });
   }
 }
-
-return {aiodIssuerController: factory};
-
-});

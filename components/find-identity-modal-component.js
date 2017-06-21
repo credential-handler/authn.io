@@ -4,25 +4,18 @@
  * Copyright (c) 2015-2017, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-/* global requirejs */
-define([], function() {
-
-'use strict';
-
-function register(module) {
-  module.component('aioFindIdentityModal', {
-    controller: Ctrl,
-    require: {
-      stackable: '^'
-    },
-    // TODO: add bindings w/aioOnAdd to return the identity instead
-    // of passing via `stackable.close`?
-    bindings: {
-      onCustomRegistration: '&?aioOnCustomRegistration',
-    },
-    templateUrl: requirejs.toUrl('authio/find-identity-modal-component.html')
-  });
-}
+export default {
+  controller: Ctrl,
+  require: {
+    stackable: '^'
+  },
+  // TODO: add bindings w/aioOnAdd to return the identity instead
+  // of passing via `stackable.close`?
+  bindings: {
+    onCustomRegistration: '&?aioOnCustomRegistration'
+  },
+  templateUrl: 'authio/find-identity-modal-component.html'
+};
 
 /* @ngInject */
 function Ctrl($scope, aioIdentityService) {
@@ -64,7 +57,3 @@ function Ctrl($scope, aioIdentityService) {
     });
   };
 }
-
-return register;
-
-});

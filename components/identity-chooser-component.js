@@ -4,23 +4,18 @@
  * Copyright (c) 2015-2017, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-/* global requirejs */
-define(['angular'], function(angular) {
+import angular from 'angular';
 
-'use strict';
-
-function register(module) {
-  module.component('aioIdentityChooser', {
-    bindings: {
-      autoIdSelect: '<?aioAutoIdSelect',
-      filter: '<?aioIdentityChooserFilter',
-      enableRegistration: '<?aioEnableRegistration',
-      onIdentitySelected: '&aioOnIdentitySelected'
-    },
-    controller: Ctrl,
-    templateUrl: requirejs.toUrl('authio/identity-chooser-component.html')
-  });
-}
+export default {
+  bindings: {
+    autoIdSelect: '<?aioAutoIdSelect',
+    filter: '<?aioIdentityChooserFilter',
+    enableRegistration: '<?aioEnableRegistration',
+    onIdentitySelected: '&aioOnIdentitySelected'
+  },
+  controller: Ctrl,
+  templateUrl: 'authio/identity-chooser-component.html'
+};
 
 /* @ngInject */
 function Ctrl($q, $timeout, aioIdentityService, aioUtilService) {
@@ -121,7 +116,3 @@ function Ctrl($q, $timeout, aioIdentityService, aioUtilService) {
     });
   }
 }
-
-return register;
-
-});

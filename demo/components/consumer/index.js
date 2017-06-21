@@ -4,24 +4,18 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-define([
-  'angular',
-  './consumer-controller'
-], function(angular, consumerController) {
-
-'use strict';
+import angular from 'angular';
+import ConsumerController from './consumer-controller.js';
 
 var module = angular.module('authio-demo.consumer', ['bedrock.alert']);
 
-module.controller(consumerController);
+module.controller('aiodConsumerController', ConsumerController);
 
 /* @ngInject */
 module.config(function($routeProvider) {
   $routeProvider
     .when('/consumer', {
       title: 'Credential Consumer',
-      templateUrl: requirejs.toUrl('authio-demo/consumer/consumer.html')
+      templateUrl: 'authio-demo/consumer/consumer.html'
     });
-});
-
 });
