@@ -17,8 +17,9 @@ import RegisterComponent from './register-component.js';
 import UtilService from './util-service.js';
 
 var module = angular.module('authio', [
-  'authio-demo', 'bedrock.alert', 'bedrock.filters', 'bedrock.form',
-  'bedrock.modal', 'bedrock.navbar', 'bedrock.resolver', 'ngError'
+  'authio-demo', 'bedrock.alert', 'bedrock.filters', 'bedrock.footer',
+  'bedrock.form', 'bedrock.header', 'bedrock.modal', 'bedrock.navbar',
+  'bedrock.resolver', 'ngError'
 ]);
 
 bedrock.setRootModule(module);
