@@ -10,7 +10,8 @@ import './idp/index.js';
 import './issuer/index.js';
 
 var module = angular.module('authio-demo', [
-  'authio-demo.consumer', 'authio-demo.idp', 'authio-demo.issuer']);
+  'authio-demo.consumer', 'authio-demo.idp', 'authio-demo.issuer',
+  'bedrock.footer', 'bedrock.header', 'bedrock.navbar']);
 
 /* @ngInject */
 module.config(function($routeProvider) {
