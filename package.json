@@ -41,14 +41,15 @@
     "bedrock-mongodb": "^3.0.0",
     "bedrock-server": "^2.2.0",
     "bedrock-validation": "^2.1.0",
-    "bedrock-views": "^5.0.0",
+    "bedrock-views": "digitalbazaar/bedrock-views#webpack",
+    "bedrock-webpack": "digitalbazaar/bedrock-webpack#webpack",
     "bignumber.js": "^2.1.4",
     "cors": "^2.7.1",
     "credentials-polyfill": "^1.1.5",
     "did-io": "^0.6.1",
     "font-awesome": "^4.7.0",
     "jquery": "^3.2.1",
-    "jsonld-signatures": "^1.1.3",
+    "jsonld-signatures": "digitalbazaar/jsonld-signatures#multiSignature",
     "jsonwebtoken": "~7.4.1",
     "lodash": "^4.6.1",
     "ng-error": "^1.0.2",
@@ -82,10 +83,10 @@
       "lodash",
       "ng-error"
     ],
-    "systemjs": {
-      "manifest": {
-        "jsbarcode": {
-          "main": "dist/JsBarcode.all.js"
+    "manifest": {
+      "angular-cookie": {
+        "dependencies": {
+          "angular": "~1.6.4"
         }
       }
     }
