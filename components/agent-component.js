@@ -5,7 +5,7 @@
  * All rights reserved.
  */
 import angular from 'angular';
-import uuid from 'node-uuid';
+import uuid from 'uuid';
 import _ from 'lodash';
 
 export default {

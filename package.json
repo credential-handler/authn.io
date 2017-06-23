@@ -53,8 +53,8 @@
     "jsonwebtoken": "~7.4.1",
     "lodash": "^4.6.1",
     "ng-error": "^1.0.2",
-    "node-forge": "~0.6.40",
-    "node-uuid": "^1.4.3"
+    "node-forge": "~0.7.1",
+    "uuid": "^3.0.0"
   },
   "bedrock": {
     "browserDependencies": [
@@ -79,10 +79,24 @@
       "jquery",
       "jsonld-signatures",
       "node-forge",
-      "node-uuid",
+      "uuid",
       "lodash",
       "ng-error"
     ],
+    "systemjs": {
+      "packages": {
+        "node-forge": {
+          "map": {
+            "crypto": "@empty"
+          }
+        },
+        "uuid": {
+          "map": {
+            "./lib/rng.js": "./lib/rng-browser.js"
+          }
+        }
+      }
+    },
     "manifest": {
       "angular-cookie": {
         "dependencies": {

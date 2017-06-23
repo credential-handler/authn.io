@@ -10,7 +10,7 @@ import didio from 'did-io';
 import forge from 'node-forge';
 import jsonld from 'jsonld';
 import jsigs from 'jsonld-signatures';
-import uuid from 'node-uuid';
+import uuid from 'uuid';
 
 /* @ngInject */
 export default function factory($http) {

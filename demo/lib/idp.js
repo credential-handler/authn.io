@@ -13,7 +13,7 @@ var config = require('bedrock').config;
 var database = require('bedrock-mongodb');
 var forge = require('node-forge');
 var jsigs = require('jsonld-signatures');
-var uuid = require('node-uuid');
+var uuid = require('uuid');
 
 // mock IdP keypair
 var gIdPKeypair = null;
