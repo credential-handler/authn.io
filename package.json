@@ -46,7 +46,7 @@
     "bedrock-webpack": "digitalbazaar/bedrock-webpack#webpack",
     "bignumber.js": "^2.1.4",
     "cors": "^2.7.1",
-    "credentials-polyfill": "^1.1.5",
+    "credentials-polyfill": "^1.1.6",
     "did-io": "^0.6.1",
     "font-awesome": "^4.7.0",
     "jquery": "^3.2.1",
