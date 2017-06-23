@@ -5,7 +5,6 @@
  * All rights reserved.
  */
 import angular from 'angular';
-import async from 'async';
 import Didio from 'did-io';
 import forge from 'node-forge';
 import jsonld from 'jsonld';
@@ -29,7 +28,6 @@ export default function factory($http) {
 
   // initialize libs using the AMD-loaded helper libraries
   const jsigs = Jsigs();
-  jsigs.use('async', async);
   jsigs.use('forge', forge);
   jsigs.use('jsonld', jsonld);
   const didio = Didio();

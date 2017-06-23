@@ -59,7 +59,6 @@
   "bedrock": {
     "browserDependencies": [
       "angular-cookie",
-      "async",
       "bedrock-angular",
       "bedrock-angular-alert",
       "bedrock-angular-credential",
