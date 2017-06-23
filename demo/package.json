@@ -1,6 +1,7 @@
 {
   "name": "authio-demo",
   "version": "0.0.1-0",
+  "browser": "index.js",
   "main": "index.js",
   "dependencies": {
     "bedrock-angular-bootstrap": "^1.0.0",
