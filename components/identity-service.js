@@ -6,10 +6,10 @@
  */
 import angular from 'angular';
 import async from 'async';
-import didio from 'did-io';
+import Didio from 'did-io';
 import forge from 'node-forge';
 import jsonld from 'jsonld';
-import jsigs from 'jsonld-signatures';
+import Jsigs from 'jsonld-signatures';
 import uuid from 'uuid/v4';
 
 // FIXME: this is a temporarty patch because did-io is expecting v4 function
@@ -28,11 +28,11 @@ export default function factory($http) {
   var SESSION_EXPIRATION = 30 * 60 * 1000;
 
   // initialize libs using the AMD-loaded helper libraries
-  jsigs = jsigs();
+  const jsigs = Jsigs();
   jsigs.use('async', async);
   jsigs.use('forge', forge);
   jsigs.use('jsonld', jsonld);
-  didio = didio();
+  const didio = Didio();
   didio.use('forge', forge);
   didio.use('jsonld', jsonld);
   didio.use('uuid', uuid);
