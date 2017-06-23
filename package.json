@@ -52,7 +52,6 @@
     "jquery": "^3.2.1",
     "jsonld-signatures": "digitalbazaar/jsonld-signatures#multiSignature",
     "jsonwebtoken": "~7.4.1",
-    "lodash": "^4.6.1",
     "ng-error": "^1.0.2",
     "node-forge": "~0.7.1",
     "uuid": "^3.0.0"

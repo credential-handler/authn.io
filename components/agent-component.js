@@ -6,7 +6,6 @@
  */
 import angular from 'angular';
 import uuid from 'uuid/v4';
-import _ from 'lodash';
 
 export default {
   controller: Ctrl,
@@ -291,11 +290,14 @@ function Ctrl(
   function _isCryptoKeyRequest(query) {
     // query may have `id` set -- this doesn't affect whether or not it is
     // a crypto key request
-    query = _.assign({}, query);
+    query = angular.extend({}, query);
     if('id' in query) {
       query.id = '';
     }
-    return _.isEqual(query, CRYPTO_KEY_REQUEST);
+    return (query.id === '' &&
+      query['@context'] === 'https://w3id.org/identity/v1' &&
+      query.publicKey === '' && Object.keys(query).length === 3
+    );
   }
 
   function _sendSignedIdentity(identity) {
