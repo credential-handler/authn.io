@@ -1,7 +1,8 @@
 {
   "name": "authio",
   "version": "0.4.0",
-  "main": "index.js",
+  "main": "lib",
+  "browser": "./components/index.js",
   "less": "main.less",
   "scripts": {
     "start": "node authorization.dev.js",
@@ -102,6 +103,14 @@
         "dependencies": {
           "angular": "~1.6.4"
         }
+      },
+      "authio": {
+        "module": "index.js",
+        "browser": "index.js"
+      },
+      "authio-demo": {
+        "module": "index.js",
+        "browser": "index.js"
       }
     }
   },
