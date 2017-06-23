@@ -10,7 +10,10 @@ import didio from 'did-io';
 import forge from 'node-forge';
 import jsonld from 'jsonld';
 import jsigs from 'jsonld-signatures';
-import uuid from 'uuid';
+import uuid from 'uuid/v4';
+
+// FIXME: this is a temporarty patch because did-io is expecting v4 function
+uuid.v4 = () => uuid();
 
 /* @ngInject */
 export default function factory($http) {

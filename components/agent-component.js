@@ -5,7 +5,7 @@
  * All rights reserved.
  */
 import angular from 'angular';
-import uuid from 'uuid';
+import uuid from 'uuid/v4';
 import _ from 'lodash';
 
 export default {
@@ -129,7 +129,7 @@ function Ctrl(
         config.data.identityWithCryptographicKeyCredentialTemplate));
       identity.id = session.id;
       var credential = identity.credential[0]['@graph'];
-      credential.id = 'urn:ephemeral:' + uuid.v4();
+      credential.id = 'urn:ephemeral:' + uuid();
       credential.claim = {
         id: session.id,
         publicKey: {

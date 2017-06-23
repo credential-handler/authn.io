@@ -5,7 +5,7 @@
  * All rights reserved.
  */
 import jsonld from 'jsonld';
-import uuid from 'node-uuid';
+import uuid from 'uuid/v4';
 
 /* @ngInject */
 export default function factory(aioIdentityService, aioUtilService) {
@@ -112,7 +112,7 @@ export default function factory(aioIdentityService, aioUtilService) {
       // wrap public key in a CryptographicKeyCredential and sign it
       var credential = {
         '@context': 'https://w3id.org/identity/v1',
-        id: 'urn:ephemeral:' + uuid.v4(),
+        id: 'urn:ephemeral:' + uuid(),
         type: ['Credential', 'CryptographicKeyCredential'],
         claim: {
           id: publicKey.owner,
