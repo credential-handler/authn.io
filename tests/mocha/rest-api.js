@@ -8,9 +8,10 @@
 var config = require('bedrock').config;
 var didio = require('did-io');
 var jsonld = require('jsonld');
-var jsig = require('jsonld-signatures')({inject:{jsonld: jsonld}});
+var jsig = require('jsonld-signatures')({inject: {jsonld: jsonld}});
 var forge = require('node-forge');
 var request = require('request');
+const should = global.chai.should;
 
 // base URL for tests
 var base = config.server.baseUri;
@@ -65,7 +66,7 @@ describe('authorization.io - REST API', function() {
       }]
     },
     publicKey: [{
-      id : did + '/keys/1',
+      id: did + '/keys/1',
       type: 'CryptographicKey',
       owner: did,
       publicKeyPem: forge.pki.publicKeyToPem(keypair.publicKey)

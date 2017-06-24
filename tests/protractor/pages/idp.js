@@ -7,7 +7,6 @@
  * All rights reserved.
  */
 var bedrock = GLOBAL.bedrock;
-var browser = GLOBAL.browser;
 var by = GLOBAL.by;
 var element = GLOBAL.element;
 var expect = GLOBAL.expect;
@@ -40,13 +39,15 @@ api.testField = function(modelName, testString, expectedErrorId) {
     .then(function(elementName) {
       expect(element(by.attribute('br-model', modelName))
         .element(by.attribute(
-          'ng-show', ['regForm', elementName, '$error', expectedErrorId].join('.')))
+          'ng-show', [
+            'regForm', elementName, '$error', expectedErrorId
+          ].join('.')))
         .isDisplayed()).to.eventually.equal(true);
     });
 };
 
 api.testFieldsMatch = function(
-    modelNameA, modelNameB, testStringA, testStringB, expectedErrorId) {
+  modelNameA, modelNameB, testStringA, testStringB, expectedErrorId) {
   element(by.brModel(modelNameA)).sendKeys(testStringA);
   element(by.brModel(modelNameB)).sendKeys(testStringB);
   element(by.buttonText('Register')).click();
@@ -59,12 +60,13 @@ api.testFieldsMatch = function(
           ['regForm', elementName, '$error', expectedErrorId].join('.')))
         .isDisplayed()).to.eventually.equal(true);
     });
-  };
+};
 
 api.registerDid = function(identity) {
   element(by.brModel('model.username')).sendKeys(identity.email);
   element(by.brModel('model.passphrase')).sendKeys(identity.passphrase);
-  element(by.brModel('model.passphraseConfirmation')).sendKeys(identity.passphrase);
+  element(by.brModel('model.passphraseConfirmation'))
+    .sendKeys(identity.passphrase);
   element(by.buttonText('Register')).click();
   bedrock.waitForUrl('/');
   bedrock.waitForAngular();

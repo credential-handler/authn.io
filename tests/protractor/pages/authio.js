@@ -10,8 +10,6 @@ var bedrock = GLOBAL.bedrock;
 var browser = GLOBAL.browser;
 var by = GLOBAL.by;
 var element = GLOBAL.element;
-var expect = GLOBAL.expect;
-var protractor = GLOBAL.protractor;
 var api = {};
 module.exports = api;
 

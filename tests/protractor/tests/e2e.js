@@ -5,7 +5,6 @@
  * All rights reserved.
  */
 var bedrock = GLOBAL.bedrock;
-var expect = GLOBAL.expect;
 var describe = GLOBAL.describe;
 var it = GLOBAL.it;
 
