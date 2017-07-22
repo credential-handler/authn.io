@@ -21,7 +21,7 @@
     "bedrock": "^1.4.1",
     "bedrock-angular": "^3.0.0",
     "bedrock-angular-alert": "^3.0.0",
-    "bedrock-angular-bootstrap": "1.0.0",
+    "bedrock-angular-bootstrap": "^1.0.0",
     "bedrock-angular-card-displayer": "^2.0.0",
     "bedrock-angular-credential": "^3.0.0",
     "bedrock-angular-filters": "^3.0.0",
