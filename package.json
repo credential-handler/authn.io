@@ -40,7 +40,7 @@
     "bedrock-letsencrypt": "^0.2.2",
     "bedrock-mail": "^2.0.1",
     "bedrock-mongodb": "^3.0.0",
-    "bedrock-server": "digitalbazaar/bedrock-server#forgeUpgrade",
+    "bedrock-server": "^2.2.0",
     "bedrock-validation": "^2.1.0",
     "bedrock-views": "^5.1.0",
     "bedrock-webpack": "^1.0.2",
