@@ -12,8 +12,14 @@ import './legacy/index.js';
 
 'use strict';
 
-const module = angular.module(
-  'authio', ['web-request-mediator', 'authio.legacy']);
+const deps = ['web-request-mediator'];
+
+// only include legacy module when not loading new routes
+if(!['/', '/mediator'].includes(window.location.pathname)) {
+  deps.push('authio.legacy');
+}
+
+const module = angular.module('authio', deps);
 module.component('aioHandlerWindowHeader', HandlerWindowHeaderComponent);
 module.component('aioHome', HomeComponent);
 module.component('aioMediator', MediatorComponent);
