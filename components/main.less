@@ -6,22 +6,11 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-
-
-
-
+// new CSS rules go here
 
 
 /* -------------------------------- LEGACY ---------------------------------*/
 
-/*
-@navbar-height: 45px;
-@navbar-default-bg: #3F6634;
-@navbar-default-border: darken(@navbar-default-bg, 12%);
-@navbar-default-link-color: @gray-lighter;
-@navbar-default-link-hover-color: @white;
-@navbar-default-link-active-color: lighten(@gray-lighter, 10%);
-*/
 @navbar-height: 34px;
 @navbar-default-bg: #337ab7;
 @navbar-default-border: darken(@navbar-default-bg, 12%);
@@ -31,21 +20,6 @@
 @navbar-padding-horizontal: floor((@grid-gutter-width / 2));
 @navbar-padding-vertical: 5px;
 
-@aio-op-header-top: (@navbar-height + 2);
-@aio-op-header-margin: (@line-height-computed / 2);
-
-@aio-callout-padding-vertical: 10px;
-@aio-callout-padding-horizontal: 15px;
-
-/* Compute callout dimensions, sum up margin, padding, border of 1 px, header,
-  header margin, one line of content. */
-@aio-op-content-margin-top: (
-  @aio-op-header-margin * 2 +
-  @aio-callout-padding-vertical * 2 +
-  1 * 2 +
-  @line-height-computed + 5 +
-  @line-height-computed);
-
 @aio-native-modal-font-size: 11px;
 
 /* For loading in an iframe */
@@ -54,44 +28,12 @@ html {
 }
 
 .navbar {
-  position: fixed;
-  width: 100%;
-  z-index: 1000;
+  margin-bottom: 0;
 }
 
 body {
   /* default to transparent background for polyfill */
   background: transparent;
-}
-
-.aio-op-header-wrapper {
-  position: absolute;
-  top: @aio-op-header-top;
-  left: 0;
-}
-
-.aio-op-header {
-  position: fixed;
-  top: @aio-op-header-top;
-  width: 100%;
-  z-index: @zindex-navbar;
-  background-color: @body-bg;
-}
-
-.aio-op-header .callout {
-  margin: @aio-op-header-margin;
-  padding: @aio-callout-padding-vertical @aio-callout-padding-horizontal;
-
-  .close {
-    position: relative;
-    top: -5px;
-    right: -5px;
-  }
-}
-
-.aio-op-content {
-  margin-top: @aio-op-content-margin-top;
-  padding: 0;
 }
 
 .aio-repo-iframe {
@@ -279,15 +221,6 @@ br-modal.aio-native-modal {
   border-radius: 2px;
   font-size: @aio-native-modal-font-size;
 }
-
-/*.aio-arrow-up {
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-bottom: 5px solid black;
-  flex: 0 0 auto;
-}*/
 
 .aio-identity-option {
   border: 1px solid transparent;
