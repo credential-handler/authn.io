@@ -58,7 +58,7 @@ export default function factory($q, $http, $window, brAlertService, config) {
   };
 
   self.home = function() {
-    $window.location = config.data.baseUri;
+    $window.location = config.data.baseUri + '/legacy';
   };
 
   function _generateCredentials() {

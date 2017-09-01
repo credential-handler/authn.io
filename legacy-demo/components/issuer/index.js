@@ -7,7 +7,7 @@
 import angular from 'angular';
 import IssuerController from './issuer-controller.js';
 
-var module = angular.module('authio-demo.issuer', ['bedrock.alert']);
+var module = angular.module('authio.legacy.demo.issuer', ['bedrock.alert']);
 
 module.controller('aiodIssuerController', IssuerController);
 
@@ -16,6 +16,6 @@ module.config(function($routeProvider) {
   $routeProvider
     .when('/issuer', {
       title: 'Issuer',
-      templateUrl: 'authio-demo/issuer/issuer.html'
+      templateUrl: 'authio-legacy-demo/issuer/issuer.html'
     });
 });

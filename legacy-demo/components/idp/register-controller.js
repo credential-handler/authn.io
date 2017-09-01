@@ -71,7 +71,7 @@ export default function factory(
         throw response;
       }
       _storeCredentials(response.data);
-      $location.path('/');
+      $location.path('/legacy');
     }).catch(function(err) {
       brAlertService.add('error', err);
     }).then(function() {

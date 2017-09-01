@@ -40,6 +40,6 @@ export default function factory($q, $window, brAlertService, config) {
   };
 
   self.home = function() {
-    $window.location = config.data.baseUri;
+    $window.location = config.data.baseUri + '/legacy';
   };
 }

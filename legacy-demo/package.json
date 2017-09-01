@@ -1,5 +1,5 @@
 {
-  "name": "authio-demo",
+  "name": "authio-legacy-demo",
   "version": "0.0.1-0",
   "browser": "index.js",
   "main": "index.js",

@@ -9,15 +9,16 @@ import './consumer/index.js';
 import './idp/index.js';
 import './issuer/index.js';
 
-var module = angular.module('authio-demo', [
-  'authio-demo.consumer', 'authio-demo.idp', 'authio-demo.issuer',
+var module = angular.module('authio.legacy.demo', [
+  'authio.legacy.demo.consumer', 'authio.legacy.demo.idp',
+  'authio.legacy.demo.issuer',
   'bedrock.footer', 'bedrock.header', 'bedrock.navbar']);
 
 /* @ngInject */
 module.config(function($routeProvider) {
   $routeProvider
-    .when('/', {
+    .when('/legacy', {
       title: 'Welcome',
-      templateUrl: 'authio-demo/welcome.html'
+      templateUrl: 'authio-legacy-demo/welcome.html'
     });
 });

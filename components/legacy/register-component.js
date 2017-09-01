@@ -6,7 +6,7 @@
  */
 export default {
   controller: Ctrl,
-  templateUrl: 'authio/register-component.html'
+  templateUrl: 'authio/legacy/register-component.html'
 };
 
 /* @ngInject */

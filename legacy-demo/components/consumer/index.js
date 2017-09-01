@@ -7,7 +7,7 @@
 import angular from 'angular';
 import ConsumerController from './consumer-controller.js';
 
-var module = angular.module('authio-demo.consumer', ['bedrock.alert']);
+var module = angular.module('authio.legacy.demo.consumer', ['bedrock.alert']);
 
 module.controller('aiodConsumerController', ConsumerController);
 
@@ -16,6 +16,6 @@ module.config(function($routeProvider) {
   $routeProvider
     .when('/consumer', {
       title: 'Credential Consumer',
-      templateUrl: 'authio-demo/consumer/consumer.html'
+      templateUrl: 'authio-legacy-demo/consumer/consumer.html'
     });
 });

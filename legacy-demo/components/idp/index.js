@@ -8,7 +8,7 @@ import angular from 'angular';
 import CredentialManagerController from './credential-manager-controller.js';
 import RegisterController from './register-controller.js';
 
-var module = angular.module('authio-demo.idp', [
+var module = angular.module('authio.legacy.demo.idp', [
   'ipCookie', 'bedrock.alert', 'bedrock.card-displayer', 'bedrock.credential',
   'bedrock.identity-composer', 'bedrock.resolver'
 ]);
@@ -19,7 +19,7 @@ module.controller('aiodRegisterController', RegisterController);
 
 /* @ngInject */
 module.config(function($routeProvider, routeResolverProvider) {
-  routeResolverProvider.add('authio-demo-resolver', resolve);
+  routeResolverProvider.add('authio.legacy.demo-resolver', resolve);
 
   /* @ngInject */
   function resolve($rootScope, $route) {
@@ -41,7 +41,7 @@ module.config(function($routeProvider, routeResolverProvider) {
   $routeProvider
     .when('/idp/register', {
       title: 'Identity Provider',
-      templateUrl: 'authio-demo/idp/register.html'
+      templateUrl: 'authio-legacy-demo/idp/register.html'
     })
     .when('/idp/credential-manager', {
       vars: {
@@ -62,7 +62,7 @@ module.config(function($routeProvider, routeResolverProvider) {
           }
         }
       },
-      templateUrl: 'authio-demo/idp/credential-manager.html'
+      templateUrl: 'authio-legacy-demo/idp/credential-manager.html'
     });
 });
 

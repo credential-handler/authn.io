@@ -9,7 +9,7 @@ import uuid from 'uuid/v4';
 
 export default {
   controller: Ctrl,
-  templateUrl: 'authio/agent-component.html'
+  templateUrl: 'authio/legacy/agent-component.html'
 };
 
 /* @ngInject */

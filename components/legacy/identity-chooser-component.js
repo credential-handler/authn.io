@@ -14,7 +14,7 @@ export default {
     onIdentitySelected: '&aioOnIdentitySelected'
   },
   controller: Ctrl,
-  templateUrl: 'authio/identity-chooser-component.html'
+  templateUrl: 'authio/legacy/identity-chooser-component.html'
 };
 
 /* @ngInject */

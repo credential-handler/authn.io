@@ -14,12 +14,12 @@ var path = require('path');
 config.paths.cache = path.join(__dirname, '..', '.cache');
 config.paths.log = path.join(os.tmpdir(), 'authorization.dev');
 
-// load the demo extensions to the site
-require('../demo/lib/idp');
-require('../demo/lib/issuer');
+// load the legacy demo extensions to the site
+require('../legacy-demo/lib/idp');
+require('../legacy-demo/lib/issuer');
 
-// pseudo package for demo idp, issuer, and consumer
-const rootPath = path.join(__dirname, '..', 'demo');
+// pseudo package for legacy demo idp, issuer, and consumer
+const rootPath = path.join(__dirname, '..', 'legacy-demo');
 config.views.system.packages.push({
   path: path.join(rootPath, 'components'),
   manifest: path.join(rootPath, 'package.json')

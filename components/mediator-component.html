@@ -1,0 +1,57 @@
+<div ng-if="$ctrl.display === 'permissionRequest'">
+  <wrm-permission-dialog
+    wrm-origin="$ctrl.relyingDomain"
+    wrm-permissions="$ctrl.permissions"
+    wrm-on-deny="$ctrl.deny()" wrm-on-allow="$ctrl.accept()"></wrm-permission-dialog>
+</div>
+
+<div ng-if="$ctrl.display === 'credentialRequest'">
+  <wrm-hint-chooser wrm-hints="$ctrl.hintOptions"
+    wrm-default-hint-icon="fa-user"
+    wrm-on-confirm="$ctrl.selectHint(hint)"
+    wrm-on-cancel="$ctrl.selectHint()">
+    <wrm-hint-chooser-header>
+      <div style="padding-right: 10px">
+        <strong>{{$ctrl.relyingDomain}}</strong> wants credentials
+      </div>
+      <div ng-if="$ctrl.loading">
+        Loading provider options...
+      </div>
+      <div ng-if="!ctrl.loading">
+        <div ng-if="$ctrl.hintOptions.length === 0">
+          TODO: Oh no, you don't have what you need
+        </div>
+        <div ng-if="$ctrl.hintOptions.length > 0">
+          Choose a credential provider to continue:
+        </div>
+      </div>
+      <br>
+    </wrm-hint-chooser-header>
+  </wrm-hint-chooser>
+</div>
+
+<div ng-if="$ctrl.display === 'credentialStore'">
+  <wrm-hint-chooser wrm-hints="$ctrl.hintOptions"
+    wrm-default-hint-icon="fa-user"
+    wrm-on-confirm="$ctrl.selectHint(hint)"
+    wrm-on-cancel="$ctrl.selectHint()">
+    <wrm-hint-chooser-header>
+      <div style="padding-right: 10px">
+        <strong>{{$ctrl.relyingDomain}}</strong> wants to store
+        credentials
+      </div>
+      <div ng-if="$ctrl.loading">
+        Loading provider options...
+      </div>
+      <div ng-if="!ctrl.loading">
+        <div ng-if="$ctrl.hintOptions.length === 0">
+          You don't have a digital wallet to store credentials. Please
+          visit a digital wallet website to install one.
+        </div>
+        <div ng-if="$ctrl.hintOptions.length > 0">
+          Choose a credential provider to continue:
+        </div>
+      </div>
+    </wrm-hint-chooser-header>
+  </wrm-hint-chooser>
+</div>

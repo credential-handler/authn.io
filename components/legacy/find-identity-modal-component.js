@@ -14,7 +14,7 @@ export default {
   bindings: {
     onCustomRegistration: '&?aioOnCustomRegistration'
   },
-  templateUrl: 'authio/find-identity-modal-component.html'
+  templateUrl: 'authio/legacy/find-identity-modal-component.html'
 };
 
 /* @ngInject */

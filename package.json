@@ -16,6 +16,7 @@
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "angular-cookie": "~4.1.0",
+    "angular-web-request-mediator": "^0.1.0",
     "async": "^1.4.2",
     "base64url": "^2.0.0",
     "bedrock": "^1.4.1",
@@ -43,9 +44,10 @@
     "bedrock-server": "^2.2.0",
     "bedrock-validation": "^2.1.0",
     "bedrock-views": "^5.1.0",
-    "bedrock-webpack": "^1.0.2",
+    "bedrock-webpack": "digitalbazaar/bedrock-webpack#excludeLocalForage",
     "bignumber.js": "^2.1.4",
     "cors": "^2.7.1",
+    "credential-mediator-polyfill": "^0.1.2",
     "credentials-polyfill": "^1.1.6",
     "did-io": "^0.6.1",
     "font-awesome": "^4.7.0",
@@ -53,11 +55,13 @@
     "jsonwebtoken": "~7.4.1",
     "ng-error": "^1.0.2",
     "node-forge": "~0.7.1",
-    "uuid": "^3.0.0"
+    "uuid": "^3.0.0",
+    "web-request-rpc": "^0.1.5"
   },
   "bedrock": {
     "browserDependencies": [
       "angular-cookie",
+      "angular-web-request-mediator",
       "bedrock-angular",
       "bedrock-angular-alert",
       "bedrock-angular-credential",
@@ -72,13 +76,15 @@
       "bedrock-angular-selector",
       "bedrock-angular-ui",
       "credentials-polyfill",
+      "credential-mediator-polyfill",
       "did-io",
       "font-awesome",
       "jsonld-signatures",
       "lodash",
       "ng-error",
       "node-forge",
-      "uuid"
+      "uuid",
+      "web-request-rpc"
     ],
     "systemjs": {
       "packages": {
@@ -104,7 +110,7 @@
         "module": "index.js",
         "browser": "index.js"
       },
-      "authio-demo": {
+      "authio-legacy-demo": {
         "module": "index.js",
         "browser": "index.js"
       }
