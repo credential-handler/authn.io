@@ -56,7 +56,6 @@ function Ctrl($compile, $location, $scope) {
     try {
       response = await navigator.credentialMediator.ui.selectCredentialHint(
         selection.hintOption);
-      console.log('response', response);
     } catch(e) {
       console.error(e);
       self.credentialOperationPromise.reject(e);
@@ -81,9 +80,7 @@ function Ctrl($compile, $location, $scope) {
           updateHandlerWindow(webAppWindow);
         }
       });
-      console.log('authorization.io loaded mediator polyfill');
     } catch(e) {
-      console.error('authorization.io failed to load mediator polyfill');
       console.error(e);
     }
   })();
@@ -127,8 +124,6 @@ function Ctrl($compile, $location, $scope) {
     self.loading = false;
     $scope.$apply();
 
-    console.log('hints', self.hintOptions);
-
     return promise;
   }
 
@@ -156,8 +151,6 @@ function Ctrl($compile, $location, $scope) {
     }));
     self.loading = false;
     $scope.$apply();
-
-    console.log('hints', self.hintOptions);
 
     return promise;
   }
