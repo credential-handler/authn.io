@@ -15,17 +15,16 @@
         <strong>{{$ctrl.relyingDomain}}</strong> wants credentials
       </div>
       <div ng-if="$ctrl.loading">
-        Loading provider options...
+        Loading options...
       </div>
       <div ng-if="!ctrl.loading">
         <div ng-if="$ctrl.hintOptions.length === 0">
           TODO: Oh no, you don't have what you need
         </div>
-        <div ng-if="$ctrl.hintOptions.length > 0">
-          Choose a credential provider to continue:
+        <div ng-if="$ctrl.hintOptions.length > 0" class="wrm-heading">
+          Choose an option to continue
         </div>
       </div>
-      <br>
     </wrm-hint-chooser-header>
   </wrm-hint-chooser>
 </div>
@@ -48,8 +47,8 @@
           You don't have a digital wallet to store credentials. Please
           visit a digital wallet website to install one.
         </div>
-        <div ng-if="$ctrl.hintOptions.length > 0">
-          Choose a credential provider to continue:
+        <div ng-if="$ctrl.hintOptions.length > 0" class="wrm-heading">
+          Choose an option to continue
         </div>
       </div>
     </wrm-hint-chooser-header>
