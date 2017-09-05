@@ -11,7 +11,7 @@ var config = require('bedrock').config;
 var path = require('path');
 
 // common paths
-config.paths.cache = '/var/cache/authorization.io';
+config.paths.cache = path.join(__dirname, '..', '.cache');
 config.paths.log = '/var/log/authorization.io';
 
 // core configuration
