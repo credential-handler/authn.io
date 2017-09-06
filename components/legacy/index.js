@@ -15,7 +15,7 @@ import RegisterComponent from './register-component.js';
 import UtilService from './util-service.js';
 
 const module = angular.module('authio.legacy', [
-  'bedrock.form', 'bedrock.modal', 'bedrock.resolver', 'ngError'
+  'bedrock.form', 'bedrock.modal', 'ngError'
 ]);
 
 module.component('aioAgent', AgentComponent);
@@ -26,51 +26,30 @@ module.service('aioIdentityService', IdentityService);
 module.service('aioOperationService', OperationService);
 module.service('aioPermissionService', PermissionService);
 module.service('aioUtilService', UtilService);
+module.filter('isEmpty', () => {
+  return value => {
+    if(angular.isArray(value) || angular.isString(value)) {
+      return value.length === 0;
+    }
+    if(angular.isObject(value)) {
+      return Object.keys(value).length === 0;
+    }
+    throw new Error('Unknown value for isEmpty filter.');
+  };
+});
 
 /* @ngInject */
-module.config(function($routeProvider, routeResolverProvider) {
-  routeResolverProvider.add('authio.legacy.resolver', resolve);
-  /* @ngInject */
-  function resolve($rootScope, $route) {
-    var vars = $route.current.vars;
-
-    if(!vars || !('ngClass' in vars)) {
-      $rootScope.app.ngClass = {};
-    } else {
-      $rootScope.app.ngClass = vars.ngClass;
-    }
-
-    if(!vars || !('ngStyle' in vars)) {
-      $rootScope.app.ngStyle = {};
-    } else {
-      $rootScope.app.ngStyle = vars.ngStyle;
-    }
-  }
-
+module.config($routeProvider => {
   $routeProvider
     .when('/agent', {
       vars: {
-        title: 'Credential Agent',
-        navbar: false,
-        ngClass: {
-          rootContainer: {}
-        },
-        ngStyle: {
-          body: {'background-color': 'transparent'}
-        }
+        title: 'Credential Agent'
       },
       template: '<aio-agent></aio-agent>'
     })
     .when('/register', {
       vars: {
-        title: 'Register',
-        navbar: false,
-        ngClass: {
-          rootContainer: {}
-        },
-        ngStyle: {
-          body: {'background-color': 'transparent'}
-        }
+        title: 'Register'
       },
       template: '<aio-register></aio-register>'
     });
