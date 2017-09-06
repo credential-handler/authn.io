@@ -7,8 +7,8 @@
  * All rights reserved.
  */
 const bedrock = require('bedrock');
-var config = require('bedrock').config;
-var path = require('path');
+const config = require('bedrock').config;
+const path = require('path');
 
 // common paths
 config.paths.cache = path.join(__dirname, '..', '.cache');
@@ -33,7 +33,7 @@ config.loggers.error.bedrock.enableChownDir = true;
 config.loggers.email.silent = true;
 
 // only run application on HTTP port
-bedrock.events.on('bedrock-express.ready', function(app) {
+bedrock.events.on('bedrock-express.ready', app => {
   // attach express to regular http
   require('bedrock-server').servers.http.on('request', app);
   // cancel default behavior of attaching to HTTPS
@@ -69,20 +69,9 @@ config.views.vars.minify = true;
 
 // FIXME: Everything below here is temporary for testing purposes
 
-// load the legacy demo extensions to the site
-require('../legacy-demo/lib/idp');
-require('../legacy-demo/lib/issuer');
-
-// pseudo package for legacy demo idp, issuer, and consumer
-const rootPath = path.join(__dirname, '..', 'legacy-demo');
-config.views.system.packages.push({
-  path: path.join(rootPath, 'components'),
-  manifest: path.join(rootPath, 'package.json')
-});
-
 require('./demo-secrets');
 
-// serve demo contexts and vocabs
+// serve contexts/images/etc
 config.express.static.push(path.join(__dirname, '..', 'static'));
 // e-tags are valid for at least 15 minutes
 config.express.staticOptions = {
@@ -96,17 +85,6 @@ config.views.vars.contextMap[config.constants.IDENTITY_CONTEXT_V1_URL] =
   config.server.baseUri + '/contexts/identity-v1.jsonld';
 config.views.vars.contextMap[config.constants.CREDENTIALS_CONTEXT_V1_URL] =
   config.server.baseUri + '/contexts/credentials-v1.jsonld';
-
-// setup to load demo vocabs
-config.views.vars['bedrock-angular-credential'] =
-  config.views.vars['bedrock-angular-credential'] || {};
-config.views.vars['bedrock-angular-credential'].libraries =
-  config.views.vars['bedrock-angular-credential'].libraries || {};
-config.views.vars['bedrock-angular-credential'].libraries.default = {
-  vocabs: [
-    config.server.baseUri + '/vocabs/test-v1.jsonld'
-  ]
-};
 
 // lower minimum wait time for proofs
 config.authio.proofs.proofOfPatience.minWaitTimeInSecs = 2;

@@ -6,9 +6,9 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-var config = require('bedrock').config;
-var os = require('os');
-var path = require('path');
+const config = require('bedrock').config;
+const os = require('os');
+const path = require('path');
 
 // common paths
 config.paths.cache = path.join(__dirname, '..', '.cache');
@@ -49,20 +49,8 @@ config.views.vars.baseUri = config.server.baseUri;
 config.views.vars.title = config.views.brand.name;
 config.views.vars.siteTitle = config.views.brand.name;
 
-// serve demo contexts and vocabs
-config.express.static.push(path.join(
-  __dirname, '..', 'static'));
-
-// setup to load demo vocabs
-config.views.vars['bedrock-angular-credential'] =
-  config.views.vars['bedrock-angular-credential'] || {};
-config.views.vars['bedrock-angular-credential'].libraries =
-  config.views.vars['bedrock-angular-credential'].libraries || {};
-config.views.vars['bedrock-angular-credential'].libraries.default = {
-  vocabs: [
-    config.server.baseUri + '/vocabs/test-v1.jsonld'
-  ]
-};
+// serve contexts/images/etc
+config.express.static.push(path.join(__dirname, '..', 'static'));
 
 // mocha tests
 config.mocha.tests.push(path.join(__dirname, '..', 'tests', 'mocha'));

@@ -15,31 +15,17 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "angular-cookie": "~4.1.0",
     "angular-web-request-mediator": "^0.1.0",
     "async": "^1.4.2",
     "base64url": "^2.0.0",
     "bedrock": "^1.4.1",
     "bedrock-angular": "^3.0.0",
-    "bedrock-angular-alert": "^3.0.0",
     "bedrock-angular-bootstrap": "^1.0.0",
-    "bedrock-angular-card-displayer": "^2.0.0",
-    "bedrock-angular-credential": "^3.0.0",
-    "bedrock-angular-filters": "^3.0.0",
-    "bedrock-angular-footer": "^4.0.1",
     "bedrock-angular-form": "^3.0.0",
-    "bedrock-angular-header": "^1.0.0",
-    "bedrock-angular-identity-composer": "^3.0.0",
-    "bedrock-angular-media-query": "^2.0.0",
     "bedrock-angular-modal": "^5.0.0",
-    "bedrock-angular-model": "^3.0.0",
-    "bedrock-angular-navbar": "^4.0.0",
-    "bedrock-angular-selector": "^4.0.0",
-    "bedrock-angular-ui": "^3.0.0",
     "bedrock-docs": "^2.0.0",
     "bedrock-express": "^2.0.3",
     "bedrock-letsencrypt": "^0.2.2",
-    "bedrock-mail": "^2.0.1",
     "bedrock-mongodb": "^3.0.0",
     "bedrock-server": "^2.2.0",
     "bedrock-validation": "^2.1.0",
@@ -60,21 +46,10 @@
   },
   "bedrock": {
     "browserDependencies": [
-      "angular-cookie",
       "angular-web-request-mediator",
       "bedrock-angular",
-      "bedrock-angular-alert",
-      "bedrock-angular-credential",
-      "bedrock-angular-footer",
       "bedrock-angular-form",
-      "bedrock-angular-filters",
-      "bedrock-angular-header",
-      "bedrock-angular-identity-composer",
       "bedrock-angular-modal",
-      "bedrock-angular-model",
-      "bedrock-angular-navbar",
-      "bedrock-angular-selector",
-      "bedrock-angular-ui",
       "credentials-polyfill",
       "credential-mediator-polyfill",
       "did-io",
@@ -101,16 +76,7 @@
       }
     },
     "manifest": {
-      "angular-cookie": {
-        "dependencies": {
-          "angular": "~1.6.4"
-        }
-      },
       "authio": {
-        "module": "index.js",
-        "browser": "index.js"
-      },
-      "authio-legacy-demo": {
         "module": "index.js",
         "browser": "index.js"
       }

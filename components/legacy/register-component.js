@@ -12,8 +12,7 @@ export default {
 /* @ngInject */
 function Ctrl(
   $location, $scope, $timeout, $window,
-  aioIdentityService, aioPermissionService, aioUtilService,
-  brAlertService) {
+  aioIdentityService, aioPermissionService, aioUtilService) {
   var self = this;
   self.email = '';
   self.loading = false;
@@ -39,7 +38,8 @@ function Ctrl(
     self.userMediationRequired = !aioPermissionService.isAuthorized(
       message.origin, 'register-identity-credential');
   }).catch(function(err) {
-    brAlertService.add('error', err);
+    // FIXME: better error handling
+    console.error(err);
   }).then(function() {
     self.loading = false;
     $scope.$apply();
@@ -120,8 +120,6 @@ function Ctrl(
       router.send('registerDid', 'result', registrationInfo.didDocument);
     }).catch(function(err) {
       console.error('Failed to register with the network.', err);
-      brAlertService.add('error',
-        'Failed to register with the network. Please try again later.');
     }).then(function() {
       self.generating = false;
       self.registering = false;

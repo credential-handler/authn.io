@@ -16,7 +16,7 @@ export default {
 function Ctrl(
   $document, $location, $sce, $rootScope, $scope, $window,
   aioIdentityService, aioOperationService, aioPermissionService,
-  aioUtilService, brAlertService, config) {
+  aioUtilService, config) {
   var self = this;
   self.autoIdSelect = false;
   self.route = $rootScope.route;
@@ -74,7 +74,8 @@ function Ctrl(
    */
   self.complete = function(err, session) {
     if(err) {
-      brAlertService.add('error', err);
+      // FIXME: needs better error handling
+      console.error(err);
       $scope.$apply();
       return;
     }
@@ -153,7 +154,7 @@ function Ctrl(
     }).catch(function(err) {
       // TODO: need better error handling -- we need to send an error back
       // to the relying party after displaying the problem on auth.io
-      brAlertService.add('error', err);
+      console.error(err);
     }).then(function() {
       self.display.authenticating = false;
       $scope.$apply();
@@ -270,7 +271,8 @@ function Ctrl(
       'Please contact their technical support team for assistance.');
   }).catch(function(err) {
     if(query.op !== 'requestPermission') {
-      brAlertService.add('error', err);
+      // FIXME: better error handling
+      console.error(err);
     }
   }).then(function() {
     if(query.op !== 'requestPermission') {
