@@ -6,9 +6,7 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-var bedrock = require('bedrock');
-var config = require('bedrock').config;
-var path = require('path');
+const bedrock = require('bedrock');
 
 require('./lib/index');
 require('./configs/demo.authorization.io');
