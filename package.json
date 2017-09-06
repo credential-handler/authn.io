@@ -20,7 +20,7 @@
     "async": "^1.4.2",
     "base64url": "^2.0.0",
     "bedrock": "^1.4.1",
-    "bedrock-angular": "^3.0.0",
+    "bedrock-angular": "^4.0.0",
     "bedrock-angular-bootstrap": "^1.0.0",
     "bedrock-docs": "^2.0.0",
     "bedrock-express": "^2.0.3",
@@ -45,18 +45,10 @@
   },
   "bedrock": {
     "browserDependencies": [
-      "angular-stackables",
       "angular-web-request-mediator",
       "bedrock-angular",
-      "bedrock-angular-bootstrap",
-      "credentials-polyfill",
       "credential-mediator-polyfill",
-      "did-io",
       "font-awesome",
-      "jsonld-signatures",
-      "ng-error",
-      "node-forge",
-      "uuid",
       "web-request-rpc"
     ],
     "systemjs": {
