@@ -15,6 +15,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
+    "angular-stackables": "^1.2.0",
     "angular-web-request-mediator": "^0.1.0",
     "async": "^1.4.2",
     "base64url": "^2.0.0",
@@ -22,7 +23,6 @@
     "bedrock-angular": "^3.0.0",
     "bedrock-angular-bootstrap": "^1.0.0",
     "bedrock-angular-form": "^3.0.0",
-    "bedrock-angular-modal": "^5.0.0",
     "bedrock-docs": "^2.0.0",
     "bedrock-express": "^2.0.3",
     "bedrock-letsencrypt": "^0.2.2",
@@ -46,10 +46,10 @@
   },
   "bedrock": {
     "browserDependencies": [
+      "angular-stackables",
       "angular-web-request-mediator",
       "bedrock-angular",
       "bedrock-angular-form",
-      "bedrock-angular-modal",
       "credentials-polyfill",
       "credential-mediator-polyfill",
       "did-io",

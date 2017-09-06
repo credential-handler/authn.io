@@ -15,7 +15,7 @@ import RegisterComponent from './register-component.js';
 import UtilService from './util-service.js';
 
 const module = angular.module('authio.legacy', [
-  'bedrock.form', 'bedrock.modal', 'ngError'
+  'bedrock.form', 'ngError', 'stackables'
 ]);
 
 module.component('aioAgent', AgentComponent);

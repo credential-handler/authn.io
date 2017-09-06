@@ -124,7 +124,7 @@ div.aio-native-modal {
   margin-right: -7px
 }
 
-br-modal.aio-native-modal {
+aio-modal.aio-native-modal {
   font-size: @aio-native-modal-font-size;
 
   & .modal-dialog {
@@ -253,5 +253,44 @@ br-modal.aio-native-modal {
 
   & .form-control {
     font-size: @aio-native-modal-font-size
+  }
+}
+
+@modal-sheet-max-width: 767px;
+
+/* Modals */
+.modal {
+  /* allow modals to scroll */
+  position: static;
+  /* show modal; stackables handle show/hide */
+  display: block;
+}
+.modal-footer .alert {
+  text-align: left;
+}
+@media (max-width: @modal-sheet-max-width) {
+  .stackable.stackable-modal {
+    overflow: visible;
+
+    .modal-dialog {
+      margin: 0;
+    }
+    .modal-content {
+      border: none;
+      border-radius: 0;
+      max-width: 100vw;
+      //height: 100vh;
+      height: 100%;
+      position: fixed;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-header, .modal-footer {
+      flex: 0 0 auto;
+    }
+    .modal-body {
+      flex: 1 1 auto;
+      overflow-y: auto;
+    }
   }
 }

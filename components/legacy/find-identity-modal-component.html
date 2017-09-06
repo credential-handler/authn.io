@@ -1,120 +1,132 @@
-<br-modal class="aio-native-modal" br-title="Find Your Wallet">
-  <br-modal-body>
-    <p>
-      If you enabled wallet discovery with your provider, please enter
-      your discovery email address and password to find your wallet and
-      register with this device.
-    </p>
-    <p ng-if="!$ctrl.onCustomRegistration">
-      If you haven't enabled wallet discovery, please visit your wallet
-      provider's website to register.
-    </p>
-    <p ng-if="$ctrl.onCustomRegistration">
-      If you haven't enabled wallet discovery, please
-      <a ng-click="$ctrl.onCustomRegistration()">visit your wallet
-      provider's website</a> to register with this device.
-    </p>
-    <div class="row">
-      <form name="$ctrl.addIdentityForm" class="form-horizontal aio-form" role="form">
-        <fieldset>
-          <br-input br-model="$ctrl.email"
-            br-input-ng-keyup="$event.keyCode === 13 && !$ctrl.loading &&
-              $ctrl.email && $ctrl.passphrase && $ctrl.add()"
-            br-options="{
-              name: 'email',
-              label: 'Discovery Email',
-              helpTogglePosition: 'afterLabel',
-              showValidation: true,
-              autofocus: true,
-              disabled: {{$ctrl.loading}},
-              classes: {
-                label: 'col-sm-12',
-                content: 'col-sm-12',
-                help: 'col-sm-12',
-                validation: 'col-sm-12'
-              }
-            }" ng-minlength="6" ng-maxlength="128" br-input-autofocus
-              br-input-ng-change="$ctrl.error = null" required>
-            <br-input-help>
-              Please enter the email address you registered for wallet
-              discovery.
-            </br-input-help>
-            <br-input-validation-errors>
-              <p ng-show="$ctrl.addIdentityForm.email.$error.required">
-                Email is required.
-              </p>
-              <p ng-show="$ctrl.addIdentityForm.email.$error.minlength">
-                Email is required to be at least 6 characters.
-              </p>
-              <p ng-show="$ctrl.addIdentityForm.email.$error.maxlength">
-                Email must not be longer than 128 characters.
-              </p>
-            </br-input-validation-errors>
-          </br-input>
-          <br-input br-model="$ctrl.passphrase"
-            br-input-ng-keyup="$event.keyCode === 13 && !$ctrl.loading &&
-              $ctrl.email && $ctrl.passphrase && $ctrl.add()"
-            br-options="{
-              name: 'passphrase',
-              label: 'Discovery Password',
-              type: 'password',
-              helpTogglePosition: 'afterLabel',
-              showValidation: true,
-              disabled: {{$ctrl.loading}},
-              classes: {
-                label: 'col-sm-12',
-                content: 'col-sm-12',
-                help: 'col-sm-12',
-                validation: 'col-sm-12'
-              }
-            }" ng-minlength="6" ng-maxlength="128"
-              br-input-ng-change="$ctrl.error = null" required>
-            <br-input-help>
-              Please enter the password you registered for wallet discovery.
-            </br-input-help>
-            <br-input-validation-errors>
-              <p ng-show="$ctrl.addIdentityForm.passphrase.$error.required">
-                Password is required.
-              </p>
-              <p ng-show="$ctrl.addIdentityForm.passphrase.$error.minlength">
-                Password is required to be at least 6 characters.
-              </p>
-              <p ng-show="$ctrl.addIdentityForm.passphrase.$error.maxlength">
-                Password must not be longer than 128 characters.
-              </p>
-            </br-input-validation-errors>
-          </br-input>
-          <div class="form-group">
-            <div class="col-sm-12">
-              <div class="checkbox">
-                <label>
-                  <input type="checkbox" ng-model="$ctrl.permanent"
-                    style="margin-top: 1px"
-                    br-input-ng-change="$ctrl.error = null">
-                    Remember wallet on this device
-                </label>
-              </div>
-            </div>
+<aio-modal class="aio-native-modal">
+  <div class="modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <a class="close stackable-cancel">&times;</a>
+            <h3 class="modal-title">Find Your Wallet</h3>
           </div>
-          <div class="col-sm-12 text-danger" style="margin-top: 10px"
-            ng-show="$ctrl.error">
-            {{$ctrl.error.message}}
+        </div><!-- /.modal-header -->
+        <div class="modal-body">
+          <p>
+            If you enabled wallet discovery with your provider, please enter
+            your discovery email address and password to find your wallet and
+            register with this device.
+          </p>
+          <p ng-if="!$ctrl.onCustomRegistration">
+            If you haven't enabled wallet discovery, please visit your wallet
+            provider's website to register.
+          </p>
+          <p ng-if="$ctrl.onCustomRegistration">
+            If you haven't enabled wallet discovery, please
+            <a ng-click="$ctrl.onCustomRegistration()">visit your wallet
+            provider's website</a> to register with this device.
+          </p>
+          <div class="row">
+            <form name="$ctrl.addIdentityForm" class="form-horizontal aio-form" role="form">
+              <fieldset>
+                <br-input br-model="$ctrl.email"
+                  br-input-ng-keyup="$event.keyCode === 13 && !$ctrl.loading &&
+                    $ctrl.email && $ctrl.passphrase && $ctrl.add()"
+                  br-options="{
+                    name: 'email',
+                    label: 'Discovery Email',
+                    helpTogglePosition: 'afterLabel',
+                    showValidation: true,
+                    autofocus: true,
+                    disabled: {{$ctrl.loading}},
+                    classes: {
+                      label: 'col-sm-12',
+                      content: 'col-sm-12',
+                      help: 'col-sm-12',
+                      validation: 'col-sm-12'
+                    }
+                  }" ng-minlength="6" ng-maxlength="128" br-input-autofocus
+                    br-input-ng-change="$ctrl.error = null" required>
+                  <br-input-help>
+                    Please enter the email address you registered for wallet
+                    discovery.
+                  </br-input-help>
+                  <br-input-validation-errors>
+                    <p ng-show="$ctrl.addIdentityForm.email.$error.required">
+                      Email is required.
+                    </p>
+                    <p ng-show="$ctrl.addIdentityForm.email.$error.minlength">
+                      Email is required to be at least 6 characters.
+                    </p>
+                    <p ng-show="$ctrl.addIdentityForm.email.$error.maxlength">
+                      Email must not be longer than 128 characters.
+                    </p>
+                  </br-input-validation-errors>
+                </br-input>
+                <br-input br-model="$ctrl.passphrase"
+                  br-input-ng-keyup="$event.keyCode === 13 && !$ctrl.loading &&
+                    $ctrl.email && $ctrl.passphrase && $ctrl.add()"
+                  br-options="{
+                    name: 'passphrase',
+                    label: 'Discovery Password',
+                    type: 'password',
+                    helpTogglePosition: 'afterLabel',
+                    showValidation: true,
+                    disabled: {{$ctrl.loading}},
+                    classes: {
+                      label: 'col-sm-12',
+                      content: 'col-sm-12',
+                      help: 'col-sm-12',
+                      validation: 'col-sm-12'
+                    }
+                  }" ng-minlength="6" ng-maxlength="128"
+                    br-input-ng-change="$ctrl.error = null" required>
+                  <br-input-help>
+                    Please enter the password you registered for wallet discovery.
+                  </br-input-help>
+                  <br-input-validation-errors>
+                    <p ng-show="$ctrl.addIdentityForm.passphrase.$error.required">
+                      Password is required.
+                    </p>
+                    <p ng-show="$ctrl.addIdentityForm.passphrase.$error.minlength">
+                      Password is required to be at least 6 characters.
+                    </p>
+                    <p ng-show="$ctrl.addIdentityForm.passphrase.$error.maxlength">
+                      Password must not be longer than 128 characters.
+                    </p>
+                  </br-input-validation-errors>
+                </br-input>
+                <div class="form-group">
+                  <div class="col-sm-12">
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" ng-model="$ctrl.permanent"
+                          style="margin-top: 1px"
+                          br-input-ng-change="$ctrl.error = null">
+                          Remember wallet on this device
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-12 text-danger" style="margin-top: 10px"
+                  ng-show="$ctrl.error">
+                  {{$ctrl.error.message}}
+                </div>
+              </fieldset>
+            </form>
           </div>
-        </fieldset>
-      </form>
-    </div>
-  </br-modal-body>
-  <br-modal-footer>
-    <span ng-show="$ctrl.generating">Please wait, this may take a minute...</span>
-    <span ng-show="$ctrl.loading">
-      <i class="fa fa-refresh fa-spin text-muted"></i>
-    </span>
-    <span>
-      <button type="button" class="btn btn-default aio-button"
-        ng-disabled="$ctrl.loading || !$ctrl.email || !$ctrl.passphrase"
-        ng-click="$ctrl.add()"><i class="fa fa-search"></i> Find</button>
-    </span>
-    <button type="button" class="btn btn-default aio-button stackable-cancel"
-      ng-disabled="$ctrl.loading">Cancel</button>
-  </br-modal-footer>
-</br-modal>
+        </div><!-- /.modal-body -->
+        <div class="modal-footer">
+          <span ng-show="$ctrl.generating">Please wait, this may take a minute...</span>
+          <span ng-show="$ctrl.loading">
+            <i class="fa fa-refresh fa-spin text-muted"></i>
+          </span>
+          <span>
+            <button type="button" class="btn btn-default aio-button"
+              ng-disabled="$ctrl.loading || !$ctrl.email || !$ctrl.passphrase"
+              ng-click="$ctrl.add()"><i class="fa fa-search"></i> Find</button>
+          </span>
+          <button type="button" class="btn btn-default aio-button stackable-cancel"
+            ng-disabled="$ctrl.loading">Cancel</button>
+        </div><!-- /.modal-footer -->
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+</aio-modal>
