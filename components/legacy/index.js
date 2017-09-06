@@ -14,9 +14,7 @@ import PermissionService from './permission-service.js';
 import RegisterComponent from './register-component.js';
 import UtilService from './util-service.js';
 
-const module = angular.module('authio.legacy', [
-  'bedrock.form', 'ngError', 'stackables'
-]);
+const module = angular.module('authio.legacy', ['ngError', 'stackables']);
 
 module.component('aioAgent', AgentComponent);
 module.component('aioFindIdentityModal', FindIdentityModalComponent);
