@@ -158,35 +158,6 @@ aio-modal.aio-native-modal {
 
       & .modal-body {
         padding:15px;
-
-        & .aio-form {
-          & .form-group {
-            margin-bottom: 0;
-          }
-
-          & .help-block {
-            margin-top: 5px;
-            margin-bottom: 5px;
-          }
-
-          & .control-label {
-            text-align: left;
-          }
-
-          & .input-group {
-            display: block;
-            padding-left: 15px;
-            padding-right: 15px;
-          }
-
-          & input.form-control {
-            border-radius: 2px;
-
-            &:focus {
-              box-shadow: none;
-            }
-          }
-        }
       }
 
       & .modal-footer {
@@ -234,8 +205,9 @@ aio-modal.aio-native-modal {
 
 .form-horizontal.aio-form {
   & .control-label {
+    text-align: left;
+
     @media (min-width: 768px) {
-      text-align: left;
       margin-bottom: 5px;
     }
   }
@@ -247,12 +219,26 @@ aio-modal.aio-native-modal {
   }
 
   & .input-group {
+    display: block;
     padding-left: 15px;
     padding-right: 15px;
   }
 
   & .form-control {
     font-size: @aio-native-modal-font-size
+  }
+
+  & .help-block {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+
+  & input.form-control {
+    border-radius: 2px;
+
+    &:focus {
+      box-shadow: none;
+    }
   }
 }
 

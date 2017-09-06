@@ -44,32 +44,30 @@
           <form class="form-horizontal aio-form" name="$ctrl.loginForm"
             style="margin-left: -5px; margin-right: -5px">
             <fieldset>
-              <br-input br-model="$ctrl.password"
-                br-options="{
-                  name: 'password',
-                  label: 'Password',
-                  type: 'password',
-                  helpTogglePosition: 'afterLabel',
-                  showValidation: true,
-                  autofocus: true,
-                  classes: {
-                    label: 'col-sm-12',
-                    content: 'col-sm-12',
-                    help: 'col-sm-12',
-                    validation: 'col-sm-12'
-                  }
-                }" br-input-ng-disabled="$ctrl.authenticating"
-                  br-input-ng-change="$ctrl.authenticationError = ''"
-                  br-input-autofocus required>
-                <br-input-help>
-                  Please enter the password to unlock this identity.
-                </br-input-help>
-                <br-input-validation-errors>
+              <div class="form-group"
+                ng-class="{
+                  'has-error': $ctrl.loginForm.password.$touched &&
+                    $ctrl.loginForm.password.$invalid
+                }">
+                <label class="control-label col-sm-12"
+                  for="password">Discovery Email</label>
+                <div class="input-group col-sm-12">
+                  <input class="form-control" name="password"
+                    ng-model="$ctrl.password"
+                    ng-disabled="$ctrl.authenticating"
+                    ng-change="$ctrl.authenticationError = ''"
+                    ng-click="$event.stopPropagation()"
+                    autofocus required>
+                </div>
+                <div class="col-sm-12 text-danger"
+                  ng-if="$ctrl.loginForm.password.$touched &&
+                    $ctrl.loginForm.password.$invalid"
+                    style="margin-top: 5px">
                   <p ng-show="$ctrl.loginForm.password.$error.required">
                     A password is required to unlock this identity.
                   </p>
-                </br-input-validation-errors>
-              </br-input>
+                </div>
+              </div>
               <p class="col-sm-12 text-danger" style="margin-top: 10px"
                 ng-show="$ctrl.authenticationError">
                 {{$ctrl.authenticationError}}
