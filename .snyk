@@ -1,0 +1,8 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.10.1
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:marked:20170907':
+    - bedrock-docs > raml2html > raml2obj > raml-1-parser > marked:
+        patched: '2018-01-13T01:24:56.259Z'
