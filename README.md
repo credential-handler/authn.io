@@ -60,7 +60,7 @@ environment as needed.
 
 * Setup an admin user on mongodb (see below)
 * Install the dependencies (see below)
-* Map the `authorization.dev` hostname to your localhost.
+* Map the `authorization.localhost` hostname to your localhost.
 
 To setup an admin user on mongodb:
 
@@ -74,7 +74,7 @@ To install dependencies, do the following:
 
 ### Running
 
-Add a host alias (for example, edit `/etc/hosts`) to map `authorization.dev` to
+Add a host alias (for example, edit `/etc/hosts`) to map `authorization.localhost` to
 `localhost`.
 
 Run the following to start up a development server from the source directory:
@@ -89,7 +89,7 @@ To add more verbose debugging, use the `--log-level` option:
 
 Access the server at the following URL:
 
-* https://authorization.dev:33443/
+* https://authorization.localhost:33443/
 
 [authorization.io]: https://authorization.io
 [NASCAR]: https://indiewebcamp.com/NASCAR_problem "The NASCAR Problem"

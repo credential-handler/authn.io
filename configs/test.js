@@ -12,7 +12,7 @@ const path = require('path');
 
 // common paths
 config.paths.cache = path.join(__dirname, '..', '.cache');
-config.paths.log = path.join(os.tmpdir(), 'test.authorization.dev');
+config.paths.log = path.join(os.tmpdir(), 'test.authorization.localhost');
 
 // 0 means use # of cpus
 config.core.workers = 0;
@@ -24,7 +24,7 @@ config.loggers.console.level = 'critical';
 // server info
 config.server.port = 34443;
 config.server.httpPort = 34080;
-config.server.domain = 'authorization.dev';
+config.server.domain = 'authorization.localhost';
 
 // mongodb config
 config.mongodb.name = 'authorizationio_test';
