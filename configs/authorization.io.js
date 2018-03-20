@@ -2,7 +2,7 @@
  * authorization.io production configuration.
  *
  * New BSD License (3-clause)
- * Copyright (c) 2015-2016, Digital Bazaar, Inc.
+ * Copyright (c) 2015-2018, Digital Bazaar, Inc.
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
@@ -45,14 +45,6 @@ config.letsencrypt.mode = 'production';
 config.express.session.key = 'authio.sid';
 config.express.session.prefix = 'authio.';
 
-// database config
-config.mongodb.name = 'authorization_io';
-config.mongodb.host = 'localhost';
-config.mongodb.port = 27017;
-config.mongodb.username = 'authorizationio';
-config.mongodb.adminPrompt = false;
-config.mongodb.local.collection = 'authorization_io';
-
 // view variables
 config.views.brand.name = 'authorization.io';
 config.views.vars.baseUri = config.server.baseUri;
@@ -68,15 +60,3 @@ require('./authorization.io-secrets');
 
 // serve contexts/images/etc
 config.express.static.push(path.join(__dirname, '..', 'static'));
-
-// setup to load contexts locally
-config.views.vars.contextMap[config.constants.SECURITY_CONTEXT_V1_URL] =
-  config.server.baseUri + '/contexts/security-v1.jsonld';
-config.views.vars.contextMap[config.constants.IDENTITY_CONTEXT_V1_URL] =
-  config.server.baseUri + '/contexts/identity-v1.jsonld';
-config.views.vars.contextMap[config.constants.CREDENTIALS_CONTEXT_V1_URL] =
-  config.server.baseUri + '/contexts/credentials-v1.jsonld';
-
-// lower minimum wait time for proofs
-config.authio.proofs.proofOfPatience.minWaitTimeInSecs = 2;
-config.authio.proofs.proofOfPatience.maxWaitTimeInSecs = 3;

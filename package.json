@@ -15,56 +15,28 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "angular-stackables": "^1.2.0",
-    "angular-web-request-mediator": "^0.1.0",
-    "async": "^1.4.2",
-    "base64url": "^2.0.0",
-    "bedrock": "^1.4.1",
-    "bedrock-angular": "^4.0.0",
-    "bedrock-angular-bootstrap": "^1.0.0",
-    "bedrock-docs": "^2.0.0",
-    "bedrock-express": "^2.0.3",
-    "bedrock-letsencrypt": "^0.2.2",
-    "bedrock-mongodb": "^4.0.0",
-    "bedrock-server": "^2.2.0",
-    "bedrock-validation": "^2.1.0",
-    "bedrock-views": "^5.1.0",
-    "bedrock-webpack": "digitalbazaar/bedrock-webpack#excludeLocalForage",
-    "bignumber.js": "^2.1.4",
-    "cors": "^2.7.1",
-    "credential-mediator-polyfill": "^0.1.2",
-    "credentials-polyfill": "^1.1.6",
-    "did-io": "^0.6.1",
+    "angular-stackables": "^1.2.4",
+    "angular-web-request-mediator": "^0.1.3",
+    "bedrock": "^1.9.1",
+    "bedrock-angular": "^4.0.1",
+    "bedrock-express": "^2.0.8",
+    "bedrock-letsencrypt": "^0.2.7",
+    "bedrock-server": "^2.3.1",
+    "bedrock-views": "^5.3.0",
+    "bedrock-webpack": "^1.2.2",
+    "credential-mediator-polyfill": "^0.1.6",
     "font-awesome": "^4.7.0",
-    "jsonld-signatures": "digitalbazaar/jsonld-signatures#multiSignature",
-    "jsonwebtoken": "~7.4.1",
-    "ng-error": "^1.0.2",
-    "node-forge": "~0.7.1",
-    "uuid": "^3.0.0",
-    "web-request-rpc": "^0.1.5"
+    "web-request-rpc": "^0.1.6"
   },
   "bedrock": {
     "browserDependencies": [
+      "angular-stackables",
       "angular-web-request-mediator",
       "bedrock-angular",
       "credential-mediator-polyfill",
       "font-awesome",
       "web-request-rpc"
     ],
-    "systemjs": {
-      "packages": {
-        "node-forge": {
-          "map": {
-            "crypto": "@empty"
-          }
-        },
-        "uuid": {
-          "map": {
-            "./lib/rng.js": "./lib/rng-browser.js"
-          }
-        }
-      }
-    },
     "manifest": {
       "authio": {
         "module": "index.js",
