@@ -7,7 +7,7 @@
         @deny="deny()" @allow="accept()"/>
     </div>
 
-    <div v-if="display === 'credentialRequest'">
+    <div v-else-if="display === 'credentialRequest'">
       <wrm-hint-chooser
         :hints="hintOptions"
         default-hint-icon="fa-user"
@@ -32,7 +32,7 @@
       </wrm-hint-chooser>
     </div>
 
-    <div v-if="display === 'credentialStore'">
+    <div v-else-if="display === 'credentialStore'">
       <wrm-hint-chooser
         :hints="hintOptions"
         default-hint-icon="fa-user"
