@@ -75,7 +75,6 @@ import HandlerWindowHeader from './HandlerWindowHeader.vue';
 import Vue from 'vue';
 
 let deferredCredentialOperation;
-let credentialRequestOptions;
 let resolvePermissionRequest;
 
 export default {
@@ -180,7 +179,6 @@ async function requestPermission(permissionDesc) {
 async function getCredential(operationState) {
   // prep display
   this.display = 'credentialRequest';
-  credentialRequestOptions = operationState.input.credentialRequestOptions;
   this.loading = true;
   const promise = new Promise((resolve, reject) => {
     deferredCredentialOperation = {resolve, reject};
@@ -231,7 +229,7 @@ async function storeCredential(operationState) {
 
 function updateHandlerWindow(handlerWindow) {
   const container = handlerWindow.container;
-  const operation = credentialRequestOptions ? 'request' : 'store';
+  const operation = this.display === 'credentialRequest' ? 'request' : 'store';
   const origin = utils.parseUrl(handlerWindow.iframe.src).hostname;
   const Component = Vue.extend(HandlerWindowHeader);
   const el = document.createElement('div');
