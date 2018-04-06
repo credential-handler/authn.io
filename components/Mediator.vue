@@ -71,6 +71,7 @@
 
 import * as polyfill from 'credential-mediator-polyfill';
 import {utils} from 'web-request-rpc';
+import HandlerWindowHeader from './HandlerWindowHeader.vue';
 import Vue from 'vue';
 
 let deferredCredentialOperation;
@@ -232,15 +233,18 @@ function updateHandlerWindow(handlerWindow) {
   const container = handlerWindow.container;
   const operation = credentialRequestOptions ? 'request' : 'store';
   const origin = utils.parseUrl(handlerWindow.iframe.src).hostname;
+  const Component = Vue.extend(HandlerWindowHeader);
   const el = document.createElement('div');
   container.insertBefore(el, handlerWindow.iframe);
-  new Vue({
+  new Component({
     el,
-    template: `<handler-window-header
-      origin="${origin}"
-      relying-domain="${this.relyingDomain}"
-      operation="${operation}"/>`
+    propsData: {
+      origin,
+      relyingDomain: this.relyingDomain,
+      operation
+    }
   });
+  // TODO: should this be done?
   handlerWindow.iframe.style.background = 'white';
 }
 
