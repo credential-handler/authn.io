@@ -3,32 +3,37 @@
  * Copyright (c) 2017-2018, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import angular from 'angular';
-import * as bedrock from 'bedrock-angular';
-import HandlerWindowHeaderComponent from './handler-window-header-component.js';
-import HomeComponent from './home-component.js';
-import MediatorComponent from './mediator-component.js';
+import * as brVue from 'bedrock-vue';
+import Home from './Home.vue';
+import Mediator from './Mediator.vue';
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+import * as WrmWebRequestMediator from 'vue-web-request-mediator';
 
-'use strict';
+// install all plugins
+Vue.use(brVue);
+Vue.use(WrmWebRequestMediator);
 
-const deps = ['web-request-mediator'];
+brVue.setRootVue(() => {
+  const router = new VueRouter({
+    mode: 'history',
+    routes: [{
+      path: '/',
+      component: Home,
+      meta: {
+        title: 'authorization.io'
+      }
+    }, {
+      path: '/mediator',
+      component: Mediator,
+      meta: {
+        title: 'Credential Mediator'
+      }
+    }]
+  });
 
-const module = angular.module('authio', deps);
-module.component('aioHandlerWindowHeader', HandlerWindowHeaderComponent);
-module.component('aioHome', HomeComponent);
-module.component('aioMediator', MediatorComponent);
-
-bedrock.setRootModule(module);
-
-/* @ngInject */
-module.config($routeProvider => {
-  $routeProvider
-    .when('/', {
-      title: 'authorization.io',
-      template: '<aio-home></aio-home>'
-    })
-    .when('/mediator', {
-      title: 'Credential Mediator',
-      template: '<aio-mediator></aio-mediator>'
-    });
+  return new Vue({
+    template: '<br-app/>',
+    router
+  });
 });
