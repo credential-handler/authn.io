@@ -15,24 +15,24 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "angular-web-request-mediator": "^0.1.3",
     "bedrock": "^1.9.1",
-    "bedrock-angular": "^4.0.1",
     "bedrock-express": "^2.0.8",
     "bedrock-letsencrypt": "^0.2.7",
     "bedrock-server": "^2.3.1",
-    "bedrock-views": "^5.3.0",
+    "bedrock-views": "digitalbazaar/bedrock-views#vue",
+    "bedrock-vue": "digitalbazaar/bedrock-vue#implementation",
     "bedrock-webpack": "^1.2.2",
     "credential-mediator-polyfill": "^0.1.6",
     "font-awesome": "^4.7.0",
+    "vue-web-request-mediator": "digitalbazaar/vue-web-request-mediator#implementation",
     "web-request-rpc": "^0.1.6"
   },
   "bedrock": {
     "browserDependencies": [
-      "angular-web-request-mediator",
-      "bedrock-angular",
+      "bedrock-vue",
       "credential-mediator-polyfill",
       "font-awesome",
+      "vue-web-request-mediator",
       "web-request-rpc"
     ],
     "manifest": {
