@@ -21,7 +21,7 @@
     "bedrock-server": "^2.3.1",
     "bedrock-views": "digitalbazaar/bedrock-views#vue",
     "bedrock-vue": "digitalbazaar/bedrock-vue#implementation",
-    "bedrock-webpack": "^1.2.2",
+    "bedrock-webpack": "digitalbazaar/bedrock-webpack#vue",
     "credential-mediator-polyfill": "^0.1.6",
     "font-awesome": "^4.7.0",
     "vue-web-request-mediator": "digitalbazaar/vue-web-request-mediator#implementation",
