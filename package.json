@@ -7,7 +7,9 @@
   "scripts": {
     "start": "node authorization.dev.js",
     "test": "node authorization.dev.js test",
-    "postinstall": "node authorization.dev.js compile-less"
+    "postinstall": "node authorization.dev.js compile-less",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -25,7 +27,8 @@
     "bedrock-webpack": "^1.2.2",
     "credential-mediator-polyfill": "^0.1.6",
     "font-awesome": "^4.7.0",
-    "web-request-rpc": "^0.1.6"
+    "web-request-rpc": "^0.1.6",
+    "snyk": "^1.83.0"
   },
   "bedrock": {
     "browserDependencies": [
@@ -45,5 +48,6 @@
   "engines": {
     "node": ">=0.10.0"
   },
-  "directories": {}
+  "directories": {},
+  "snyk": true
 }
