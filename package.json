@@ -15,12 +15,13 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "bedrock": "^1.9.1",
+    "bedrock": "^1.12.1",
     "bedrock-express": "^2.0.8",
     "bedrock-letsencrypt": "^0.2.7",
     "bedrock-server": "^2.3.1",
     "bedrock-views": "digitalbazaar/bedrock-views#vue",
     "bedrock-vue": "^1.0.0",
+    "bedrock-web": "^1.0.0",
     "bedrock-webpack": "digitalbazaar/bedrock-webpack#vue",
     "credential-mediator-polyfill": "^0.1.6",
     "font-awesome": "^4.7.0",
@@ -30,6 +31,7 @@
   "bedrock": {
     "browserDependencies": [
       "bedrock-vue",
+      "bedrock-web",
       "credential-mediator-polyfill",
       "font-awesome",
       "vue-web-request-mediator",
