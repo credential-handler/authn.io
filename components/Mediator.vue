@@ -99,7 +99,7 @@ export default {
     this.relyingDomain = utils.parseUrl(this.relyingOrigin).hostname;
 
     if(typeof document.hasStorageAccess === 'function') {
-      this.needsStorageAccess = await document.hasStorageAccess();
+      this.needsStorageAccess = !await document.hasStorageAccess();
     } else {
       this.needsStorageAccess = false;
     }
