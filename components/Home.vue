@@ -1,5 +1,5 @@
 <template>
-  <div style="padding: 5px">
+  <div style="margin: 8px; padding: 5px">
     <h3>Welcome to authorization.io</h3>
     <p>
       This website provides a Credential Mediator polyfill for the W3C CCG

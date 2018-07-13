@@ -11,20 +11,27 @@
       <wrm-hint-chooser
         :hints="hintOptions"
         default-hint-icon="fa-user"
+        :confirm-button="needsStorageAccess"
         @confirm="selectHint"
-        @cancel="cancel()">
+        @cancel="cancel()"
+        @load-hints="loadHints(true)">
         <template slot="header">
-          <div style="padding-right: 10px">
+          <div style="padding-right: 10px; margin-bottom: 5px">
             <strong>{{relyingDomain}}</strong> wants credentials
           </div>
           <div v-if="loading">
-            Loading options...
+            Loading options... <i class="fa fa-circle-o-notch fa-spin"></i>
           </div>
-          <div v-else>
+          <div v-else-if="!needsStorageAccess">
             <div v-if="hintOptions.length === 0">
-              You don't have any matching credentials.
+              <div class="wrm-heading">Warning</div>
+              <div>
+                You don't have the credentials requested by this website.
+                Please check <strong>{{relyingDomain}}</strong> to find out
+                how to obtain the credentials you need to continue.
+              </div>
             </div>
-            <div class="wrm-heading" v-else>
+            <div v-else class="wrm-heading">
               Choose an option to continue
             </div>
           </div>
@@ -36,22 +43,23 @@
       <wrm-hint-chooser
         :hints="hintOptions"
         default-hint-icon="fa-user"
+        :confirm-button="needsStorageAccess"
         @confirm="selectHint"
-        @cancel="cancel()">
+        @cancel="cancel()"
+        @load-hints="loadHints(true)">
         <template slot="header">
-          <div style="padding-right: 10px">
-            <strong>{{relyingDomain}}</strong> wants to store
-            credentials
+          <div style="padding-right: 10px; margin-bottom: 5px">
+            <strong>{{relyingDomain}}</strong> wants to store credentials
           </div>
           <div v-if="loading">
-            Loading provider options...
+            Loading options... <i class="fa fa-circle-o-notch fa-spin"></i>
           </div>
-          <div else>
+          <div v-else-if="!needsStorageAccess">
             <div v-if="hintOptions.length === 0">
               You don't have a digital wallet to store credentials. Please
               visit a digital wallet website to install one.
             </div>
-            <div class="wrm-heading" v-else>
+            <div v-else class="wrm-heading">
               Choose an option to continue
             </div>
           </div>
@@ -79,7 +87,7 @@ let resolvePermissionRequest;
 
 export default {
   name: 'Mediator',
-  created() {
+  async created() {
     if(window.location.ancestorOrigins &&
       window.location.ancestorOrigins.length > 0) {
       this.relyingOrigin = window.location.ancestorOrigins[0];
@@ -90,6 +98,12 @@ export default {
 
     this.relyingDomain = utils.parseUrl(this.relyingOrigin).hostname;
 
+    if(typeof document.hasStorageAccess === 'function') {
+      this.needsStorageAccess = await document.hasStorageAccess();
+    } else {
+      this.needsStorageAccess = false;
+    }
+
     // TODO: is this the appropriate place to run this?
     loadPolyfill(this);
   },
@@ -97,6 +111,8 @@ export default {
     return {
       display: null,
       hintOptions: [],
+      loading: false,
+      needsStorageAccess: false,
       permissions: [{
         name: 'Manage credentials',
         icon: 'fa fa-id-card-o'
@@ -120,6 +136,28 @@ export default {
       this.display = null;
       deferredCredentialOperation.resolve(null);
       await navigator.credentialMediator.hide();
+    },
+    async loadHints(force) {
+      if(!force && this.needsStorageAccess) {
+        this.hintOptions = [];
+        return;
+      }
+      let hintOptions;
+      if(this.credentialRequestOptions) {
+        // get matching hints from request options
+        hintOptions = await navigator.credentialMediator.ui
+          .matchCredentialRequest(this.credentialRequestOptions);
+      } else {
+        // must be a storage request, get hints that match credential
+        hintOptions = await navigator.credentialMediator.ui
+          .matchCredential(this.credential);
+      }
+      this.hintOptions = hintOptions.map(option => ({
+        name: option.credentialHint.name,
+        icon: getIconDataUrl(option.credentialHint),
+        origin: utils.parseUrl(option.credentialHandler).hostname,
+        hintOption: option
+      }));
     },
     async selectHint(event) {
       const self = this;
@@ -150,7 +188,7 @@ export default {
 
 async function loadPolyfill(component) {
   try {
-    await polyfill.load({
+    await polyfill.loadOnce({
       relyingOrigin: component.relyingOrigin,
       requestPermission: requestPermission.bind(component),
       getCredential: getCredential.bind(component),
@@ -179,6 +217,7 @@ async function requestPermission(permissionDesc) {
 async function getCredential(operationState) {
   // prep display
   this.display = 'credentialRequest';
+  this.credentialRequestOptions = operationState.input.credentialRequestOptions;
   this.loading = true;
   const promise = new Promise((resolve, reject) => {
     deferredCredentialOperation = {resolve, reject};
@@ -187,15 +226,7 @@ async function getCredential(operationState) {
   // show display
   await navigator.credentialMediator.show();
 
-  // get matching hints
-  const hintOptions = await navigator.credentialMediator.ui
-    .matchCredentialRequest(operationState.input.credentialRequestOptions);
-  this.hintOptions = hintOptions.map(option => ({
-    name: option.credentialHint.name,
-    icon: getIconDataUrl(option.credentialHint),
-    origin: utils.parseUrl(option.credentialHandler).hostname,
-    hintOption: option
-  }));
+  await this.loadHints();
   this.loading = false;
 
   return promise;
@@ -213,15 +244,7 @@ async function storeCredential(operationState) {
   // show display
   await navigator.credentialMediator.show();
 
-  // get matching hints
-  const hintOptions = await navigator.credentialMediator.ui
-    .matchCredential(operationState.input.credential);
-  this.hintOptions = hintOptions.map(option => ({
-    name: option.credentialHint.name,
-    icon: getIconDataUrl(option.credentialHint),
-    origin: utils.parseUrl(option.credentialHandler).hostname,
-    hintOption: option
-  }));
+  await this.loadHints();
   this.loading = false;
 
   return promise;
