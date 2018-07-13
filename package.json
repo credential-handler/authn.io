@@ -20,11 +20,12 @@
     "bedrock-letsencrypt": "^0.2.7",
     "bedrock-server": "^2.3.1",
     "bedrock-views": "digitalbazaar/bedrock-views#vue",
-    "bedrock-vue": "^1.0.0",
+    "bedrock-vue": "^1.0.3",
     "bedrock-web": "^1.0.0",
     "bedrock-webpack": "digitalbazaar/bedrock-webpack#vue",
-    "credential-mediator-polyfill": "^0.1.6",
+    "credential-mediator-polyfill": "digitalbazaar/credential-mediator-polyfill#webkit-support",
     "font-awesome": "^4.7.0",
+    "tiny-cookie": "^2.1.2",
     "vue-web-request-mediator": "digitalbazaar/vue-web-request-mediator#implementation",
     "web-request-rpc": "^0.1.6"
   },
@@ -34,6 +35,7 @@
       "bedrock-web",
       "credential-mediator-polyfill",
       "font-awesome",
+      "tiny-cookie",
       "vue-web-request-mediator",
       "web-request-rpc"
     ],
@@ -41,11 +43,14 @@
       "authio": {
         "module": "index.js",
         "browser": "index.js"
+      },
+      "font-awesome": {
+        "less": "less/font-awesome.less"
       }
     }
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=8.9.0"
   },
   "directories": {}
 }
