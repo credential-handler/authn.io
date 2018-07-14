@@ -14,7 +14,7 @@
         :confirm-button="needsStorageAccess"
         @confirm="selectHint"
         @cancel="cancel()"
-        @load-hints="loadHints(true)">
+        @load-hints="$event.waitUntil(loadHints())">
         <template slot="header">
           <div style="padding-right: 10px; margin-bottom: 5px">
             <strong>{{relyingDomain}}</strong> wants credentials
@@ -46,7 +46,7 @@
         :confirm-button="needsStorageAccess"
         @confirm="selectHint"
         @cancel="cancel()"
-        @load-hints="loadHints(true)">
+        @load-hints="$event.waitUntil(loadHints())">
         <template slot="header">
           <div style="padding-right: 10px; margin-bottom: 5px">
             <strong>{{relyingDomain}}</strong> wants to store credentials
@@ -98,12 +98,6 @@ export default {
 
     this.relyingDomain = utils.parseUrl(this.relyingOrigin).hostname;
 
-    if(typeof document.hasStorageAccess === 'function') {
-      this.needsStorageAccess = !await document.hasStorageAccess();
-    } else {
-      this.needsStorageAccess = false;
-    }
-
     // TODO: is this the appropriate place to run this?
     loadPolyfill(this);
   },
@@ -137,11 +131,18 @@ export default {
       deferredCredentialOperation.resolve(null);
       await navigator.credentialMediator.hide();
     },
-    async loadHints(force) {
-      if(!force && this.needsStorageAccess) {
+    async loadHints() {
+      if(typeof document.hasStorageAccess === 'function') {
+        this.needsStorageAccess = !await document.hasStorageAccess();
+      } else {
+        this.needsStorageAccess = false;
+      }
+
+      if(this.needsStorageAccess) {
         this.hintOptions = [];
         return;
       }
+
       let hintOptions;
       if(this.credentialRequestOptions) {
         // get matching hints from request options
