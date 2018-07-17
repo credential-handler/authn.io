@@ -87,7 +87,7 @@ let resolvePermissionRequest;
 
 export default {
   name: 'Mediator',
-  async created() {
+  created() {
     if(window.location.ancestorOrigins &&
       window.location.ancestorOrigins.length > 0) {
       this.relyingOrigin = window.location.ancestorOrigins[0];
