@@ -4,8 +4,6 @@
  * All rights reserved.
  */
 import * as brVue from 'bedrock-vue';
-import Home from './Home.vue';
-import Mediator from './Mediator.vue';
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import * as WrmWebRequestMediator from 'vue-web-request-mediator';
@@ -14,18 +12,18 @@ import * as WrmWebRequestMediator from 'vue-web-request-mediator';
 Vue.use(brVue);
 Vue.use(WrmWebRequestMediator);
 
-brVue.setRootVue(() => {
+brVue.setRootVue(async () => {
   const router = new VueRouter({
     mode: 'history',
     routes: [{
       path: '/',
-      component: Home,
+      component: () => import('./Home.vue'),
       meta: {
         title: 'authorization.io'
       }
     }, {
       path: '/mediator',
-      component: Mediator,
+      component: () => import('./Mediator.vue'),
       meta: {
         title: 'Credential Mediator'
       }
