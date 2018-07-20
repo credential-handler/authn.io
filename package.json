@@ -26,7 +26,7 @@
     "credential-mediator-polyfill": "^1.0.0",
     "font-awesome": "^4.7.0",
     "tiny-cookie": "^2.1.2",
-    "vue-web-request-mediator": "digitalbazaar/vue-web-request-mediator#implementation",
+    "vue-web-request-mediator": "^1.0.0",
     "web-request-rpc": "^0.1.6"
   },
   "bedrock": {
