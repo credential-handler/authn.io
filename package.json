@@ -27,7 +27,7 @@
     "font-awesome": "^4.7.0",
     "tiny-cookie": "^2.1.2",
     "vue-web-request-mediator": "^1.0.0",
-    "web-request-rpc": "^0.1.6"
+    "web-request-rpc": "^1.0.0"
   },
   "bedrock": {
     "browserDependencies": [
