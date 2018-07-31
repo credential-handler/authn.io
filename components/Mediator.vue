@@ -10,7 +10,7 @@
     <div v-else-if="display === 'credentialRequest'">
       <wrm-hint-chooser
         :hints="hintOptions"
-        default-hint-icon="fa-user"
+        default-hint-icon="fa-user-circle"
         :confirm-button="needsStorageAccess"
         @confirm="selectHint"
         @cancel="cancel()"
@@ -42,7 +42,7 @@
     <div v-else-if="display === 'credentialStore'">
       <wrm-hint-chooser
         :hints="hintOptions"
-        default-hint-icon="fa-user"
+        default-hint-icon="fa-user-circle"
         :confirm-button="needsStorageAccess"
         @confirm="selectHint"
         @cancel="cancel()"
@@ -112,7 +112,8 @@ export default {
         icon: 'fa fa-id-card-o'
       }],
       relyingDomain: null,
-      relyingOrigin: null
+      relyingOrigin: null,
+      selectedHint: null
     };
   },
   methods: {
@@ -125,6 +126,9 @@ export default {
       resolvePermissionRequest('denied');
       this.display = null;
       await navigator.credentialMediator.hide();
+    },
+    async cancelSelection() {
+      await navigator.credentialMediator.ui.cancelSelectCredentialHint();
     },
     async cancel() {
       this.display = null;
@@ -162,24 +166,34 @@ export default {
     },
     async selectHint(event) {
       const self = this;
+      this.selectedHint = event.hint;
       let _resolve;
       event.waitUntil(new Promise(r => _resolve = r));
 
+      let canceled = false;
       let response;
       try {
         response = await navigator.credentialMediator.ui.selectCredentialHint(
           event.hint.hintOption);
         deferredCredentialOperation.resolve(response);
       } catch(e) {
-        console.error(e);
-        deferredCredentialOperation.reject(e);
+        if(e.name === 'AbortError') {
+          canceled = true;
+        } else {
+          console.error(e);
+          deferredCredentialOperation.reject(e);
+        }
       }
 
-      try {
-        self.display = null;
-        await navigator.credentialMediator.hide();
-      } catch(e) {
-        console.error(e);
+      if(canceled) {
+        this.selectedHint = null;
+      } else {
+        try {
+          self.display = null;
+          await navigator.credentialMediator.hide();
+        } catch(e) {
+          console.error(e);
+        }
       }
 
       _resolve();
@@ -252,8 +266,9 @@ async function storeCredential(operationState) {
 }
 
 function updateHandlerWindow(handlerWindow) {
+  const self = this;
   const container = handlerWindow.container;
-  const operation = this.display === 'credentialRequest' ? 'request' : 'store';
+  const operation = self.display === 'credentialRequest' ? 'request' : 'store';
   const origin = utils.parseUrl(handlerWindow.iframe.src).hostname;
   const Component = Vue.extend(HandlerWindowHeader);
   const el = document.createElement('div');
@@ -262,8 +277,12 @@ function updateHandlerWindow(handlerWindow) {
     el,
     propsData: {
       origin,
-      relyingDomain: this.relyingDomain,
-      operation
+      relyingDomain: self.relyingDomain,
+      operation,
+      hint: self.selectedHint
+    },
+    created() {
+      this.$on('cancel', self.cancelSelection);
     }
   });
   // TODO: should this be done?

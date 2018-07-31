@@ -9,6 +9,59 @@
 // new CSS rules go here
 @fa-font-path: "@{bedrock-module-path}/font-awesome/fonts";
 
+@wrm-header-close-button-size: 24px;
+@wrm-header-close-button-width: (@wrm-header-close-button-size - 1);
+@wrm-header-close-button-height: (@wrm-header-close-button-size - 1);
+@wrm-header-close-x-left: (unit(@wrm-header-close-button-size) / 4);
+@wrm-header-close-x-right: (
+  unit(@wrm-header-close-button-width) - @wrm-header-close-x-left);
+@wrm-header-close-x-stroke-width: 2.5;
+
 .br-body {
   margin: 0;
 };
+
+.wrm-green {
+  color: #188038;
+};
+
+.wrm-header-hint {
+  padding: 5px;
+  margin: 1px 0;
+
+  h6 {
+    color: @wrm-dark-gray;
+    font-size: 11px;
+    margin-top: 4px;
+    margin-bottom: 0;
+  }
+}
+
+.wrm-header-close-button {
+  cursor: pointer;
+  display: block;
+  margin: -11px 0 -14px 0;
+
+  div {
+    display: inline-block;
+    float: right;
+  }
+
+  svg {
+    height: @wrm-header-close-button-height;
+    width: @wrm-header-close-button-width;
+
+    path:nth-of-type(1) {
+      d: path('M@{wrm-header-close-x-left}, @{wrm-header-close-x-left}, @{wrm-header-close-x-right}, @{wrm-header-close-x-right}')
+    }
+    path:nth-of-type(2) {
+      d: path('M@{wrm-header-close-x-left}, @{wrm-header-close-x-right}, @{wrm-header-close-x-right}, @{wrm-header-close-x-left}')
+    }
+
+    path {
+      fill: none;
+      stroke: #777;
+      stroke-width: @wrm-header-close-x-stroke-width;
+    }
+  }
+}
