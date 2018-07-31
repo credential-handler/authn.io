@@ -20,8 +20,8 @@
       <div class="wrm-flex-item wrm-header-close-button" @click="cancel()">
         <div>
           <svg>
-            <path d="M5, 5, 14, 14" />
-            <path d="M5, 14, 14, 5" />
+            <path d="M7, 7, 19, 19" />
+            <path d="M7, 19, 19, 7" />
           </svg>
         </div>
       </div>
