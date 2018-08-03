@@ -119,19 +119,19 @@ export default {
   methods: {
     async accept() {
       resolvePermissionRequest('granted');
-      this.display = null;
+      this.reset();
       await navigator.credentialMediator.hide();
     },
     async deny() {
       resolvePermissionRequest('denied');
-      this.display = null;
+      this.reset();
       await navigator.credentialMediator.hide();
     },
     async cancelSelection() {
       await navigator.credentialMediator.ui.cancelSelectCredentialHint();
     },
     async cancel() {
-      this.display = null;
+      this.reset();
       deferredCredentialOperation.resolve(null);
       await navigator.credentialMediator.hide();
     },
@@ -165,7 +165,6 @@ export default {
       }));
     },
     async selectHint(event) {
-      const self = this;
       this.selectedHint = event.hint;
       let _resolve;
       event.waitUntil(new Promise(r => _resolve = r));
@@ -189,7 +188,7 @@ export default {
         this.selectedHint = null;
       } else {
         try {
-          self.display = null;
+          this.reset();
           await navigator.credentialMediator.hide();
         } catch(e) {
           console.error(e);
@@ -197,6 +196,13 @@ export default {
       }
 
       _resolve();
+    },
+    reset() {
+      this.display = null;
+      this.credentialRequestOptions = this.credential = null;
+      this.hintOptions = [];
+      this.loading = false;
+      this.selectedHint = null;
     }
   }
 };
