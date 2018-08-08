@@ -19,7 +19,7 @@ brVue.setRootVue(async () => {
       path: '/',
       component: () => import('./Home.vue'),
       meta: {
-        title: 'authorization.io'
+        title: 'authn.io'
       }
     }, {
       path: '/mediator',
