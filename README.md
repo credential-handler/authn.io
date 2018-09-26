@@ -1,44 +1,52 @@
 # authorization.io
 
-A solution to the [NASCAR login problem][NASCAR].
+A part of the solution to the [NASCAR login problem][NASCAR].
 
-A live version and demo of this site can be found at [authorization.io][].
+A live version of this site and a link to a demo can be found at
+[beta.authn.io][].
 
-This software enables a person to find their credential curator (previously
-known as their identity provider) using an email address and passphrase known
-to them.
+## Background
 
-In general, the site accomplishes this by providing a Web polyfill to
-enable the decentralized lookup of services associated with a person,
-organization, or entity. It does this by providing a number of HTTP APIs
-that credential curator websites can integrate with as well as front-end
-code that can be used as a polyfill on websites that want to support
-[Identity Credentials][IC]-based login.
+A Credential Handler is an event handler for credential request and
+credential storage events. The [Credential Handler API][] helps
+solve the [Nascar Problem](https://indieweb.org/NASCAR_problem). The
+[Credential Handler API][] enables websites to install Credential Handlers that
+can respond when users visit other websites that request or store credentials.
 
-The goal of this project is to support [Identity Credentials][IC]-based
-login until a more complete Web Decentralized Hashtable (WebDHT) solution
-is standardized at W3C and Web browsers build the capability into the
-core of a browser. While the WebDHT work is a multi-year R&D effort, this
-software is provided as a placeholder so that other work that depends
-on [Identity Credentials][IC] can proceed in parallel.
+For example, a user may visit a website that wants them to login using
+OpenIdConnect, provide an OAuth Token, authenticate using a [DID][], or present
+some [Verifiable Credentials][]. When these other websites use the [Credential
+Handler API][], the user is shown an in-browser selection screen with visual
+representations (e.g. icons and origin information) of only those
+Credential Handlers that they have been previously installed by the user and
+that are compatible with the website's request. Once the user makes a choice,
+the appropriate Credential Handler is loaded and a credential event is sent
+to it.
+
+The Credential Handler receives the event via a
+[Service Worker](https://w3c.github.io/ServiceWorker) or, if the
+[Credential Handler Polyfill][] is used, a simple page with no UI elements is
+loaded that uses the polyfill to receive and respond to the event.
+
+The Credential Handler must respond to the event with a credential that
+fulfills the request. If necessary, the Credential Handler may open a window
+on its website's origin to allow the user to interact with its website prior
+to responding. This UI can be styled and shaped according to the website
+owner's brand using arbitrary JavaScript and HTML like any other webpage.
+
+## Credential Mediator
+
+This software plays the Credential Mediator role described in
+[Credential Handler API][]. It "polyfills" this role by running client-side
+code under a neutral third party origin. There is no "server" component to
+this software, it merely provides browser code that must be run in an
+independent third party origin to mimick the behavior that a behavior that
+implements the [Credential Handler API][] would function.
 
 ## Requirements
 
-- npm v3+
-
-# Core Functionality
-
-This software enables a person to:
-
-1. Create and store a device-specific cryptographic key in local storage.
-2. Create a decentralized identifier (DID), associate that DID with the
-   public key associated in the previous step, and store it in a
-   decentralized identifier document in a decentralized network.
-3. Map an email address / passphrase combination to a decentralized
-   identifier document.
-4. Map a decentralized identifier document to a credential curator.
-5. Proxy read and write requests for credentials between
-   credential issuers, credential consumers, and credential curators.
+- npm v5+
+- node v8.9+
 
 # Development
 
@@ -49,7 +57,6 @@ software on a local development machine.
 
 * node.js
 * npm
-* mongodb
 
 ### Configuration
 
@@ -58,15 +65,8 @@ environment as needed.
 
 ## Setup
 
-* Setup an admin user on mongodb (see below)
 * Install the dependencies (see below)
 * Map the `authorization.localhost` hostname to your localhost.
-
-To setup an admin user on mongodb:
-
-    Enter the mongo shell
-    use admin
-    db.createUser( { user: "admin", pwd: "password", roles: [ "clusterAdmin", "readWriteAnyDatabase", "userAdminAnyDatabase", "dbAdminAnyDatabase"] } )
 
 To install dependencies, do the following:
 
@@ -91,6 +91,12 @@ Access the server at the following URL:
 
 * https://authorization.localhost:33443/
 
-[authorization.io]: https://authorization.io
+[beta.authn.io]: https://beta.authn.io
 [NASCAR]: https://indiewebcamp.com/NASCAR_problem "The NASCAR Problem"
-[IC]: http://opencreds.org/specs/source/identity-credentials/ "Identity Credentials"
+[DID]: https://w3c-ccg.github.io/did-spec
+[Verifiable Credentials]: https://w3c.github.io/vc-data-model
+[Decentralized Identifiers (DIDs)]: https://w3c-ccg.github.io/did-spec
+[Credential Handler API]: https://w3c-ccg.github.io/credential-handler-api
+[Credential Handler API Repo]: https://github.com/w3c-ccg/credential-handler-api
+[Credential Handler API Demo]: https://github.com/digitalbazaar/credential-handler-demo
+[Credential Handler Polyfill]: https://github.com/digitalbazaar/credential-handler-polyfill
