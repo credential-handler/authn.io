@@ -23,11 +23,11 @@
     "bedrock-vue": "^1.1.0",
     "bedrock-web": "^1.0.0",
     "bedrock-webpack": "^2.0.0",
-    "credential-mediator-polyfill": "^1.1.0",
+    "credential-mediator-polyfill": "^1.1.2",
     "font-awesome": "^4.7.0",
     "tiny-cookie": "^2.1.2",
-    "vue-web-request-mediator": "^1.0.0",
-    "web-request-rpc": "^1.0.0"
+    "vue-web-request-mediator": "^1.0.6",
+    "web-request-rpc": "^1.0.3"
   },
   "bedrock": {
     "browserDependencies": [
