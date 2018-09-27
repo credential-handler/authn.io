@@ -131,6 +131,9 @@ export default {
       await navigator.credentialMediator.ui.cancelSelectCredentialHint();
     },
     async cancel() {
+      if(this.selectedHint) {
+        await this.cancelSelection();
+      }
       this.reset();
       deferredCredentialOperation.resolve(null);
       await navigator.credentialMediator.hide();
