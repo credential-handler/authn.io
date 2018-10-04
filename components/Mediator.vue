@@ -156,6 +156,14 @@ export default {
     if(manifest) {
       const icon = getWebAppManifestIcon({manifest, size: HEADER_ICON_SIZE});
       if(icon) {
+        // convert relative `src` URL to absolute
+        if(!icon.src.startsWith('http')) {
+          let src = this.relyingOrigin;
+          if(!icon.src.startsWith('/')) {
+            src += '/';
+          }
+          icon.src = src + icon.src;
+        }
         this.relyingOriginManifestIcon = icon.src;
         this.relyingOriginIconType = 'manifest';
       }
@@ -173,7 +181,7 @@ export default {
       if(this.relyingOriginIconType === 'manifest') {
         return this.relyingOriginManifestIcon;
       }
-      if(this.relyingOriginIconType === 'favicon') {
+      if(this.relyingOriginIconType === 'favicon' && this.relyingOrigin) {
         return `${this.relyingOrigin}/favicon.ico`;
       }
       return null;
@@ -194,7 +202,7 @@ export default {
       relyingOrigin: null,
       selectedHint: null,
       relyingOriginManifestIcon: null,
-      relyingOriginIconType: 'default'
+      relyingOriginIconType: 'favicon'
     };
   },
   methods: {
@@ -412,7 +420,8 @@ function getWebAppManifestIcon({manifest, size}) {
           }
           if(x === size && y === size) {
             // ideal match found
-            return {x, y, src};
+            best = {x, y, src};
+            break;
           }
           const delta = Math.abs(size - x);
           // current icon is best if:
