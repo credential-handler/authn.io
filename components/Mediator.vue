@@ -16,18 +16,41 @@
         @cancel="cancel()"
         @load-hints="$event.waitUntil(loadHints())">
         <template slot="header">
-          <div style="padding-right: 10px; margin-bottom: 5px">
-            <strong>{{relyingDomain}}</strong> wants credentials
+          <div class="wrm-flex-row">
+            <i
+              v-if="relyingOriginIconType === 'default'"
+              style="font-size: 48px; padding-right: 10px"
+              class="fa fa-globe wrm-flex-item"></i>
+            <img
+              v-else-if="relyingOriginIconType !== 'default'"
+              :src="relyingOriginIcon"
+              style="width: 48px; max-height: 48px; padding-right: 10px"
+              class="wrm-flex-item"
+              @error="imageError">
+            <div class="wrm-flex-item-grow">
+              <div style="font-size: 14px">
+                <div>
+                You are sending credentials to
+                </div>
+                <strong>{{relyingOriginName}}</strong>
+              </div>
+              <div>
+                <i class="fa fa-lock wrm-flex-item wrm-green"></i>
+                <span class="wrm-green">https</span><span class="wrm-dark-gray">://{{relyingDomain}}</span>
+              </div>
+            </div>
           </div>
-          <div v-if="loading">
+        </template>
+        <template slot="message">
+          <div v-if="loading" style="padding: 10px 0">
             Loading options... <i class="fa fa-circle-o-notch fa-spin"></i>
           </div>
-          <div v-else-if="!needsStorageAccess">
+          <div v-else-if="!needsStorageAccess" style="padding: 2px 0">
             <div v-if="hintOptions.length === 0">
               <div class="wrm-heading">Warning</div>
               <div>
                 You don't have the credentials requested by this website.
-                Please check <strong>{{relyingDomain}}</strong> to find out
+                Please check <strong>{{relyingOriginName}}</strong> to find out
                 how to obtain the credentials you need to continue.
               </div>
             </div>
@@ -48,13 +71,36 @@
         @cancel="cancel()"
         @load-hints="$event.waitUntil(loadHints())">
         <template slot="header">
-          <div style="padding-right: 10px; margin-bottom: 5px">
-            <strong>{{relyingDomain}}</strong> wants to store credentials
+          <div class="wrm-flex-row">
+            <i
+              v-if="relyingOriginIconType === 'default'"
+              style="font-size: 48px; padding-right: 10px"
+              class="fa fa-globe wrm-flex-item"></i>
+            <img
+              v-else-if="relyingOriginIconType !== 'default'"
+              :src="relyingOriginIcon"
+              style="width: 48px; max-height: 48px; padding-right: 10px"
+              class="wrm-flex-item"
+              @error="imageError">
+            <div class="wrm-flex-item-grow">
+              <span style="font-size: 14px">
+                <div>
+                You are receiving credentials from
+                </div>
+                <strong>{{relyingOriginName}}</strong>
+              </span>
+              <div>
+                <i class="fa fa-lock wrm-flex-item wrm-green"></i>
+                <span class="wrm-green">https</span><span class="wrm-dark-gray">://{{relyingDomain}}</span>
+              </div>
+            </div>
           </div>
-          <div v-if="loading">
+        </template>
+        <template slot="message">
+          <div v-if="loading" style="padding: 10px 0">
             Loading options... <i class="fa fa-circle-o-notch fa-spin"></i>
           </div>
-          <div v-else-if="!needsStorageAccess">
+          <div v-else-if="!needsStorageAccess" style="padding: 2px 0">
             <div v-if="hintOptions.length === 0">
               You don't have a digital wallet to store credentials. Please
               visit a digital wallet website to install one.
@@ -78,6 +124,7 @@
 'use strict';
 
 import * as polyfill from 'credential-mediator-polyfill';
+import axios from 'axios';
 import {utils} from 'web-request-rpc';
 import HandlerWindowHeader from './HandlerWindowHeader.vue';
 import Vue from 'vue';
@@ -85,9 +132,11 @@ import Vue from 'vue';
 let deferredCredentialOperation;
 let resolvePermissionRequest;
 
+const HEADER_ICON_SIZE = 48;
+
 export default {
   name: 'Mediator',
-  created() {
+  async created() {
     if(window.location.ancestorOrigins &&
       window.location.ancestorOrigins.length > 0) {
       this.relyingOrigin = window.location.ancestorOrigins[0];
@@ -100,6 +149,35 @@ export default {
 
     // TODO: is this the appropriate place to run this?
     loadPolyfill(this);
+
+    // attempt to load web app manifest icon
+    const manifest = await getWebAppManifest(this.relyingDomain);
+    this.relyingOriginManifest = manifest;
+    if(manifest) {
+      const icon = getWebAppManifestIcon({manifest, size: HEADER_ICON_SIZE});
+      if(icon) {
+        this.relyingOriginManifestIcon = icon.src;
+        this.relyingOriginIconType = 'manifest';
+      }
+    }
+  },
+  computed: {
+    relyingOriginName() {
+      if(!this.relyingOriginManifest) {
+        return this.relyingDomain;
+      }
+      const {name, short_name} = this.relyingOriginManifest;
+      return name || short_name || this.relyingDomain;
+    },
+    relyingOriginIcon() {
+      if(this.relyingOriginIconType === 'manifest') {
+        return this.relyingOriginManifestIcon;
+      }
+      if(this.relyingOriginIconType === 'favicon') {
+        return `${this.relyingOrigin}/favicon.ico`;
+      }
+      return null;
+    }
   },
   data() {
     return {
@@ -111,9 +189,12 @@ export default {
         name: 'Manage credentials',
         icon: 'fa fa-id-card-o'
       }],
+      relyingOriginManifest: null,
       relyingDomain: null,
       relyingOrigin: null,
-      selectedHint: null
+      selectedHint: null,
+      relyingOriginManifestIcon: null,
+      relyingOriginIconType: 'default'
     };
   },
   methods: {
@@ -137,6 +218,13 @@ export default {
       this.reset();
       deferredCredentialOperation.resolve(null);
       await navigator.credentialMediator.hide();
+    },
+    async imageError() {
+      if(this.relyingOriginIconType === 'manifest') {
+        this.relyingOriginIconType = 'favicon';
+      } else {
+        this.relyingOriginIconType = 'default';
+      }
     },
     async loadHints() {
       if(typeof document.hasStorageAccess === 'function') {
@@ -305,6 +393,51 @@ function getIconDataUrl(credentialHint) {
   }
   return null;
 }
+
+function getWebAppManifestIcon({manifest, size}) {
+  let best = null;
+  // find largest square icon that is at least 48px wide
+  if(manifest && manifest.icons) {
+    for(const icon of manifest.icons) {
+      try {
+        const {sizes, src} = icon;
+        if(typeof sizes === 'string' && typeof src === 'string') {
+          let [x, y] = sizes.split('x');
+          x = parseInt(x, 10);
+          y = parseInt(y, 10);
+          if(x !== y) {
+            // skip non-square icons
+            // TODO: allow rectangular icons in some cases?
+            continue;
+          }
+          if(x === size && y === size) {
+            // ideal match found
+            return {x, y, src};
+          }
+          const delta = Math.abs(size - x);
+          // current icon is best if:
+          // 1. no icon chosen yet, OR
+          // 2. best icon is smaller than `size` and current is not, OR
+          // 3. current icon is closer to `size` than best icon so far
+          if(!best || (best.x < 48 && x >= 48) || delta < best.delta) {
+            best = {x, y, src, delta};
+          }
+        }
+      } catch(e) {}
+    }
+  }
+  return best;
+}
+
+async function getWebAppManifest(origin) {
+  try {
+    const response = await axios.get('/manifest', {params: {origin}});
+    return response.data;
+  } catch(e) {
+    return null;
+  }
+}
+
 </script>
 <style>
 </style>
