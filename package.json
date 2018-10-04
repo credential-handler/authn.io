@@ -36,6 +36,7 @@
   },
   "bedrock": {
     "browserDependencies": [
+      "axios",
       "bedrock-vue",
       "bedrock-web",
       "credential-mediator-polyfill",
@@ -48,6 +49,9 @@
       "authio": {
         "module": "index.js",
         "browser": "index.js"
+      },
+      "axios": {
+        "main": "dist/axios.min.js"
       },
       "font-awesome": {
         "less": "less/font-awesome.less"
