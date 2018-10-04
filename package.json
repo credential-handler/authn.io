@@ -15,6 +15,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
+    "axios": "^0.18.0",
     "bedrock": "^1.12.1",
     "bedrock-express": "^2.0.8",
     "bedrock-letsencrypt": "^0.2.7",
@@ -24,7 +25,10 @@
     "bedrock-web": "^1.0.0",
     "bedrock-webpack": "^2.0.0",
     "credential-mediator-polyfill": "^1.1.2",
+    "express-async-handler": "^1.1.4",
     "font-awesome": "^4.7.0",
+    "http-cache-semantics": "^4.0.0",
+    "lru-cache": "^4.1.3",
     "tiny-cookie": "^2.1.2",
     "vue-web-request-mediator": "^1.0.6",
     "web-request-rpc": "^1.0.3"
