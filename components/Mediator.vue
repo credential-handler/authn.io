@@ -16,30 +16,11 @@
         @cancel="cancel()"
         @load-hints="$event.waitUntil(loadHints())">
         <template slot="header">
-          <div class="wrm-flex-row">
-            <i
-              v-if="relyingOriginIconType === 'default'"
-              style="font-size: 48px; padding-right: 10px"
-              class="fa fa-globe wrm-flex-item"></i>
-            <img
-              v-else-if="relyingOriginIconType !== 'default'"
-              :src="relyingOriginIcon"
-              style="width: 48px; max-height: 48px; padding-right: 10px"
-              class="wrm-flex-item"
-              @error="imageError">
-            <div class="wrm-flex-item-grow">
-              <div style="font-size: 14px">
-                <div>
-                You are sending credentials to
-                </div>
-                <strong>{{relyingOriginName}}</strong>
-              </div>
-              <div>
-                <i class="fa fa-lock wrm-flex-item wrm-green"></i>
-                <span class="wrm-green">https</span><span class="wrm-dark-gray">://{{relyingDomain}}</span>
-              </div>
-            </div>
-          </div>
+          <wrm-origin-card
+            :origin="relyingOrigin"
+            :manifest="relyingOriginManifest">
+            <template slot="task">You are sending credentials to</template>
+          </wrm-origin-card>
         </template>
         <template slot="message">
           <div v-if="loading" style="padding: 10px 0">
@@ -71,30 +52,11 @@
         @cancel="cancel()"
         @load-hints="$event.waitUntil(loadHints())">
         <template slot="header">
-          <div class="wrm-flex-row">
-            <i
-              v-if="relyingOriginIconType === 'default'"
-              style="font-size: 48px; padding-right: 10px"
-              class="fa fa-globe wrm-flex-item"></i>
-            <img
-              v-else-if="relyingOriginIconType !== 'default'"
-              :src="relyingOriginIcon"
-              style="width: 48px; max-height: 48px; padding-right: 10px"
-              class="wrm-flex-item"
-              @error="imageError">
-            <div class="wrm-flex-item-grow">
-              <span style="font-size: 14px">
-                <div>
-                You are receiving credentials from
-                </div>
-                <strong>{{relyingOriginName}}</strong>
-              </span>
-              <div>
-                <i class="fa fa-lock wrm-flex-item wrm-green"></i>
-                <span class="wrm-green">https</span><span class="wrm-dark-gray">://{{relyingDomain}}</span>
-              </div>
-            </div>
-          </div>
+          <wrm-origin-card
+            :origin="relyingOrigin"
+            :manifest="relyingOriginManifest">
+            <template slot="task">You are receiving credentials from</template>
+          </wrm-origin-card>
         </template>
         <template slot="message">
           <div v-if="loading" style="padding: 10px 0">
@@ -153,21 +115,6 @@ export default {
     // attempt to load web app manifest icon
     const manifest = await getWebAppManifest(this.relyingDomain);
     this.relyingOriginManifest = manifest;
-    if(manifest) {
-      const icon = getWebAppManifestIcon({manifest, size: HEADER_ICON_SIZE});
-      if(icon) {
-        // convert relative `src` URL to absolute
-        if(!icon.src.startsWith('http')) {
-          let src = this.relyingOrigin;
-          if(!icon.src.startsWith('/')) {
-            src += '/';
-          }
-          icon.src = src + icon.src;
-        }
-        this.relyingOriginManifestIcon = icon.src;
-        this.relyingOriginIconType = 'manifest';
-      }
-    }
   },
   computed: {
     relyingOriginName() {
@@ -176,15 +123,6 @@ export default {
       }
       const {name, short_name} = this.relyingOriginManifest;
       return name || short_name || this.relyingDomain;
-    },
-    relyingOriginIcon() {
-      if(this.relyingOriginIconType === 'manifest') {
-        return this.relyingOriginManifestIcon;
-      }
-      if(this.relyingOriginIconType === 'favicon' && this.relyingOrigin) {
-        return `${this.relyingOrigin}/favicon.ico`;
-      }
-      return null;
     }
   },
   data() {
@@ -197,12 +135,10 @@ export default {
         name: 'Manage credentials',
         icon: 'fa fa-id-card-o'
       }],
-      relyingOriginManifest: null,
       relyingDomain: null,
       relyingOrigin: null,
-      selectedHint: null,
-      relyingOriginManifestIcon: null,
-      relyingOriginIconType: 'favicon'
+      relyingOriginManifest: null,
+      selectedHint: null
     };
   },
   methods: {
@@ -226,13 +162,6 @@ export default {
       this.reset();
       deferredCredentialOperation.resolve(null);
       await navigator.credentialMediator.hide();
-    },
-    async imageError() {
-      if(this.relyingOriginIconType === 'manifest') {
-        this.relyingOriginIconType = 'favicon';
-      } else {
-        this.relyingOriginIconType = 'default';
-      }
     },
     async loadHints() {
       if(typeof document.hasStorageAccess === 'function') {
@@ -400,42 +329,6 @@ function getIconDataUrl(credentialHint) {
     // return icon.fetchedImage;
   }
   return null;
-}
-
-function getWebAppManifestIcon({manifest, size}) {
-  let best = null;
-  // find largest square icon that is at least 48px wide
-  if(manifest && manifest.icons) {
-    for(const icon of manifest.icons) {
-      try {
-        const {sizes, src} = icon;
-        if(typeof sizes === 'string' && typeof src === 'string') {
-          let [x, y] = sizes.split('x');
-          x = parseInt(x, 10);
-          y = parseInt(y, 10);
-          if(x !== y) {
-            // skip non-square icons
-            // TODO: allow rectangular icons in some cases?
-            continue;
-          }
-          if(x === size && y === size) {
-            // ideal match found
-            best = {x, y, src};
-            break;
-          }
-          const delta = Math.abs(size - x);
-          // current icon is best if:
-          // 1. no icon chosen yet, OR
-          // 2. best icon is smaller than `size` and current is not, OR
-          // 3. current icon is closer to `size` than best icon so far
-          if(!best || (best.x < 48 && x >= 48) || delta < best.delta) {
-            best = {x, y, src, delta};
-          }
-        }
-      } catch(e) {}
-    }
-  }
-  return best;
 }
 
 async function getWebAppManifest(origin) {
