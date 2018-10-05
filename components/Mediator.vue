@@ -87,14 +87,13 @@
 
 import * as polyfill from 'credential-mediator-polyfill';
 import axios from 'axios';
+import {getWebAppManifestIcon} from 'vue-web-request-mediator';
 import {utils} from 'web-request-rpc';
 import HandlerWindowHeader from './HandlerWindowHeader.vue';
 import Vue from 'vue';
 
 let deferredCredentialOperation;
 let resolvePermissionRequest;
-
-const HEADER_ICON_SIZE = 48;
 
 export default {
   name: 'Mediator',
@@ -185,12 +184,41 @@ export default {
         hintOptions = await navigator.credentialMediator.ui
           .matchCredential(this.credential);
       }
-      this.hintOptions = hintOptions.map(option => ({
-        name: option.credentialHint.name,
-        icon: getIconDataUrl(option.credentialHint),
-        origin: utils.parseUrl(option.credentialHandler).hostname,
-        hintOption: option
-      }));
+
+      // get unique credential handlers
+      const handlers = [...new Set(hintOptions.map(
+        ({credentialHandler}) => credentialHandler))];
+      // create hints for each unique origin
+      this.hintOptions = await Promise.all(handlers.map(
+        async credentialHandler => {
+          const origin = utils.parseUrl(credentialHandler).hostname;
+          const manifest = (await getWebAppManifest(origin)) || {};
+          const name = manifest.name || manifest.short_name || origin;
+          let icon = getWebAppManifestIcon({manifest, origin, size: 32});
+          if(icon) {
+            icon = {fetchedImage: icon.src};
+          }
+          return {
+            name,
+            icon,
+            origin,
+            hintOption: {
+              credentialHandler,
+              credentialHintKey: null
+            }
+          };
+        }));
+
+      // this.hintOptions = await Promise.all(hintOptions.map(async option => {
+      //   const origin = utils.parseUrl(option.credentialHandler).hostname;
+      //   const icon = await getIcon(origin);
+      //   return {
+      //     name: option.credentialHint.name,
+      //     icon,
+      //     origin,
+      //     hintOption: option
+      //   };
+      // }));
     },
     async selectHint(event) {
       this.selectedHint = event.hint;
@@ -323,12 +351,15 @@ function updateHandlerWindow(handlerWindow) {
   handlerWindow.iframe.style.background = 'white';
 }
 
-function getIconDataUrl(credentialHint) {
-  if(credentialHint.icons.length > 0) {
-    // TODO: choose appropriately sized icon
-    // return icon.fetchedImage;
+async function getIcon(origin) {
+  // TODO: fetch web manifest for credentialHint.origin
+  console.log('get icon for origin', origin);
+  const manifest = await getWebAppManifest(origin);
+  const icon = getWebAppManifestIcon({manifest, origin, size: 32});
+  if(icon) {
+    return {fetchedImage: icon.src};
   }
-  return null;
+  return icon;
 }
 
 async function getWebAppManifest(origin) {
