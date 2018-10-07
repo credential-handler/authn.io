@@ -36,7 +36,7 @@
               </div>
             </div>
             <div v-else class="wrm-heading">
-              Choose an option to continue
+              Choose a credential wallet to continue
             </div>
           </div>
         </template>
@@ -68,7 +68,7 @@
               visit a digital wallet website to install one.
             </div>
             <div v-else class="wrm-heading">
-              Choose an option to continue
+              Choose a credential wallet to continue
             </div>
           </div>
         </template>
@@ -208,17 +208,6 @@ export default {
             }
           };
         }));
-
-      // this.hintOptions = await Promise.all(hintOptions.map(async option => {
-      //   const origin = utils.parseUrl(option.credentialHandler).hostname;
-      //   const icon = await getIcon(origin);
-      //   return {
-      //     name: option.credentialHint.name,
-      //     icon,
-      //     origin,
-      //     hintOption: option
-      //   };
-      // }));
     },
     async selectHint(event) {
       this.selectedHint = event.hint;
