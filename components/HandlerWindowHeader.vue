@@ -16,7 +16,7 @@
         <span v-else>share credentials</span>
         <h6>
           <i class="fa fa-lock wrm-flex-item wrm-green"></i>
-          <span class="wrm-green">https</span>://{{hint.origin}}
+          <span class="wrm-green">https</span>://{{hint.origin.substr(8)}}
         </h6>
       </div>
       <div class="wrm-flex-item wrm-header-close-button" @click="cancel()">
