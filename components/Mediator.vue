@@ -10,7 +10,7 @@
     <div v-else-if="display === 'credentialRequest'">
       <wrm-hint-chooser
         :hints="hintOptions"
-        default-hint-icon="fa-user-circle"
+        default-hint-icon="fa-wallet"
         :confirm-button="needsStorageAccess"
         @confirm="selectHint"
         @cancel="cancel()"
@@ -24,7 +24,7 @@
         </template>
         <template slot="message">
           <div v-if="loading" style="padding: 10px 0">
-            Loading options... <i class="fa fa-circle-o-notch fa-spin"></i>
+            Loading options... <i class="fas fa-cog fa-spin"></i>
           </div>
           <div v-else-if="!needsStorageAccess" style="padding: 2px 0">
             <div v-if="hintOptions.length === 0">
@@ -46,7 +46,7 @@
     <div v-else-if="display === 'credentialStore'">
       <wrm-hint-chooser
         :hints="hintOptions"
-        default-hint-icon="fa-user-circle"
+        default-hint-icon="fa-wallet"
         :confirm-button="needsStorageAccess"
         @confirm="selectHint"
         @cancel="cancel()"
@@ -60,7 +60,7 @@
         </template>
         <template slot="message">
           <div v-if="loading" style="padding: 10px 0">
-            Loading options... <i class="fa fa-circle-o-notch fa-spin"></i>
+            Loading options... <i class="fas fa-cog fa-spin"></i>
           </div>
           <div v-else-if="!needsStorageAccess" style="padding: 2px 0">
             <div v-if="hintOptions.length === 0">
@@ -132,7 +132,7 @@ export default {
       needsStorageAccess: false,
       permissions: [{
         name: 'Manage credentials',
-        icon: 'fa fa-id-card-o'
+        icon: 'fas fa-id-card'
       }],
       relyingDomain: null,
       relyingOrigin: null,
