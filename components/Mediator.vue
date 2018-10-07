@@ -191,9 +191,9 @@ export default {
       // create hints for each unique origin
       this.hintOptions = await Promise.all(handlers.map(
         async credentialHandler => {
-          const origin = utils.parseUrl(credentialHandler).hostname;
-          const manifest = (await getWebAppManifest(origin)) || {};
-          const name = manifest.name || manifest.short_name || origin;
+          const {origin, host} = utils.parseUrl(credentialHandler);
+          const manifest = (await getWebAppManifest(host)) || {};
+          const name = manifest.name || manifest.short_name || host;
           let icon = getWebAppManifestIcon({manifest, origin, size: 32});
           if(icon) {
             icon = {fetchedImage: icon.src};
@@ -341,19 +341,18 @@ function updateHandlerWindow(handlerWindow) {
 }
 
 async function getIcon(origin) {
-  // TODO: fetch web manifest for credentialHint.origin
-  console.log('get icon for origin', origin);
   const manifest = await getWebAppManifest(origin);
   const icon = getWebAppManifestIcon({manifest, origin, size: 32});
   if(icon) {
+    // TODO: cache fetched image as data URL?
     return {fetchedImage: icon.src};
   }
   return icon;
 }
 
-async function getWebAppManifest(origin) {
+async function getWebAppManifest(host) {
   try {
-    const response = await axios.get('/manifest', {params: {origin}});
+    const response = await axios.get('/manifest', {params: {host}});
     return response.data;
   } catch(e) {
     return null;

@@ -16,3 +16,6 @@ config.paths.log = path.join(os.tmpdir(), 'authorization.localhost');
 
 // serve contexts/images/etc
 config.express.static.push(path.join(__dirname, '..', 'static'));
+
+// do not require strict SSL in dev mode
+config.jsonld.strictSSL = false;
