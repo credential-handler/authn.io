@@ -24,6 +24,7 @@
     "bedrock-vue": "^1.1.0",
     "bedrock-web": "^1.0.0",
     "bedrock-webpack": "^2.0.0",
+    "content-type": "^1.0.4",
     "credential-mediator-polyfill": "^1.1.2",
     "express-async-handler": "^1.1.4",
     "font-awesome": "^4.7.0",
