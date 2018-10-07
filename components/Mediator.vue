@@ -9,6 +9,7 @@
 
     <div v-else-if="display === 'credentialRequest'">
       <wrm-hint-chooser
+        v-if="showHintChooser"
         :hints="hintOptions"
         default-hint-icon="fa-wallet"
         :confirm-button="needsStorageAccess"
@@ -40,11 +41,24 @@
             </div>
           </div>
         </template>
+        <template slot="hint-list-footer">
+          <wrm-checkbox
+            checkbox-class="wrm-blue"
+            checkbox-style="
+              font-size: 14px;
+              margin: 10px -15px 0px -15px;
+              padding: 15px 15px 0px 15px;
+              border-top: 1px solid #aaa"
+            label="Remember my choice for this site"
+            labelClass="wrm-dark-gray"
+            v-model="rememberChoice" />
+        </template>
       </wrm-hint-chooser>
     </div>
 
     <div v-else-if="display === 'credentialStore'">
       <wrm-hint-chooser
+        v-if="showHintChooser"
         :hints="hintOptions"
         default-hint-icon="fa-wallet"
         :confirm-button="needsStorageAccess"
@@ -72,6 +86,18 @@
             </div>
           </div>
         </template>
+        <template slot="hint-list-footer">
+          <wrm-checkbox
+            checkbox-class="wrm-blue"
+            checkbox-style="
+              font-size: 14px;
+              margin: 10px -15px 0px -15px;
+              padding: 15px 15px 0px 15px;
+              border-top: 1px solid #aaa"
+            label="Remember my choice for this site"
+            labelClass="wrm-dark-gray"
+            v-model="rememberChoice" />
+        </template>
       </wrm-hint-chooser>
     </div>
   </div>
@@ -87,6 +113,7 @@
 
 import * as polyfill from 'credential-mediator-polyfill';
 import axios from 'axios';
+import {getSessionChoice, setSessionChoice} from './sessionChoice.js';
 import {getWebAppManifestIcon} from 'vue-web-request-mediator';
 import {utils} from 'web-request-rpc';
 import HandlerWindowHeader from './HandlerWindowHeader.vue';
@@ -126,6 +153,7 @@ export default {
   },
   data() {
     return {
+      rememberChoice: true,
       display: null,
       hintOptions: [],
       loading: false,
@@ -137,7 +165,8 @@ export default {
       relyingDomain: null,
       relyingOrigin: null,
       relyingOriginManifest: null,
-      selectedHint: null
+      selectedHint: null,
+      showHintChooser: false
     };
   },
   methods: {
@@ -208,11 +237,29 @@ export default {
             }
           };
         }));
+
+      // check to see if there is a reusable choice from this session
+      const hint = getSessionChoice({hintOptions: this.hintOptions});
+      if(hint) {
+        this.selectHint({
+          hint,
+          waitUntil() {}
+        });
+      } else {
+        this.showHintChooser = true;
+      }
     },
     async selectHint(event) {
       this.selectedHint = event.hint;
       let _resolve;
       event.waitUntil(new Promise(r => _resolve = r));
+
+      // save choice for session
+      let {credentialHandler} = event.hint.hintOption;
+      if(!this.rememberChoice) {
+        credentialHandler = null;
+      }
+      setSessionChoice({credentialHandler});
 
       let canceled = false;
       let response;
@@ -231,6 +278,9 @@ export default {
 
       if(canceled) {
         this.selectedHint = null;
+        // clear session choice
+        setSessionChoice({credentialHandler: null});
+        this.showHintChooser = true;
       } else {
         try {
           this.reset();
@@ -248,6 +298,7 @@ export default {
       this.hintOptions = [];
       this.loading = false;
       this.selectedHint = null;
+      this.showHintChooser = false;
     }
   }
 };
@@ -285,6 +336,7 @@ async function getCredential(operationState) {
   this.display = 'credentialRequest';
   this.credentialRequestOptions = operationState.input.credentialRequestOptions;
   this.loading = true;
+  this.showHintChooser = false;
   const promise = new Promise((resolve, reject) => {
     deferredCredentialOperation = {resolve, reject};
   });
@@ -303,6 +355,7 @@ async function storeCredential(operationState) {
   this.display = 'credentialStore';
   this.credential = operationState.input.credential;
   this.loading = true;
+  this.showHintChooser = false;
   const promise = new Promise((resolve, reject) => {
     deferredCredentialOperation = {resolve, reject};
   });
@@ -338,16 +391,6 @@ function updateHandlerWindow(handlerWindow) {
   });
   // TODO: should this be done?
   handlerWindow.iframe.style.background = 'white';
-}
-
-async function getIcon(origin) {
-  const manifest = await getWebAppManifest(origin);
-  const icon = getWebAppManifestIcon({manifest, origin, size: 32});
-  if(icon) {
-    // TODO: cache fetched image as data URL?
-    return {fetchedImage: icon.src};
-  }
-  return icon;
 }
 
 async function getWebAppManifest(host) {
