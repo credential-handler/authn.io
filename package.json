@@ -31,7 +31,7 @@
     "http-cache-semantics": "^4.0.0",
     "lru-cache": "^4.1.3",
     "tiny-cookie": "^2.1.2",
-    "vue-web-request-mediator": "^1.0.6",
+    "vue-web-request-mediator": "^1.1.0",
     "web-request-rpc": "^1.0.3"
   },
   "bedrock": {
