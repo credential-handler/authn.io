@@ -389,6 +389,12 @@ function updateHandlerWindow(handlerWindow) {
       this.$on('cancel', self.cancelSelection);
     }
   });
+  // header height is 60px + 4 padding + 1 border -- must be calculated
+  // here to move iframe down because iframe must be fixed for proper layout
+  // on mobile
+  const headerHeight = '65px';
+  handlerWindow.iframe.style.top = headerHeight;
+  handlerWindow.iframe.style.height = `calc(100% - ${headerHeight})`;
   // TODO: should this be done?
   handlerWindow.iframe.style.background = 'white';
 }
