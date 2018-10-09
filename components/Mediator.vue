@@ -153,7 +153,7 @@ export default {
   },
   data() {
     return {
-      rememberChoice: true,
+      rememberChoice: false,
       display: null,
       hintOptions: [],
       loading: false,
