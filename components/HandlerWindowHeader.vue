@@ -14,19 +14,12 @@
         You are using <strong>{{hint.name}}</strong> to
         <span v-if="operation === 'store'">store credentials</span>
         <span v-else>share credentials</span>
-        <h6 class="wrm-ellipsis">
+        <h6>
           <i class="fas fa-lock wrm-flex-item wrm-green"></i>
           <span class="wrm-green">https</span>://{{hint.origin.substr(8)}}
         </h6>
       </div>
-      <div class="wrm-flex-item wrm-header-close-button" @click="cancel()">
-        <div>
-          <svg>
-            <path d="M7, 7, 19, 19" />
-            <path d="M7, 19, 19, 7" />
-          </svg>
-        </div>
-      </div>
+      <wrm-header-close-button @click.native="cancel()" />
     </div>
   </div>
 </template>
