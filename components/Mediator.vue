@@ -41,17 +41,17 @@
             </div>
           </div>
         </template>
-        <template slot="hint-list-footer">
-          <wrm-checkbox
-            checkbox-class="wrm-blue"
-            checkbox-style="
-              font-size: 14px;
-              margin: 10px -15px 0px -15px;
-              padding: 15px 15px 0px 15px;
-              border-top: 1px solid #aaa"
-            label="Remember my choice for this site"
-            labelClass="wrm-dark-gray"
-            v-model="rememberChoice" />
+        <template slot="hint-list-footer" v-if="hintOptions.length > 0">
+          <div
+            style="margin: 10px -15px 0px -15px; padding: 15px 15px 0px 15px;"
+            class="wrm-separator wrm-modern">
+            <wrm-checkbox
+              checkbox-class="wrm-blue"
+              checkbox-style="font-size: 14px"
+              label="Remember my choice for this site"
+              labelClass="wrm-dark-gray"
+              v-model="rememberChoice" />
+          </div>
         </template>
       </wrm-hint-chooser>
     </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="wrm-panel" style="height: 60px">
+  <div class="wrm-panel wrm-modern" style="height: 60px">
     <div
       class="wrm-flex-row wrm-header-hint"
       style="padding: 5px; margin: 1px 0">
