@@ -49,14 +49,14 @@
     <div
       v-else
       class="wrm-flex-column-stretch wrm-ellipsis"
-      style="width: 100%"
+      style="width: 100%; padding-left: 5px"
       @click="showDetails=!showDetails">
       <div style="font-weight: bold">
         Credential {{repositoryLabel}}:
       </div>
       <wrm-origin
         class="wrm-flex-item-grow"
-        style="margin-bottom: 5px"
+        style="margin-bottom: 10px"
         :origin="fields.wallet.origin" />
       <div style="font-weight: bold">
         Website:
