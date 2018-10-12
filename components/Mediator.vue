@@ -20,7 +20,7 @@
           <wrm-origin-card
             :origin="relyingOrigin"
             :manifest="relyingOriginManifest">
-            <template slot="task">You are sending credentials to</template>
+            <template slot="task">Send credentials to</template>
           </wrm-origin-card>
         </template>
         <template slot="message">
@@ -37,7 +37,7 @@
               </div>
             </div>
             <div v-else class="wrm-heading">
-              Choose a credential wallet to continue
+              Choose credential provider to continue
             </div>
           </div>
         </template>
@@ -69,7 +69,7 @@
           <wrm-origin-card
             :origin="relyingOrigin"
             :manifest="relyingOriginManifest">
-            <template slot="task">You are receiving credentials from</template>
+            <template slot="task">Receive credentials from</template>
           </wrm-origin-card>
         </template>
         <template slot="message">
@@ -82,7 +82,7 @@
               visit a digital wallet website to install one.
             </div>
             <div v-else class="wrm-heading">
-              Choose a credential wallet to continue
+              Choose credential storage provider to continue
             </div>
           </div>
         </template>
@@ -231,6 +231,8 @@ export default {
             name,
             icon,
             origin,
+            host,
+            manifest,
             hintOption: {
               credentialHandler,
               credentialHintKey: null
@@ -382,6 +384,8 @@ function updateHandlerWindow(handlerWindow) {
     propsData: {
       origin,
       relyingDomain: self.relyingDomain,
+      relyingOrigin: self.relyingOrigin,
+      relyingOriginManifest: self.relyingOriginManifest,
       operation,
       hint: self.selectedHint
     },
@@ -389,14 +393,8 @@ function updateHandlerWindow(handlerWindow) {
       this.$on('cancel', self.cancelSelection);
     }
   });
-  // header height is 60px + 4 padding + 1 border -- must be calculated
-  // here to move iframe down because iframe must be fixed for proper layout
-  // on mobile
-  const headerHeight = '65px';
-  handlerWindow.iframe.style.top = headerHeight;
-  handlerWindow.iframe.style.height = `calc(100% - ${headerHeight})`;
-  // TODO: should this be done?
-  handlerWindow.iframe.style.background = 'white';
+  // clear iframe style that was set by web-request-rpc; set instead via CSS
+  handlerWindow.iframe.style.cssText = null;
 }
 
 async function getWebAppManifest(host) {

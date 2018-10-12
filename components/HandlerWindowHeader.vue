@@ -1,26 +1,71 @@
 <template>
-  <div class="wrm-panel wrm-modern" style="height: 60px">
+  <div
+    class="wrm-panel wrm-handler-header wrm-flex-row">
     <div
-      class="wrm-flex-row wrm-header-hint"
-      style="padding: 5px; margin: 1px 0">
-      <i v-if="!hint.icon"
-        class="fas fa-wallet wrm-flex-item"
-        style="padding-left: 8px; font-size: 48px"></i>
-      <img v-if="hint.icon" :src="hint.icon.fetchedImage"
-        style="width: 48px; max-height: 48px" class="wrm-flex-item">
+      v-if="!showDetails"
+      class="wrm-flex-item-grow wrm-flex-column-stretch"
+      @click="showDetails=!showDetails">
       <div
-        style="margin-left: 10px; font-size: 14px"
-        class="wrm-flex-item-grow wrm-ellipsis">
-        You are using <strong>{{hint.name}}</strong> to
-        <span v-if="operation === 'store'">store credentials</span>
-        <span v-else>share credentials</span>
-        <h6>
-          <i class="fas fa-lock wrm-flex-item wrm-green"></i>
-          <span class="wrm-green">https</span>://{{hint.origin.substr(8)}}
-        </h6>
+        style="font-size: 11px; font-weight: bold; text-align: center;
+          padding-bottom: 2px">
+        {{header}}
       </div>
-      <wrm-header-close-button @click.native="cancel()" />
+      <div
+        class="wrm-flex-row wrm-flex-item-grow"
+        style="align-items: stretch">
+        <div
+          class="wrm-flex-item wrm-flex-column wrm-ellipsis"
+          style="font-size: 11px; width: 150px">
+          <wrm-origin-icon
+            class="wrm-flex-item-grow"
+            :icon-size="iconSize"
+            :origin="fields.wallet.origin"
+            :manifest="fields.wallet.manifest" />
+          <wrm-origin
+            :origin="fields.wallet.origin"
+            style="max-width: 100%" />
+        </div>
+        <div
+          class="wrm-flex-item wrm-flex-column"
+          style="justify-content: center; overflow: hidden">
+          <i
+            :class="fields.arrow.icon"
+            style="font-size: 16px; padding: 0 15px"></i>
+        </div>
+        <div
+          class="wrm-flex-item wrm-flex-column wrm-ellipsis"
+          style="font-size: 11px; width: 150px">
+          <wrm-origin-icon
+            class="wrm-flex-item-grow"
+            :icon-size="iconSize"
+            :origin="fields.relyingParty.origin"
+            :manifest="fields.relyingParty.manifest" />
+          <wrm-origin
+            :origin="fields.relyingParty.origin"
+            style="max-width: 100%" />
+        </div>
+      </div>
     </div>
+    <div
+      v-else
+      class="wrm-flex-column-stretch wrm-ellipsis"
+      style="width: 100%"
+      @click="showDetails=!showDetails">
+      <div style="font-weight: bold">
+        Credential {{repositoryLabel}}:
+      </div>
+      <wrm-origin
+        class="wrm-flex-item-grow"
+        style="margin-bottom: 5px"
+        :origin="fields.wallet.origin" />
+      <div style="font-weight: bold">
+        Website:
+      </div>
+      <wrm-origin
+        class="wrm-flex-item-grow"
+        :origin="fields.relyingParty.origin" />
+    </div>
+    <wrm-header-close-button class="wrm-flex-item" @click.native="cancel()" />
   </div>
 </template>
 <script>
@@ -33,6 +78,49 @@
 
 export default {
   name: 'HandlerWindowHeader',
+  data() {
+    return {
+      showDetails: false,
+      iconSize: 48
+    };
+  },
+  computed: {
+    header() {
+      return this.operation === 'request' ?
+        'Send credentials?' : 'Store credentials?';
+    },
+    repositoryLabel() {
+      return this.operation === 'request' ?
+        'Provider' : 'Storage Provider';
+    },
+    fields() {
+      const relyingParty = {
+        name: _getName({
+          manifest: this.relyingOriginManfest,
+          domain: this.relyingDomain
+        }),
+        domain: this.relyingDomain,
+        origin: this.relyingOrigin,
+        manifest: this.relyingOriginManifest
+      };
+      const wallet = {
+        name: _getName({
+          manifest: this.hint.manifest,
+          domain: this.hint.host
+        }),
+        domain: this.hint.host,
+        origin: this.hint.origin,
+        manifest: this.hint.manifest
+      };
+      const arrow = {};
+      if(this.operation === 'request') {
+        arrow.icon = 'fas fa-arrow-right';
+      } else {
+        arrow.icon = 'fas fa-arrow-left';
+      }
+      return {wallet, arrow, relyingParty};
+    }
+  },
   props: {
     origin: {
       type: String,
@@ -40,6 +128,14 @@ export default {
     },
     relyingDomain: {
       type: String,
+      required: true
+    },
+    relyingOrigin: {
+      type: String,
+      required: true
+    },
+    relyingOriginManifest: {
+      type: Object,
       required: true
     },
     operation: {
@@ -57,6 +153,15 @@ export default {
     }
   }
 };
+
+function _getName({manifest, domain}) {
+  if(!manifest) {
+    return domain;
+  }
+  const {name, short_name} = manifest;
+  return name || short_name || domain;
+}
+
 </script>
 <style>
 </style>
