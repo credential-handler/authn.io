@@ -19,18 +19,18 @@
           <wrm-origin-icon
             class="wrm-flex-item-grow"
             :icon-size="iconSize"
-            :origin="fields.wallet.origin"
-            :manifest="fields.wallet.manifest" />
+            :origin="fields.left.origin"
+            :manifest="fields.left.manifest" />
           <wrm-origin
-            :origin="fields.wallet.origin"
+            :origin="fields.left.origin"
             style="max-width: 100%" />
         </div>
         <div
           class="wrm-flex-item wrm-flex-column"
           style="justify-content: center; overflow: hidden">
           <i
-            :class="fields.arrow.icon"
-            style="font-size: 16px; padding: 0 15px"></i>
+            class="fas fa-arrow-right"
+            style="font-size: 20px; padding: 0 15px"></i>
         </div>
         <div
           class="wrm-flex-item wrm-flex-column wrm-ellipsis"
@@ -38,10 +38,10 @@
           <wrm-origin-icon
             class="wrm-flex-item-grow"
             :icon-size="iconSize"
-            :origin="fields.relyingParty.origin"
-            :manifest="fields.relyingParty.manifest" />
+            :origin="fields.right.origin"
+            :manifest="fields.right.manifest" />
           <wrm-origin
-            :origin="fields.relyingParty.origin"
+            :origin="fields.right.origin"
             style="max-width: 100%" />
         </div>
       </div>
@@ -112,13 +112,10 @@ export default {
         origin: this.hint.origin,
         manifest: this.hint.manifest
       };
-      const arrow = {};
       if(this.operation === 'request') {
-        arrow.icon = 'fas fa-arrow-right';
-      } else {
-        arrow.icon = 'fas fa-arrow-left';
+        return {left: wallet, right: relyingParty};
       }
-      return {wallet, arrow, relyingParty};
+      return {left: relyingParty, right: wallet};
     }
   },
   props: {
