@@ -113,9 +113,9 @@ export default {
         manifest: this.hint.manifest
       };
       if(this.operation === 'request') {
-        return {left: wallet, right: relyingParty};
+        return {left: wallet, right: relyingParty, wallet, relyingParty};
       }
-      return {left: relyingParty, right: wallet};
+      return {left: relyingParty, right: wallet, wallet, relyingParty};
     }
   },
   props: {
