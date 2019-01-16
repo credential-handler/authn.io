@@ -133,7 +133,7 @@ export default {
       this.relyingOrigin = origin;
     }
 
-    this.relyingDomain = utils.parseUrl(this.relyingOrigin).hostname;
+    this.relyingDomain = utils.parseUrl(this.relyingOrigin).host;
 
     // TODO: is this the appropriate place to run this?
     loadPolyfill(this);
