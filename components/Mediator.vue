@@ -199,6 +199,7 @@ export default {
       }
 
       if(this.needsStorageAccess) {
+        this.showHintChooser = true;
         this.hintOptions = [];
         return;
       }
