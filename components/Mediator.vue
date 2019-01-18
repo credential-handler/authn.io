@@ -7,7 +7,7 @@
         @deny="deny()" @allow="accept()"/>
     </div>
 
-    <div v-else-if="display === 'credentialRequest'">
+    <div v-else>
       <wrm-hint-chooser
         v-if="showHintChooser"
         :hints="hintOptions"
@@ -20,7 +20,12 @@
           <wrm-origin-card
             :origin="relyingOrigin"
             :manifest="relyingOriginManifest">
-            <template slot="task">Send credentials to</template>
+            <template slot="task">
+              <span v-if="display === 'credentialRequest'">
+                Send credentials to
+              </span>
+              <span v-else>Receive credentials from</span>
+            </template>
           </wrm-origin-card>
         </template>
         <template slot="message">
@@ -30,10 +35,14 @@
           <div v-else-if="!needsStorageAccess" style="padding: 2px 0">
             <div v-if="hintOptions.length === 0">
               <div class="wrm-heading">Warning</div>
-              <div>
+              <div v-if="display === 'credentialRequest'">
                 You don't have the credentials requested by this website.
                 Please check <strong>{{relyingOriginName}}</strong> to find out
                 how to obtain the credentials you need to continue.
+              </div>
+              <div v-else>
+                You don't have a credential wallet to store credentials. Please
+                visit a credential wallet website to install one.
               </div>
             </div>
             <div v-else class="wrm-heading">
@@ -55,57 +64,12 @@
         </template>
       </wrm-hint-chooser>
     </div>
-
-    <div v-else-if="display === 'credentialStore'">
-      <wrm-hint-chooser
-        v-if="showHintChooser"
-        :hints="hintOptions"
-        default-hint-icon="fa-wallet"
-        :confirm-button="needsStorageAccess"
-        @confirm="selectHint"
-        @cancel="cancel()"
-        @load-hints="$event.waitUntil(loadHints())">
-        <template slot="header">
-          <wrm-origin-card
-            :origin="relyingOrigin"
-            :manifest="relyingOriginManifest">
-            <template slot="task">Receive credentials from</template>
-          </wrm-origin-card>
-        </template>
-        <template slot="message">
-          <div v-if="loading" style="padding: 10px 0">
-            Loading options... <i class="fas fa-cog fa-spin"></i>
-          </div>
-          <div v-else-if="!needsStorageAccess" style="padding: 2px 0">
-            <div v-if="hintOptions.length === 0">
-              You don't have a digital wallet to store credentials. Please
-              visit a digital wallet website to install one.
-            </div>
-            <div v-else class="wrm-heading">
-              Choose credential storage provider to continue
-            </div>
-          </div>
-        </template>
-        <template slot="hint-list-footer">
-          <wrm-checkbox
-            checkbox-class="wrm-blue"
-            checkbox-style="
-              font-size: 14px;
-              margin: 10px -15px 0px -15px;
-              padding: 15px 15px 0px 15px;
-              border-top: 1px solid #aaa"
-            label="Remember my choice for this site"
-            labelClass="wrm-dark-gray"
-            v-model="rememberChoice" />
-        </template>
-      </wrm-hint-chooser>
-    </div>
   </div>
 </template>
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2018, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2019, Digital Bazaar, Inc.
  * All rights reserved.
  */
 /* global navigator */
