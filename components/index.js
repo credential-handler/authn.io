@@ -27,6 +27,12 @@ brVue.setRootVue(async () => {
       meta: {
         title: 'Credential Mediator'
       }
+    }, {
+      path: '/allow-wallet-access',
+      component: () => import('./AllowWalletAccess.vue'),
+      meta: {
+        title: 'Allow Wallet Access'
+      }
     }]
   });
 

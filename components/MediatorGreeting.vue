@@ -1,0 +1,45 @@
+<template>
+  <div>
+    <div style="font-size: 14px; padding-top: 10px">
+      The following website wants to
+      <span v-if="display === 'credentialRequest'">
+        receive credentials from you:
+      </span>
+      <span v-else>send credentials to you:</span>
+    </div>
+    <wrm-origin-card
+      style="padding: 20px 0 10px 0"
+      :origin="relyingOrigin"
+      :manifest="relyingOriginManifest">
+    </wrm-origin-card>
+  </div>
+</template>
+<script>
+/*!
+ * New BSD License (3-clause)
+ * Copyright (c) 2019, Digital Bazaar, Inc.
+ * All rights reserved.
+ */
+'use strict';
+
+export default {
+  name: 'MediatorGreeting',
+  components: {},
+  props: {
+    display: {
+      type: String,
+      required: true
+    },
+    relyingOrigin: {
+      type: String,
+      required: true
+    },
+    relyingOriginManifest: {
+      type: Object,
+      required: true
+    }
+  }
+};
+</script>
+<style>
+</style>

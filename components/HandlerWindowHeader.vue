@@ -1,71 +1,24 @@
 <template>
-  <div
-    class="wrm-panel wrm-handler-header wrm-flex-row">
-    <div
-      v-if="!showDetails"
-      class="wrm-flex-item-grow wrm-flex-column-stretch"
-      @click="showDetails=!showDetails">
-      <div
-        style="font-size: 11px; font-weight: bold; text-align: center;
-          padding-bottom: 2px">
+  <div class="wrm-panel wrm-handler-header wrm-flex-row"
+    style="user-select: none">
+    <wrm-header-back-button
+      class="wrm-flex-item"
+      style="padding-left: 5px"
+      @click.native="back()" />
+    <div class="wrm-flex-item-grow wrm-flex-column-stretch">
+      <!-- div style="font-size: 14px; padding-bottom: 5px">
         {{header}}
-      </div>
-      <div
-        class="wrm-flex-row wrm-flex-item-grow"
-        style="align-items: stretch">
-        <div
-          class="wrm-flex-item wrm-flex-column wrm-ellipsis"
-          style="font-size: 11px; width: 150px">
-          <wrm-origin-icon
-            class="wrm-flex-item-grow"
-            :icon-size="iconSize"
-            :origin="fields.left.origin"
-            :manifest="fields.left.manifest" />
-          <wrm-origin
-            :origin="fields.left.origin"
-            style="max-width: 100%" />
-        </div>
-        <div
-          class="wrm-flex-item wrm-flex-column"
-          style="justify-content: center; overflow: hidden">
-          <i
-            class="fas fa-arrow-right"
-            style="font-size: 20px; padding: 0 15px"></i>
-        </div>
-        <div
-          class="wrm-flex-item wrm-flex-column wrm-ellipsis"
-          style="font-size: 11px; width: 150px">
-          <wrm-origin-icon
-            class="wrm-flex-item-grow"
-            :icon-size="iconSize"
-            :origin="fields.right.origin"
-            :manifest="fields.right.manifest" />
-          <wrm-origin
-            :origin="fields.right.origin"
-            style="max-width: 100%" />
-        </div>
-      </div>
+      </div -->
+      <wrm-origin-card
+        style="padding-left: 10px"
+        :origin="fields.wallet.origin"
+        :manifest="fields.wallet.manifest">
+      </wrm-origin-card>
     </div>
-    <div
-      v-else
-      class="wrm-flex-column-stretch wrm-ellipsis"
-      style="width: 100%; padding-left: 5px"
-      @click="showDetails=!showDetails">
-      <div style="font-weight: bold">
-        Credential {{repositoryLabel}}:
-      </div>
-      <wrm-origin
-        class="wrm-flex-item-grow"
-        style="margin-bottom: 10px"
-        :origin="fields.wallet.origin" />
-      <div style="font-weight: bold">
-        Website:
-      </div>
-      <wrm-origin
-        class="wrm-flex-item-grow"
-        :origin="fields.relyingParty.origin" />
-    </div>
-    <wrm-header-close-button class="wrm-flex-item" @click.native="cancel()" />
+    <wrm-header-close-button
+      class="wrm-flex-item"
+      style="padding-right: 5px"
+      @click.native="cancel()" />
   </div>
 </template>
 <script>
@@ -80,14 +33,13 @@ export default {
   name: 'HandlerWindowHeader',
   data() {
     return {
-      showDetails: false,
-      iconSize: 48
+      iconSize: 32
     };
   },
   computed: {
     header() {
       return this.operation === 'request' ?
-        'Send credentials?' : 'Store credentials?';
+        'Sharing credentials from:' : 'Storing credentials in:';
     },
     repositoryLabel() {
       return this.operation === 'request' ?
@@ -145,6 +97,9 @@ export default {
     }
   },
   methods: {
+    back() {
+      this.$emit('back');
+    },
     cancel() {
       this.$emit('cancel');
     }

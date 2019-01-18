@@ -7,63 +7,103 @@
         @deny="deny()" @allow="accept()"/>
     </div>
 
-    <div v-else>
-      <wrm-hint-chooser
-        v-if="showHintChooser"
-        :hints="hintOptions"
-        default-hint-icon="fa-wallet"
-        :confirm-button="needsStorageAccess"
-        @confirm="selectHint"
-        @cancel="cancel()"
-        @load-hints="$event.waitUntil(loadHints())">
-        <template slot="header">
-          <wrm-origin-card
-            :origin="relyingOrigin"
-            :manifest="relyingOriginManifest">
-            <template slot="task">
-              <span v-if="display === 'credentialRequest'">
-                Send credentials to
-              </span>
-              <span v-else>Receive credentials from</span>
-            </template>
-          </wrm-origin-card>
-        </template>
-        <template slot="message">
-          <div v-if="loading" style="padding: 10px 0">
-            Loading options... <i class="fas fa-cog fa-spin"></i>
-          </div>
-          <div v-else-if="!needsStorageAccess" style="padding: 2px 0">
-            <div v-if="hintOptions.length === 0">
-              <div class="wrm-heading">Warning</div>
-              <div v-if="display === 'credentialRequest'">
-                You don't have the credentials requested by this website.
-                Please check <strong>{{relyingOriginName}}</strong> to find out
-                how to obtain the credentials you need to continue.
-              </div>
-              <div v-else>
-                You don't have a credential wallet to store credentials. Please
-                visit a credential wallet website to install one.
-              </div>
+    <wrm-wizard-dialog v-else-if="display === 'credentialRequest' ||
+      display === 'credentialStore'"
+      :loading="loading"
+      :first="showGreeting"
+      :hasNext="showGreeting || needsStorageAccess"
+      :blocked="loading || (!showGreeting && !selectedHint)"
+      @cancel="cancel()"
+      @next="nextWizardStep()"
+      @back="prevWizardStep()">
+      <template slot="header">
+        <div style="font-size: 16px; padding-top: 6px; user-select: none">
+          <div v-if="showGreeting" style="margin-left: -5px">
+            <div v-if="display === 'credentialRequest'">
+              Credentials Request
             </div>
-            <div v-else class="wrm-heading">
-              Choose credential provider to continue
+            <div v-else>
+              Store Credentials
             </div>
           </div>
-        </template>
-        <template slot="hint-list-footer" v-if="hintOptions.length > 0">
-          <div
-            style="margin: 10px -15px 0px -15px; padding: 15px 15px 0px 15px;"
-            class="wrm-separator wrm-modern">
-            <wrm-checkbox
-              checkbox-class="wrm-blue"
-              checkbox-style="font-size: 14px"
-              label="Remember my choice for this site"
-              labelClass="wrm-dark-gray"
-              v-model="rememberChoice" />
+          <div v-else-if="needsStorageAccess" style="margin-left: -10px">
+            Authorize Viewing Your Wallet
           </div>
-        </template>
-      </wrm-hint-chooser>
-    </div>
+          <div v-else style="margin-left: -10px">
+            Choose a Wallet
+          </div>
+        </div>
+      </template>
+      <template slot="body">
+        <!-- step 1 -->
+        <mediator-greeting v-if="showGreeting"
+          style="user-select: none"
+          :display="display"
+          :relyingOrigin="relyingOrigin"
+          :relyingOriginManifest="relyingOriginManifest" />
+
+        <!-- optional step 2 -->
+        <div v-else-if="needsStorageAccess">
+          <anti-tracking-wizard
+            @cancel="cancel()"
+            @finish="finishAntiTrackingWizard()" />
+        </div>
+
+        <!-- step 3 -->
+        <wrm-hint-chooser
+          v-else-if="showHintChooser"
+          style="user-select: none"
+          :hints="hintOptions"
+          default-hint-icon="fa-wallet"
+          @confirm="selectHint"
+          @cancel="cancel()">
+          <template slot="message">
+            <div style="padding-top: 10px">
+              <div v-if="loading">
+                Loading options... <i class="fas fa-cog fa-spin"></i>
+              </div>
+              <div v-if="hintOptions.length === 0" style="font-size: 14px">
+                <div style="font-weight: bold; padding-bottom: 10px">
+                  Warning
+                </div>
+                <div v-if="display === 'credentialRequest'">
+                  You don't have the credentials requested by this website.
+                  Please check <strong>{{relyingOriginName}}</strong> to find out
+                  how to obtain the credentials you need to continue.
+                </div>
+                <div v-else>
+                  You don't have a credential wallet to store credentials.
+                  Please visit a credential wallet website to install one.
+                </div>
+                <div class="wrm-button-bar" style="margin-top: 10px">
+                  <button type="button" class="wrm-button wrm-primary"
+                    :disabled="loading"
+                    @click="cancel()">
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </template>
+          <template slot="hint-list-footer" v-if="hintOptions.length > 0">
+            <div
+              style="margin: 10px -15px 0px -15px; padding: 15px 15px 0px 15px;"
+              class="wrm-separator wrm-modern">
+              <wrm-checkbox
+                checkbox-class="wrm-blue"
+                checkbox-style="font-size: 14px"
+                label="Remember my choice for this site"
+                label-class="wrm-dark-gray"
+                v-model="rememberChoice" />
+            </div>
+          </template>
+        </wrm-hint-chooser>
+      </template>
+      <template slot="footer" v-if="!showGreeting">
+        <!-- clear footer after first step -->
+        <div></div>
+      </template>
+    </wrm-wizard-dialog>
   </div>
 </template>
 <script>
@@ -80,7 +120,9 @@ import axios from 'axios';
 import {getSessionChoice, setSessionChoice} from './sessionChoice.js';
 import {getWebAppManifestIcon} from 'vue-web-request-mediator';
 import {utils} from 'web-request-rpc';
+import AntiTrackingWizard from './AntiTrackingWizard.vue';
 import HandlerWindowHeader from './HandlerWindowHeader.vue';
+import MediatorGreeting from './MediatorGreeting.vue';
 import Vue from 'vue';
 
 let deferredCredentialOperation;
@@ -88,6 +130,7 @@ let resolvePermissionRequest;
 
 export default {
   name: 'Mediator',
+  components: {AntiTrackingWizard, MediatorGreeting},
   async created() {
     if(window.location.ancestorOrigins &&
       window.location.ancestorOrigins.length > 0) {
@@ -130,7 +173,8 @@ export default {
       relyingOrigin: null,
       relyingOriginManifest: null,
       selectedHint: null,
-      showHintChooser: false
+      showHintChooser: false,
+      showGreeting: false
     };
   },
   methods: {
@@ -155,6 +199,34 @@ export default {
       deferredCredentialOperation.resolve(null);
       await navigator.credentialMediator.hide();
     },
+    async nextWizardStep() {
+      this.loading = true;
+      if(this.needsStorageAccess) {
+        this.needsStorageAccess = !await document.requestStorageAccess();
+      }
+      this.showGreeting = false;
+      this.loading = false;
+    },
+    async prevWizardStep() {
+      this.showGreeting = true;
+      if(this.selectedHint) {
+        await this.cancelSelection();
+      }
+    },
+    async finishAntiTrackingWizard() {
+      this.loading = true;
+      this.needsStorageAccess = !await document.requestStorageAccess();
+      if(this.needsStorageAccess) {
+        // still can't get access for some reason
+        this.hintOptions = [];
+        this.needsStorageAccess = false;
+        this.showHintChooser = true;
+        this.loading = false;
+        return;
+      }
+      await this.loadHints();
+      this.loading = false;
+    },
     async loadHints() {
       if(typeof document.hasStorageAccess === 'function') {
         this.needsStorageAccess = !await document.hasStorageAccess();
@@ -163,7 +235,6 @@ export default {
       }
 
       if(this.needsStorageAccess) {
-        this.showHintChooser = true;
         this.hintOptions = [];
         return;
       }
@@ -266,6 +337,7 @@ export default {
       this.loading = false;
       this.selectedHint = null;
       this.showHintChooser = false;
+      this.needsStorageAccess = false;
     }
   }
 };
@@ -302,11 +374,13 @@ async function getCredential(operationState) {
   // prep display
   this.display = 'credentialRequest';
   this.credentialRequestOptions = operationState.input.credentialRequestOptions;
-  this.loading = true;
   this.showHintChooser = false;
+  this.showGreeting = true;
   const promise = new Promise((resolve, reject) => {
     deferredCredentialOperation = {resolve, reject};
   });
+
+  this.loading = true;
 
   // show display
   await navigator.credentialMediator.show();
@@ -321,11 +395,13 @@ async function storeCredential(operationState) {
   // prep display
   this.display = 'credentialStore';
   this.credential = operationState.input.credential;
-  this.loading = true;
   this.showHintChooser = false;
+  this.showGreeting = true;
   const promise = new Promise((resolve, reject) => {
     deferredCredentialOperation = {resolve, reject};
   });
+
+  this.loading = true;
 
   // show display
   await navigator.credentialMediator.show();
@@ -355,7 +431,8 @@ function updateHandlerWindow(handlerWindow) {
       hint: self.selectedHint
     },
     created() {
-      this.$on('cancel', self.cancelSelection);
+      this.$on('back', self.cancelSelection);
+      this.$on('cancel', self.cancel);
     }
   });
   // clear iframe style that was set by web-request-rpc; set instead via CSS
