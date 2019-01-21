@@ -54,7 +54,10 @@
             Authorize Viewing Your Wallet
           </div>
           <div v-else style="margin-left: -10px">
-            Choose a Wallet
+            <span v-if="selectedHint">Loading Wallet...
+              <i class="fas fa-cog fa-spin"></i>
+            </span>
+            <span v-else>Choose a Wallet</span>
           </div>
         </div>
       </template>
@@ -78,7 +81,7 @@
           v-else-if="showHintChooser"
           style="user-select: none"
           :hints="hintOptions"
-          default-hint-icon="fa-wallet"
+          default-hint-icon="fas fa-wallet"
           @confirm="selectHint"
           @cancel="cancel()">
           <template slot="message">
@@ -122,6 +125,15 @@
             </div>
           </template>
         </wrm-hint-chooser>
+        <div v-else-if="selectedHint" style="padding-top: 15px">
+          <wrm-hint
+            :hint="selectedHint"
+            default-icon="fas fa-wallet"
+            :active="true"
+            :selected="true"
+            :selectable="false"
+            :disabled="true" />
+        </div>
       </template>
       <template slot="footer" v-if="!showGreeting">
         <!-- clear footer after first step -->
@@ -235,11 +247,15 @@ export default {
     },
     async nextWizardStep() {
       this.loading = true;
-      if(!this.hasStorageAccess) {
-        this.hasStorageAccess = await requestStorageAccess();
-        if(this.hasStorageAccess) {
+      const mustLoadHints = !this.hasStorageAccess;
+      // always call `requestStorageAccess` to refresh mediator's
+      // user interaction timestamp
+      this.hasStorageAccess = await requestStorageAccess();
+      if(this.hasStorageAccess) {
+        if(mustLoadHints) {
           await this.loadHints();
         }
+        this.useRememberedHint();
       }
       this.showGreeting = false;
       this.loading = false;
@@ -258,6 +274,7 @@ export default {
           await this.allow();
         } else {
           await this.loadHints();
+          this.useRememberedHint();
         }
       } else {
         // still can't get access for some reason, show hint chooser w/no hints
@@ -302,7 +319,8 @@ export default {
             }
           };
         }));
-
+    },
+    async useRememberedHint() {
       // check to see if there is a reusable choice from this session
       const hint = getSessionChoice({hintOptions: this.hintOptions});
       if(hint) {
