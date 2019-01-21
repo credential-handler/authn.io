@@ -1,10 +1,34 @@
 <template>
   <div>
     <div v-if="display === 'permissionRequest'">
-      <wrm-permission-dialog
+      <wrm-permission-dialog v-if="showPermissionDialog"
         :origin="relyingDomain"
         :permissions="permissions"
-        @deny="deny()" @allow="accept()"/>
+        @deny="deny()" @allow="allow()"/>
+
+      <!-- Note: This wizard is presently only used to create a dialog around
+           the AntiTrackingWizard. -->
+      <wrm-wizard-dialog v-else
+        :loading="loading"
+        :first="true"
+        :hasNext="false"
+        :blocked="loading"
+        @cancel="deny()">
+        <template slot="header">
+          <div style="font-size: 16px; padding-top: 6px; user-select: none">
+            Authorize Credential Wallet
+          </div>
+        </template>
+        <template slot="body">
+          <anti-tracking-wizard
+            @cancel="cancel()"
+            @finish="finishAntiTrackingWizard()" />
+        </template>
+        <template slot="footer">
+          <!-- do not show footer -->
+          <div></div>
+        </template>
+      </wrm-wizard-dialog>
     </div>
 
     <wrm-wizard-dialog v-else-if="display === 'credentialRequest' ||
@@ -163,9 +187,9 @@ export default {
     return {
       rememberChoice: false,
       display: null,
+      hasStorageAccess: false,
       hintOptions: [],
       loading: false,
-      hasStorageAccess: false,
       permissions: [{
         name: 'Manage credentials',
         icon: 'fas fa-id-card'
@@ -175,11 +199,12 @@ export default {
       relyingOriginManifest: null,
       selectedHint: null,
       showHintChooser: false,
-      showGreeting: false
+      showGreeting: false,
+      showPermissionDialog: false
     };
   },
   methods: {
-    async accept() {
+    async allow() {
       this.hasStorageAccess = await requestStorageAccess();
       if(this.hasStorageAccess) {
         resolvePermissionRequest('granted');
@@ -188,18 +213,14 @@ export default {
         return;
       }
 
-      // TODO: must go through wizard
+      // must go through wizard
+      this.showPermissionDialog = false;
     },
     async deny() {
-      this.hasStorageAccess = await requestStorageAccess();
-      if(this.hasStorageAccess) {
-        resolvePermissionRequest('denied');
-        this.reset();
-        await navigator.credentialMediator.hide();
-        return;
-      }
-
-      // TODO: must go through wizard
+      await requestStorageAccess();
+      resolvePermissionRequest('denied');
+      this.reset();
+      await navigator.credentialMediator.hide();
     },
     async cancelSelection() {
       await navigator.credentialMediator.ui.cancelSelectCredentialHint();
@@ -233,7 +254,11 @@ export default {
       this.loading = true;
       this.hasStorageAccess = await requestStorageAccess();
       if(this.hasStorageAccess) {
-        await this.loadHints();
+        if(this.display === 'permissionRequest') {
+          await this.allow();
+        } else {
+          await this.loadHints();
+        }
       } else {
         // still can't get access for some reason, show hint chooser w/no hints
         this.showHintChooser = true;
@@ -335,11 +360,13 @@ export default {
     reset() {
       this.display = null;
       this.credentialRequestOptions = this.credential = null;
+      this.hasStorageAccess = false;
       this.hintOptions = [];
       this.loading = false;
       this.selectedHint = null;
       this.showHintChooser = false;
-      this.hasStorageAccess = false;
+      this.showGreeting = false;
+      this.showPermissionDialog = false;
     }
   }
 };
@@ -368,6 +395,7 @@ async function requestPermission(permissionDesc) {
   });
 
   // show display
+  this.showPermissionDialog = true;
   await navigator.credentialMediator.show();
   return promise;
 }
