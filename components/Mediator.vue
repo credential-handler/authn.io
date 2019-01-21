@@ -11,7 +11,7 @@
       display === 'credentialStore'"
       :loading="loading"
       :first="showGreeting"
-      :hasNext="showGreeting || needsStorageAccess"
+      :hasNext="showGreeting || !hasStorageAccess"
       :blocked="loading || (!showGreeting && !selectedHint)"
       @cancel="cancel()"
       @next="nextWizardStep()"
@@ -26,7 +26,7 @@
               Store Credentials
             </div>
           </div>
-          <div v-else-if="needsStorageAccess" style="margin-left: -10px">
+          <div v-else-if="!hasStorageAccess" style="margin-left: -10px">
             Authorize Viewing Your Wallet
           </div>
           <div v-else style="margin-left: -10px">
@@ -43,7 +43,7 @@
           :relyingOriginManifest="relyingOriginManifest" />
 
         <!-- optional step 2 -->
-        <div v-else-if="needsStorageAccess">
+        <div v-else-if="!hasStorageAccess">
           <anti-tracking-wizard
             @cancel="cancel()"
             @finish="finishAntiTrackingWizard()" />
@@ -119,6 +119,7 @@ import * as polyfill from 'credential-mediator-polyfill';
 import axios from 'axios';
 import {getSessionChoice, setSessionChoice} from './sessionChoice.js';
 import {getWebAppManifestIcon} from 'vue-web-request-mediator';
+import {hasStorageAccess, requestStorageAccess} from 'web-request-mediator';
 import {utils} from 'web-request-rpc';
 import AntiTrackingWizard from './AntiTrackingWizard.vue';
 import HandlerWindowHeader from './HandlerWindowHeader.vue';
@@ -164,7 +165,7 @@ export default {
       display: null,
       hintOptions: [],
       loading: false,
-      needsStorageAccess: false,
+      hasStorageAccess: false,
       permissions: [{
         name: 'Manage credentials',
         icon: 'fas fa-id-card'
@@ -179,14 +180,26 @@ export default {
   },
   methods: {
     async accept() {
-      resolvePermissionRequest('granted');
-      this.reset();
-      await navigator.credentialMediator.hide();
+      this.hasStorageAccess = await requestStorageAccess();
+      if(this.hasStorageAccess) {
+        resolvePermissionRequest('granted');
+        this.reset();
+        await navigator.credentialMediator.hide();
+        return;
+      }
+
+      // TODO: must go through wizard
     },
     async deny() {
-      resolvePermissionRequest('denied');
-      this.reset();
-      await navigator.credentialMediator.hide();
+      this.hasStorageAccess = await requestStorageAccess();
+      if(this.hasStorageAccess) {
+        resolvePermissionRequest('denied');
+        this.reset();
+        await navigator.credentialMediator.hide();
+        return;
+      }
+
+      // TODO: must go through wizard
     },
     async cancelSelection() {
       await navigator.credentialMediator.ui.cancelSelectCredentialHint();
@@ -201,8 +214,11 @@ export default {
     },
     async nextWizardStep() {
       this.loading = true;
-      if(this.needsStorageAccess) {
-        this.needsStorageAccess = !await document.requestStorageAccess();
+      if(!this.hasStorageAccess) {
+        this.hasStorageAccess = await requestStorageAccess();
+        if(this.hasStorageAccess) {
+          await this.loadHints();
+        }
       }
       this.showGreeting = false;
       this.loading = false;
@@ -215,30 +231,16 @@ export default {
     },
     async finishAntiTrackingWizard() {
       this.loading = true;
-      this.needsStorageAccess = !await document.requestStorageAccess();
-      if(this.needsStorageAccess) {
-        // still can't get access for some reason
-        this.hintOptions = [];
-        this.needsStorageAccess = false;
+      this.hasStorageAccess = await requestStorageAccess();
+      if(this.hasStorageAccess) {
+        await this.loadHints();
+      } else {
+        // still can't get access for some reason, show hint chooser w/no hints
         this.showHintChooser = true;
-        this.loading = false;
-        return;
       }
-      await this.loadHints();
       this.loading = false;
     },
     async loadHints() {
-      if(typeof document.hasStorageAccess === 'function') {
-        this.needsStorageAccess = !await document.hasStorageAccess();
-      } else {
-        this.needsStorageAccess = false;
-      }
-
-      if(this.needsStorageAccess) {
-        this.hintOptions = [];
-        return;
-      }
-
       let hintOptions;
       if(this.credentialRequestOptions) {
         // get matching hints from request options
@@ -337,7 +339,7 @@ export default {
       this.loading = false;
       this.selectedHint = null;
       this.showHintChooser = false;
-      this.needsStorageAccess = false;
+      this.hasStorageAccess = false;
     }
   }
 };
@@ -365,7 +367,7 @@ async function requestPermission(permissionDesc) {
     resolvePermissionRequest = state => resolve({state});
   });
 
-  // show display and return promise
+  // show display
   await navigator.credentialMediator.show();
   return promise;
 }
@@ -385,7 +387,12 @@ async function getCredential(operationState) {
   // show display
   await navigator.credentialMediator.show();
 
-  await this.loadHints();
+  // load hints
+  this.hasStorageAccess = await hasStorageAccess();
+  if(this.hasStorageAccess) {
+    await this.loadHints();
+  }
+
   this.loading = false;
 
   return promise;
@@ -406,7 +413,12 @@ async function storeCredential(operationState) {
   // show display
   await navigator.credentialMediator.show();
 
-  await this.loadHints();
+  // load hints
+  this.hasStorageAccess = await hasStorageAccess();
+  if(this.hasStorageAccess) {
+    await this.loadHints();
+  }
+
   this.loading = false;
 
   return promise;
