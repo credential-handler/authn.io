@@ -70,7 +70,7 @@
           :relyingOriginManifest="relyingOriginManifest" />
 
         <!-- optional step 2 -->
-        <div v-else-if="!hasStorageAccess">
+        <div v-else-if="!hasStorageAccess && !showHintChooser">
           <anti-tracking-wizard
             @cancel="cancel()"
             @finish="finishAntiTrackingWizard()" />
@@ -269,16 +269,20 @@ export default {
     async finishAntiTrackingWizard() {
       this.loading = true;
       this.hasStorageAccess = await requestStorageAccess();
-      if(this.hasStorageAccess) {
-        if(this.display === 'permissionRequest') {
+      if(this.display === 'permissionRequest') {
+        if(this.hasStorageAccess) {
           await this.allow();
         } else {
-          await this.loadHints();
-          this.useRememberedHint();
+          await this.deny();
         }
       } else {
-        // still can't get access for some reason, show hint chooser w/no hints
-        this.showHintChooser = true;
+        if(this.hasStorageAccess) {
+          await this.loadHints();
+          this.useRememberedHint();
+        } else {
+          // still can't get access for some reason, show hint chooser w/no hints
+          this.showHintChooser = true;
+        }
       }
       this.loading = false;
     },
