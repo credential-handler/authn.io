@@ -90,17 +90,30 @@
                 Loading options... <i class="fas fa-cog fa-spin"></i>
               </div>
               <div v-if="hintOptions.length === 0" style="font-size: 14px">
-                <div style="font-weight: bold; padding-bottom: 10px">
+                <div style="font-weight: bold">
                   Warning
                 </div>
                 <div v-if="display === 'credentialRequest'">
-                  You don't have the credentials requested by this website.
-                  Please check <strong>{{relyingOriginName}}</strong> to find out
-                  how to obtain the credentials you need to continue.
+                  <p>
+                    You don't have the credentials requested by this website.
+                    Please check <strong>{{relyingOriginName}}</strong> to find
+                    out how to obtain the credentials you need to continue.
+                  </p>
+                  <p>
+                    It may also be that your browser has unregistered your
+                    credential wallet. This does not mean your credentials have
+                    been removed or lost. Please simply visit your credential
+                    wallet website to register again.
+                  </p>
                 </div>
                 <div v-else>
-                  You don't have a credential wallet to store credentials.
-                  Please visit a credential wallet website to install one.
+                  <p>
+                    You don't have a credential wallet to store credentials or
+                    your browser has recently unregistered your wallet. This
+                    does not mean your credentials have been removed or lost.
+                    Please simply visit your credential wallet website to
+                    register again.
+                  </p>
                 </div>
                 <div class="wrm-button-bar" style="margin-top: 10px">
                   <button type="button" class="wrm-button wrm-primary"
