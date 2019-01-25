@@ -41,7 +41,7 @@
       @next="nextWizardStep()"
       @back="prevWizardStep()">
       <template slot="header">
-        <div style="font-size: 16px; padding-top: 6px; user-select: none">
+        <div style="font-size: 18px; font-weight: bold; user-select: none">
           <div v-if="showGreeting" style="margin-left: -5px">
             <div v-if="display === 'credentialRequest'">
               Credentials Request

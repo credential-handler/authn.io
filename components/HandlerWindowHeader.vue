@@ -3,7 +3,6 @@
     style="user-select: none">
     <wrm-header-back-button
       class="wrm-flex-item"
-      style="padding-left: 5px"
       @click.native="back()" />
     <div class="wrm-flex-item-grow wrm-flex-column-stretch">
       <!-- div style="font-size: 14px; padding-bottom: 5px">
@@ -17,7 +16,6 @@
     </div>
     <wrm-header-close-button
       class="wrm-flex-item"
-      style="padding-right: 5px"
       @click.native="cancel()" />
   </div>
 </template>
