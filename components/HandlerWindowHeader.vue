@@ -16,7 +16,6 @@
     </div>
     <wrm-header-close-button
       class="wrm-flex-item"
-      style="padding-right: 5px"
       @click.native="cancel()" />
   </div>
 </template>
