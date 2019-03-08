@@ -31,8 +31,8 @@
       </wrm-wizard-dialog>
     </div>
 
-    <wrm-wizard-dialog v-else-if="display === 'credentialRequest' ||
-      display === 'credentialStore'"
+    <wrm-wizard-dialog v-else-if="!hideWizard &&
+      (display === 'credentialRequest' || display === 'credentialStore')"
       :loading="loading"
       :first="showGreeting"
       :hasNext="showGreeting || !hasStorageAccess"
@@ -213,6 +213,7 @@ export default {
       rememberChoice: false,
       display: null,
       hasStorageAccess: false,
+      hideWizard: false,
       hintOptions: [],
       loading: false,
       permissions: [{
@@ -248,6 +249,7 @@ export default {
       await navigator.credentialMediator.hide();
     },
     async cancelSelection() {
+      this.hideWizard = false;
       await navigator.credentialMediator.ui.cancelSelectCredentialHint();
     },
     async cancel() {
@@ -293,7 +295,7 @@ export default {
           await this.loadHints();
           this.useRememberedHint();
         } else {
-          // still can't get access for some reason, show hint chooser w/no hints
+          // can't get access for some reason, show hint chooser w/no hints
           this.showHintChooser = true;
         }
       }
@@ -337,16 +339,18 @@ export default {
           };
         }));
     },
-    async useRememberedHint() {
+    useRememberedHint({hideWizard = false, showHintChooser = true} = {}) {
       // check to see if there is a reusable choice from this session
       const hint = getSessionChoice({hintOptions: this.hintOptions});
       if(hint) {
+        this.showGreeting = false;
+        this.hideWizard = hideWizard;
         this.selectHint({
           hint,
           waitUntil() {}
         });
       } else {
-        this.showHintChooser = true;
+        this.showHintChooser = showHintChooser;
       }
     },
     async selectHint(event) {
@@ -392,12 +396,37 @@ export default {
 
       _resolve();
     },
+    async startFlow() {
+      this.loading = true;
+
+      // load hints early if possible to avoid showing UI
+      this.hasStorageAccess = await hasStorageAccess();
+      if(this.hasStorageAccess) {
+        await this.loadHints();
+        // this will cause a remembered hint to execute immediately without
+        // showing the greeting dialog
+        this.useRememberedHint({
+          // to hide the wizard dialog completely when a remembered hint is
+          // loading (i.e. do not even show a loading hint), change
+          // `hintWizard` to `true`
+          hideWizard: false,
+          showHintChooser: false
+        });
+      }
+
+      // show display
+      await navigator.credentialMediator.show();
+
+      this.loading = false;
+    },
     reset() {
       this.display = null;
       this.credentialRequestOptions = this.credential = null;
       this.hasStorageAccess = false;
+      this.hideWizard = false;
       this.hintOptions = [];
       this.loading = false;
+      this.rememberChoice = false;
       this.selectedHint = null;
       this.showHintChooser = false;
       this.showGreeting = false;
@@ -445,18 +474,7 @@ async function getCredential(operationState) {
     deferredCredentialOperation = {resolve, reject};
   });
 
-  this.loading = true;
-
-  // show display
-  await navigator.credentialMediator.show();
-
-  // load hints
-  this.hasStorageAccess = await hasStorageAccess();
-  if(this.hasStorageAccess) {
-    await this.loadHints();
-  }
-
-  this.loading = false;
+  await this.startFlow();
 
   return promise;
 }
@@ -471,18 +489,7 @@ async function storeCredential(operationState) {
     deferredCredentialOperation = {resolve, reject};
   });
 
-  this.loading = true;
-
-  // show display
-  await navigator.credentialMediator.show();
-
-  // load hints
-  this.hasStorageAccess = await hasStorageAccess();
-  if(this.hasStorageAccess) {
-    await this.loadHints();
-  }
-
-  this.loading = false;
+  await this.startFlow();
 
   return promise;
 }
