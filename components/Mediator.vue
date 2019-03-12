@@ -166,7 +166,7 @@
 
 import * as polyfill from 'credential-mediator-polyfill';
 import axios from 'axios';
-import {getSessionChoice, setSessionChoice} from './sessionChoice.js';
+import {getSiteChoice, setSiteChoice} from './siteChoice.js';
 import {getWebAppManifestIcon} from 'vue-web-request-mediator';
 import {hasStorageAccess, requestStorageAccess} from 'web-request-mediator';
 import {utils} from 'web-request-rpc';
@@ -340,8 +340,9 @@ export default {
         }));
     },
     useRememberedHint({hideWizard = false, showHintChooser = true} = {}) {
-      // check to see if there is a reusable choice from this session
-      const hint = getSessionChoice({hintOptions: this.hintOptions});
+      // check to see if there is a reusable choice for the relying party
+      const {hintOptions, relyingOrigin} = this;
+      const hint = getSiteChoice({relyingOrigin, hintOptions});
       if(hint) {
         this.showGreeting = false;
         this.hideWizard = hideWizard;
@@ -358,12 +359,13 @@ export default {
       let _resolve;
       event.waitUntil(new Promise(r => _resolve = r));
 
-      // save choice for session
+      // save choice for site
       let {credentialHandler} = event.hint.hintOption;
       if(!this.rememberChoice) {
         credentialHandler = null;
       }
-      setSessionChoice({credentialHandler});
+      const {relyingOrigin} = this;
+      setSiteChoice({relyingOrigin, credentialHandler});
 
       let canceled = false;
       let response;
@@ -382,8 +384,8 @@ export default {
 
       if(canceled) {
         this.selectedHint = null;
-        // clear session choice
-        setSessionChoice({credentialHandler: null});
+        // clear site choice
+        setSiteChoice({relyingOrigin, credentialHandler: null});
         this.showHintChooser = true;
       } else {
         try {
