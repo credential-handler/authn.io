@@ -346,6 +346,7 @@ export default {
       if(hint) {
         this.showGreeting = false;
         this.hideWizard = hideWizard;
+        this.rememberChoice = true;
         this.selectHint({
           hint,
           waitUntil() {}
@@ -384,6 +385,7 @@ export default {
 
       if(canceled) {
         this.selectedHint = null;
+        this.rememberChoice = false;
         // clear site choice
         setSiteChoice({relyingOrigin, credentialHandler: null});
         this.showHintChooser = true;
