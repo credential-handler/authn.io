@@ -3,7 +3,7 @@
 A part of the solution to the [NASCAR login problem][NASCAR].
 
 A live version of this site and a link to a demo can be found at
-[beta.authn.io][].
+[authn.io][].
 
 ## Background
 
@@ -91,7 +91,7 @@ Access the server at the following URL:
 
 * https://authorization.localhost:33443/
 
-[beta.authn.io]: https://beta.authn.io
+[authn.io]: https://authn.io
 [NASCAR]: https://indiewebcamp.com/NASCAR_problem "The NASCAR Problem"
 [DID]: https://w3c-ccg.github.io/did-spec
 [Verifiable Credentials]: https://w3c.github.io/vc-data-model
