@@ -67,6 +67,14 @@
       }
     }
   },
+  "devDependencies": {
+    "eslint": "^5.15.3",
+    "eslint-config-digitalbazaar": "^2.0.0",
+    "eslint-plugin-vue": "^5.2.2",
+    "eslint-plugin-jsdoc": "^4.6.0",
+    "jsdoc": "^3.5.5",
+    "jsdoc-to-markdown": "^4.0.1"
+  },
   "engines": {
     "node": ">=8.9.0"
   },
