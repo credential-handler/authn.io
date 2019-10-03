@@ -1,5 +1,6 @@
 <template>
-  <div class="wrm-panel wrm-handler-header wrm-flex-row"
+  <div
+    class="wrm-panel wrm-handler-header wrm-flex-row"
     style="user-select: none">
     <wrm-header-back-button
       class="wrm-flex-item"
@@ -11,14 +12,14 @@
       <wrm-origin-card
         style="padding-left: 10px"
         :origin="fields.wallet.origin"
-        :manifest="fields.wallet.manifest">
-      </wrm-origin-card>
+        :manifest="fields.wallet.manifest" />
     </div>
     <wrm-header-close-button
       class="wrm-flex-item"
       @click.native="cancel()" />
   </div>
 </template>
+
 <script>
 /*!
  * New BSD License (3-clause)
@@ -29,6 +30,32 @@
 
 export default {
   name: 'HandlerWindowHeader',
+  props: {
+    origin: {
+      type: String,
+      required: true
+    },
+    relyingDomain: {
+      type: String,
+      required: true
+    },
+    relyingOrigin: {
+      type: String,
+      required: true
+    },
+    relyingOriginManifest: {
+      type: Object,
+      required: true
+    },
+    operation: {
+      type: String,
+      required: true
+    },
+    hint: {
+      type: Object,
+      required: true
+    }
+  },
   data() {
     return {
       iconSize: 32
@@ -68,32 +95,6 @@ export default {
       return {left: relyingParty, right: wallet, wallet, relyingParty};
     }
   },
-  props: {
-    origin: {
-      type: String,
-      required: true
-    },
-    relyingDomain: {
-      type: String,
-      required: true
-    },
-    relyingOrigin: {
-      type: String,
-      required: true
-    },
-    relyingOriginManifest: {
-      type: Object,
-      required: true
-    },
-    operation: {
-      type: String,
-      required: true
-    },
-    hint: {
-      type: Object,
-      required: true
-    }
-  },
   methods: {
     back() {
       this.$emit('back');
@@ -113,5 +114,6 @@ function _getName({manifest, domain}) {
 }
 
 </script>
+
 <style>
 </style>

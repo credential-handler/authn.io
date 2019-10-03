@@ -10,10 +10,10 @@
     <wrm-origin-card
       style="padding: 20px 0 10px 0"
       :origin="relyingOrigin"
-      :manifest="relyingOriginManifest">
-    </wrm-origin-card>
+      :manifest="relyingOriginManifest" />
   </div>
 </template>
+
 <script>
 /*!
  * New BSD License (3-clause)
@@ -41,5 +41,6 @@ export default {
   }
 };
 </script>
+
 <style>
 </style>

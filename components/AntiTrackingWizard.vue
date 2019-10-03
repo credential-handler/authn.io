@@ -9,21 +9,25 @@
       <p v-if="firstPartyVisited">
         Please click "Finish" to view your credential wallet.
       </p>
-      <p v-else="firstPartyVisited">
+      <p v-else>
         Please click "Next" to open the authorization window.
       </p>
 
       <p v-if="awaitingAuthorization">
-        Awaiting authorization... <i class="fas fa-cog fa-spin"></i>
+        Awaiting authorization... <i class="fas fa-cog fa-spin" />
       </p>
     </div>
 
     <p>
-      <a @click="explainer=!explainer" class="wrm-heading"
-        style="cursor: pointer">What's going on?</a>
+      <a
+        class="wrm-heading"
+        style="cursor: pointer"
+        @click="explainer=!explainer">What's going on?</a>
     </p>
 
-    <div v-if="explainer" style="font-size: 12px">
+    <div
+      v-if="explainer"
+      style="font-size: 12px">
       <p>
         This browser uses anti-tracker technology to help prevent advertisers
         from tracking you online. Unfortunately, this feature can interfere
@@ -46,11 +50,11 @@
       </p>
 
       <div style="font-size: 12px">
+        For more information, see:
         <p>
-          <div>
-          For more information, see:
-          </div>
-          <a target="_blank" class="wrm-heading"
+          <a
+            target="_blank"
+            class="wrm-heading"
             style="cursor: pointer; text-decoration: none"
             href="https://webkit.org/blog/8311/intelligent-tracking-prevention-2-0/"
             >https://webkit.org/blog/8311/intelligent-tracking-prevention-2-0/</a>
@@ -58,21 +62,27 @@
       </div>
     </div>
 
-    <div class="wrm-button-bar" style="margin-top: 10px">
-      <button type="button" class="wrm-button"
+    <div
+      class="wrm-button-bar"
+      style="margin-top: 10px">
+      <button
+        type="button"
+        class="wrm-button"
         @click="onCancel()">
         Cancel
       </button>
-      <button type="button" class="wrm-button wrm-primary"
+      <button
+        type="button"
+        class="wrm-button wrm-primary"
         style="margin-left: 5px"
         @click="onNext($event)">
         <span v-if="!firstPartyVisited">Next</span>
         <span v-else>Finish</span>
       </button>
     </div>
-
   </div>
 </template>
+
 <script>
 /*!
  * New BSD License (3-clause)
@@ -122,5 +132,6 @@ export default {
   }
 };
 </script>
+
 <style>
 </style>

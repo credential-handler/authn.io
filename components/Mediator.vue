@@ -1,17 +1,20 @@
 <template>
   <div>
     <div v-if="display === 'permissionRequest'">
-      <wrm-permission-dialog v-if="showPermissionDialog"
+      <wrm-permission-dialog
+        v-if="showPermissionDialog"
         :origin="relyingDomain"
         :permissions="permissions"
-        @deny="deny()" @allow="allow()"/>
+        @deny="deny()"
+        @allow="allow()" />
 
       <!-- Note: This wizard is presently only used to create a dialog around
            the AntiTrackingWizard. -->
-      <wrm-wizard-dialog v-else
+      <wrm-wizard-dialog
+        v-else
         :loading="loading"
         :first="true"
-        :hasNext="false"
+        :has-next="false"
         :blocked="loading"
         @cancel="deny()">
         <template slot="header">
@@ -26,23 +29,26 @@
         </template>
         <template slot="footer">
           <!-- do not show footer -->
-          <div></div>
+          <div />
         </template>
       </wrm-wizard-dialog>
     </div>
 
-    <wrm-wizard-dialog v-else-if="!hideWizard &&
-      (display === 'credentialRequest' || display === 'credentialStore')"
+    <wrm-wizard-dialog
+      v-else-if="!hideWizard &&
+        (display === 'credentialRequest' || display === 'credentialStore')"
       :loading="loading"
       :first="showGreeting"
-      :hasNext="showGreeting || !hasStorageAccess"
+      :has-next="showGreeting || !hasStorageAccess"
       :blocked="loading || (!showGreeting && !selectedHint)"
       @cancel="cancel()"
       @next="nextWizardStep()"
       @back="prevWizardStep()">
       <template slot="header">
         <div style="font-size: 18px; font-weight: bold; user-select: none">
-          <div v-if="showGreeting" style="margin-left: -5px">
+          <div
+            v-if="showGreeting"
+            style="margin-left: -5px">
             <div v-if="display === 'credentialRequest'">
               Credentials Request
             </div>
@@ -50,12 +56,16 @@
               Store Credentials
             </div>
           </div>
-          <div v-else-if="!hasStorageAccess" style="margin-left: -10px">
+          <div
+            v-else-if="!hasStorageAccess"
+            style="margin-left: -10px">
             Authorize Viewing Your Wallet
           </div>
-          <div v-else style="margin-left: -10px">
+          <div
+            v-else
+            style="margin-left: -10px">
             <span v-if="selectedHint">Loading Wallet...
-              <i class="fas fa-cog fa-spin"></i>
+              <i class="fas fa-cog fa-spin" />
             </span>
             <span v-else>Choose a Wallet</span>
           </div>
@@ -63,11 +73,12 @@
       </template>
       <template slot="body">
         <!-- step 1 -->
-        <mediator-greeting v-if="showGreeting"
+        <mediator-greeting
+          v-if="showGreeting"
           style="user-select: none"
           :display="display"
-          :relyingOrigin="relyingOrigin"
-          :relyingOriginManifest="relyingOriginManifest" />
+          :relying-origin="relyingOrigin"
+          :relying-origin-manifest="relyingOriginManifest" />
 
         <!-- optional step 2 -->
         <div v-else-if="!hasStorageAccess && !showHintChooser">
@@ -87,9 +98,11 @@
           <template slot="message">
             <div style="padding-top: 10px">
               <div v-if="loading">
-                Loading options... <i class="fas fa-cog fa-spin"></i>
+                Loading options... <i class="fas fa-cog fa-spin" />
               </div>
-              <div v-if="hintOptions.length === 0" style="font-size: 14px">
+              <div
+                v-if="hintOptions.length === 0"
+                style="font-size: 14px">
                 <div style="font-weight: bold">
                   Warning
                 </div>
@@ -115,8 +128,12 @@
                     register again.
                   </p>
                 </div>
-                <div class="wrm-button-bar" style="margin-top: 10px">
-                  <button type="button" class="wrm-button wrm-primary"
+                <div
+                  class="wrm-button-bar"
+                  style="margin-top: 10px">
+                  <button
+                    type="button"
+                    class="wrm-button wrm-primary"
                     :disabled="loading"
                     @click="cancel()">
                     Close
@@ -125,20 +142,24 @@
               </div>
             </div>
           </template>
-          <template slot="hint-list-footer" v-if="hintOptions.length > 0">
+          <template
+            v-if="hintOptions.length > 0"
+            slot="hint-list-footer">
             <div
               style="margin: 10px -15px 0px -15px; padding: 15px 15px 0px 15px;"
               class="wrm-separator wrm-modern">
               <wrm-checkbox
+                v-model="rememberChoice"
                 checkbox-class="wrm-blue"
                 checkbox-style="font-size: 14px"
                 label="Remember my choice for this site"
-                label-class="wrm-dark-gray"
-                v-model="rememberChoice" />
+                label-class="wrm-dark-gray" />
             </div>
           </template>
         </wrm-hint-chooser>
-        <div v-else-if="selectedHint" style="padding-top: 15px">
+        <div
+          v-else-if="selectedHint"
+          style="padding-top: 15px">
           <wrm-hint
             :hint="selectedHint"
             default-icon="fas fa-wallet"
@@ -148,20 +169,22 @@
             :disabled="true" />
         </div>
       </template>
-      <template slot="footer" v-if="!showGreeting">
+      <template
+        v-if="!showGreeting"
+        slot="footer">
         <!-- clear footer after first step -->
-        <div></div>
+        <div />
       </template>
     </wrm-wizard-dialog>
   </div>
 </template>
+
 <script>
 /*!
  * New BSD License (3-clause)
  * Copyright (c) 2017-2019, Digital Bazaar, Inc.
  * All rights reserved.
  */
-/* global navigator */
 'use strict';
 
 import * as polyfill from 'credential-mediator-polyfill';
@@ -181,33 +204,6 @@ let resolvePermissionRequest;
 export default {
   name: 'Mediator',
   components: {AntiTrackingWizard, MediatorGreeting},
-  async created() {
-    if(window.location.ancestorOrigins &&
-      window.location.ancestorOrigins.length > 0) {
-      this.relyingOrigin = window.location.ancestorOrigins[0];
-    } else {
-      const {origin} = this.$route.query;
-      this.relyingOrigin = origin;
-    }
-
-    this.relyingDomain = utils.parseUrl(this.relyingOrigin).host;
-
-    // TODO: is this the appropriate place to run this?
-    loadPolyfill(this);
-
-    // attempt to load web app manifest icon
-    const manifest = await getWebAppManifest(this.relyingDomain);
-    this.relyingOriginManifest = manifest;
-  },
-  computed: {
-    relyingOriginName() {
-      if(!this.relyingOriginManifest) {
-        return this.relyingDomain;
-      }
-      const {name, short_name} = this.relyingOriginManifest;
-      return name || short_name || this.relyingDomain;
-    }
-  },
   data() {
     return {
       rememberChoice: false,
@@ -228,6 +224,33 @@ export default {
       showGreeting: false,
       showPermissionDialog: false
     };
+  },
+  computed: {
+    relyingOriginName() {
+      if(!this.relyingOriginManifest) {
+        return this.relyingDomain;
+      }
+      const {name, short_name} = this.relyingOriginManifest;
+      return name || short_name || this.relyingDomain;
+    }
+  },
+  async created() {
+    if(window.location.ancestorOrigins &&
+      window.location.ancestorOrigins.length > 0) {
+      this.relyingOrigin = window.location.ancestorOrigins[0];
+    } else {
+      const {origin} = this.$route.query;
+      this.relyingOrigin = origin;
+    }
+
+    this.relyingDomain = utils.parseUrl(this.relyingOrigin).host;
+
+    // TODO: is this the appropriate place to run this?
+    loadPolyfill(this);
+
+    // attempt to load web app manifest icon
+    const manifest = await getWebAppManifest(this.relyingDomain);
+    this.relyingOriginManifest = manifest;
   },
   methods: {
     async allow() {
@@ -535,5 +558,6 @@ async function getWebAppManifest(host) {
 }
 
 </script>
+
 <style>
 </style>
