@@ -204,8 +204,42 @@ let resolvePermissionRequest;
 export default {
   name: 'Mediator',
   components: {AntiTrackingWizard, MediatorGreeting},
+  async created() {
+    if(window.matchMedia('(prefers-color-scheme: dark)')) {
+      this.theme = 'dark';
+    } else {
+      this.theme = 'light';
+    }
+
+    if(window.location.ancestorOrigins &&
+      window.location.ancestorOrigins.length > 0) {
+      this.relyingOrigin = window.location.ancestorOrigins[0];
+    } else {
+      const {origin} = this.$route.query;
+      this.relyingOrigin = origin;
+    }
+
+    this.relyingDomain = utils.parseUrl(this.relyingOrigin).host;
+
+    // TODO: is this the appropriate place to run this?
+    loadPolyfill(this);
+
+    // attempt to load web app manifest icon
+    const manifest = await getWebAppManifest(this.relyingDomain);
+    this.relyingOriginManifest = manifest;
+  },
+  computed: {
+    relyingOriginName() {
+      if(!this.relyingOriginManifest) {
+        return this.relyingDomain;
+      }
+      const {name, short_name} = this.relyingOriginManifest;
+      return name || short_name || this.relyingDomain;
+    }
+  },
   data() {
     return {
+      theme: 'light',
       rememberChoice: false,
       display: null,
       hasStorageAccess: false,
@@ -345,7 +379,8 @@ export default {
           const {origin, host} = utils.parseUrl(credentialHandler);
           const manifest = (await getWebAppManifest(host)) || {};
           const name = manifest.name || manifest.short_name || host;
-          let icon = getWebAppManifestIcon({manifest, origin, size: 32});
+          let icon = getWebAppManifestIcon(
+            {manifest, origin, size: 32, theme: this.theme});
           if(icon) {
             icon = {fetchedImage: icon.src};
           }
