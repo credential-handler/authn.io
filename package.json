@@ -17,11 +17,11 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.3.1",
     "axios": "^0.18.0",
-    "bedrock": "^1.18.1",
+    "bedrock": "^3.0.0",
     "bedrock-express": "^2.1.2",
     "bedrock-letsencrypt": "^0.2.7",
     "bedrock-server": "^2.3.1",
-    "bedrock-views": "^6.5.1",
+    "bedrock-views": "^7.0.0",
     "bedrock-vue": "^1.1.0",
     "bedrock-web": "^1.0.0",
     "bedrock-webpack": "^2.0.0",
