@@ -17,7 +17,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.3.1",
     "axios": "^0.18.0",
-    "bedrock": "^1.18.1",
+    "bedrock": "^2.0.0",
     "bedrock-express": "^2.1.2",
     "bedrock-letsencrypt": "^0.2.7",
     "bedrock-server": "^2.3.1",
