@@ -7,7 +7,9 @@
   "scripts": {
     "start": "node authorization.dev.js",
     "test": "node authorization.dev.js test",
-    "postinstall": "node authorization.dev.js compile-less"
+    "postinstall": "node authorization.dev.js compile-less",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -33,7 +35,8 @@
     "tiny-cookie": "^2.1.2",
     "vue-web-request-mediator": "^2.2.0",
     "web-request-mediator": "^1.1.4",
-    "web-request-rpc": "^1.1.4"
+    "web-request-rpc": "^1.1.4",
+    "snyk": "^1.316.2"
   },
   "bedrock": {
     "browserDependencies": [
@@ -78,5 +81,6 @@
   "engines": {
     "node": ">=8.9.0"
   },
-  "directories": {}
+  "directories": {},
+  "snyk": true
 }
