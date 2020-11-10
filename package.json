@@ -6,6 +6,7 @@
   "less": "main.less",
   "scripts": {
     "start": "node authorization.dev.js",
+    "lint": "eslint .",
     "test": "node authorization.dev.js test",
     "postinstall": "node authorization.dev.js compile-less"
   },
