@@ -18,4 +18,4 @@ config.paths.log = path.join(os.tmpdir(), 'authorization.localhost');
 config.express.static.push(path.join(__dirname, '..', 'static'));
 
 // do not require strict SSL in dev mode
-config.jsonld.strictSSL = false;
+config['https-agent'].rejectUnauthroized = false;
