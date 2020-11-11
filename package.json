@@ -3,12 +3,9 @@
   "version": "0.4.0",
   "main": "lib",
   "browser": "./components/index.js",
-  "less": "main.less",
   "scripts": {
     "start": "node authorization.dev.js",
-    "lint": "eslint .",
-    "test": "node authorization.dev.js test",
-    "postinstall": "node authorization.dev.js compile-less"
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -16,16 +13,17 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.15.1",
     "axios": "^0.21.0",
-    "bedrock": "^1.18.1",
-    "bedrock-express": "^2.1.2",
+    "bedrock": "^3.3.0",
+    "bedrock-express": "^3.2.0",
+    "bedrock-fontawesome": "^1.0.0",
+    "bedrock-https-agent": "^2.0.0",
     "bedrock-letsencrypt": "^0.2.7",
     "bedrock-server": "^2.7.0",
-    "bedrock-views": "^6.5.1",
-    "bedrock-vue": "^1.1.0",
+    "bedrock-views": "^7.1.0",
+    "bedrock-vue": "^2.1.0",
     "bedrock-web": "^1.1.0",
-    "bedrock-webpack": "^2.0.0",
+    "bedrock-webpack": "^3.4.0",
     "content-type": "^1.0.4",
     "credential-mediator-polyfill": "^1.1.3",
     "express-async-handler": "^1.1.4",
@@ -36,48 +34,14 @@
     "web-request-mediator": "^1.1.4",
     "web-request-rpc": "^1.1.5"
   },
-  "bedrock": {
-    "browserDependencies": [
-      "@fortawesome/fontawesome-free",
-      "axios",
-      "bedrock-vue",
-      "bedrock-web",
-      "credential-mediator-polyfill",
-      "tiny-cookie",
-      "vue-web-request-mediator",
-      "web-request-rpc"
-    ],
-    "manifest": {
-      "@fortawesome/fontawesome-free": {
-        "main": null,
-        "less": [
-          "less/fontawesome.less",
-          "less/regular.less",
-          "less/solid.less"
-        ]
-      },
-      "authio": {
-        "module": "index.js",
-        "browser": "index.js"
-      },
-      "axios": {
-        "main": "dist/axios.min.js"
-      },
-      "font-awesome": {
-        "less": "less/font-awesome.less"
-      }
-    }
-  },
   "devDependencies": {
     "eslint": "^7.12.1",
     "eslint-config-digitalbazaar": "^2.6.1",
     "eslint-plugin-jsdoc": "^30.7.3",
-    "eslint-plugin-vue": "^7.1.0",
-    "jsdoc": "^3.6.6",
-    "jsdoc-to-markdown": "^6.0.1"
+    "eslint-plugin-vue": "^7.1.0"
   },
   "engines": {
-    "node": ">=8.9.0"
+    "node": ">=14"
   },
   "directories": {}
 }

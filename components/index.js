@@ -8,6 +8,9 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import * as WrmWebRequestMediator from 'vue-web-request-mediator';
 
+import './main.less';
+import 'bedrock-fontawesome';
+
 // install all plugins
 Vue.use(brVue);
 Vue.use(WrmWebRequestMediator);
@@ -17,19 +20,25 @@ brVue.setRootVue(async () => {
     mode: 'history',
     routes: [{
       path: '/',
-      component: () => import('./Home.vue'),
+      component: () => import(
+        /* webpackChunkName: "Home" */
+        './Home.vue'),
       meta: {
         title: 'authn.io'
       }
     }, {
       path: '/mediator',
-      component: () => import('./Mediator.vue'),
+      component: () => import(
+        /* webpackChunkName: "Mediator" */
+        './Mediator.vue'),
       meta: {
         title: 'Credential Mediator'
       }
     }, {
       path: '/allow-wallet-access',
-      component: () => import('./AllowWalletAccess.vue'),
+      component: () => import(
+        /* webpackChunkName: "AllowWalletAccess" */
+        './AllowWalletAccess.vue'),
       meta: {
         title: 'Allow Wallet Access'
       }
