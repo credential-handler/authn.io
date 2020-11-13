@@ -9,7 +9,6 @@
 const bedrock = require('bedrock');
 
 require('./lib/index');
-require('bedrock-letsencrypt');
 require('./configs/authorization.io');
 
 bedrock.start();
