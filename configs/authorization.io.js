@@ -36,11 +36,6 @@ config.server.port = 443;
 config.server.httpPort = 80;
 config.server.domain = 'authorization.io';
 
-// letsencrypt
-config.letsencrypt.domains.push(config.server.domain);
-config.letsencrypt.email = 'admin@authorization.io';
-config.letsencrypt.mode = 'production';
-
 // session info
 config.express.session.key = 'authio.sid';
 config.express.session.prefix = 'authio.';
