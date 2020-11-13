@@ -30,7 +30,7 @@
     "http-cache-semantics": "^4.1.0",
     "lru-cache": "^4.1.3",
     "tiny-cookie": "^2.3.2",
-    "vue-web-request-mediator": "^2.2.1",
+    "vue-web-request-mediator": "github:digitalbazaar/vue-web-request-mediator#master",
     "web-request-mediator": "^1.1.4",
     "web-request-rpc": "^1.1.5"
   },
