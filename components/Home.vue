@@ -6,8 +6,8 @@
       Credential Handler API specification. This website's code is
       <a href="https://github.com/digitalbazaar/authorization.io">available on GitHub</a>.
     </p>
-    <p>A demo of the Credential Handler API can be found here:</p>
-    <p><a href="https://credential-repository.demo.digitalbazaar.com">https://credential-repository.demo.digitalbazaar.com</a></p>
+    <p>Links to a demo of the Credential Handler API can be found here:</p>
+    <p><a href="https://github.com/digitalbazaar/credential-handler-polyfill#demo">Demo</a></p>
   </div>
 </template>
 
