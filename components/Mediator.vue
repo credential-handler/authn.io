@@ -478,7 +478,7 @@ async function loadPolyfill(component) {
   }
 }
 
-async function requestPermission(permissionDesc) {
+async function requestPermission(/*permissionDesc*/) {
   // prep display
   this.display = 'permissionRequest';
   const promise = new Promise(resolve => {
@@ -529,6 +529,7 @@ function updateHandlerWindow(handlerWindow) {
   const Component = Vue.extend(HandlerWindowHeader);
   const el = document.createElement('div');
   container.insertBefore(el, handlerWindow.iframe);
+  container.classList.add('wrm-slide-up');
   new Component({
     el,
     propsData: {
@@ -546,6 +547,7 @@ function updateHandlerWindow(handlerWindow) {
   });
   // clear iframe style that was set by web-request-rpc; set instead via CSS
   handlerWindow.iframe.style.cssText = null;
+  handlerWindow.iframe.classList.add('wrm-handler-iframe');
 }
 
 async function getWebAppManifest(host) {
