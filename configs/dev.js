@@ -2,7 +2,7 @@
  * authorization.io development configuration.
  *
  * New BSD License (3-clause)
- * Copyright (c) 2015-2018, Digital Bazaar, Inc.
+ * Copyright (c) 2015-2021, Digital Bazaar, Inc.
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
@@ -16,6 +16,3 @@ config.paths.log = path.join(os.tmpdir(), 'authorization.localhost');
 
 // serve contexts/images/etc
 config.express.static.push(path.join(__dirname, '..', 'static'));
-
-// do not require strict SSL in dev mode
-config['https-agent'].rejectUnauthorized = false;
