@@ -6,7 +6,7 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-const config = require('bedrock').config;
+const {config} = require('bedrock');
 const os = require('os');
 const path = require('path');
 
