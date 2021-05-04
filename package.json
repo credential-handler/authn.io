@@ -13,7 +13,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "axios": "^0.21.0",
+    "@digitalbazaar/http-client": "^1.1.0",
     "bedrock": "^3.3.0",
     "bedrock-express": "^3.2.0",
     "bedrock-fontawesome": "^1.0.0",

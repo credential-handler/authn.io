@@ -182,13 +182,13 @@
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2019, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2021, Digital Bazaar, Inc.
  * All rights reserved.
  */
 'use strict';
 
 import * as polyfill from 'credential-mediator-polyfill';
-import axios from 'axios';
+import {httpClient} from '@digitalbazaar/http-client';
 import {getSiteChoice, setSiteChoice} from './siteChoice.js';
 import {getWebAppManifestIcon} from 'vue-web-request-mediator';
 import {hasStorageAccess, requestStorageAccess} from 'web-request-mediator';
@@ -552,7 +552,7 @@ function updateHandlerWindow(handlerWindow) {
 
 async function getWebAppManifest(host) {
   try {
-    const response = await axios.get('/manifest', {params: {host}});
+    const response = await httpClient.get('/manifest', {searchParams: {host}});
     return response.data;
   } catch(e) {
     return null;
