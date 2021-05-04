@@ -13,6 +13,3 @@ const path = require('path');
 // common paths
 config.paths.cache = path.join(__dirname, '..', '.cache');
 config.paths.log = path.join(os.tmpdir(), 'authn.localhost');
-
-// serve contexts/images/etc
-config.express.static.push(path.join(__dirname, '..', 'static'));
