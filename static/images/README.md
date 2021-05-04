@@ -1,10 +1,10 @@
-authorization.io Icons
+authn.io Icons
 ======================
 
 Files
 -----
 
-* authorization-io-logo.{svg,-#.png}: rectangular logo
+* logo.{svg,-#.png}: rectangular logo
 
 Building
 --------
@@ -20,7 +20,7 @@ To clean up old pngs:
 To create multi-size ../favicon.ico:
 
     $ make
-    # open largest authorization-io-logo-64.png with GIMP
+    # open largest logo-64.png with GIMP
     # go to File > Open as Layers...
     # select the 32 and 16 files
     # export to favicon.ico

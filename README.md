@@ -1,4 +1,4 @@
-# authorization.io
+# authn.io
 
 A part of the solution to the [NASCAR login problem][NASCAR].
 
@@ -50,7 +50,7 @@ implements the [Credential Handler API][] would function.
 
 # Development
 
-The following section explains how to setup and develop the authorization.io
+The following section explains how to setup and develop the authn.io
 software on a local development machine.
 
 ### Requirements
@@ -60,13 +60,13 @@ software on a local development machine.
 
 ### Configuration
 
-The options in the `./configs/authorization.dev.js` file can be tuned to your
+The options in the `./configs/authn.localhost.js` file can be tuned to your
 environment as needed.
 
 ## Setup
 
 * Install the dependencies (see below)
-* Map the `authorization.localhost` hostname to your localhost.
+* Map the `authn.localhost` hostname to your localhost.
 
 To install dependencies, do the following:
 
@@ -74,22 +74,22 @@ To install dependencies, do the following:
 
 ### Running
 
-Add a host alias (for example, edit `/etc/hosts`) to map `authorization.localhost` to
+Add a host alias (for example, edit `/etc/hosts`) to map `authn.localhost` to
 `localhost`.
 
 Run the following to start up a development server from the source directory:
 
-    node authorization.dev.js
+    node authn.localhost.js
 
 To add more verbose debugging, use the `--log-level` option:
 
-    node authorization.dev.js --log-level debug
+    node authn.localhost.js --log-level debug
 
 ### Usage
 
 Access the server at the following URL:
 
-* https://authorization.localhost:33443/
+* https://authn.localhost:33443/
 
 [authn.io]: https://authn.io
 [NASCAR]: https://indiewebcamp.com/NASCAR_problem "The NASCAR Problem"

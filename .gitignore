@@ -12,10 +12,9 @@ coverage
 node_modules
 npm-debug.log
 reports
-authorization.dev-error.log
-authorization.dev-app.log
-authorization.dev-access.log
-authorization.dev-access1.log
+authn.localhost-error.log
+authn.localhost-app.log
+authn.localhost-access.log
+authn.localhost-access1.log
 bedrock
-static/images/authorization-io-logo-*.png
-
+static/images/logo-*.png

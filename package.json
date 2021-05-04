@@ -4,12 +4,12 @@
   "main": "lib",
   "browser": "./components/index.js",
   "scripts": {
-    "start": "node authorization.dev.js",
+    "start": "node authn.localhost.js",
     "lint": "eslint ."
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/digitalbazaar/authorization.io"
+    "url": "https://github.com/digitalbazaar/authn.io"
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {

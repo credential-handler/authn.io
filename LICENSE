@@ -1,12 +1,12 @@
-You may use the authorization.io project under the terms of the 
+You may use the authn.io project under the terms of the 
 New BSD License (3-clause).
 
 The BSD License is recommended for most projects. It is simple and easy to 
 understand and it places almost no restrictions on what you can do with the
-authorization.io project.
+authn.io project.
 
 NOTE: The use of this project under the New BSD License does not grant a
-license for Bedrock (the applications server that authorization.io runs
+license for Bedrock (the applications server that authn.io runs
 on top of). A Bedrock license may be acquired via Digital Bazaar:
 support@digitalbazaar.com
 
