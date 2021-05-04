@@ -14,7 +14,7 @@
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "@digitalbazaar/http-client": "^1.1.0",
-    "bedrock": "^3.3.0",
+    "bedrock": "^4.1.0",
     "bedrock-express": "^4.0.0",
     "bedrock-fontawesome": "^1.0.0",
     "bedrock-server": "^2.7.0",

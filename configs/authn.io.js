@@ -29,12 +29,8 @@ config.core.running.userId = 'authnio';
 config.loggers.app.bedrock.enableChownDir = true;
 config.loggers.access.bedrock.enableChownDir = true;
 config.loggers.error.bedrock.enableChownDir = true;
-config.loggers.email.silent = true;
 
 // server info
 config.server.port = 443;
 config.server.httpPort = 80;
 config.server.domain = 'authn.io';
-
-// serve contexts/images/etc
-config.express.static.push(path.join(__dirname, '..', 'static'));
