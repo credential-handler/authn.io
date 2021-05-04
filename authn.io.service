@@ -1,6 +1,6 @@
 [Service]
-ExecStart=/usr/bin/node /home/bedrock/authorization.io/demo.authorization.io.js
-WorkingDirectory=/home/bedrock/authorization.io
+ExecStart=/usr/bin/node /home/authnio/authn.io/authn.io.js
+WorkingDirectory=/home/authnio/authn.io
 Restart=always
 StandardOutput=syslog
 StandardError=syslog

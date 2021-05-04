@@ -1,6 +1,6 @@
-# authorization.io icons
+# authn.io icons
 
-LOGO_NAME=authorization-io-logo
+LOGO_NAME=logo
 LOGO_SRC=$(LOGO_NAME).svg
 LOGO_PNGS=\
 	$(LOGO_NAME).png \
