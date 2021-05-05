@@ -17,8 +17,6 @@
  * Copyright (c) 2017-2021, Digital Bazaar, Inc.
  * All rights reserved.
  */
-'use strict';
-
 export default {
   name: 'Home'
 };
