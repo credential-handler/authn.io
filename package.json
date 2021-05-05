@@ -22,6 +22,7 @@
     "bedrock-vue": "^2.1.0",
     "bedrock-web": "^1.1.0",
     "bedrock-webpack": "^3.4.0",
+    "content-type": "^1.0.4",
     "credential-mediator-polyfill": "^1.1.3",
     "tiny-cookie": "^2.3.2",
     "vue-web-request-mediator": "^4.0.0",

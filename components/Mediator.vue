@@ -185,11 +185,9 @@
  * Copyright (c) 2017-2021, Digital Bazaar, Inc.
  * All rights reserved.
  */
-'use strict';
-
 import * as polyfill from 'credential-mediator-polyfill';
-import {httpClient} from '@digitalbazaar/http-client';
 import {getSiteChoice, setSiteChoice} from './siteChoice.js';
+import {getWebAppManifest} from './manifest.js';
 import {getWebAppManifestIcon} from 'vue-web-request-mediator';
 import {hasStorageAccess, requestStorageAccess} from 'web-request-mediator';
 import {utils} from 'web-request-rpc';
@@ -200,10 +198,6 @@ import Vue from 'vue';
 
 let deferredCredentialOperation;
 let resolvePermissionRequest;
-let cacheStorage;
-
-const CACHE_NAME = 'authn.io-1';
-const CACHE_TTL = 5 * 60 * 1000;
 
 export default {
   name: 'Mediator',
@@ -552,76 +546,6 @@ function updateHandlerWindow(handlerWindow) {
   // clear iframe style that was set by web-request-rpc; set instead via CSS
   handlerWindow.iframe.style.cssText = null;
   handlerWindow.iframe.classList.add('wrm-handler-iframe');
-}
-
-async function getWebAppManifest(host) {
-  try {
-    const url = `https://${host}/manifest.json`;
-    if(!cacheStorage && typeof caches !== 'undefined') {
-      cacheStorage = await caches.open(CACHE_NAME);
-    }
-    if(!cacheStorage) {
-      // no cache storage/API available, fetch directly
-      return getWebAppManifestFromUrl(url);
-    }
-
-    // try to get cached response
-    let response = await cacheStorage.match(url);
-    if(response && response.ok) {
-      const expires = new Date(response.headers.get('expires'));
-      const now = new Date();
-      if(expires >= now) {
-        // return cached response
-        return response.json();
-      }
-      // remove expired response from cache
-      await cacheStorage.delete(url);
-    }
-
-    try {
-      // fetch live response
-      response = await fetch(url);
-
-      // build a cached response that will expire based on local config
-      const headers = new Headers(response.headers);
-      const expires = new Date(Date.now() + CACHE_TTL);
-      headers.set('expires', expires.toUTCString());
-      response = new Response(response.body, {
-        status: response.status,
-        statusText: response.statusText,
-        headers
-      });
-      await cacheStorage.put(url, response);
-    } catch(e) {
-      if(e.name === 'QuotaExceededError') {
-        // clear the whole cache
-        caches.delete(CACHE_NAME);
-        cacheStorage = null;
-        // use fetched response
-        return response.json();
-      }
-
-      // failed to fetch
-      console.error(e);
-      return null;
-    }
-
-    // get cloned response from cache and return parsed body
-    response = await cacheStorage.match(url);
-    return response.json();
-  } catch(e) {
-    console.error(e);
-    return null;
-  }
-}
-
-async function getWebAppManifestFromUrl(url) {
-  try {
-    const response = await httpClient.get(url);
-    return response.data;
-  } catch(e) {
-    return null;
-  }
 }
 
 </script>
