@@ -89,7 +89,7 @@ export async function getWebAppManifest(host) {
     return await _parseBody(response);
   } catch(e) {
     const {origin} = new URL(url);
-    console.error(
+    console.warn(
       `Warning: Could not fetch the Web app manifest from "${url}". ` +
       `Fixing this may improve the information displayed for "${origin}".`, e);
     return null;
