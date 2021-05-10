@@ -45,37 +45,29 @@ implements the [Credential Handler API][] would function.
 
 ## Requirements
 
-- npm v5+
-- node v8.9+
+* Node.js v14+
+* npm v6+
 
-# Development
+## Development
 
 The following section explains how to setup and develop the authn.io
 software on a local development machine.
-
-### Requirements
-
-* node.js
-* npm
 
 ### Configuration
 
 The options in the `./configs/authn.localhost.js` file can be tuned to your
 environment as needed.
 
-## Setup
+### Setup
 
-* Install the dependencies (see below)
-* Map the `authn.localhost` hostname to your localhost.
-
-To install dependencies, do the following:
+* Install the dependencies
 
     npm install
 
-### Running
+* Map the `authn.localhost` hostname to your localhost.  For example, edit
+  `/etc/hosts` to map `authn.localhost` to `localhost`.
 
-Add a host alias (for example, edit `/etc/hosts`) to map `authn.localhost` to
-`localhost`.
+### Running
 
 Run the following to start up a development server from the source directory:
 
@@ -90,6 +82,24 @@ To add more verbose debugging, use the `--log-level` option:
 Access the server at the following URL:
 
 * https://authn.localhost:33443/
+
+## Production
+
+Full instructions for running this code in production are beyond the scope of
+this documentation.
+
+A *simplified* startup script and systemd service file are available that could
+be used with appropriate modifications. Considerations must be made for
+scalability, robustness, TLS, and other issues.
+
+An issue for any production environment is that that code should be bundled
+such that it can be served as efficient static files. After any code updates,
+either the production startup script, or appropriate command line flags, should
+be used to output the static files:
+
+    node authn.io.js bundle
+
+A fully static site is possible but see the cookie note in `lib/http.js`.
 
 [authn.io]: https://authn.io
 [NASCAR]: https://indiewebcamp.com/NASCAR_problem "The NASCAR Problem"
