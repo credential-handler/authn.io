@@ -7,7 +7,6 @@
  * All rights reserved.
  */
 const {config} = require('bedrock');
-const path = require('path');
 
 // common paths
 config.paths.cache = '/var/cache/authn.io';
