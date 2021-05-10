@@ -1,12 +1,16 @@
+[Unit]
+Description=authn.io website
+After=syslog.target network.target
+
 [Service]
-ExecStart=/usr/bin/node /home/authnio/authn.io/authn.io.js
-WorkingDirectory=/home/authnio/authn.io
+ExecStart=/usr/bin/node --preserve-symlinks /home/authnio/authn.io/authn.io.js > /dev/null 2>&1
+WorkingDirectory=/home/authnio
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=authio
-User=root
-Group=root
+User=authnio
+Group=authnio
 Environment=NODE_ENV=production
 
 [Install]
