@@ -93,6 +93,7 @@
           style="user-select: none"
           :hints="hintOptions"
           :cancel-remove-hint-timeout="5000"
+          :hint-removal-text="hintRemovalText"
           default-hint-icon="fas fa-wallet"
           enable-remove-hint
           @remove-hint="removeHint"
@@ -212,6 +213,7 @@ export default {
       hasStorageAccess: false,
       hideWizard: false,
       hintOptions: [],
+      hintRemovalText: 'Hiding...',
       loading: false,
       permissions: [{
         name: 'Manage credentials',
