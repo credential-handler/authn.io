@@ -92,6 +92,7 @@
           v-else-if="showHintChooser"
           style="user-select: none"
           :hints="hintOptions"
+          :cancel-remove-hint-timeout="1000"
           default-hint-icon="fas fa-wallet"
           enable-remove-hint
           @remove-hint="removeHint"
@@ -103,7 +104,7 @@
                 Loading options... <i class="fas fa-cog fa-spin" />
               </div>
               <div
-                v-if="hintOptions.length === 0"
+                v-else-if="hintOptions.length === 0"
                 style="font-size: 14px">
                 <div style="font-weight: bold">
                   Warning
@@ -468,6 +469,8 @@ export default {
         hint.hintOption.credentialHandler);
       if(this.hintOptions.length === 0) {
         // load hints again to use recommended handler origins if present
+        // and include a slight delay to avoid flash of content
+        await new Promise(r => setTimeout(r, 1000));
         await this.loadHints();
         this.loading = false;
       }
