@@ -23,7 +23,7 @@
     "bedrock-web": "^1.1.0",
     "bedrock-webpack": "^3.4.0",
     "content-type": "^1.0.4",
-    "credential-mediator-polyfill": "^1.2.0",
+    "credential-mediator-polyfill": "^1.2.1",
     "vue": "^2.6.12",
     "vue-router": "^3.5.1",
     "vue-web-request-mediator": "^4.1.1",
