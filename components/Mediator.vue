@@ -398,7 +398,14 @@ export default {
                 credentialHandler: manifest.credential_handler.url,
                 credentialHintKey: null
               },
-              jit: true
+              jit: {
+                recommendedBy: {
+                  name: this.relyingOriginName,
+                  origin: this.relyingOrigin,
+                  manifest: this.relyingOriginManifest,
+                  domain: this.relyingDomain
+                }
+              }
             };
           }))).filter(e => !!e);
         this.hintOptions = jitHints;
