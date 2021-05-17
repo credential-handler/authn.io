@@ -477,8 +477,17 @@ export default {
       let _resolve;
       event.waitUntil(new Promise(r => _resolve = r));
 
-      // save choice for site
       let {credentialHandler} = event.hint.hintOption;
+
+      // auto-register handler if hint was JIT-created
+      if(event.hint.jit) {
+        const {name, manifest: {credential_handler: {enabledTypes}}} =
+          event.hint;
+        await navigator.credentialMediator.ui.registerCredentialHandler(
+          credentialHandler, {name, enabledTypes, icons: []});
+      }
+
+      // save choice for site
       if(!this.rememberChoice) {
         credentialHandler = null;
       }
