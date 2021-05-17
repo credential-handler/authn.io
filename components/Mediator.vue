@@ -93,6 +93,8 @@
           style="user-select: none"
           :hints="hintOptions"
           default-hint-icon="fas fa-wallet"
+          enable-remove-hint
+          @remove-hint="removeHint"
           @confirm="selectHint"
           @cancel="cancel()">
           <template slot="message">
@@ -324,14 +326,80 @@ export default {
     },
     async loadHints() {
       let hintOptions;
+      let recommendedHandlerOrigins;
       if(this.credentialRequestOptions) {
         // get matching hints from request options
         hintOptions = await navigator.credentialMediator.ui
           .matchCredentialRequest(this.credentialRequestOptions);
+        ({web: {recommendedHandlerOrigins = []}} =
+          this.credentialRequestOptions);
       } else {
         // must be a storage request, get hints that match credential
         hintOptions = await navigator.credentialMediator.ui
           .matchCredential(this.credential);
+        ({options: {recommendedHandlerOrigins = []} = {}} = this.credential);
+      }
+
+      // no available hints, check for recommended options
+      if(hintOptions.length === 0 && Array.isArray(recommendedHandlerOrigins)) {
+        // get relevant types to match against handler
+        let types = [];
+        if(this.credentialRequestOptions) {
+          // types are all capitalized `{web: {Type1, Type2, ..., TypeN}}`
+          types = Object.keys(this.credentialRequestOptions.web)
+            .filter(k => k[0] === k.toUpperCase()[0]);
+        } else {
+          types.push(this.credential.dataType);
+        }
+
+        // maximum of 3 recommended handlers
+        recommendedHandlerOrigins = recommendedHandlerOrigins.slice(0, 3);
+        const jitHints = (await Promise.all(recommendedHandlerOrigins.map(
+          async recommendedOrigin => {
+            if(typeof recommendedOrigin !== 'string') {
+              return;
+            }
+            const {host, origin} = utils.parseUrl(recommendedOrigin);
+            const manifest = (await getWebAppManifest(host)) || {};
+            const name = manifest.name || manifest.short_name || host;
+            if(!(manifest.credential_handler &&
+              manifest.credential_handler.url &&
+              manifest.credential_handler.enabledTypes)) {
+              // manifest does not have credential handler info
+              return;
+            }
+            // see if manifest expressed types match request/credential type
+            let match = false;
+            for(const t of types) {
+              if(manifest.credential_handler.enabledTypes.includes(t)) {
+                match = true;
+                break;
+              }
+            }
+            if(!match) {
+              // no match
+              return;
+            }
+            // create hint
+            let icon = getWebAppManifestIcon({manifest, origin, size: 32});
+            if(icon) {
+              icon = {fetchedImage: icon.src};
+            }
+            return {
+              name,
+              icon,
+              origin,
+              host,
+              manifest,
+              hintOption: {
+                credentialHandler: manifest.credential_handler.url,
+                credentialHintKey: null
+              },
+              jit: true
+            };
+          }))).filter(e => !!e);
+        this.hintOptions = jitHints;
+        return;
       }
 
       // get unique credential handlers
@@ -343,6 +411,19 @@ export default {
           const {origin, host} = utils.parseUrl(credentialHandler);
           const manifest = (await getWebAppManifest(host)) || {};
           const name = manifest.name || manifest.short_name || host;
+          // if `manifest.credential_handler` is set, update registration
+          // to use it if it doesn't match already
+          // TODO: consider also updating if `enabledTypes` does not match
+          if(manifest.credential_handler &&
+            manifest.credential_handler.url &&
+            manifest.credential_handler.enabledTypes &&
+            manifest.credential_handler.url !== credentialHandler) {
+            const {url, enabledTypes} = manifest.credential_handler;
+            credentialHandler = url;
+            await navigator.credentialMediator.ui.registerCredentialHandler(
+              credentialHandler, {name, enabledTypes, icons: []});
+          }
+          // get updated name and icons
           let icon = getWebAppManifestIcon({manifest, origin, size: 32});
           if(icon) {
             icon = {fetchedImage: icon.src};
@@ -374,6 +455,21 @@ export default {
         });
       } else {
         this.showHintChooser = showHintChooser;
+      }
+    },
+    async removeHint(event) {
+      const {hint} = event;
+      const idx = this.hintOptions.indexOf(hint);
+      this.hintOptions.splice(idx, 1);
+      if(this.hintOptions.length === 0) {
+        this.loading = true;
+      }
+      await navigator.credentialMediator.ui.unregisterCredentialHandler(
+        hint.hintOption.credentialHandler);
+      if(this.hintOptions.length === 0) {
+        // load hints again to use recommended handler origins if present
+        await this.loadHints();
+        this.loading = false;
       }
     },
     async selectHint(event) {
