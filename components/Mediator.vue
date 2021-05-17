@@ -92,7 +92,7 @@
           v-else-if="showHintChooser"
           style="user-select: none"
           :hints="hintOptions"
-          :cancel-remove-hint-timeout="1000"
+          :cancel-remove-hint-timeout="5000"
           default-hint-icon="fas fa-wallet"
           enable-remove-hint
           @remove-hint="removeHint"
