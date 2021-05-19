@@ -27,7 +27,7 @@
     "vue": "^2.6.12",
     "vue-router": "^3.5.1",
     "vue-web-request-mediator": "^4.4.3",
-    "web-request-mediator": "^1.2.0",
+    "web-request-mediator": "^1.2.1",
     "web-request-rpc": "^1.1.5"
   },
   "devDependencies": {
