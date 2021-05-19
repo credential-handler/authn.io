@@ -367,7 +367,7 @@ export default {
             const name = manifest.name || manifest.short_name || host;
             if(!(manifest.credential_handler &&
               manifest.credential_handler.url &&
-              manifest.credential_handler.enabledTypes)) {
+              Array.isArray(manifest.credential_handler.enabledTypes))) {
               // manifest does not have credential handler info
               return;
             }
