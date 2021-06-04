@@ -388,6 +388,15 @@ export default {
             if(icon) {
               icon = {fetchedImage: icon.src};
             }
+            // resolve credential handler URL
+            let credentialHandler;
+            try {
+              credentialHandler = new URL(
+                manifest.credential_handler.url, origin).href;
+            } catch(e) {
+              console.error(e);
+              return;
+            }
             return {
               name,
               icon,
@@ -395,7 +404,7 @@ export default {
               host,
               manifest,
               hintOption: {
-                credentialHandler: manifest.credential_handler.url,
+                credentialHandler,
                 credentialHintKey: null
               },
               jit: {
@@ -426,12 +435,20 @@ export default {
           // TODO: consider also updating if `enabledTypes` does not match
           if(manifest.credential_handler &&
             manifest.credential_handler.url &&
-            manifest.credential_handler.enabledTypes &&
-            manifest.credential_handler.url !== credentialHandler) {
+            manifest.credential_handler.enabledTypes) {
             const {url, enabledTypes} = manifest.credential_handler;
-            credentialHandler = url;
-            await navigator.credentialMediator.ui.registerCredentialHandler(
-              credentialHandler, {name, enabledTypes, icons: []});
+            let newCredentialHandler;
+            // resolve credential handler URL
+            try {
+              newCredentialHandler = new URL(url, origin).href;
+              if(newCredentialHandler !== credentialHandler) {
+                credentialHandler = newCredentialHandler;
+                await navigator.credentialMediator.ui.registerCredentialHandler(
+                  credentialHandler, {name, enabledTypes, icons: []});
+              }
+            } catch(e) {
+              console.error(e);
+            }
           }
           // get updated name and icons
           let icon = getWebAppManifestIcon({manifest, origin, size: 32});
