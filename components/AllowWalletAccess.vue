@@ -32,7 +32,9 @@ export default {
       // set cookie to enable cross-domain storage access on Safari
       // Note: This cookie is only used by Safari. It must be accessible to
       // JavaScript (not http-only) in order for storage access to work
-      // properly.
+      // properly. Safari will only persist this cookie for 7 days per:
+      // https://www.cookiestatus.com/safari/#first-party-cookies
+      // But setting it in JS allows for the mediator to be a static site.
       document.cookie = 'v=1;secure;sameSite=None';
       window.close();
     }
