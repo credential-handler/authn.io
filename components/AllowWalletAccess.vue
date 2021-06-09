@@ -29,6 +29,11 @@ export default {
   name: 'AllowWalletAccess',
   methods: {
     async onClose() {
+      // set cookie to enable cross-domain storage access on Safari
+      // Note: This cookie is only used by Safari. It must be accessible to
+      // JavaScript (not http-only) in order for storage access to work
+      // properly.
+      document.cookie = 'v=1;secure;sameSite=None';
       window.close();
     }
   }
