@@ -35,7 +35,7 @@ export default {
       // properly. Safari will only persist this cookie for 7 days per:
       // https://www.cookiestatus.com/safari/#first-party-cookies
       // But setting it in JS allows for the mediator to be a static site.
-      document.cookie = 'v=1;secure;sameSite=None';
+      document.cookie = 'v=1;secure';
       window.close();
     }
   }
