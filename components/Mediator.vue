@@ -540,7 +540,7 @@ export default {
 
       if(canceled) {
         this.selectedHint = null;
-        this.rememberChoice = false;
+        this.rememberChoice = true;
         // clear site choice
         setSiteChoice({relyingOrigin, credentialHandler: null});
         this.showHintChooser = true;
@@ -585,7 +585,7 @@ export default {
       this.hideWizard = false;
       this.hintOptions = [];
       this.loading = false;
-      this.rememberChoice = false;
+      this.rememberChoice = true;
       this.selectedHint = null;
       this.showHintChooser = false;
       this.showGreeting = false;
