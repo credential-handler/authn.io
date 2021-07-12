@@ -208,7 +208,7 @@ export default {
   components: {AntiTrackingWizard, MediatorGreeting},
   data() {
     return {
-      rememberChoice: false,
+      rememberChoice: true,
       display: null,
       hasStorageAccess: false,
       hideWizard: false,
