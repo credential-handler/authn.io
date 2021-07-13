@@ -529,7 +529,8 @@ export default {
         response = await navigator.credentialMediator.ui.selectCredentialHint(
           event.hint.hintOption);
         if(!response) {
-          // clear site choice
+          // clear site choice when `null` response is returned by credential
+          // handler
           setSiteChoice({relyingOrigin, credentialHandler: null});
         }
         deferredCredentialOperation.resolve(response);
