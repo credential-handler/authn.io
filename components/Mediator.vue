@@ -529,8 +529,6 @@ export default {
         response = await navigator.credentialMediator.ui.selectCredentialHint(
           event.hint.hintOption);
         if(!response) {
-          this.selectedHint = null;
-          this.rememberChoice = true;
           // clear site choice
           setSiteChoice({relyingOrigin, credentialHandler: null});
         }
