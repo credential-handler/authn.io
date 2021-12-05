@@ -124,8 +124,8 @@ export default {
         handle.addEventListener('unload', () => {
           this.firstPartyVisited = true;
           this.awaitingAuthorization = false;
-        });
-      });
+        }, {once: true});
+      }, {once: true});
     }
   }
 };
