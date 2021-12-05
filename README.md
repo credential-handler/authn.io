@@ -67,6 +67,12 @@ environment as needed.
 * Map the `authn.localhost` hostname to your localhost.  For example, edit
   `/etc/hosts` to map `authn.localhost` to `localhost`.
 
+* To enable service worker registration during development, install the
+insecure localhost CA found in `/ssl` into the browser you are using for
+development. The private key for this CA has been destroyed so the only
+certificate that will ever work with it is the `authn.localhost.crt` file
+provided in the repository.
+
 ### Running
 
 Run the following to start up a development server from the source directory:
