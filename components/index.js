@@ -11,6 +11,16 @@ import * as WrmWebRequestMediator from 'vue-web-request-mediator';
 import './main.less';
 import 'bedrock-fontawesome';
 
+// install service worker on load
+(async () => {
+  try {
+    const registration = await navigator.serviceWorker.register('sw.js');
+    console.log('sw registration', registration);
+  } catch(e) {
+    console.error(e);
+  }
+})();
+
 // install all plugins
 Vue.use(brVue);
 Vue.use(WrmWebRequestMediator);
