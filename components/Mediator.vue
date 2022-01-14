@@ -238,14 +238,7 @@ export default {
     }
   },
   async created() {
-    if(window.location.ancestorOrigins &&
-      window.location.ancestorOrigins.length > 0) {
-      this.relyingOrigin = window.location.ancestorOrigins[0];
-    } else {
-      const {origin} = this.$route.query;
-      this.relyingOrigin = origin;
-    }
-
+    this.relyingOrigin = new URL(document.referrer).origin;
     this.relyingDomain = utils.parseUrl(this.relyingOrigin).host;
 
     // TODO: is this the appropriate place to run this?
