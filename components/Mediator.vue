@@ -238,7 +238,7 @@ export default {
     }
   },
   async created() {
-    this.relyingOrigin = new URL(document.referrer).origin;
+    this.relyingOrigin = utils.parseUrl(document.referrer).origin;
     this.relyingDomain = utils.parseUrl(this.relyingOrigin).host;
 
     // TODO: is this the appropriate place to run this?
