@@ -1,6 +1,6 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2021, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2022, Digital Bazaar, Inc.
  * All rights reserved.
  */
 import {httpClient} from '@digitalbazaar/http-client';
@@ -39,7 +39,7 @@ export async function getWebAppManifest(host) {
     let fetchError;
     try {
       // fetch live response
-      response = await fetch(url);
+      response = await fetch(url, {credentials: 'omit'});
 
       // build a cached response that will expire based on local config
       const headers = new Headers(response.headers);
@@ -113,7 +113,7 @@ function _isContentJson(response) {
 }
 
 async function _legacyFetch(url) {
-  const response = await httpClient.get(url);
+  const response = await httpClient.get(url, {credentials: 'omit'});
   if(!_isContentJson(response)) {
     throw new Error('Content is not JSON.');
   }
