@@ -1,6 +1,6 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2018-2019, Digital Bazaar, Inc.
+ * Copyright (c) 2018-2021, Digital Bazaar, Inc.
  * All rights reserved.
  */
 'use strict';
@@ -38,6 +38,19 @@ export function getSiteChoice({relyingOrigin, hintOptions}) {
     // ignore
   }
   return null;
+}
+
+export function hasSiteChoice({relyingOrigin}) {
+  try {
+    const choices = _getChoices();
+    const credentialHandler = choices[relyingOrigin];
+    if(credentialHandler) {
+      return true;
+    }
+  } catch(e) {
+    // ignore
+  }
+  return false;
 }
 
 function _getChoices() {
