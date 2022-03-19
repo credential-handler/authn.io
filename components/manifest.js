@@ -3,15 +3,23 @@
  * Copyright (c) 2017-2022, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {httpClient} from '@digitalbazaar/http-client';
 import * as contentType from 'content-type';
+import {httpClient} from '@digitalbazaar/http-client';
 
 let cacheStorage;
 
 const CACHE_NAME = 'authn.io-1';
 const CACHE_TTL = 5 * 60 * 1000;
 
-export async function getWebAppManifest(host) {
+export async function getWebAppManifest({host, timeout = 1000}) {
+  // require web app manifest to be loaded within timeout
+  return Promise.race([
+    new Promise(r => setTimeout(() => r(null), timeout)),
+    _getWebAppManifest(host)
+  ]);
+}
+
+async function _getWebAppManifest(host) {
   const url = `https://${host}/manifest.json`;
 
   try {
@@ -57,7 +65,7 @@ export async function getWebAppManifest(host) {
       const expires = new Date(Date.now() + CACHE_TTL);
       const headers = new Headers();
       headers.set('expires', expires.toUTCString());
-      response = new Response(response.body, {
+      response = new Response(null, {
         status: 404,
         statusText: 'Not Found',
         headers

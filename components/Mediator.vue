@@ -51,9 +51,15 @@
             style="margin-left: -5px">
             <div v-if="display === 'credentialRequest'">
               Credentials Request
+              <i
+                v-if="loading"
+                class="fas fa-cog fa-spin" />
             </div>
             <div v-else>
               Store Credentials
+              <i
+                v-if="loading"
+                class="fas fa-cog fa-spin" />
             </div>
           </div>
           <div
@@ -186,11 +192,11 @@
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2021, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2022, Digital Bazaar, Inc.
  * All rights reserved.
  */
 import * as polyfill from 'credential-mediator-polyfill';
-import {getSiteChoice, setSiteChoice} from './siteChoice.js';
+import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
 import {getWebAppManifest} from './manifest.js';
 import {getWebAppManifestIcon} from 'vue-web-request-mediator';
 import {hasStorageAccess, requestStorageAccess} from 'web-request-mediator';
@@ -245,7 +251,7 @@ export default {
     loadPolyfill(this);
 
     // attempt to load web app manifest icon
-    const manifest = await getWebAppManifest(this.relyingDomain);
+    const manifest = await getWebAppManifest({host: this.relyingDomain});
     this.relyingOriginManifest = manifest;
   },
   methods: {
@@ -356,7 +362,7 @@ export default {
               return;
             }
             const {host, origin} = utils.parseUrl(recommendedOrigin);
-            const manifest = (await getWebAppManifest(host)) || {};
+            const manifest = (await getWebAppManifest({host})) || {};
             const name = manifest.name || manifest.short_name || host;
             if(!(manifest.credential_handler &&
               manifest.credential_handler.url &&
@@ -421,7 +427,7 @@ export default {
       this.hintOptions = await Promise.all(handlers.map(
         async credentialHandler => {
           const {origin, host} = utils.parseUrl(credentialHandler);
-          const manifest = (await getWebAppManifest(host)) || {};
+          const manifest = (await getWebAppManifest({host})) || {};
           const name = manifest.name || manifest.short_name || host;
           // if `manifest.credential_handler` is set, update registration
           // to use it if it doesn't match already
@@ -556,9 +562,28 @@ export default {
     async startFlow() {
       this.loading = true;
 
-      // load hints early if possible to avoid showing UI
+      // delay showing mediator UI if the site has a potential saved choice as
+      // there may be no need to show it at all
       this.hasStorageAccess = await hasStorageAccess();
+      const {relyingOrigin} = this;
+      const delayShowMediator = this.hasStorageAccess &&
+        hasSiteChoice({relyingOrigin});
+      let showMediatorPromise;
+      if(delayShowMediator) {
+        // delay showing mediator if request can be handled quickly
+        // (we choose 1 frame here = ~16ms);
+        // otherwise show it to let user know something is happening
+        showMediatorPromise = new Promise((resolve, reject) => {
+          setTimeout(() => {
+            navigator.credentialMediator.show().then(resolve, reject);
+          }, 16);
+        });
+      } else {
+        showMediatorPromise = navigator.credentialMediator.show();
+      }
+
       if(this.hasStorageAccess) {
+        // load hints early if possible to avoid showing UI
         await this.loadHints();
         // this will cause a remembered hint to execute immediately without
         // showing the greeting dialog
@@ -571,8 +596,8 @@ export default {
         });
       }
 
-      // show display
-      await navigator.credentialMediator.show();
+      // await showing mediator UI
+      await showMediatorPromise;
 
       this.loading = false;
     },
