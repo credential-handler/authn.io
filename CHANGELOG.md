@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 2.0.0 - 2022-03-xx
+## 2.0.0 - 2022-03-19
 
 ### Changed
 - **BREAKING**: Change timeout for loading web app manifests to
