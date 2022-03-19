@@ -34,7 +34,8 @@ export default {
     },
     relyingOriginManifest: {
       type: Object,
-      required: true
+      required: false,
+      default: () => null
     }
   }
 };
