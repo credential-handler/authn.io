@@ -1,0 +1,46 @@
+name: Packaging
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    env:
+      CONTAINER_OWNER: veres-containers
+      CONTAINER_IMAGE_NAME: authn-io
+    timeout-minutes: 10
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+    - name: Get npm package version
+      id: version
+      uses: martinbeentjes/npm-get-version-action@v1.0.0
+    - name: Generate next release candidate number
+      id: rc
+      uses: zyborg/gh-action-buildnum@v1.1.0
+      with:
+        gist_token: ${{ secrets.DB_BUILDER_CI_TOKEN }}
+        version_key: ${{ steps.version.outputs.current-version }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Login to Google Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: us.gcr.io
+        username: _json_key
+        password: ${{ secrets.GOOGLE_REPOSITORY_WRITE_TOKEN }}
+
+    - name: Publish Docker image
+      id: build_push_action
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: us.gcr.io/${{ env.CONTAINER_OWNER }}/${{ env.CONTAINER_IMAGE_NAME }}:${{ steps.version.outputs.current-version }}-rc${{ steps.rc.outputs.version_build_number }}
+
+    - name: Display Docker image
+      run: echo "${{ steps.build_push_action.outputs.metadata }}"
