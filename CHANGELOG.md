@@ -1,5 +1,10 @@
 # authn.io ChangeLog
 
+## 2.1.0 - 2022-03-xx
+
+### Changed
+- Add Dockerfile and packaging workflow.
+
 ## 2.0.0 - 2022-03-19
 
 ### Changed
