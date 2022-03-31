@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 3.0.0 - 2022-03-xx
+## 3.0.0 - 2022-03-31
 
 ### Added
 - Add Dockerfile and packaging workflow.
