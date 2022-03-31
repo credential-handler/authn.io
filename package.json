@@ -15,6 +15,7 @@
   "dependencies": {
     "@digitalbazaar/http-client": "^2.0.1",
     "bedrock": "^4.5.0",
+    "bedrock-config-yaml": "^2.1.0",
     "bedrock-express": "^6.4.1",
     "bedrock-fontawesome": "^1.0.0",
     "bedrock-server": "^3.2.1",

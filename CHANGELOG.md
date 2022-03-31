@@ -1,5 +1,10 @@
 # authn.io ChangeLog
 
+## 3.0.1 - TBD
+
+### Fixed
+- Add missing `bedrock-config-yaml` dependency.
+
 ## 3.0.0 - 2022-03-31
 
 ### Added
