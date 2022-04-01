@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 3.0.2 - 2022-04-xx
+## 3.0.2 - 2022-04-01
 
 ### Fixed
 - Fix serving of main html view and update related deps:
