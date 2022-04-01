@@ -1,5 +1,12 @@
 # authn.io ChangeLog
 
+## 3.0.2 - 2022-04-xx
+
+### Fixed
+- Fix serving of main html view and update related deps:
+  - `bedrock-views@8.1`
+  - `bedrock-webpack@4.2`.
+
 ## 3.0.1 - 2022-03-31
 
 ### Fixed
