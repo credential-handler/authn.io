@@ -165,6 +165,18 @@
                 label="Remember my choice for this site"
                 label-class="wrm-dark-gray" />
             </div>
+            <div
+              class="wrm-button-bar"
+              style="margin: auto; padding-top: 2em;">
+              <button
+                type="button"
+                class="wrm-button wrm-primary"
+                style="margin: auto"
+                :disabled="loading"
+                @click="webShare()">
+                Share with Native App
+              </button>
+            </div>
           </template>
         </wrm-hint-chooser>
         <div
@@ -284,6 +296,42 @@ export default {
       this.reset();
       deferredCredentialOperation.resolve(null);
       await navigator.credentialMediator.hide();
+    },
+    async webShare() {
+      const {credential} = this;
+      let file;
+      if(credential.type === 'web' &&
+         credential.dataType === 'VerifiablePresentation') {
+        const vp = credential.data;
+        const blob = new Blob(
+          [JSON.stringify(vp, null, 2)],
+          {type: 'text/plain'}
+        );
+        file = new File([blob], 'SharedVerifiablePresentation.txt',
+          {type: 'text/plain'});
+      } else {
+        console.log(
+          'Use of WebShare API with this credential type not supported.');
+        return false;
+      }
+
+      const data = {files: [file]};
+
+      // Check if WebShare API with files is supported
+      if(navigator.canShare && navigator.canShare({files: data.files})) {
+        console.log('WebShare API with files is supported, sharing...');
+        navigator.share(data)
+          .then(result => {
+            console.log('result:', result);
+          })
+          .catch(err => {
+            console.log('Error during WebShare:', err);
+          });
+      } else {
+        console.log('Sharing files through WebShare API not supported.');
+      }
+
+      return false;
     },
     async nextWizardStep() {
       this.loading = true;
