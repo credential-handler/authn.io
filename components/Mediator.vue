@@ -299,21 +299,12 @@ export default {
     },
     async webShare() {
       const {credential} = this;
-      let file;
-      if(credential.type === 'web' &&
-         credential.dataType === 'VerifiablePresentation') {
-        const vp = credential.data;
-        const blob = new Blob(
-          [JSON.stringify(vp, null, 2)],
-          {type: 'text/plain'}
-        );
-        file = new File([blob], 'SharedVerifiablePresentation.txt',
-          {type: 'text/plain'});
-      } else {
-        console.log(
-          'Use of WebShare API with this credential type not supported.');
-        return false;
-      }
+      const blob = new Blob(
+        [JSON.stringify({credential}, null, 2)],
+        {type: 'text/plain'}
+      );
+      const file = new File([blob], 'SharedVerifiablePresentation.txt',
+        {type: 'text/plain'});
 
       const data = {files: [file]};
 
