@@ -298,12 +298,12 @@ export default {
       await navigator.credentialMediator.hide();
     },
     async webShare() {
-      const {credential} = this;
+      const {credential, relyingOrigin: credentialRequestOrigin} = this;
+      const payload = {credential, credentialRequestOrigin};
       const blob = new Blob(
-        [JSON.stringify({credential}, null, 2)],
-        {type: 'text/plain'}
-      );
-      const file = new File([blob], 'SharedVerifiablePresentation.txt',
+        [JSON.stringify(payload, null, 2)],
+        {type: 'text/plain'});
+      const file = new File([blob], 'SharedCredentialRequest.txt',
         {type: 'text/plain'});
 
       const data = {files: [file]};
