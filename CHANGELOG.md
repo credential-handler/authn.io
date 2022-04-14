@@ -1,5 +1,11 @@
 # authn.io ChangeLog
 
+## 3.1.0 - 2022-04-xx
+
+### Added
+- Add button to share requests with native apps if Web
+  Share is available on the client platform.
+
 ## 3.0.2 - 2022-04-01
 
 ### Fixed
