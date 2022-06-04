@@ -207,19 +207,12 @@
  * Copyright (c) 2017-2022, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import * as polyfill from 'credential-mediator-polyfill';
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
+import * as helpers from './helpers.js';
 import {getWebAppManifest} from './manifest.js';
-import {getWebAppManifestIcon} from 'vue-web-request-mediator';
 import {hasStorageAccess, requestStorageAccess} from 'web-request-mediator';
-import {utils} from 'web-request-rpc';
 import AntiTrackingWizard from './AntiTrackingWizard.vue';
-import HandlerWindowHeader from './HandlerWindowHeader.vue';
 import MediatorGreeting from './MediatorGreeting.vue';
-import Vue from 'vue';
-
-let deferredCredentialOperation;
-let resolvePermissionRequest;
 
 export default {
   name: 'Mediator',
@@ -256,11 +249,12 @@ export default {
     }
   },
   async created() {
-    this.relyingOrigin = utils.parseUrl(document.referrer).origin;
-    this.relyingDomain = utils.parseUrl(this.relyingOrigin).host;
+    const {origin, host} = helpers.parseUrl({url: document.referrer});
+    this.relyingOrigin = origin;
+    this.relyingDomain = host;
 
     // TODO: is this the appropriate place to run this?
-    loadPolyfill(this);
+    helpers.loadPolyfill(this);
 
     // attempt to load web app manifest icon
     const manifest = await getWebAppManifest({host: this.relyingDomain});
@@ -270,6 +264,7 @@ export default {
     async allow() {
       this.hasStorageAccess = await requestStorageAccess();
       if(this.hasStorageAccess) {
+        const resolvePermissionRequest = helpers.getResolvePermissinoRequest();
         resolvePermissionRequest('granted');
         this.reset();
         await navigator.credentialMediator.hide();
@@ -281,6 +276,7 @@ export default {
     },
     async deny() {
       await requestStorageAccess();
+      const resolvePermissionRequest = helpers.getResolvePermissinoRequest();
       resolvePermissionRequest('denied');
       this.reset();
       await navigator.credentialMediator.hide();
@@ -294,33 +290,19 @@ export default {
         await this.cancelSelection();
       }
       this.reset();
+      const deferredCredentialOperation =
+        helpers.getDeferredCredentialOperation();
       deferredCredentialOperation.resolve(null);
       await navigator.credentialMediator.hide();
     },
     async webShare() {
       const {credential, relyingOrigin: credentialRequestOrigin} = this;
-      const payload = {credential, credentialRequestOrigin};
-      const blob = new Blob(
-        [JSON.stringify(payload, null, 2)],
-        {type: 'text/plain'});
-      const file = new File([blob], 'SharedCredentialRequest.txt',
-        {type: 'text/plain'});
-
-      const data = {files: [file]};
+      const {data} = helpers.createWebShareData({
+        credential, credentialRequestOrigin
+      });
 
       // Check if WebShare API with files is supported
-      if(navigator.canShare && navigator.canShare({files: data.files})) {
-        console.log('WebShare API with files is supported, sharing...');
-        navigator.share(data)
-          .then(result => {
-            console.log('result:', result);
-          })
-          .catch(err => {
-            console.log('Error during WebShare:', err);
-          });
-      } else {
-        console.log('Sharing files through WebShare API not supported.');
-      }
+      await helpers.webShareHasFileSupport({data});
 
       return false;
     },
@@ -394,67 +376,15 @@ export default {
         }
 
         // maximum of 3 recommended handlers
+        const {
+          relyingOriginName, relyingOrigin, relyingOriginManifest,
+          relyingDomain
+        } = this;
         recommendedHandlerOrigins = recommendedHandlerOrigins.slice(0, 3);
-        const jitHints = (await Promise.all(recommendedHandlerOrigins.map(
-          async recommendedOrigin => {
-            if(typeof recommendedOrigin !== 'string') {
-              return;
-            }
-            const {host, origin} = utils.parseUrl(recommendedOrigin);
-            const manifest = (await getWebAppManifest({host})) || {};
-            const name = manifest.name || manifest.short_name || host;
-            if(!(manifest.credential_handler &&
-              manifest.credential_handler.url &&
-              Array.isArray(manifest.credential_handler.enabledTypes))) {
-              // manifest does not have credential handler info
-              return;
-            }
-            // see if manifest expressed types match request/credential type
-            let match = false;
-            for(const t of types) {
-              if(manifest.credential_handler.enabledTypes.includes(t)) {
-                match = true;
-                break;
-              }
-            }
-            if(!match) {
-              // no match
-              return;
-            }
-            // create hint
-            let icon = getWebAppManifestIcon({manifest, origin, size: 32});
-            if(icon) {
-              icon = {fetchedImage: icon.src};
-            }
-            // resolve credential handler URL
-            let credentialHandler;
-            try {
-              credentialHandler = new URL(
-                manifest.credential_handler.url, origin).href;
-            } catch(e) {
-              console.error(e);
-              return;
-            }
-            return {
-              name,
-              icon,
-              origin,
-              host,
-              manifest,
-              hintOption: {
-                credentialHandler,
-                credentialHintKey: null
-              },
-              jit: {
-                recommendedBy: {
-                  name: this.relyingOriginName,
-                  origin: this.relyingOrigin,
-                  manifest: this.relyingOriginManifest,
-                  domain: this.relyingDomain
-                }
-              }
-            };
-          }))).filter(e => !!e);
+        const jitHints = (await helpers.createJitHints({
+          recommendedHandlerOrigins, types, relyingOriginName, relyingOrigin,
+          relyingOriginManifest, relyingDomain
+        })).filter(e => !!e);
         this.hintOptions = jitHints;
         return;
       }
@@ -463,48 +393,7 @@ export default {
       const handlers = [...new Set(hintOptions.map(
         ({credentialHandler}) => credentialHandler))];
       // create hints for each unique origin
-      this.hintOptions = await Promise.all(handlers.map(
-        async credentialHandler => {
-          const {origin, host} = utils.parseUrl(credentialHandler);
-          const manifest = (await getWebAppManifest({host})) || {};
-          const name = manifest.name || manifest.short_name || host;
-          // if `manifest.credential_handler` is set, update registration
-          // to use it if it doesn't match already
-          // TODO: consider also updating if `enabledTypes` does not match
-          if(manifest.credential_handler &&
-            manifest.credential_handler.url &&
-            manifest.credential_handler.enabledTypes) {
-            const {url, enabledTypes} = manifest.credential_handler;
-            let newCredentialHandler;
-            // resolve credential handler URL
-            try {
-              newCredentialHandler = new URL(url, origin).href;
-              if(newCredentialHandler !== credentialHandler) {
-                credentialHandler = newCredentialHandler;
-                await navigator.credentialMediator.ui.registerCredentialHandler(
-                  credentialHandler, {name, enabledTypes, icons: []});
-              }
-            } catch(e) {
-              console.error(e);
-            }
-          }
-          // get updated name and icons
-          let icon = getWebAppManifestIcon({manifest, origin, size: 32});
-          if(icon) {
-            icon = {fetchedImage: icon.src};
-          }
-          return {
-            name,
-            icon,
-            origin,
-            host,
-            manifest,
-            hintOption: {
-              credentialHandler,
-              credentialHintKey: null
-            }
-          };
-        }));
+      this.hintOptions = await helpers.createHintOptions({handlers});
     },
     useRememberedHint({hideWizard = false, showHintChooser = true} = {}) {
       // check to see if there is a reusable choice for the relying party
@@ -548,10 +437,7 @@ export default {
 
       // auto-register handler if hint was JIT-created
       if(event.hint.jit) {
-        const {name, manifest: {credential_handler: {enabledTypes}}} =
-          event.hint;
-        await navigator.credentialMediator.ui.registerCredentialHandler(
-          credentialHandler, {name, enabledTypes, icons: []});
+        await helpers.autoRegisterHint({event, credentialHandler});
       }
 
       // save choice for site
@@ -563,6 +449,8 @@ export default {
 
       let canceled = false;
       let response;
+      const deferredCredentialOperation =
+        helpers.getDeferredCredentialOperation();
       try {
         response = await navigator.credentialMediator.ui.selectCredentialHint(
           event.hint.hintOption);
@@ -655,95 +543,6 @@ export default {
     }
   }
 };
-
-async function loadPolyfill(component) {
-  try {
-    await polyfill.loadOnce({
-      relyingOrigin: component.relyingOrigin,
-      requestPermission: requestPermission.bind(component),
-      getCredential: getCredential.bind(component),
-      storeCredential: storeCredential.bind(component),
-      customizeHandlerWindow({webAppWindow}) {
-        updateHandlerWindow.bind(component)(webAppWindow);
-      }
-    });
-  } catch(e) {
-    console.error(e);
-  }
-}
-
-async function requestPermission(/*permissionDesc*/) {
-  // prep display
-  this.display = 'permissionRequest';
-  const promise = new Promise(resolve => {
-    resolvePermissionRequest = state => resolve({state});
-  });
-
-  // show display
-  this.showPermissionDialog = true;
-  await navigator.credentialMediator.show();
-  return promise;
-}
-
-async function getCredential(operationState) {
-  // prep display
-  this.display = 'credentialRequest';
-  this.credentialRequestOptions = operationState.input.credentialRequestOptions;
-  this.showHintChooser = false;
-  this.showGreeting = true;
-  const promise = new Promise((resolve, reject) => {
-    deferredCredentialOperation = {resolve, reject};
-  });
-
-  await this.startFlow();
-
-  return promise;
-}
-
-async function storeCredential(operationState) {
-  // prep display
-  this.display = 'credentialStore';
-  this.credential = operationState.input.credential;
-  this.showHintChooser = false;
-  this.showGreeting = true;
-  const promise = new Promise((resolve, reject) => {
-    deferredCredentialOperation = {resolve, reject};
-  });
-
-  await this.startFlow();
-
-  return promise;
-}
-
-function updateHandlerWindow(handlerWindow) {
-  const self = this;
-  const container = handlerWindow.container;
-  const operation = self.display === 'credentialRequest' ? 'request' : 'store';
-  const origin = utils.parseUrl(handlerWindow.iframe.src).hostname;
-  const Component = Vue.extend(HandlerWindowHeader);
-  const el = document.createElement('div');
-  container.insertBefore(el, handlerWindow.iframe);
-  container.classList.add('wrm-slide-up');
-  new Component({
-    el,
-    propsData: {
-      origin,
-      relyingDomain: self.relyingDomain,
-      relyingOrigin: self.relyingOrigin,
-      relyingOriginManifest: self.relyingOriginManifest,
-      operation,
-      hint: self.selectedHint
-    },
-    created() {
-      this.$on('back', self.cancelSelection);
-      this.$on('cancel', self.cancel);
-    }
-  });
-  // clear iframe style that was set by web-request-rpc; set instead via CSS
-  handlerWindow.iframe.style.cssText = null;
-  handlerWindow.iframe.classList.add('wrm-handler-iframe');
-}
-
 </script>
 
 <style>
