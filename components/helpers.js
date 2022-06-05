@@ -169,7 +169,7 @@ export async function createJitHints({
     }));
 }
 
-export async function loadPolyfill(component) {
+export async function loadPolyfill(component, rpcServices = {}) {
   try {
     await polyfill.loadOnce({
       relyingOrigin: component.relyingOrigin,
@@ -178,10 +178,11 @@ export async function loadPolyfill(component) {
       storeCredential: storeCredential.bind(component),
       customizeHandlerWindow({webAppWindow}) {
         updateHandlerWindow.bind(component)(webAppWindow);
-      }
+      },
+      rpcServices,
     });
   } catch(e) {
-    console.error(e);
+    console.error('boom', e);
   }
 }
 

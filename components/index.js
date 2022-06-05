@@ -35,6 +35,14 @@ brVue.setRootVue(async () => {
         title: 'Credential Mediator'
       }
     }, {
+      path: '/hint-chooser',
+      component: () => import(
+        /* webpackChunkName: "HintChooser" */
+        './HintChooser.vue'),
+      meta: {
+        title: 'Credential Hint Chooser'
+      }
+    }, {
       path: '/allow-wallet-access',
       component: () => import(
         /* webpackChunkName: "AllowWalletAccess" */

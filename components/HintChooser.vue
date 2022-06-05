@@ -1,42 +1,9 @@
 <template>
   <div>
-    <div v-if="display === 'permissionRequest'">
-      <wrm-permission-dialog
-        v-if="showPermissionDialog"
-        :origin="relyingDomain"
-        :permissions="permissions"
-        @deny="deny()"
-        @allow="allow()" />
-
-      <!-- Note: This wizard is presently only used to create a dialog around
-           the AntiTrackingWizard. -->
-      <wrm-wizard-dialog
-        v-else
-        :loading="loading"
-        :first="true"
-        :has-next="false"
-        :blocked="loading"
-        @cancel="deny()">
-        <template slot="header">
-          <div style="font-size: 16px; padding-top: 6px; user-select: none">
-            Authorize Credential Wallet
-          </div>
-        </template>
-        <template slot="body">
-          <anti-tracking-wizard
-            @cancel="cancel()"
-            @finish="finishAntiTrackingWizard()" />
-        </template>
-        <template slot="footer">
-          <!-- do not show footer -->
-          <div />
-        </template>
-      </wrm-wizard-dialog>
-    </div>
-
+    <h1>
+      Hint Chooser
+    </h1>
     <wrm-wizard-dialog
-      v-else-if="!hideWizard &&
-        (display === 'credentialRequest' || display === 'credentialStore')"
       :loading="loading"
       :first="showGreeting"
       :has-next="showGreeting || !hasStorageAccess"
@@ -46,30 +13,7 @@
       @back="prevWizardStep()">
       <template slot="header">
         <div style="font-size: 18px; font-weight: bold; user-select: none">
-          <div
-            v-if="showGreeting"
-            style="margin-left: -5px">
-            <div v-if="display === 'credentialRequest'">
-              Credentials Request
-              <i
-                v-if="loading"
-                class="fas fa-cog fa-spin" />
-            </div>
-            <div v-else>
-              Store Credentials
-              <i
-                v-if="loading"
-                class="fas fa-cog fa-spin" />
-            </div>
-          </div>
-          <div
-            v-else-if="!hasStorageAccess"
-            style="margin-left: -10px">
-            Authorize Viewing Your Wallet
-          </div>
-          <div
-            v-else
-            style="margin-left: -10px">
+          <div style="margin-left: -10px">
             <span v-if="selectedHint">Loading Wallet...
               <i class="fas fa-cog fa-spin" />
             </span>
@@ -78,24 +22,8 @@
         </div>
       </template>
       <template slot="body">
-        <!-- step 1 -->
-        <mediator-greeting
-          v-if="showGreeting"
-          style="user-select: none"
-          :display="display"
-          :relying-origin="relyingOrigin"
-          :relying-origin-manifest="relyingOriginManifest" />
-
-        <!-- optional step 2 -->
-        <div v-else-if="!hasStorageAccess && !showHintChooser">
-          <anti-tracking-wizard
-            @cancel="cancel()"
-            @finish="finishAntiTrackingWizard()" />
-        </div>
-
-        <!-- step 3 -->
         <wrm-hint-chooser
-          v-else-if="showHintChooser"
+          v-if="showHintChooser"
           style="user-select: none"
           :hints="hintOptions"
           :cancel-remove-hint-timeout="5000"
@@ -194,7 +122,6 @@
       <template
         v-if="!showGreeting"
         slot="footer">
-        <!-- clear footer after first step -->
         <div />
       </template>
     </wrm-wizard-dialog>
@@ -211,17 +138,62 @@ import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
 import * as helpers from './helpers.js';
 import {getWebAppManifest} from './manifest.js';
 import {hasStorageAccess, requestStorageAccess} from 'web-request-mediator';
-import AntiTrackingWizard from './AntiTrackingWizard.vue';
-import MediatorGreeting from './MediatorGreeting.vue';
 import * as rpc from 'web-request-rpc';
 
+const PROXY_EVENT_TIMEOUT = 60000;
+
+class CredentialEventProxy {
+  constructor() {
+    this.receivePromise = null;
+  }
+
+  createServiceDescription() {
+    let serviceDescription;
+    // this promise resolves once the event is received
+    this.receivePromise = new Promise((resolveReceive, rejectReceive) => {
+      const timeoutId = setTimeout(() => {
+        rejectReceive(new Error('Timed out waiting to receive event.'));
+      }, PROXY_EVENT_TIMEOUT);
+
+      serviceDescription = {
+        credentialEventProxy: {
+          // called by credential handler to send event to UI window
+          async send(event) {
+            // event received, clear timeout
+            resolveReceive(event);
+            clearTimeout(timeoutId);
+
+            // this promise resolves when the promise that the UI passes
+            // to `event.respondWith` resolves
+            return new Promise((resolveSend, rejectSend) => {
+              event.respondWith = promise => {
+                try {
+                  resolveSend(promise);
+                } catch(e) {
+                  rejectSend(e);
+                }
+              };
+            });
+          }
+        }
+      };
+    });
+
+    return serviceDescription;
+  }
+
+  async receive() {
+    return this.receivePromise;
+  }
+}
+
 export default {
-  name: 'Mediator',
-  components: {AntiTrackingWizard, MediatorGreeting},
+  name: 'HintChooser',
   data() {
     return {
       rememberChoice: true,
       display: null,
+      event: null,
       hasStorageAccess: false,
       hideWizard: false,
       hintOptions: [],
@@ -250,16 +222,40 @@ export default {
     }
   },
   async created() {
+    this.loading = true;
     const {origin, host} = helpers.parseUrl({url: document.referrer});
     this.relyingOrigin = origin;
     this.relyingDomain = host;
 
     // TODO: is this the appropriate place to run this?
-    await helpers.loadPolyfill(this);
+    const proxy = new CredentialEventProxy();
+    const rpcServices = proxy.createServiceDescription();
+    await helpers.loadPolyfill(this, rpcServices);
+    // await activateHandler({mediatorOrigin: window.location.origin});
+
+    const event = this.event = await proxy.receive();
+    console.log('here too', event);
+    this.credential = event.credential;
+    this.credentialRequestOptions = event.credentialRequestOptions;
+    this.showHintChooser = true;
 
     // attempt to load web app manifest icon
     const manifest = await getWebAppManifest({host: this.relyingDomain});
     this.relyingOriginManifest = manifest;
+
+    await this.loadHints();
+    // event.respondWith({choice: 'my wallet'});
+    // const mustLoadHints = !this.hasStorageAccess;
+    // always call `requestStorageAccess` to refresh mediator's
+    // user interaction timestamp
+    // this.hasStorageAccess = await requestStorageAccess();
+    // if(this.hasStorageAccess) {
+    //   if(mustLoadHints) {
+    //   }
+    //   this.useRememberedHint();
+    // }
+    this.showGreeting = false;
+    this.loading = false;
   },
   methods: {
     async allow() {
@@ -308,26 +304,21 @@ export default {
       return false;
     },
     async nextWizardStep() {
-      // this.loading = true;
-      // const mustLoadHints = !this.hasStorageAccess;
-      // // always call `requestStorageAccess` to refresh mediator's
-      // // user interaction timestamp
-      // this.hasStorageAccess = await requestStorageAccess();
-      // if(this.hasStorageAccess) {
-      //   if(mustLoadHints) {
-      //     await this.loadHints();
-      //   }
-      //   this.useRememberedHint();
-      // }
-      // this.showGreeting = false;
-      // this.loading = false;
-      const url = `${window.location.origin}/hint-chooser`;
-      const {credentialRequestOptions, credential, relyingOrigin} = this;
-      const event = await openCredentialHintWindow({
-        url, credential, credentialRequestOptions,
-        credentialRequestOrigin: relyingOrigin
-      });
-      this.selectHint({...event, waitUntil: () => {}});
+      this.loading = true;
+      const mustLoadHints = !this.hasStorageAccess;
+      // always call `requestStorageAccess` to refresh mediator's
+      // user interaction timestamp
+      this.hasStorageAccess = await requestStorageAccess();
+      if(this.hasStorageAccess) {
+        if(mustLoadHints) {
+          await this.loadHints();
+        }
+        this.useRememberedHint();
+      }
+      this.showGreeting = false;
+      this.loading = false;
+      console.log(window.location.href);
+      await openCredentialHintWindow({url: window.location.href});
     },
     async prevWizardStep() {
       this.showGreeting = true;
@@ -436,7 +427,10 @@ export default {
         this.loading = false;
       }
     },
-    async selectHint(event) {
+    async selectHint(e) {
+      console.log({e});
+      this.event.respondWith({choice: {hint: e.hint}});
+      return;
       this.selectedHint = event.hint;
       let _resolve;
       event.waitUntil(new Promise(r => _resolve = r));
@@ -552,9 +546,8 @@ export default {
   }
 };
 
-async function openCredentialHintWindow({
-  url, credential, credentialRequestOptions, credentialRequestOrigin
-}) {
+async function openCredentialHintWindow({url}) {
+  url = 'https://npr.org';
   // create WebAppContext to run WebApp and connect to windowClient
   const appContext = new rpc.WebAppContext();
   const windowOpen = openWindow({url});
@@ -574,23 +567,6 @@ async function openCredentialHintWindow({
 
   console.log({url, proxy});
 
-  try {
-    const {choice} = await proxy.send({
-      type: 'selectcredentialhint',
-      credentialRequestOptions,
-      credentialRequestOrigin,
-      credential,
-      hintKey: undefined
-    });
-
-    console.log('opening', {choice});
-    return choice;
-  } catch(e) {
-    console.log('proxy.send.toString()', proxy.send.toString());
-    console.log('text before', e);
-    throw e;
-  }
-
 }
 
 function openWindow({url}) {
@@ -599,6 +575,54 @@ function openWindow({url}) {
   appWindow.show();
   return appWindow.handle;
 }
+
+class HintSelectorHandler extends rpc.WebApp {
+  constructor(mediatorOrigin) {
+    if(typeof mediatorOrigin !== 'string') {
+      throw new TypeError('"mediatorOrigin" must be a string.');
+    }
+    super(mediatorOrigin);
+  }
+
+  async connect() {
+    const injector = await super.connect();
+
+    // define API that HintSelector can call on this hint selector handler
+    this.server.define('hintSelectorHandler', {
+      async receiveEvent({event}) {
+        console.log(event);
+        return;
+      }
+    });
+
+    // auto-call `ready`
+    await this.ready();
+
+    return injector;
+  }
+}
+
+const DEFAULT_MEDIATOR = 'https://authn.io';
+
+/**
+ * Emulates activating a service worker.
+ *
+ * @param {string} [mediatorOrigin=DEFAULT_MEDIATOR]
+ * @returns {Promise}
+ */
+export async function activateHandler({mediatorOrigin = DEFAULT_MEDIATOR}) {
+  const self = new HintSelectorHandler(mediatorOrigin);
+
+  // if(typeof selectHint !== 'function') {
+  //   throw new TypeError('"selectHint" must be a function.');
+  // }
+
+  // eslint-disable-next-line max-len
+  // self.addEventListener('selectcredentialhint', event => listener({event, selectHint}));
+  console.log({self});
+  await self.connect();
+}
+
 </script>
 
 <style>
