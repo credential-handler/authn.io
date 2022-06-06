@@ -408,7 +408,8 @@ export default {
       // check to see if there is a reusable choice for the relying party
       const {hintOptions, relyingOrigin} = this;
       const hint = getSiteChoice({relyingOrigin, hintOptions});
-      if(hint) {
+      if(false) {
+        // if(hint) {
         this.showGreeting = false;
         this.hideWizard = hideWizard;
         this.rememberChoice = true;
@@ -559,7 +560,7 @@ async function openCredentialHintWindow({
   // create WebAppContext to run WebApp and connect to windowClient
   const appContext = new rpc.WebAppContext();
   const windowReady = appContext.createWindow(url, {
-    popup: false,
+    popup: true,
     // default to 10 minute timeout for loading other window on same site
     // to allow for authentication pages and similar
     timeout: 600000
