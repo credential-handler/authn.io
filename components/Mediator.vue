@@ -308,6 +308,7 @@ export default {
       return false;
     },
     async nextWizardStep() {
+      console.log('NEXT WIZARD STEP');
       // this.loading = true;
       // const mustLoadHints = !this.hasStorageAccess;
       // // always call `requestStorageAccess` to refresh mediator's
@@ -557,17 +558,21 @@ async function openCredentialHintWindow({
 }) {
   // create WebAppContext to run WebApp and connect to windowClient
   const appContext = new rpc.WebAppContext();
-  const windowOpen = openWindow({url});
   const windowReady = appContext.createWindow(url, {
-    handle: windowOpen,
+    popup: false,
     // default to 10 minute timeout for loading other window on same site
     // to allow for authentication pages and similar
     timeout: 600000
   });
-  await windowOpen;
+
+  // appWindow.ready();
+  // appWindow.show();
 
   // create proxy interface for making calls in WebApp
   const injector = await windowReady;
+
+  appContext.control.show();
+
   const proxy = injector.get('credentialEventProxy', {
     functions: [{name: 'send', options: {timeout: 0}}]
   });
@@ -591,13 +596,6 @@ async function openCredentialHintWindow({
     throw e;
   }
 
-}
-
-function openWindow({url}) {
-  const appWindow = new rpc.WebAppWindow(url);
-  appWindow.ready();
-  appWindow.show();
-  return appWindow.handle;
 }
 </script>
 

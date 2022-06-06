@@ -182,7 +182,7 @@ export async function loadPolyfill(component, rpcServices = {}) {
       rpcServices,
     });
   } catch(e) {
-    console.error('boom', e);
+    console.error('this boom right here', e);
   }
 }
 
@@ -230,13 +230,17 @@ export async function storeCredential(operationState) {
 }
 
 export function updateHandlerWindow(handlerWindow) {
+  console.log('AAAAAAA handlerWindow', handlerWindow);
+  if(handlerWindow.popup) {
+    return;
+  }
   const self = this;
-  const container = handlerWindow.container;
+  const {container, iframe} = handlerWindow.dialog;
   const operation = self.display === 'credentialRequest' ? 'request' : 'store';
-  const origin = utils.parseUrl(handlerWindow.iframe.src).hostname;
+  const origin = utils.parseUrl(iframe.src).hostname;
   const Component = Vue.extend(HandlerWindowHeader);
   const el = document.createElement('div');
-  container.insertBefore(el, handlerWindow.iframe);
+  container.insertBefore(el, iframe);
   container.classList.add('wrm-slide-up');
   new Component({
     el,
@@ -254,6 +258,6 @@ export function updateHandlerWindow(handlerWindow) {
     }
   });
   // clear iframe style that was set by web-request-rpc; set instead via CSS
-  handlerWindow.iframe.style.cssText = null;
-  handlerWindow.iframe.classList.add('wrm-handler-iframe');
+  iframe.style.cssText = null;
+  iframe.classList.add('wrm-handler-iframe');
 }
