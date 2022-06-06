@@ -87,7 +87,7 @@
           :relying-origin-manifest="relyingOriginManifest" />
 
         <!-- optional step 2 -->
-        <div v-else-if="!hasStorageAccess && !showHintChooser">
+        <div v-else-if="false && !hasStorageAccess && !showHintChooser">
           <anti-tracking-wizard
             @cancel="cancel()"
             @finish="finishAntiTrackingWizard()" />
