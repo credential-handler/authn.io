@@ -595,6 +595,8 @@ async function openCredentialHintWindow({
     console.log('proxy.send.toString()', proxy.send.toString());
     console.log('text before', e);
     throw e;
+  } finally {
+    appContext.control.hide();
   }
 
 }
