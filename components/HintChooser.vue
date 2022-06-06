@@ -402,7 +402,8 @@ export default {
       // check to see if there is a reusable choice for the relying party
       const {hintOptions, relyingOrigin} = this;
       const hint = getSiteChoice({relyingOrigin, hintOptions});
-      if(hint) {
+      if(false) {
+      // if(hint) {
         this.showGreeting = false;
         this.hideWizard = hideWizard;
         this.rememberChoice = true;
