@@ -222,42 +222,46 @@ export default {
     }
   },
   async created() {
-    this.loading = true;
-    const {origin, host} = helpers.parseUrl({url: document.referrer});
-    this.relyingOrigin = origin;
-    this.relyingDomain = host;
-
-    // TODO: is this the appropriate place to run this?
-    const proxy = new CredentialEventProxy();
-    const rpcServices = proxy.createServiceDescription();
-    await helpers.loadPolyfill(this, rpcServices);
-    // await activateHandler({mediatorOrigin: window.location.origin});
-
-    const event = this.event = await proxy.receive();
-    console.log('here too', event);
-    this.credential = event.credential;
-    this.credentialRequestOptions = event.credentialRequestOptions;
-    this.showHintChooser = true;
-
-    // attempt to load web app manifest icon
-    const manifest = await getWebAppManifest({host: this.relyingDomain});
-    this.relyingOriginManifest = manifest;
-
-    await this.loadHints();
-    // event.respondWith({choice: 'my wallet'});
-    // const mustLoadHints = !this.hasStorageAccess;
-    // always call `requestStorageAccess` to refresh mediator's
-    // user interaction timestamp
-    // this.hasStorageAccess = await requestStorageAccess();
-    // if(this.hasStorageAccess) {
-    //   if(mustLoadHints) {
-    //   }
-    //   this.useRememberedHint();
-    // }
-    this.showGreeting = false;
-    this.loading = false;
+    this._setup().catch(console.error);
   },
   methods: {
+    async _setup() {
+      this.loading = true;
+      const {origin, host} = helpers.parseUrl({url: document.referrer});
+      this.relyingOrigin = origin;
+      this.relyingDomain = host;
+
+      // TODO: is this the appropriate place to run this?
+      const proxy = new CredentialEventProxy();
+      const rpcServices = proxy.createServiceDescription();
+      console.log('before loading polyfill');
+      await helpers.loadPolyfill(this, rpcServices);
+      // await activateHandler({mediatorOrigin: window.location.origin});
+
+      const event = this.event = await proxy.receive();
+      console.log('here too', event);
+      this.credential = event.credential;
+      this.credentialRequestOptions = event.credentialRequestOptions;
+      this.showHintChooser = true;
+
+      // attempt to load web app manifest icon
+      const manifest = await getWebAppManifest({host: this.relyingDomain});
+      this.relyingOriginManifest = manifest;
+
+      await this.loadHints();
+      // event.respondWith({choice: 'my wallet'});
+      // const mustLoadHints = !this.hasStorageAccess;
+      // always call `requestStorageAccess` to refresh mediator's
+      // user interaction timestamp
+      // this.hasStorageAccess = await requestStorageAccess();
+      // if(this.hasStorageAccess) {
+      //   if(mustLoadHints) {
+      //   }
+      //   this.useRememberedHint();
+      // }
+      this.showGreeting = false;
+      this.loading = false;
+    },
     async allow() {
       this.hasStorageAccess = await requestStorageAccess();
       if(this.hasStorageAccess) {
@@ -318,7 +322,6 @@ export default {
       this.showGreeting = false;
       this.loading = false;
       console.log(window.location.href);
-      await openCredentialHintWindow({url: window.location.href});
     },
     async prevWizardStep() {
       this.showGreeting = true;
@@ -347,6 +350,7 @@ export default {
       this.loading = false;
     },
     async loadHints() {
+      console.log('loadHints');
       let hintOptions;
       let recommendedHandlerOrigins;
       if(this.credentialRequestOptions) {
@@ -411,6 +415,7 @@ export default {
       }
     },
     async removeHint(event) {
+      console.log('remove hint', event);
       const {hint} = event;
       const idx = this.hintOptions.indexOf(hint);
       this.hintOptions.splice(idx, 1);
@@ -428,107 +433,10 @@ export default {
       }
     },
     async selectHint(e) {
-      console.log({e});
+      console.log('selected hint', e);
+      console.log('event to respond to', this.event);
       this.event.respondWith({choice: {hint: e.hint}});
       return;
-      this.selectedHint = event.hint;
-      let _resolve;
-      event.waitUntil(new Promise(r => _resolve = r));
-
-      let {credentialHandler} = event.hint.hintOption;
-
-      // auto-register handler if hint was JIT-created
-      if(event.hint.jit) {
-        await helpers.autoRegisterHint({event, credentialHandler});
-      }
-
-      // save choice for site
-      if(!this.rememberChoice) {
-        credentialHandler = null;
-      }
-      const {relyingOrigin} = this;
-      setSiteChoice({relyingOrigin, credentialHandler});
-
-      let canceled = false;
-      let response;
-      const deferredCredentialOperation =
-        helpers.getDeferredCredentialOperation();
-      try {
-        response = await navigator.credentialMediator.ui.selectCredentialHint(
-          event.hint.hintOption);
-        if(!response) {
-          // clear site choice when `null` response is returned by credential
-          // handler
-          setSiteChoice({relyingOrigin, credentialHandler: null});
-        }
-        deferredCredentialOperation.resolve(response);
-      } catch(e) {
-        if(e.name === 'AbortError') {
-          canceled = true;
-        } else {
-          console.error(e);
-          deferredCredentialOperation.reject(e);
-        }
-      }
-
-      if(canceled) {
-        this.selectedHint = null;
-        this.rememberChoice = true;
-        // clear site choice
-        setSiteChoice({relyingOrigin, credentialHandler: null});
-        this.showHintChooser = true;
-      } else {
-        try {
-          this.reset();
-          await navigator.credentialMediator.hide();
-        } catch(e) {
-          console.error(e);
-        }
-      }
-
-      _resolve();
-    },
-    async startFlow() {
-      this.loading = true;
-
-      // delay showing mediator UI if the site has a potential saved choice as
-      // there may be no need to show it at all
-      this.hasStorageAccess = await hasStorageAccess();
-      const {relyingOrigin} = this;
-      const delayShowMediator = this.hasStorageAccess &&
-        hasSiteChoice({relyingOrigin});
-      let showMediatorPromise;
-      if(delayShowMediator) {
-        // delay showing mediator if request can be handled quickly
-        // (we choose 1 frame here = ~16ms);
-        // otherwise show it to let user know something is happening
-        showMediatorPromise = new Promise((resolve, reject) => {
-          setTimeout(() => {
-            navigator.credentialMediator.show().then(resolve, reject);
-          }, 16);
-        });
-      } else {
-        showMediatorPromise = navigator.credentialMediator.show();
-      }
-
-      if(this.hasStorageAccess) {
-        // load hints early if possible to avoid showing UI
-        await this.loadHints();
-        // this will cause a remembered hint to execute immediately without
-        // showing the greeting dialog
-        this.useRememberedHint({
-          // to hide the wizard dialog completely when a remembered hint is
-          // loading (i.e. do not even show a loading hint), change
-          // `hintWizard` to `true`
-          hideWizard: false,
-          showHintChooser: false
-        });
-      }
-
-      // await showing mediator UI
-      await showMediatorPromise;
-
-      this.loading = false;
     },
     reset() {
       this.display = null;
@@ -545,36 +453,6 @@ export default {
     }
   }
 };
-
-async function openCredentialHintWindow({url}) {
-  url = 'https://npr.org';
-  // create WebAppContext to run WebApp and connect to windowClient
-  const appContext = new rpc.WebAppContext();
-  const windowOpen = openWindow({url});
-  const windowReady = appContext.createWindow(url, {
-    handle: windowOpen,
-    // default to 10 minute timeout for loading other window on same site
-    // to allow for authentication pages and similar
-    timeout: 600000
-  });
-  await windowOpen;
-
-  // create proxy interface for making calls in WebApp
-  const injector = await windowReady;
-  const proxy = injector.get('credentialEventProxy', {
-    functions: [{name: 'send', options: {timeout: 0}}]
-  });
-
-  console.log({url, proxy});
-
-}
-
-function openWindow({url}) {
-  const appWindow = new rpc.WebAppWindow(url);
-  appWindow.ready();
-  appWindow.show();
-  return appWindow.handle;
-}
 
 class HintSelectorHandler extends rpc.WebApp {
   constructor(mediatorOrigin) {

@@ -24,12 +24,12 @@
     "bedrock-web": "^1.3.1",
     "bedrock-webpack": "^4.2.0",
     "content-type": "^1.0.4",
-    "credential-mediator-polyfill": "^1.2.1",
+    "credential-mediator-polyfill": "digitalbazaar/credential-mediator-polyfill#rpc-services",
     "vue": "^2.6.12",
     "vue-router": "^3.5.1",
     "vue-web-request-mediator": "^4.4.7",
     "web-request-mediator": "^1.2.1",
-    "web-request-rpc": "^1.1.7"
+    "web-request-rpc": "digitalbazaar/web-request-rpc#refactor"
   },
   "devDependencies": {
     "eslint": "^7.12.1",
