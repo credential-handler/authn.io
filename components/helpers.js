@@ -191,7 +191,8 @@ async function getCredentialHandlerInjector({appContext, credentialHandler}) {
   //   timeout: 30000
   // });
   const {_popupDialog: dialog} = this;
-  dialog.handle.location.href = credentialHandler;
+  dialog.setLocation(credentialHandler);
+
   const windowReady = appContext.createWindow(credentialHandler, {
     dialog,
     popup: true,
