@@ -324,11 +324,14 @@ export default {
       // this.loading = false;
       const url = `${window.location.origin}/hint-chooser`;
       const {credentialRequestOptions, credential, relyingOrigin} = this;
-      const event = await openCredentialHintWindow({
+      const {choice, appContext} = await openCredentialHintWindow({
         url, credential, credentialRequestOptions,
         credentialRequestOrigin: relyingOrigin
       });
-      this.selectHint({...event, waitUntil: () => {}});
+
+      this._popupDialog = appContext.control.dialog;
+
+      this.selectHint({...choice, waitUntil: () => {}});
     },
     async prevWizardStep() {
       this.showGreeting = true;
@@ -589,14 +592,14 @@ async function openCredentialHintWindow({
       hintKey: undefined
     });
 
-    console.log('opening', {choice});
-    return choice;
+    // const {hint} = choice;
+    // appContext.control.handle.location.href = hint.hintOption.credentialHandler;
+    console.log('opening', {choice, appContext, injector});
+    return {choice, appContext};
   } catch(e) {
-    console.log('proxy.send.toString()', proxy.send.toString());
-    console.log('text before', e);
     throw e;
   } finally {
-    appContext.control.hide();
+    // appContext.control.hide();
   }
 
 }
