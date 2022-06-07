@@ -1,7 +1,7 @@
 import {getWebAppManifest} from './manifest.js';
 import * as polyfill from 'credential-mediator-polyfill';
 import {getWebAppManifestIcon} from 'vue-web-request-mediator';
-import {utils} from 'web-request-rpc';
+import * as rpc from 'web-request-rpc';
 import HandlerWindowHeader from './HandlerWindowHeader.vue';
 import Vue from 'vue';
 
@@ -45,8 +45,8 @@ export async function webShareHasFileSupport({data}) {
 }
 
 export function parseUrl({url}) {
-  const {origin} = utils.parseUrl(url);
-  const {host} = utils.parseUrl(origin);
+  const {origin} = rpc.utils.parseUrl(url);
+  const {host} = rpc.utils.parseUrl(origin);
 
   return {origin, host};
 }
@@ -61,7 +61,7 @@ export async function autoRegisterHint({event, credentialHandler}) {
 export async function createHintOptions({handlers}) {
   return Promise.all(handlers.map(
     async credentialHandler => {
-      const {origin, host} = utils.parseUrl(credentialHandler);
+      const {origin, host} = rpc.utils.parseUrl(credentialHandler);
       const manifest = (await getWebAppManifest({host})) || {};
       const name = manifest.name || manifest.short_name || host;
       // if `manifest.credential_handler` is set, update registration
@@ -112,7 +112,7 @@ export async function createJitHints({
       if(typeof recommendedOrigin !== 'string') {
         return;
       }
-      const {host, origin} = utils.parseUrl(recommendedOrigin);
+      const {host, origin} = rpc.utils.parseUrl(recommendedOrigin);
       const manifest = (await getWebAppManifest({host})) || {};
       const name = manifest.name || manifest.short_name || host;
       if(!(manifest.credential_handler &&
@@ -176,16 +176,33 @@ export async function loadPolyfill(component, rpcServices = {}) {
       requestPermission: requestPermission.bind(component),
       getCredential: getCredential.bind(component),
       storeCredential: storeCredential.bind(component),
-      customizeHandlerWindow({webAppWindow}) {
-        updateHandlerWindow.bind(component)(webAppWindow);
-      },
+      getCredentialHandlerInjector:
+        getCredentialHandlerInjector.bind(component),
       rpcServices,
     });
   } catch(e) {
     console.error('this boom right here', e);
   }
 }
+async function getCredentialHandlerInjector({appContext, credentialHandler}) {
+  // const injectorPromise = appContext.createWindow(credentialHandler, {
+  //   customize: updateHandlerWindow.bind(this),
+  //   // 30 second timeout to load repository
+  //   timeout: 30000
+  // });
+  const {_popupDialog: dialog} = this;
+  dialog.handle.location.href = credentialHandler;
+  const windowReady = appContext.createWindow(credentialHandler, {
+    dialog,
+    popup: true,
+    // default to 10 minute timeout for loading other window on same site
+    // to allow for authentication pages and similar
+    timeout: 600000
+  });
 
+  const injector = await windowReady;
+  return injector;
+}
 export async function requestPermission(/*permissionDesc*/) {
   // prep display
   this.display = 'permissionRequest';
@@ -229,7 +246,7 @@ export async function storeCredential(operationState) {
   return promise;
 }
 
-export function updateHandlerWindow(handlerWindow) {
+export function updateHandlerWindow({handlerWindow}) {
   console.log('AAAAAAA handlerWindow', handlerWindow);
   if(handlerWindow.popup) {
     return;
@@ -237,7 +254,7 @@ export function updateHandlerWindow(handlerWindow) {
   const self = this;
   const {container, iframe} = handlerWindow.dialog;
   const operation = self.display === 'credentialRequest' ? 'request' : 'store';
-  const origin = utils.parseUrl(iframe.src).hostname;
+  const origin = rpc.utils.parseUrl(iframe.src).hostname;
   const Component = Vue.extend(HandlerWindowHeader);
   const el = document.createElement('div');
   container.insertBefore(el, iframe);
