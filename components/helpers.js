@@ -1,3 +1,8 @@
+/*!
+ * New BSD License (3-clause)
+ * Copyright (c) 2017-2022, Digital Bazaar, Inc.
+ * All rights reserved.
+ */
 import {getWebAppManifest} from './manifest.js';
 import {getWebAppManifestIcon} from 'vue-web-request-mediator';
 import {utils, WebAppContext} from 'web-request-rpc';
@@ -155,6 +160,7 @@ export async function createJitHints({
     }));
 }
 
+// FIXME: rename to `openHintChooserWindow`?
 export async function openCredentialHintWindow({
   url, credential, credentialRequestOptions, credentialRequestOrigin,
 }) {
@@ -167,8 +173,24 @@ export async function openCredentialHintWindow({
     timeout: 600000
   });
 
+  // provide access to injector inside dialog destroy in case the user closes
+  // the dialog -- so we can abort awaiting `proxy.send`
+  let injector = null;
+  let aborted = false;
+
+  const {dialog} = appContext.control;
+  const oldDestroy = dialog.destroy.bind(dialog);
+  dialog.destroy = (...args) => {
+    console.log('hint chooser dialog destroy');
+    aborted = true;
+    oldDestroy(...args);
+    if(injector) {
+      injector.client.close();
+    }
+  };
+
   // create proxy interface for making calls in WebApp
-  const injector = await windowReady;
+  injector = await windowReady;
 
   appContext.control.show();
 
@@ -176,13 +198,20 @@ export async function openCredentialHintWindow({
     functions: [{name: 'send', options: {timeout: 0}}]
   });
 
-  const {choice} = await proxy.send({
-    type: 'selectcredentialhint',
-    credentialRequestOptions,
-    credentialRequestOrigin,
-    credential,
-    hintKey: undefined
-  });
-
-  return {choice, appContext};
+  try {
+    const {choice} = await proxy.send({
+      type: 'selectcredentialhint',
+      credentialRequestOptions,
+      credentialRequestOrigin,
+      credential,
+      hintKey: undefined
+    });
+    return {choice, appContext};
+  } catch(e) {
+    if(!aborted) {
+      // unexpected error, log it
+      console.error(e);
+    }
+    return {choice: null, appContext: null};
+  }
 }
