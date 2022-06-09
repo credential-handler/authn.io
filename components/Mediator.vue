@@ -1,41 +1,7 @@
 <template>
   <div>
-    <div v-if="display === 'permissionRequest'">
-      <wrm-permission-dialog
-        v-if="showPermissionDialog"
-        :origin="relyingDomain"
-        :permissions="permissions"
-        @deny="deny()"
-        @allow="allow()" />
-
-      <!-- Note: This wizard is presently only used to create a dialog around
-           the AntiTrackingWizard. -->
-      <wrm-wizard-dialog
-        v-else
-        :loading="loading"
-        :first="true"
-        :has-next="false"
-        :blocked="loading"
-        @cancel="deny()">
-        <template slot="header">
-          <div style="font-size: 16px; padding-top: 6px; user-select: none">
-            Authorize Credential Wallet
-          </div>
-        </template>
-        <template slot="body">
-          <anti-tracking-wizard
-            @cancel="cancel()"
-            @finish="finishAntiTrackingWizard()" />
-        </template>
-        <template slot="footer">
-          <!-- do not show footer -->
-          <div />
-        </template>
-      </wrm-wizard-dialog>
-    </div>
-
     <wrm-wizard-dialog
-      v-else-if="!hideWizard &&
+      v-if="!hideWizard &&
         (display === 'credentialRequest' || display === 'credentialStore')"
       :loading="loading"
       :first="showGreeting"
@@ -86,14 +52,7 @@
           :relying-origin="relyingOrigin"
           :relying-origin-manifest="relyingOriginManifest" />
 
-        <!-- optional step 2 -->
-        <div v-else-if="false && !hasStorageAccess && !showHintChooser">
-          <anti-tracking-wizard
-            @cancel="cancel()"
-            @finish="finishAntiTrackingWizard()" />
-        </div>
-
-        <!-- step 3 -->
+        <!-- step 2 -->
         <wrm-hint-chooser
           v-else-if="showHintChooser"
           style="user-select: none"
@@ -208,64 +167,43 @@
  * All rights reserved.
  */
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
-import * as helpers from './helpers.js';
-import {getWebAppManifest} from './manifest.js';
+import {openCredentialHintWindow, autoRegisterHint} from './helpers.js';
 import {hasStorageAccess, requestStorageAccess} from 'web-request-mediator';
-import AntiTrackingWizard from './AntiTrackingWizard.vue';
 import MediatorGreeting from './MediatorGreeting.vue';
-import * as rpc from 'web-request-rpc';
+import {shouldUseFirstPartyMode} from './platformDetection.js';
+import {hintChooserMixin} from './hintChooserMixin.js';
+import {
+  getResolvePermissionRequest, getDeferredCredentialOperation, loadPolyfill
+} from './mediatorPolyfill.js';
 
 export default {
   name: 'Mediator',
-  components: {AntiTrackingWizard, MediatorGreeting},
+  components: {MediatorGreeting},
+  mixins: [hintChooserMixin],
   data() {
     return {
-      rememberChoice: true,
-      display: null,
+      firstPartyMode: true,
       hasStorageAccess: false,
-      hideWizard: false,
-      hintOptions: [],
-      hintRemovalText: 'Hiding...',
-      loading: false,
       permissions: [{
         name: 'Manage credentials',
         icon: 'fas fa-id-card'
       }],
-      relyingDomain: null,
-      relyingOrigin: null,
-      relyingOriginManifest: null,
-      selectedHint: null,
-      showHintChooser: false,
+      rememberChoice: true,
       showGreeting: false,
-      showPermissionDialog: false
+      showPermissionDialog: false,
     };
   },
-  computed: {
-    relyingOriginName() {
-      if(!this.relyingOriginManifest) {
-        return this.relyingDomain;
-      }
-      const {name, short_name} = this.relyingOriginManifest;
-      return name || short_name || this.relyingDomain;
-    }
-  },
   async created() {
-    const {origin, host} = helpers.parseUrl({url: document.referrer});
-    this.relyingOrigin = origin;
-    this.relyingDomain = host;
-
     // TODO: is this the appropriate place to run this?
-    await helpers.loadPolyfill(this);
+    await loadPolyfill(this);
 
-    // attempt to load web app manifest icon
-    const manifest = await getWebAppManifest({host: this.relyingDomain});
-    this.relyingOriginManifest = manifest;
+    this.firstPartyMode = shouldUseFirstPartyMode();
   },
   methods: {
     async allow() {
       this.hasStorageAccess = await requestStorageAccess();
       if(this.hasStorageAccess) {
-        const resolvePermissionRequest = helpers.getResolvePermissinoRequest();
+        const resolvePermissionRequest = getResolvePermissionRequest();
         resolvePermissionRequest('granted');
         this.reset();
         await navigator.credentialMediator.hide();
@@ -277,61 +215,46 @@ export default {
     },
     async deny() {
       await requestStorageAccess();
-      const resolvePermissionRequest = helpers.getResolvePermissinoRequest();
+      const resolvePermissionRequest = getResolvePermissionRequest();
       resolvePermissionRequest('denied');
       this.reset();
       await navigator.credentialMediator.hide();
     },
-    async cancelSelection() {
-      this.hideWizard = false;
-      await navigator.credentialMediator.ui.cancelSelectCredentialHint();
-    },
-    async cancel() {
-      if(this.selectedHint) {
-        await this.cancelSelection();
-      }
-      this.reset();
-      const deferredCredentialOperation =
-        helpers.getDeferredCredentialOperation();
-      deferredCredentialOperation.resolve(null);
-      await navigator.credentialMediator.hide();
-    },
-    async webShare() {
-      const {credential, relyingOrigin: credentialRequestOrigin} = this;
-      const {data} = helpers.createWebShareData({
-        credential, credentialRequestOrigin
-      });
-
-      // Check if WebShare API with files is supported
-      await helpers.webShareHasFileSupport({data});
-
-      return false;
-    },
     async nextWizardStep() {
-      console.log('NEXT WIZARD STEP');
-      // this.loading = true;
-      // const mustLoadHints = !this.hasStorageAccess;
-      // // always call `requestStorageAccess` to refresh mediator's
-      // // user interaction timestamp
-      // this.hasStorageAccess = await requestStorageAccess();
-      // if(this.hasStorageAccess) {
-      //   if(mustLoadHints) {
-      //     await this.loadHints();
-      //   }
-      //   this.useRememberedHint();
-      // }
-      // this.showGreeting = false;
-      // this.loading = false;
-      const url = `${window.location.origin}/hint-chooser`;
-      const {credentialRequestOptions, credential, relyingOrigin} = this;
-      const {choice, appContext} = await openCredentialHintWindow({
-        url, credential, credentialRequestOptions,
-        credentialRequestOrigin: relyingOrigin
-      });
+      this.loading = true;
+      try {
+        if(this.firstPartyMode) {
+          const url = `${window.location.origin}/hint-chooser`;
+          const {credentialRequestOptions, credential, relyingOrigin} = this;
 
-      this._popupDialog = appContext.control.dialog;
+          const {choice, appContext} = await openCredentialHintWindow({
+            url, credential, credentialRequestOptions,
+            credentialRequestOrigin: relyingOrigin
+          });
 
-      this.selectHint({...choice, waitUntil: () => {}});
+          // save reference to current first party window so we can redirect
+          // to the user's selected credential handler
+          this._popupDialog = appContext.control.dialog;
+          this.selectHint({...choice, waitUntil: () => {}});
+
+          // early return to prevent going into non first party mode
+          return;
+        }
+
+        const mustLoadHints = !this.hasStorageAccess;
+        // always call `requestStorageAccess` to refresh mediator's
+        // user interaction timestamp
+        this.hasStorageAccess = await requestStorageAccess();
+        if(this.hasStorageAccess && !this.firstPartyMode) {
+          if(mustLoadHints) {
+            await this.loadHints();
+          }
+          this.useRememberedHint();
+        }
+      } finally {
+        this.showGreeting = false;
+        this.loading = false;
+      }
     },
     async prevWizardStep() {
       this.showGreeting = true;
@@ -339,106 +262,21 @@ export default {
         await this.cancelSelection();
       }
     },
-    async finishAntiTrackingWizard() {
-      this.loading = true;
-      this.hasStorageAccess = await requestStorageAccess();
-      if(this.display === 'permissionRequest') {
-        if(this.hasStorageAccess) {
-          await this.allow();
-        } else {
-          await this.deny();
-        }
-      } else {
-        if(this.hasStorageAccess) {
-          await this.loadHints();
-          this.useRememberedHint();
-        } else {
-          // can't get access for some reason, show hint chooser w/no hints
-          this.showHintChooser = true;
-        }
-      }
-      this.loading = false;
-    },
-    async loadHints() {
-      let hintOptions;
-      let recommendedHandlerOrigins;
-      if(this.credentialRequestOptions) {
-        // get matching hints from request options
-        hintOptions = await navigator.credentialMediator.ui
-          .matchCredentialRequest(this.credentialRequestOptions);
-        ({web: {recommendedHandlerOrigins = []}} =
-          this.credentialRequestOptions);
-      } else {
-        // must be a storage request, get hints that match credential
-        hintOptions = await navigator.credentialMediator.ui
-          .matchCredential(this.credential);
-        ({options: {recommendedHandlerOrigins = []} = {}} = this.credential);
-      }
-
-      // no available hints, check for recommended options
-      if(hintOptions.length === 0 && Array.isArray(recommendedHandlerOrigins)) {
-        // get relevant types to match against handler
-        let types = [];
-        if(this.credentialRequestOptions) {
-          // types are all capitalized `{web: {Type1, Type2, ..., TypeN}}`
-          types = Object.keys(this.credentialRequestOptions.web)
-            .filter(k => k[0] === k.toUpperCase()[0]);
-        } else {
-          types.push(this.credential.dataType);
-        }
-
-        // maximum of 3 recommended handlers
-        const {
-          relyingOriginName, relyingOrigin, relyingOriginManifest,
-          relyingDomain
-        } = this;
-        recommendedHandlerOrigins = recommendedHandlerOrigins.slice(0, 3);
-        const jitHints = (await helpers.createJitHints({
-          recommendedHandlerOrigins, types, relyingOriginName, relyingOrigin,
-          relyingOriginManifest, relyingDomain
-        })).filter(e => !!e);
-        this.hintOptions = jitHints;
+    useRememberedHint({hideWizard = false, showHintChooser = true} = {}) {
+      // remembered hint not allowed in 1P Mode
+      if(this.firstPartyMode) {
         return;
       }
-
-      // get unique credential handlers
-      const handlers = [...new Set(hintOptions.map(
-        ({credentialHandler}) => credentialHandler))];
-      // create hints for each unique origin
-      this.hintOptions = await helpers.createHintOptions({handlers});
-    },
-    useRememberedHint({hideWizard = false, showHintChooser = true} = {}) {
       // check to see if there is a reusable choice for the relying party
       const {hintOptions, relyingOrigin} = this;
       const hint = getSiteChoice({relyingOrigin, hintOptions});
-      if(false) {
-        // if(hint) {
+      if(hint) {
         this.showGreeting = false;
         this.hideWizard = hideWizard;
         this.rememberChoice = true;
-        this.selectHint({
-          hint,
-          waitUntil() {}
-        });
+        this.selectHint({hint, waitUntil() {}});
       } else {
         this.showHintChooser = showHintChooser;
-      }
-    },
-    async removeHint(event) {
-      const {hint} = event;
-      const idx = this.hintOptions.indexOf(hint);
-      this.hintOptions.splice(idx, 1);
-      if(this.hintOptions.length === 0) {
-        this.loading = true;
-      }
-      await navigator.credentialMediator.ui.unregisterCredentialHandler(
-        hint.hintOption.credentialHandler);
-      if(this.hintOptions.length === 0) {
-        // load hints again to use recommended handler origins if present
-        // and include a slight delay to avoid flash of content
-        await new Promise(r => setTimeout(r, 1000));
-        await this.loadHints();
-        this.loading = false;
       }
     },
     async selectHint(event) {
@@ -450,7 +288,7 @@ export default {
 
       // auto-register handler if hint was JIT-created
       if(event.hint.jit) {
-        await helpers.autoRegisterHint({event, credentialHandler});
+        await autoRegisterHint({event, credentialHandler});
       }
 
       // save choice for site
@@ -462,11 +300,11 @@ export default {
 
       let canceled = false;
       let response;
-      const deferredCredentialOperation =
-        helpers.getDeferredCredentialOperation();
+      const deferredCredentialOperation = getDeferredCredentialOperation();
       try {
         response = await navigator.credentialMediator.ui.selectCredentialHint(
           event.hint.hintOption);
+
         if(!response) {
           // clear site choice when `null` response is returned by credential
           // handler
@@ -522,7 +360,7 @@ export default {
         showMediatorPromise = navigator.credentialMediator.show();
       }
 
-      if(this.hasStorageAccess) {
+      if(this.hasStorageAccess && !this.firstPartyMode) {
         // load hints early if possible to avoid showing UI
         await this.loadHints();
         // this will cause a remembered hint to execute immediately without
@@ -542,67 +380,24 @@ export default {
       this.loading = false;
     },
     reset() {
-      this.display = null;
+      // reset the same fields found in the hintChooserMixin
       this.credentialRequestOptions = this.credential = null;
-      this.hasStorageAccess = false;
+      this.display = null;
       this.hideWizard = false;
       this.hintOptions = [];
       this.loading = false;
-      this.rememberChoice = true;
       this.selectedHint = null;
       this.showHintChooser = false;
+
+      // reset other fields
+      this.hasStorageAccess = false;
+      this.rememberChoice = true;
       this.showGreeting = false;
       this.showPermissionDialog = false;
     }
   }
 };
 
-async function openCredentialHintWindow({
-  url, credential, credentialRequestOptions, credentialRequestOrigin
-}) {
-  // create WebAppContext to run WebApp and connect to windowClient
-  const appContext = new rpc.WebAppContext();
-  const windowReady = appContext.createWindow(url, {
-    popup: true,
-    // default to 10 minute timeout for loading other window on same site
-    // to allow for authentication pages and similar
-    timeout: 600000
-  });
-
-  // appWindow.ready();
-  // appWindow.show();
-
-  // create proxy interface for making calls in WebApp
-  const injector = await windowReady;
-
-  appContext.control.show();
-
-  const proxy = injector.get('credentialEventProxy', {
-    functions: [{name: 'send', options: {timeout: 0}}]
-  });
-
-  console.log({url, proxy});
-
-  try {
-    const {choice} = await proxy.send({
-      type: 'selectcredentialhint',
-      credentialRequestOptions,
-      credentialRequestOrigin,
-      credential,
-      hintKey: undefined
-    });
-
-    // const {hint} = choice;
-    // appContext.control.handle.location.href = hint.hintOption.credentialHandler;
-    console.log('opening', {choice, appContext, injector});
-    return {choice, appContext};
-  } catch(e) {
-    throw e;
-  } finally {
-    // appContext.control.hide();
-  }
-
-}
 </script>
 
 <style>
