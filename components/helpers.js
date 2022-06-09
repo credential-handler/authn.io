@@ -1,20 +1,6 @@
 import {getWebAppManifest} from './manifest.js';
-import * as polyfill from 'credential-mediator-polyfill';
 import {getWebAppManifestIcon} from 'vue-web-request-mediator';
-import * as rpc from 'web-request-rpc';
-import HandlerWindowHeader from './HandlerWindowHeader.vue';
-import Vue from 'vue';
-
-let deferredCredentialOperation;
-let resolvePermissionRequest;
-
-export function getDeferredCredentialOperation() {
-  return deferredCredentialOperation;
-}
-
-export function getResolvePermissinoRequest() {
-  return resolvePermissionRequest;
-}
+import {utils, WebAppContext} from 'web-request-rpc';
 
 export function createWebShareData({credential, credentialRequestOrigin}) {
   const payload = {credential, credentialRequestOrigin};
@@ -45,8 +31,8 @@ export async function webShareHasFileSupport({data}) {
 }
 
 export function parseUrl({url}) {
-  const {origin} = rpc.utils.parseUrl(url);
-  const {host} = rpc.utils.parseUrl(origin);
+  const {origin} = utils.parseUrl(url);
+  const {host} = utils.parseUrl(origin);
 
   return {origin, host};
 }
@@ -61,7 +47,7 @@ export async function autoRegisterHint({event, credentialHandler}) {
 export async function createHintOptions({handlers}) {
   return Promise.all(handlers.map(
     async credentialHandler => {
-      const {origin, host} = rpc.utils.parseUrl(credentialHandler);
+      const {origin, host} = utils.parseUrl(credentialHandler);
       const manifest = (await getWebAppManifest({host})) || {};
       const name = manifest.name || manifest.short_name || host;
       // if `manifest.credential_handler` is set, update registration
@@ -112,7 +98,7 @@ export async function createJitHints({
       if(typeof recommendedOrigin !== 'string') {
         return;
       }
-      const {host, origin} = rpc.utils.parseUrl(recommendedOrigin);
+      const {host, origin} = utils.parseUrl(recommendedOrigin);
       const manifest = (await getWebAppManifest({host})) || {};
       const name = manifest.name || manifest.short_name || host;
       if(!(manifest.credential_handler &&
@@ -169,113 +155,34 @@ export async function createJitHints({
     }));
 }
 
-export async function loadPolyfill(component, rpcServices = {}) {
-  try {
-    await polyfill.loadOnce({
-      relyingOrigin: component.relyingOrigin,
-      requestPermission: requestPermission.bind(component),
-      getCredential: getCredential.bind(component),
-      storeCredential: storeCredential.bind(component),
-      getCredentialHandlerInjector:
-        getCredentialHandlerInjector.bind(component),
-      rpcServices,
-    });
-  } catch(e) {
-    console.error('this boom right here', e);
-  }
-}
-async function getCredentialHandlerInjector({appContext, credentialHandler}) {
-  // const injectorPromise = appContext.createWindow(credentialHandler, {
-  //   customize: updateHandlerWindow.bind(this),
-  //   // 30 second timeout to load repository
-  //   timeout: 30000
-  // });
-  const {_popupDialog: dialog} = this;
-  dialog.setLocation(credentialHandler);
-
-  const windowReady = appContext.createWindow(credentialHandler, {
-    dialog,
+export async function openCredentialHintWindow({
+  url, credential, credentialRequestOptions, credentialRequestOrigin,
+}) {
+  // create WebAppContext to run WebApp and connect to windowClient
+  const appContext = new WebAppContext();
+  const windowReady = appContext.createWindow(url, {
     popup: true,
     // default to 10 minute timeout for loading other window on same site
     // to allow for authentication pages and similar
     timeout: 600000
   });
 
+  // create proxy interface for making calls in WebApp
   const injector = await windowReady;
-  return injector;
-}
-export async function requestPermission(/*permissionDesc*/) {
-  // prep display
-  this.display = 'permissionRequest';
-  const promise = new Promise(resolve => {
-    resolvePermissionRequest = state => resolve({state});
+
+  appContext.control.show();
+
+  const proxy = injector.get('credentialEventProxy', {
+    functions: [{name: 'send', options: {timeout: 0}}]
   });
 
-  // show display
-  this.showPermissionDialog = true;
-  await navigator.credentialMediator.show();
-  return promise;
-}
-
-export async function getCredential(operationState) {
-  // prep display
-  this.display = 'credentialRequest';
-  this.credentialRequestOptions = operationState.input.credentialRequestOptions;
-  this.showHintChooser = false;
-  this.showGreeting = true;
-  const promise = new Promise((resolve, reject) => {
-    deferredCredentialOperation = {resolve, reject};
+  const {choice} = await proxy.send({
+    type: 'selectcredentialhint',
+    credentialRequestOptions,
+    credentialRequestOrigin,
+    credential,
+    hintKey: undefined
   });
 
-  await this.startFlow();
-
-  return promise;
-}
-
-export async function storeCredential(operationState) {
-  // prep display
-  this.display = 'credentialStore';
-  this.credential = operationState.input.credential;
-  this.showHintChooser = false;
-  this.showGreeting = true;
-  const promise = new Promise((resolve, reject) => {
-    deferredCredentialOperation = {resolve, reject};
-  });
-
-  await this.startFlow();
-
-  return promise;
-}
-
-export function updateHandlerWindow({handlerWindow}) {
-  console.log('AAAAAAA handlerWindow', handlerWindow);
-  if(handlerWindow.popup) {
-    return;
-  }
-  const self = this;
-  const {container, iframe} = handlerWindow.dialog;
-  const operation = self.display === 'credentialRequest' ? 'request' : 'store';
-  const origin = rpc.utils.parseUrl(iframe.src).hostname;
-  const Component = Vue.extend(HandlerWindowHeader);
-  const el = document.createElement('div');
-  container.insertBefore(el, iframe);
-  container.classList.add('wrm-slide-up');
-  new Component({
-    el,
-    propsData: {
-      origin,
-      relyingDomain: self.relyingDomain,
-      relyingOrigin: self.relyingOrigin,
-      relyingOriginManifest: self.relyingOriginManifest,
-      operation,
-      hint: self.selectedHint
-    },
-    created() {
-      this.$on('back', self.cancelSelection);
-      this.$on('cancel', self.cancel);
-    }
-  });
-  // clear iframe style that was set by web-request-rpc; set instead via CSS
-  iframe.style.cssText = null;
-  iframe.classList.add('wrm-handler-iframe');
+  return {choice, appContext};
 }
