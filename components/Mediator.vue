@@ -1,7 +1,17 @@
 <template>
   <div>
+    <div v-if="display === 'permissionRequest'">
+      <wrm-permission-dialog
+        v-if="showPermissionDialog"
+        :origin="relyingDomain"
+        :permissions="permissions"
+        @deny="deny()"
+        @allow="allow()" />
+      <!-- FIXME: handle 1p window case -->
+    </div>
+
     <wrm-wizard-dialog
-      v-if="!hideWizard &&
+      v-else-if="!hideWizard &&
         (display === 'credentialRequest' || display === 'credentialStore')"
       :loading="loading"
       :first="showGreeting"
