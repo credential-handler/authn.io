@@ -230,6 +230,21 @@ export default {
       this.reset();
       await navigator.credentialMediator.hide();
     },
+    async cancelSelection() {
+      console.log('Mediator.vue cancel selection');
+      this.hideWizard = false;
+      await navigator.credentialMediator.ui.cancelSelectCredentialHint();
+    },
+    async cancel() {
+      console.log('Mediator.vue cancel');
+      if(this.selectedHint) {
+        await this.cancelSelection();
+      }
+      this.reset();
+      const deferredCredentialOperation = getDeferredCredentialOperation();
+      deferredCredentialOperation.resolve(null);
+      await navigator.credentialMediator.hide();
+    },
     async nextWizardStep() {
       this.loading = true;
       try {
@@ -242,12 +257,17 @@ export default {
             credentialRequestOrigin: relyingOrigin
           });
 
-          // save reference to current first party window so we can redirect
-          // to the user's selected credential handler
-          this._popupDialog = appContext.control.dialog;
-          this.selectHint({...choice, waitUntil: () => {}});
+          // if a choice was made... (vs. closing the window)
+          if(choice) {
+            this.showGreeting = false;
 
-          // early return to prevent going into non first party mode
+            // save reference to current first party window so we can redirect
+            // to the user's selected credential handler
+            this._popupDialog = appContext.control.dialog;
+            this.selectHint({...choice, waitUntil: () => {}});
+          }
+
+          // early return to prevent going into non-first party mode
           return;
         }
 
@@ -261,8 +281,9 @@ export default {
           }
           this.useRememberedHint();
         }
-      } finally {
+
         this.showGreeting = false;
+      } finally {
         this.loading = false;
       }
     },
