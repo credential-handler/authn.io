@@ -207,6 +207,9 @@ export default {
     // TODO: is this the appropriate place to run this?
     await loadPolyfill(this);
 
+    // FIXME: change this function to return the flow ID -- and don't cache
+    // the value here, but in `platformDetection` ... always call this function
+    // to get the current mode
     this.firstPartyMode = shouldUseFirstPartyMode();
   },
   methods: {
@@ -356,7 +359,11 @@ export default {
         this.rememberChoice = true;
         // clear site choice
         setSiteChoice({relyingOrigin, credentialHandler: null});
-        this.showHintChooser = true;
+        if(this.firstPartyMode) {
+          this.showGreeting = true;
+        } else {
+          this.showHintChooser = true;
+        }
       } else {
         try {
           this.reset();
