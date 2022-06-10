@@ -182,6 +182,7 @@ export async function openCredentialHintWindow({
   const oldDestroy = dialog.destroy.bind(dialog);
   dialog.destroy = (...args) => {
     console.log('hint chooser dialog destroy');
+    dialog.destroy = oldDestroy;
     aborted = true;
     oldDestroy(...args);
     if(injector) {
@@ -213,5 +214,7 @@ export async function openCredentialHintWindow({
       console.error(e);
     }
     return {choice: null, appContext: null};
+  } finally {
+    dialog.destroy = oldDestroy;
   }
 }

@@ -1,7 +1,13 @@
+/*!
+ * New BSD License (3-clause)
+ * Copyright (c) 2017-2022, Digital Bazaar, Inc.
+ * All rights reserved.
+ */
+// FIXME: consider renaming file
 import {loadOnce} from 'credential-mediator-polyfill';
+import HandlerWindowHeader from './HandlerWindowHeader.vue';
 import {utils} from 'web-request-rpc';
 import Vue from 'vue';
-import HandlerWindowHeader from './HandlerWindowHeader.vue';
 
 let deferredCredentialOperation;
 let resolvePermissionRequest;
@@ -29,6 +35,7 @@ export async function loadPolyfill(component, rpcServices = {}) {
     console.error('Error loading mediator polyfill:', e);
   }
 }
+
 async function getCredentialHandlerInjector({appContext, credentialHandler}) {
   const {_popupDialog: dialog} = this;
 
@@ -49,6 +56,7 @@ async function getCredentialHandlerInjector({appContext, credentialHandler}) {
 
   return injector;
 }
+
 async function requestPermission(/*permissionDesc*/) {
   // prep display
   this.display = 'permissionRequest';
@@ -93,10 +101,23 @@ async function storeCredential(operationState) {
 }
 
 function updateHandlerWindow({webAppWindow}) {
+  const self = this;
+
   if(webAppWindow.popup) {
+    // FIXME: consider adding event listener to `WebAppWindowDialog` instead
+    const {dialog} = webAppWindow;
+    const oldDestroy = dialog.destroy.bind(dialog);
+    dialog.destroy = (...args) => {
+      console.log('dialog destroy');
+      dialog.destroy = oldDestroy;
+      // FIXME: options here:
+      // self.cancelSelection -- close handler UI but keep CHAPI UI up
+      // self.cancel -- close CHAPI entirely
+      self.cancelSelection();
+      oldDestroy(...args);
+    };
     return;
   }
-  const self = this;
   const {container, iframe} = webAppWindow.dialog;
   const operation = self.display === 'credentialRequest' ? 'request' : 'store';
   const origin = utils.parseUrl(iframe.src).hostname;
