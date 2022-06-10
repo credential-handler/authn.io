@@ -9,6 +9,10 @@ import HandlerWindowHeader from './HandlerWindowHeader.vue';
 import {utils} from 'web-request-rpc';
 import Vue from 'vue';
 
+// default popup handler width and height
+const DEFAULT_HANDLER_POPUP_WIDTH = 800;
+const DEFAULT_HANDLER_POPUP_HEIGHT = 600;
+
 let deferredCredentialOperation;
 let resolvePermissionRequest;
 
@@ -43,13 +47,23 @@ async function getCredentialHandlerInjector({appContext, credentialHandler}) {
     dialog.setLocation(credentialHandler);
   }
 
+  const width = Math.min(DEFAULT_HANDLER_POPUP_WIDTH, window.innerWidth);
+  const height = Math.min(DEFAULT_HANDLER_POPUP_HEIGHT, window.innerHeight);
+
   const windowReady = appContext.createWindow(credentialHandler, {
     dialog,
     popup: !!dialog,
     customize: updateHandlerWindow.bind(this),
     // default to 10 minute timeout for loading other window on same site
     // to allow for authentication pages and similar
-    timeout: 600000
+    timeout: 600000,
+    // default bounding rectangle for the credential handler window
+    bounds: {
+      top: window.screenY + (window.innerHeight - height) / 2,
+      left: window.screenX + (window.innerWidth - width) / 2,
+      width,
+      height
+    }
   });
 
   const injector = await windowReady;
