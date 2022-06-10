@@ -136,7 +136,7 @@
             </div>
             <div
               class="wrm-button-bar"
-              style="margin: auto; padding-top: 2em;">
+              style="margin: auto; padding-top: 1em;">
               <button
                 type="button"
                 class="wrm-button wrm-primary"
