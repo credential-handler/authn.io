@@ -104,18 +104,16 @@ function updateHandlerWindow({webAppWindow}) {
   const self = this;
 
   if(webAppWindow.popup) {
-    // FIXME: consider adding event listener to `WebAppWindowDialog` instead
+    // handle user closing popup
     const {dialog} = webAppWindow;
-    const oldDestroy = dialog.destroy.bind(dialog);
-    dialog.destroy = (...args) => {
-      console.log('dialog destroy');
-      dialog.destroy = oldDestroy;
-      // FIXME: options here:
+    dialog.addEventListener('close', function abort() {
+      console.log('handler window dialog closed');
+      // Options for cancelation behavior are:
       // self.cancelSelection -- close handler UI but keep CHAPI UI up
       // self.cancel -- close CHAPI entirely
       self.cancelSelection();
-      oldDestroy(...args);
-    };
+      dialog.removeEventListener('close', abort);
+    });
     return;
   }
   const {container, iframe} = webAppWindow.dialog;

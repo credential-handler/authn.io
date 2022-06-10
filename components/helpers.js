@@ -177,18 +177,15 @@ export async function openCredentialHintWindow({
   // the dialog -- so we can abort awaiting `proxy.send`
   let injector = null;
   let aborted = false;
-
   const {dialog} = appContext.control;
-  const oldDestroy = dialog.destroy.bind(dialog);
-  dialog.destroy = (...args) => {
-    console.log('hint chooser dialog destroy');
-    dialog.destroy = oldDestroy;
+  dialog.addEventListener('close', function abort() {
+    console.log('hint chooser dialog closed');
     aborted = true;
-    oldDestroy(...args);
     if(injector) {
       injector.client.close();
     }
-  };
+    dialog.removeEventListener('close', abort);
+  });
 
   // create proxy interface for making calls in WebApp
   injector = await windowReady;
@@ -214,7 +211,5 @@ export async function openCredentialHintWindow({
       console.error(e);
     }
     return {choice: null, appContext: null};
-  } finally {
-    dialog.destroy = oldDestroy;
   }
 }
