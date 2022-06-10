@@ -162,7 +162,7 @@ export async function createJitHints({
 
 // FIXME: rename to `openHintChooserWindow`?
 export async function openCredentialHintWindow({
-  url, credential, credentialRequestOptions, credentialRequestOrigin,
+  url, credential, credentialRequestOptions, credentialRequestOrigin
 }) {
   // create WebAppContext to run WebApp and connect to windowClient
   const appContext = new WebAppContext();
@@ -173,19 +173,26 @@ export async function openCredentialHintWindow({
     timeout: 600000
   });
 
+  // save reference to current first party window so we can redirect
+  // to the user's selected credential handler
+  this._popupDialog = appContext.control.dialog;
+  this.popupOpen = true;
+
   // provide access to injector inside dialog destroy in case the user closes
   // the dialog -- so we can abort awaiting `proxy.send`
   let injector = null;
   let aborted = false;
   const {dialog} = appContext.control;
-  dialog.addEventListener('close', function abort() {
+  const abort = () => {
     console.log('hint chooser dialog closed');
     aborted = true;
     if(injector) {
       injector.client.close();
     }
     dialog.removeEventListener('close', abort);
-  });
+    this.popupOpen = false;
+  };
+  dialog.addEventListener('close', abort);
 
   // create proxy interface for making calls in WebApp
   injector = await windowReady;

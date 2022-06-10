@@ -62,7 +62,7 @@
           :relying-origin="relyingOrigin"
           :relying-origin-manifest="relyingOriginManifest" />
 
-        <!-- step 2 -->
+        <!-- step 2 iframe -->
         <wrm-hint-chooser
           v-else-if="showHintChooser"
           style="user-select: none"
@@ -158,11 +158,35 @@
             :selected="true"
             :selectable="false"
             :disabled="true" />
+          <div
+            v-if="popupOpen"
+            class="wrm-button-bar"
+            style="margin: auto; margin-top: 1em">
+            <button
+              type="button"
+              class="wrm-button wrm-primary"
+              style="margin: auto"
+              @click="focusPopup()">
+              Show Wallet
+            </button>
+          </div>
         </div>
       </template>
       <template
-        v-if="!showGreeting"
+        v-if="!showGreeting || popupOpen"
         slot="footer">
+        <div
+          v-if="showGreeting && popupOpen"
+          class="wrm-button-bar"
+          style="margin: auto; margin-top: 1em">
+          <button
+            type="button"
+            class="wrm-button wrm-primary"
+            style="margin: auto"
+            @click="focusPopup()">
+            Show Wallet Chooser
+          </button>
+        </div>
         <!-- clear footer after first step -->
         <div />
       </template>
@@ -201,6 +225,7 @@ export default {
       rememberChoice: true,
       showGreeting: false,
       showPermissionDialog: false,
+      popupOpen: false
     };
   },
   async created() {
@@ -248,6 +273,11 @@ export default {
       deferredCredentialOperation.resolve(null);
       await navigator.credentialMediator.hide();
     },
+    focusPopup() {
+      if(this._popupDialog) {
+        this._popupDialog.handle.focus();
+      }
+    },
     async nextWizardStep() {
       this.loading = true;
       try {
@@ -255,7 +285,9 @@ export default {
           const url = `${window.location.origin}/hint-chooser`;
           const {credentialRequestOptions, credential, relyingOrigin} = this;
 
-          const {choice, appContext} = await openCredentialHintWindow({
+          // FIXME: fix broken abstraction by re-engineering helper functions
+          const boundOpenWindow = openCredentialHintWindow.bind(this);
+          const {choice} = await boundOpenWindow({
             url, credential, credentialRequestOptions,
             credentialRequestOrigin: relyingOrigin
           });
@@ -263,10 +295,6 @@ export default {
           // if a choice was made... (vs. closing the window)
           if(choice) {
             this.showGreeting = false;
-
-            // save reference to current first party window so we can redirect
-            // to the user's selected credential handler
-            this._popupDialog = appContext.control.dialog;
             this.selectHint({...choice, waitUntil: () => {}});
           }
 
@@ -432,6 +460,7 @@ export default {
       this.rememberChoice = true;
       this.showGreeting = false;
       this.showPermissionDialog = false;
+      this.popupOpen = false;
     }
   }
 };
