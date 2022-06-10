@@ -7,6 +7,10 @@ import {getWebAppManifest} from './manifest.js';
 import {getWebAppManifestIcon} from 'vue-web-request-mediator';
 import {utils, WebAppContext} from 'web-request-rpc';
 
+// default popup handler width and height
+const DEFAULT_HINT_CHOOSER_POPUP_WIDTH = 500;
+const DEFAULT_HINT_CHOOSER_POPUP_HEIGHT = 400;
+
 export function createWebShareData({credential, credentialRequestOrigin}) {
   const payload = {credential, credentialRequestOrigin};
   const blob = new Blob(
@@ -170,7 +174,11 @@ export async function openCredentialHintWindow({
     popup: true,
     // default to 10 minute timeout for loading other window on same site
     // to allow for authentication pages and similar
-    timeout: 600000
+    timeout: 600000,
+    bounds: {
+      width: DEFAULT_HINT_CHOOSER_POPUP_WIDTH,
+      height: DEFAULT_HINT_CHOOSER_POPUP_HEIGHT
+    }
   });
 
   // save reference to current first party window so we can redirect
