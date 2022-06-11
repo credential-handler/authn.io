@@ -24,10 +24,12 @@ export function getResolvePermissionRequest() {
   return resolvePermissionRequest;
 }
 
-export async function loadPolyfill(component, rpcServices = {}) {
+export async function loadPolyfill({
+  component, credentialRequestOrigin, rpcServices = {}
+}) {
   try {
     await loadOnce({
-      relyingOrigin: component.relyingOrigin,
+      credentialRequestOrigin,
       requestPermission: requestPermission.bind(component),
       getCredential: getCredential.bind(component),
       storeCredential: storeCredential.bind(component),
@@ -121,7 +123,6 @@ function updateHandlerWindow({webAppWindow}) {
     // handle user closing popup
     const {dialog} = webAppWindow;
     dialog.addEventListener('close', function abort() {
-      console.log('handler window dialog closed');
       // Options for cancelation behavior are:
       // self.cancelSelection -- close handler UI but keep CHAPI UI up
       // self.cancel -- close CHAPI entirely

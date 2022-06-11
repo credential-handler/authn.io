@@ -47,8 +47,9 @@ export function parseUrl({url}) {
 }
 
 export async function autoRegisterHint({event, credentialHandler}) {
-  const {name, manifest: {credential_handler: {enabledTypes}}} =
-  event.hint;
+  const {
+    name, manifest: {credential_handler: {enabledTypes}}
+  } = event.hint;
   await navigator.credentialMediator.ui.registerCredentialHandler(
     credentialHandler, {name, enabledTypes, icons: []});
 }
@@ -92,7 +93,7 @@ export async function createHintOptions({handlers}) {
         manifest,
         hintOption: {
           credentialHandler,
-          credentialHintKey: null
+          credentialHintKey: 'default'
         }
       };
     }));
@@ -150,7 +151,7 @@ export async function createJitHints({
         manifest,
         hintOption: {
           credentialHandler,
-          credentialHintKey: null
+          credentialHintKey: 'default'
         },
         jit: {
           recommendedBy: {
@@ -166,15 +167,15 @@ export async function createJitHints({
 
 // FIXME: rename to `openHintChooserWindow`?
 export async function openCredentialHintWindow({
-  url, credential, credentialRequestOptions, credentialRequestOrigin
+  url, credential, credentialRequestOptions, credentialRequestOrigin,
+  credentialRequestOriginManifest
 }) {
   // create WebAppContext to run WebApp and connect to windowClient
   const appContext = new WebAppContext();
   const windowReady = appContext.createWindow(url, {
     popup: true,
-    // default to 10 minute timeout for loading other window on same site
-    // to allow for authentication pages and similar
-    timeout: 600000,
+    // loading should be quick to same mediator site
+    timeout: 30000,
     bounds: {
       width: DEFAULT_HINT_CHOOSER_POPUP_WIDTH,
       height: DEFAULT_HINT_CHOOSER_POPUP_HEIGHT
@@ -192,7 +193,6 @@ export async function openCredentialHintWindow({
   let aborted = false;
   const {dialog} = appContext.control;
   const abort = () => {
-    console.log('hint chooser dialog closed');
     aborted = true;
     if(injector) {
       injector.client.close();
@@ -216,6 +216,7 @@ export async function openCredentialHintWindow({
       type: 'selectcredentialhint',
       credentialRequestOptions,
       credentialRequestOrigin,
+      credentialRequestOriginManifest,
       credential,
       hintKey: undefined
     });
@@ -226,5 +227,62 @@ export async function openCredentialHintWindow({
       console.error(e);
     }
     return {choice: null, appContext: null};
+  }
+}
+
+export async function openAllowWalletWindow({
+  url, credentialRequestOrigin, credentialRequestOriginManifest
+}) {
+  // create WebAppContext to run WebApp and connect to windowClient
+  const appContext = new WebAppContext();
+  const windowReady = appContext.createWindow(url, {
+    popup: true,
+    // loading should be quick to same mediator site
+    timeout: 30000,
+    bounds: {
+      width: DEFAULT_HINT_CHOOSER_POPUP_WIDTH,
+      height: DEFAULT_HINT_CHOOSER_POPUP_HEIGHT
+    }
+  });
+
+  // provide access to injector inside dialog destroy in case the user closes
+  // the dialog -- so we can abort awaiting `proxy.send`
+  let injector = null;
+  let aborted = false;
+  const {dialog} = appContext.control;
+  const abort = () => {
+    aborted = true;
+    if(injector) {
+      injector.client.close();
+    }
+    dialog.removeEventListener('close', abort);
+    this.popupOpen = false;
+  };
+  dialog.addEventListener('close', abort);
+
+  // create proxy interface for making calls in WebApp
+  injector = await windowReady;
+
+  appContext.control.show();
+
+  const proxy = injector.get('credentialEventProxy', {
+    functions: [{name: 'send', options: {timeout: 0}}]
+  });
+
+  try {
+    const {status} = await proxy.send({
+      type: 'allowcredentialhandler',
+      credentialRequestOrigin,
+      credentialRequestOriginManifest
+    });
+    return {status, appContext};
+  } catch(e) {
+    if(!aborted) {
+      // unexpected error, log it
+      console.error(e);
+    }
+    return {status: {state: 'denied'}, appContext: null};
+  } finally {
+    appContext.control.hide();
   }
 }

@@ -109,6 +109,7 @@
 import {CredentialEventProxy} from './CredentialEventProxy.js';
 import {hintChooserMixin} from './hintChooserMixin.js';
 import {loadPolyfill} from './mediatorPolyfill.js';
+import {parseUrl} from './helpers.js';
 
 export default {
   name: 'HintChooser',
@@ -123,19 +124,46 @@ export default {
   },
   methods: {
     async _setup() {
-      const proxy = new CredentialEventProxy();
-      const rpcServices = proxy.createServiceDescription();
-      // TODO: is this the appropriate place to run this?
-      await loadPolyfill(this, rpcServices);
+      this.loading = true;
 
-      const event = this.event = await proxy.receive();
-      this.credential = event.credential;
-      this.credentialRequestOptions = event.credentialRequestOptions;
-      this.showHintChooser = true;
+      // create promise to resolve credential request origin once received
+      let _resolveCredentialRequestOrigin = null;
+      let _rejectCredentialRequestOrigin = null;
+      const credentialRequestOrigin = new Promise((resolve, reject) => {
+        _resolveCredentialRequestOrigin = resolve;
+        _rejectCredentialRequestOrigin = reject;
+      });
 
-      await this.loadHints();
+      try {
+        const proxy = new CredentialEventProxy();
+        const rpcServices = proxy.createServiceDescription();
+        // FIXME: move loading polyfill outside of Vue space
+        await loadPolyfill({
+          component: this,
+          credentialRequestOrigin,
+          rpcServices
+        });
 
-      this.loading = false;
+        const event = this.event = await proxy.receive();
+        _resolveCredentialRequestOrigin(event.credentialRequestOrigin);
+        this.relyingOrigin = event.credentialRequestOrigin;
+        this.credential = event.credential;
+        this.credentialRequestOptions = event.credentialRequestOptions;
+        this.relyingOriginManifest = event.credentialRequestOriginManifest;
+        this.showHintChooser = true;
+        this.display = this.credential ?
+          'credentialStore' : 'credentialRequest';
+
+        const {host} = parseUrl({url: event.relyingOrigin});
+        this.relyingDomain = host;
+
+        await this.loadHints();
+      } catch(e) {
+        _rejectCredentialRequestOrigin(e);
+        throw e;
+      } finally {
+        this.loading = false;
+      }
     },
     closeWindow() {
       window.close();
