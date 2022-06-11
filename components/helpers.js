@@ -103,66 +103,65 @@ export async function createJitHints({
   recommendedHandlerOrigins, types, relyingOriginName, relyingOrigin,
   relyingOriginManifest, relyingDomain
 }) {
-  return Promise.all(recommendedHandlerOrigins.map(
-    async recommendedOrigin => {
-      if(typeof recommendedOrigin !== 'string') {
-        return;
-      }
-      const {host, origin} = utils.parseUrl(recommendedOrigin);
-      const manifest = (await getWebAppManifest({host})) || {};
-      const name = manifest.name || manifest.short_name || host;
-      if(!(manifest.credential_handler &&
-      manifest.credential_handler.url &&
-      Array.isArray(manifest.credential_handler.enabledTypes))) {
+  return Promise.all(recommendedHandlerOrigins.map(async recommendedOrigin => {
+    if(typeof recommendedOrigin !== 'string') {
+      return;
+    }
+    const {host, origin} = utils.parseUrl(recommendedOrigin);
+    const manifest = (await getWebAppManifest({host})) || {};
+    const name = manifest.name || manifest.short_name || host;
+    if(!(manifest.credential_handler &&
+    manifest.credential_handler.url &&
+    Array.isArray(manifest.credential_handler.enabledTypes))) {
       // manifest does not have credential handler info
-        return;
+      return;
+    }
+    // see if manifest expressed types match request/credential type
+    let match = false;
+    for(const t of types) {
+      if(manifest.credential_handler.enabledTypes.includes(t)) {
+        match = true;
+        break;
       }
-      // see if manifest expressed types match request/credential type
-      let match = false;
-      for(const t of types) {
-        if(manifest.credential_handler.enabledTypes.includes(t)) {
-          match = true;
-          break;
-        }
-      }
-      if(!match) {
+    }
+    if(!match) {
       // no match
-        return;
-      }
-      // create hint
-      let icon = getWebAppManifestIcon({manifest, origin, size: 32});
-      if(icon) {
-        icon = {fetchedImage: icon.src};
-      }
-      // resolve credential handler URL
-      let credentialHandler;
-      try {
-        credentialHandler = new URL(
-          manifest.credential_handler.url, origin).href;
-      } catch(e) {
-        console.error(e);
-        return;
-      }
-      return {
-        name,
-        icon,
-        origin,
-        host,
-        manifest,
-        hintOption: {
-          credentialHandler,
-          credentialHintKey: 'default'
-        },
-        jit: {
-          recommendedBy: {
-            name: relyingOriginName,
-            origin: relyingOrigin,
-            manifest: relyingOriginManifest,
-            domain: relyingDomain
-          }
+      return;
+    }
+    // create hint
+    let icon = getWebAppManifestIcon({manifest, origin, size: 32});
+    if(icon) {
+      icon = {fetchedImage: icon.src};
+    }
+    // resolve credential handler URL
+    let credentialHandler;
+    try {
+      credentialHandler = new URL(
+        manifest.credential_handler.url, origin).href;
+    } catch(e) {
+      console.error(e);
+      return;
+    }
+    return {
+      name,
+      icon,
+      origin,
+      host,
+      manifest,
+      hintOption: {
+        credentialHandler,
+        credentialHintKey: 'default'
+      },
+      jit: {
+        recommendedBy: {
+          name: relyingOriginName,
+          origin: relyingOrigin,
+          manifest: relyingOriginManifest,
+          domain: relyingDomain
         }
-      };
-    }));
+      }
+    };
+  }));
 }
 
 // FIXME: rename to `openHintChooserWindow`?
