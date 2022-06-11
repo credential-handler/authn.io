@@ -1,12 +1,12 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2018, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2022, Digital Bazaar, Inc.
  * All rights reserved.
  */
 import * as brVue from 'bedrock-vue';
+import * as WrmWebRequestMediator from 'vue-web-request-mediator';
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import * as WrmWebRequestMediator from 'vue-web-request-mediator';
 
 import './main.less';
 import 'bedrock-fontawesome';
