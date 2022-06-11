@@ -1,12 +1,12 @@
 /*!
 * Copyright (c) 2022 Digital Bazaar, Inc. All rights reserved.
 */
+import {getDeferredCredentialOperation} from './mediatorPolyfill.js';
+import {getWebAppManifest} from './manifest.js';
 import {
   parseUrl, createJitHints, createHintOptions, createWebShareData,
   webShareHasFileSupport
 } from './helpers.js';
-import {getWebAppManifest} from './manifest.js';
-import {getDeferredCredentialOperation} from './mediatorPolyfill.js';
 
 export const hintChooserMixin = {
   data() {
@@ -14,7 +14,6 @@ export const hintChooserMixin = {
       credential: null,
       credentialRequestOptions: null,
       display: null,
-      hideWizard: false,
       hintOptions: [],
       hintRemovalText: 'Hiding...',
       loading: false,
@@ -51,11 +50,12 @@ export const hintChooserMixin = {
       }
       this.reset();
       const deferredCredentialOperation = getDeferredCredentialOperation();
-      deferredCredentialOperation.resolve(null);
+      if(deferredCredentialOperation) {
+        deferredCredentialOperation.resolve(null);
+      }
       await navigator.credentialMediator.hide();
     },
     async cancelSelection() {
-      this.hideWizard = false;
       await navigator.credentialMediator.ui.cancelSelectCredentialHint();
     },
     async loadHints() {
@@ -126,7 +126,6 @@ export const hintChooserMixin = {
     reset() {
       this.credentialRequestOptions = this.credential = null;
       this.display = null;
-      this.hideWizard = false;
       this.hintOptions = [];
       this.loading = false;
       this.selectedHint = null;
