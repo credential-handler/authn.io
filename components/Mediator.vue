@@ -211,12 +211,20 @@
  * All rights reserved.
  */
 import {
-  getResolvePermissionRequest, getDeferredCredentialOperation, loadPolyfill
+  autoRegisterHint,
+  openAllowWalletWindow,
+  openCredentialHintWindow,
+  parseUrl
+} from './helpers.js';
+import {
+  getDeferredCredentialOperation,
+  getResolvePermissionRequest,
+  loadPolyfill
 } from './mediatorPolyfill.js';
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
+import {getWebAppManifest} from './manifest.js';
 import {hintChooserMixin} from './hintChooserMixin.js';
 import MediatorGreeting from './MediatorGreeting.vue';
-import {openCredentialHintWindow, autoRegisterHint} from './helpers.js';
 import {shouldUseFirstPartyMode} from './platformDetection.js';
 
 export default {
@@ -226,10 +234,6 @@ export default {
   data() {
     return {
       firstPartyMode: true,
-      permissions: [{
-        name: 'Manage credentials',
-        icon: 'fas fa-id-card'
-      }],
       rememberChoice: true,
       showGreeting: true,
       popupOpen: false
@@ -239,17 +243,34 @@ export default {
     hasCustomFooter() {
       return !this.showGreeting || this.popupOpen ||
         (this.display === 'permissionRequest' && !this.firstPartyMode);
+    },
+    relyingOriginName() {
+      if(!this.relyingOriginManifest) {
+        return this.relyingDomain;
+      }
+      const {name, short_name} = this.relyingOriginManifest;
+      return name || short_name || this.relyingDomain;
     }
   },
   async created() {
+    this.loading = true;
+
     // FIXME: change this function to return the flow ID -- and don't cache
     // the value here, but in `platformDetection` ... always call this function
     // to get the current mode
     this.firstPartyMode = shouldUseFirstPartyMode();
 
+    const {origin, host} = parseUrl({url: document.referrer});
+    this.relyingOrigin = origin;
+    this.relyingDomain = host;
+
     // FIXME: load polyfill in `index.js` instead; decouple it from vue
     // components
-    await loadPolyfill(this);
+    await loadPolyfill({component: this, credentialRequestOrigin: origin});
+
+    // attempt to load web app manifest icon
+    const manifest = await getWebAppManifest({host: this.relyingDomain});
+    this.relyingOriginManifest = manifest;
   },
   methods: {
     async allow() {
@@ -273,14 +294,42 @@ export default {
       this.loading = true;
       try {
         if(this.firstPartyMode) {
-          const url = `${window.location.origin}/hint-chooser`;
-          const {credentialRequestOptions, credential, relyingOrigin} = this;
+          // handle permission request case
+          if(this.display === 'permissionRequest') {
+            const url = `${window.location.origin}/mediator/allow-wallet`;
+            const {relyingOrigin, relyingOriginManifest} = this;
+
+            // FIXME: fix broken abstraction by re-engineering helper functions
+            const boundOpenWindow = openAllowWalletWindow.bind(this);
+            const {status} = await boundOpenWindow({
+              url,
+              credentialRequestOrigin: relyingOrigin,
+              credentialRequestOriginManifest: relyingOriginManifest
+            });
+
+            // if a status was returned... (vs. closing the window)
+            if(status) {
+              if(status.state === 'granted') {
+                await this.allow();
+              } else {
+                await this.deny();
+              }
+            }
+            return;
+          }
+
+          const url = `${window.location.origin}/mediator/wallet-chooser`;
+          const {
+            credentialRequestOptions, credential,
+            relyingOrigin, relyingOriginManifest
+          } = this;
 
           // FIXME: fix broken abstraction by re-engineering helper functions
           const boundOpenWindow = openCredentialHintWindow.bind(this);
           const {choice} = await boundOpenWindow({
             url, credential, credentialRequestOptions,
-            credentialRequestOrigin: relyingOrigin
+            credentialRequestOrigin: relyingOrigin,
+            credentialRequestOriginManifest: relyingOriginManifest
           });
 
           // if a choice was made... (vs. closing the window)
@@ -331,7 +380,7 @@ export default {
       }
 
       // save choice for site
-      if(!this.rememberChoice) {
+      if(!this.rememberChoice || this.firstPartyMode) {
         credentialHandler = null;
       }
       const {relyingOrigin} = this;

@@ -35,14 +35,23 @@ brVue.setRootVue(async () => {
         title: 'Credential Mediator'
       }
     }, {
-      path: '/hint-chooser',
+      path: '/mediator/wallet-chooser',
       component: () => import(
         /* webpackChunkName: "HintChooser" */
         './HintChooser.vue'),
       meta: {
-        title: 'Credential Hint Chooser'
+        title: 'Credential Wallet Chooser'
       }
     }, {
+      path: '/mediator/allow-wallet',
+      component: () => import(
+        /* webpackChunkName: "AllowWalletDialog" */
+        './AllowWalletDialog.vue'),
+      meta: {
+        title: 'Allow Wallet'
+      }
+    }, {
+      // FIXME: remove now-unused route
       path: '/allow-wallet-access',
       component: () => import(
         /* webpackChunkName: "AllowWalletAccess" */

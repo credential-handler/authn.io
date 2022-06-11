@@ -2,9 +2,8 @@
 * Copyright (c) 2022 Digital Bazaar, Inc. All rights reserved.
 */
 import {getDeferredCredentialOperation} from './mediatorPolyfill.js';
-import {getWebAppManifest} from './manifest.js';
 import {
-  parseUrl, createJitHints, createHintOptions, createWebShareData,
+  createJitHints, createHintOptions, createWebShareData,
   webShareHasFileSupport
 } from './helpers.js';
 
@@ -23,16 +22,6 @@ export const hintChooserMixin = {
       selectedHint: null,
       showHintChooser: false
     };
-  },
-  async created() {
-    this.loading = true;
-    const {origin, host} = parseUrl({url: document.referrer});
-    this.relyingOrigin = origin;
-    this.relyingDomain = host;
-
-    // attempt to load web app manifest icon
-    const manifest = await getWebAppManifest({host: this.relyingDomain});
-    this.relyingOriginManifest = manifest;
   },
   computed: {
     relyingOriginName() {
@@ -73,6 +62,10 @@ export const hintChooserMixin = {
           .matchCredential(this.credential);
         ({options: {recommendedHandlerOrigins = []} = {}} = this.credential);
       }
+
+      // FIXME: instead of only showing recommended options when no other
+      // options are available, always show recommended options provided that
+      // they don't match an existing already loaded option
 
       // no available hints, check for recommended options
       if(hintOptions.length === 0 && Array.isArray(recommendedHandlerOrigins)) {
