@@ -134,6 +134,7 @@
                 label="Remember my choice for this site"
                 label-class="wrm-dark-gray" />
             </div>
+            <!-- FIXME: do not show this button if WebShare is not available -->
             <div
               class="wrm-button-bar"
               style="margin: auto; padding-top: 1em;">
@@ -158,6 +159,7 @@
             :selected="true"
             :selectable="false"
             :disabled="true" />
+          <!-- FIXME: do not show this button on mobile; it has no effect -->
           <div
             v-if="popupOpen"
             class="wrm-button-bar"
@@ -175,6 +177,7 @@
       <template
         v-if="!showGreeting || popupOpen"
         slot="footer">
+        <!-- FIXME: do not show this button on mobile; it has no effect -->
         <div
           v-if="showGreeting && popupOpen"
           class="wrm-button-bar"
