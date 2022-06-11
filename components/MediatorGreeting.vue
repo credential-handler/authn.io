@@ -5,7 +5,10 @@
       <span v-if="display === 'credentialRequest'">
         receive credentials from you:
       </span>
-      <span v-else>send credentials to you:</span>
+      <span v-else-if="display === 'credentialStore'">
+        send credentials to you:
+      </span>
+      <span v-else>manage credentials for you:</span>
     </div>
     <wrm-origin-card
       style="padding: 20px 0 10px 0"

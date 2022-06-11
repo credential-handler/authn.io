@@ -74,13 +74,15 @@ async function getCredentialHandlerInjector({appContext, credentialHandler}) {
 async function requestPermission(/*permissionDesc*/) {
   // prep display
   this.display = 'permissionRequest';
+  this.showHintChooser = false;
+  this.showGreeting = true;
   const promise = new Promise(resolve => {
     resolvePermissionRequest = state => resolve({state});
   });
 
   // show display
-  this.showPermissionDialog = true;
   await navigator.credentialMediator.show();
+  this.loading = false;
   return promise;
 }
 
@@ -94,8 +96,7 @@ async function getCredential(operationState) {
     deferredCredentialOperation = {resolve, reject};
   });
 
-  await this.startFlow();
-
+  await this.startCredentialFlow();
   return promise;
 }
 
@@ -109,8 +110,7 @@ async function storeCredential(operationState) {
     deferredCredentialOperation = {resolve, reject};
   });
 
-  await this.startFlow();
-
+  await this.startCredentialFlow();
   return promise;
 }
 
