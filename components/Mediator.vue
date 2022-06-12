@@ -477,6 +477,10 @@ export default {
       this.rememberChoice = true;
       this.showGreeting = true;
       this.popupOpen = false;
+      if(this._popupDialog) {
+        this._popupDialog.close();
+      }
+      this._popupDialog = null;
     }
   }
 };

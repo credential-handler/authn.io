@@ -181,8 +181,7 @@ export async function openCredentialHintWindow({
     }
   });
 
-  // save reference to current first party window so we can redirect
-  // to the user's selected credential handler
+  // save reference to current first party window
   this._popupDialog = appContext.control.dialog;
   this.popupOpen = true;
 
@@ -243,6 +242,10 @@ export async function openAllowWalletWindow({
       height: DEFAULT_HINT_CHOOSER_POPUP_HEIGHT
     }
   });
+
+  // save reference to current first party window
+  this._popupDialog = appContext.control.dialog;
+  this.popupOpen = true;
 
   // provide access to injector inside dialog destroy in case the user closes
   // the dialog -- so we can abort awaiting `proxy.send`
