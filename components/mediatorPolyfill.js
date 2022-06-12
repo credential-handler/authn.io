@@ -35,7 +35,7 @@ export async function loadPolyfill({
       storeCredential: storeCredential.bind(component),
       getCredentialHandlerInjector:
         getCredentialHandlerInjector.bind(component),
-      rpcServices,
+      rpcServices
     });
   } catch(e) {
     console.error('Error loading mediator polyfill:', e);
@@ -79,7 +79,7 @@ async function requestPermission(/*permissionDesc*/) {
   this.showHintChooser = false;
   this.showGreeting = true;
   const promise = new Promise(resolve => {
-    resolvePermissionRequest = state => resolve({state});
+    resolvePermissionRequest = status => resolve(status);
   });
 
   // show display

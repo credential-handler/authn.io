@@ -275,13 +275,13 @@ export default {
   methods: {
     async allow() {
       const resolvePermissionRequest = getResolvePermissionRequest();
-      resolvePermissionRequest('granted');
+      resolvePermissionRequest({state: 'granted'});
       this.reset();
       await navigator.credentialMediator.hide();
     },
     async deny() {
       const resolvePermissionRequest = getResolvePermissionRequest();
-      resolvePermissionRequest('denied');
+      resolvePermissionRequest({state: 'denied'});
       this.reset();
       await navigator.credentialMediator.hide();
     },
@@ -309,11 +309,11 @@ export default {
 
             // if a status was returned... (vs. closing the window)
             if(status) {
-              if(status.state === 'granted') {
-                await this.allow();
-              } else {
-                await this.deny();
-              }
+              // return that status was already set in 1p window
+              const resolvePermissionRequest = getResolvePermissionRequest();
+              resolvePermissionRequest({state: status.state, set: true});
+              this.reset();
+              await navigator.credentialMediator.hide();
             }
             return;
           }
