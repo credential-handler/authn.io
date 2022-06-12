@@ -111,8 +111,8 @@ export async function createJitHints({
     const manifest = (await getWebAppManifest({host})) || {};
     const name = manifest.name || manifest.short_name || host;
     if(!(manifest.credential_handler &&
-    manifest.credential_handler.url &&
-    Array.isArray(manifest.credential_handler.enabledTypes))) {
+      manifest.credential_handler.url &&
+      Array.isArray(manifest.credential_handler.enabledTypes))) {
       // manifest does not have credential handler info
       return;
     }
@@ -272,11 +272,17 @@ export async function openAllowWalletWindow({
   });
 
   try {
-    const {status} = await proxy.send({
+    const result = await proxy.send({
       type: 'allowcredentialhandler',
       credentialRequestOrigin,
       credentialRequestOriginManifest
     });
+    if(result.error) {
+      const error = new Error(result.error.message);
+      error.name = result.error.name;
+      throw error;
+    }
+    const {status} = result;
     return {status, appContext};
   } catch(e) {
     if(!aborted) {
@@ -287,4 +293,28 @@ export async function openAllowWalletWindow({
   } finally {
     appContext.control.hide();
   }
+}
+
+export async function createDefaultHintOption({origin, manifest} = {}) {
+  if(!(manifest && manifest.credential_handler &&
+    manifest.credential_handler.url &&
+    Array.isArray(manifest.credential_handler.enabledTypes))) {
+    // manifest does not have credential handler info
+    return null;
+  }
+
+  // resolve credential handler URL
+  let credentialHandler;
+  try {
+    credentialHandler = new URL(manifest.credential_handler.url, origin).href;
+  } catch(e) {
+    console.error(e);
+    return null;
+  }
+
+  return {
+    credentialHandler,
+    credentialHintKey: 'default',
+    enabledTypes: manifest.credential_handler.enabledTypes
+  };
 }
