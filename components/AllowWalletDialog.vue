@@ -1,25 +1,46 @@
 <template>
-  <div>
-    Allow Wallet Dialog: {{relyingOriginName}}
-    <div
-      class="wrm-button-bar"
-      style="margin: auto; padding-top: 1em;">
-      <button
-        type="button"
-        class="wrm-button wrm-primary"
-        style="margin: auto"
-        :disabled="loading"
-        @click="deny()">
-        Block
-      </button>
-      <button
-        type="button"
-        class="wrm-button wrm-primary"
-        style="margin: auto"
-        :disabled="loading"
-        @click="allow()">
-        Allow
-      </button>
+  <div class="wrm-modal">
+    <div class="wrm-modal-content wrm-modern">
+      <div class="wrm-flex-row wrm-modal-content-header wrm-modern">
+        <div
+          class="wrm-flex-item-grow"
+          style="padding: 6px 15px; overflow: hidden;">
+          <div style="font-size: 18px; font-weight: bold; user-select: none">
+            Allow Wallet
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size: 14px; padding-top: 10px">
+          The following website wants to manage credentials for you:
+        </div>
+        <wrm-origin-card
+          style="padding: 20px 0 10px 0"
+          :origin="relyingOrigin"
+          :manifest="relyingOriginManifest" />
+      </div>
+      <div>
+        <!-- div class="wrm-separator"></div -->
+        <div
+          class="wrm-button-bar"
+          style="margin-top: 10px">
+          <button
+            type="button"
+            class="wrm-button"
+            :disabled="loading"
+            @click="deny()">
+            Block
+          </button>
+          <button
+            type="button"
+            class="wrm-button wrm-primary"
+            style="margin-left: 5px"
+            :disabled="loading"
+            @click="allow()">
+            Allow
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -33,6 +54,7 @@
 import {CredentialEventProxy} from './CredentialEventProxy.js';
 import {loadPolyfill} from './mediatorPolyfill.js';
 import {parseUrl} from './helpers.js';
+import {PermissionManager} from 'credential-mediator-polyfill';
 
 export default {
   name: 'AllowWalletDialog',
@@ -96,14 +118,32 @@ export default {
     closeWindow() {
       window.close();
     },
-    allow() {
-      this.event.respondWith({status: {state: 'granted'}});
+    async allow() {
+      this.loading = true;
+      const {relyingOrigin} = this;
+      const status = {state: 'granted'};
+      await setPermission({relyingOrigin, status});
+      this.event.respondWith({status});
     },
-    deny() {
-      this.event.respondWith({status: {state: 'denied'}});
+    async deny() {
+      this.loading = true;
+      const {relyingOrigin} = this;
+      const status = {state: 'denied'};
+      await setPermission({relyingOrigin, status});
+      this.event.respondWith({status});
     }
   }
 };
+
+async function setPermission({relyingOrigin, status}) {
+  try {
+    const pm = new PermissionManager(relyingOrigin, {request: () => status});
+    pm._registerPermission('credentialhandler');
+    await pm.request({name: 'credentialhandler'});
+  } catch(e) {
+    console.error(e);
+  }
+}
 </script>
 
 <style>
