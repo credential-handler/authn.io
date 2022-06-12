@@ -69,41 +69,46 @@ export const hintChooserMixin = {
         return;
       }
 
-      // FIXME: instead of only showing recommended options when no other
-      // options are available, always show recommended options provided that
-      // they don't match an existing already loaded option
-
-      // no available hints, check for recommended options
-      if(hintOptions.length === 0 && Array.isArray(recommendedHandlerOrigins)) {
-        // get relevant types to match against handler
-        let types = [];
-        if(this.credentialRequestOptions) {
-          // types are all capitalized `{web: {Type1, Type2, ..., TypeN}}`
-          types = Object.keys(this.credentialRequestOptions.web)
-            .filter(k => k[0] === k.toUpperCase()[0]);
-        } else {
-          types.push(this.credential.dataType);
-        }
-
-        // maximum of 3 recommended handlers
-        const {
-          relyingOriginName, relyingOrigin, relyingOriginManifest,
-          relyingDomain
-        } = this;
-        recommendedHandlerOrigins = recommendedHandlerOrigins.slice(0, 3);
-        const jitHints = (await createJitHints({
-          recommendedHandlerOrigins, types, relyingOriginName, relyingOrigin,
-          relyingOriginManifest, relyingDomain
-        })).filter(e => !!e);
-        this.hintOptions = jitHints;
-        return;
-      }
-
       // get unique credential handlers
       const handlers = [...new Set(hintOptions.map(
         ({credentialHandler}) => credentialHandler))];
-      // create hints for each unique origin
-      this.hintOptions = await createHintOptions({handlers});
+      const hintOptionsPromise = createHintOptions({handlers});
+
+      // add any recommended options
+      let jitHints = [];
+      if(Array.isArray(recommendedHandlerOrigins)) {
+        // filter out any handlers that are already in `hintOptions`
+        recommendedHandlerOrigins = recommendedHandlerOrigins.filter(
+          // if credential handler URL starts with a recommended
+          // handler origin, skip it
+          url => !handlers.some(h => h.startsWith(url)));
+        if(recommendedHandlerOrigins.length > 0) {
+          // get relevant types to match against handler
+          let types = [];
+          if(this.credentialRequestOptions) {
+            // types are all capitalized `{web: {Type1, Type2, ..., TypeN}}`
+            types = Object.keys(this.credentialRequestOptions.web)
+              .filter(k => k[0] === k.toUpperCase()[0]);
+          } else {
+            types.push(this.credential.dataType);
+          }
+
+          // use a maximum of 3 recommended handlers
+          recommendedHandlerOrigins = recommendedHandlerOrigins.slice(0, 3);
+          const {
+            relyingOriginName, relyingOrigin, relyingOriginManifest,
+            relyingDomain
+          } = this;
+          jitHints = (await createJitHints({
+            recommendedHandlerOrigins, types, relyingOriginName, relyingOrigin,
+            relyingOriginManifest, relyingDomain
+          })).filter(e => !!e);
+        }
+      }
+
+      hintOptions = await hintOptionsPromise;
+      hintOptions.push(...jitHints);
+      this.hintOptions = hintOptions;
     },
     async removeHint(event) {
       const {hint} = event;
