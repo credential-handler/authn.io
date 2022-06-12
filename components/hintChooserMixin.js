@@ -56,11 +56,17 @@ export const hintChooserMixin = {
           .matchCredentialRequest(this.credentialRequestOptions);
         ({web: {recommendedHandlerOrigins = []}} =
           this.credentialRequestOptions);
-      } else {
-        // must be a storage request, get hints that match credential
+      } else if(this.credential) {
+        // get hints that match credential
+        const {credential} = this;
         hintOptions = await navigator.credentialMediator.ui
-          .matchCredential(this.credential);
-        ({options: {recommendedHandlerOrigins = []} = {}} = this.credential);
+          .matchCredential(credential);
+        ({options: {recommendedHandlerOrigins = []} = {}} = credential);
+      }
+
+      if(!(this.credentialRequestOptions || this.credential)) {
+        // hints loaded asynchronously during a reset; return early
+        return;
       }
 
       // FIXME: instead of only showing recommended options when no other
@@ -106,13 +112,18 @@ export const hintChooserMixin = {
       if(this.hintOptions.length === 0) {
         this.loading = true;
       }
-      await navigator.credentialMediator.ui.unregisterCredentialHandler(
-        hint.hintOption.credentialHandler);
-      if(this.hintOptions.length === 0) {
-        // load hints again to use recommended handler origins if present
-        // and include a slight delay to avoid flash of content
-        await new Promise(r => setTimeout(r, 1000));
-        await this.loadHints();
+      try {
+        await navigator.credentialMediator.ui.unregisterCredentialHandler(
+          hint.hintOption.credentialHandler);
+        if(this.hintOptions.length === 0) {
+          // load hints again to use recommended handler origins if present
+          // and include a slight delay to avoid flash of content
+          await new Promise(r => setTimeout(r, 1000));
+          await this.loadHints();
+        }
+      } catch(e) {
+        console.error(e);
+      } finally {
         this.loading = false;
       }
     },
