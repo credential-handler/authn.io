@@ -307,7 +307,7 @@ export default {
               credentialRequestOriginManifest: relyingOriginManifest
             });
 
-            // if a status was returned... (vs. closing the window)
+            // if a status was returned... (vs. closing the window / error)
             if(status) {
               // return that status was already set in 1p window
               const resolvePermissionRequest = getResolvePermissionRequest();

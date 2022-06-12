@@ -1,5 +1,8 @@
 <template>
-  <div class="wrm-modal">
+  <div v-if="loading" />
+  <div
+    v-else
+    class="wrm-modal">
     <div class="wrm-modal-content wrm-modern">
       <div class="wrm-flex-row wrm-modal-content-header wrm-modern">
         <div
@@ -51,9 +54,9 @@
  * Copyright (c) 2017-2022, Digital Bazaar, Inc.
  * All rights reserved.
  */
+import {createDefaultHintOption, parseUrl} from './helpers.js';
 import {CredentialEventProxy} from './CredentialEventProxy.js';
 import {loadPolyfill} from './mediatorPolyfill.js';
-import {parseUrl} from './helpers.js';
 import {PermissionManager} from 'credential-mediator-polyfill';
 
 export default {
@@ -62,6 +65,7 @@ export default {
     return {
       event: null,
       loading: false,
+      hintOption: null,
       relyingDomain: null,
       relyingOrigin: null,
       relyingOriginManifest: null
@@ -108,6 +112,32 @@ export default {
 
         const {host} = parseUrl({url: event.relyingOrigin});
         this.relyingDomain = host;
+
+        if(!this.relyingOriginManifest) {
+          console.error('Missing Web app manifest.');
+          event.respondWith({
+            error: {
+              name: 'NotAllowedError',
+              message: 'Missing Web app manifest.'
+            }
+          });
+          return;
+        }
+
+        // generate hint option for origin
+        this.hintOption = await createDefaultHintOption(
+          {origin: this.relyingOrigin, manifest: this.relyingOriginManifest});
+        if(!this.hintOption) {
+          console.error(
+            'Missing or invalid "credential_handler" in Web app manifest.');
+          event.respondWith({
+            error: {
+              name: 'NotAllowedError',
+              message:
+                'Missing or invalid "credential_handler" in Web app manifest.'
+            }
+          });
+        }
       } catch(e) {
         _rejectCredentialRequestOrigin(e);
         throw e;
@@ -120,9 +150,15 @@ export default {
     },
     async allow() {
       this.loading = true;
-      const {relyingOrigin} = this;
       const status = {state: 'granted'};
-      await setPermission({relyingOrigin, status});
+      const {hintOption} = this;
+      if(!hintOption) {
+        return this.deny();
+      }
+      const {credentialHandler, credentialHintKey, enabledTypes} = hintOption;
+      const hint = {name: credentialHintKey, enabledTypes};
+      await navigator.credentialMediator.ui.registerCredentialHandler(
+        credentialHandler, hint);
       this.event.respondWith({status});
     },
     async deny() {
