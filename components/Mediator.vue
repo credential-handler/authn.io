@@ -233,6 +233,7 @@ export default {
   mixins: [hintChooserMixin],
   data() {
     return {
+      defaultHintOption: null,
       firstPartyMode: true,
       rememberChoice: true,
       showGreeting: true,
@@ -267,19 +268,23 @@ export default {
     // FIXME: load polyfill in `index.js` instead; decouple it from vue
     // components
     await loadPolyfill({component: this, credentialRequestOrigin: origin});
-
-    // attempt to load web app manifest icon
-    const manifest = await getWebAppManifest({host: this.relyingDomain});
-    this.relyingOriginManifest = manifest;
   },
   methods: {
     async allow() {
-      const resolvePermissionRequest = getResolvePermissionRequest();
-      resolvePermissionRequest({state: 'granted'});
+      this.loading = true;
+      const {defaultHintOption: hintOption} = this;
+      if(!hintOption) {
+        return this.deny();
+      }
+      const {credentialHandler, credentialHintKey, enabledTypes} = hintOption;
+      const hint = {name: credentialHintKey, enabledTypes};
+      await navigator.credentialMediator.ui.registerCredentialHandler(
+        credentialHandler, hint);
       this.reset();
       await navigator.credentialMediator.hide();
     },
     async deny() {
+      this.loading = true;
       const resolvePermissionRequest = getResolvePermissionRequest();
       resolvePermissionRequest({state: 'denied'});
       this.reset();
@@ -449,6 +454,10 @@ export default {
       } else {
         showMediatorPromise = navigator.credentialMediator.show();
       }
+
+      // attempt to load web app manifest icon
+      const manifest = await getWebAppManifest({host: this.relyingDomain});
+      this.relyingOriginManifest = manifest;
 
       // load and show hints immediately in non-1p mode
       if(!this.firstPartyMode) {

@@ -4,8 +4,10 @@
  * All rights reserved.
  */
 // FIXME: consider renaming file
-import {loadOnce} from 'credential-mediator-polyfill';
+import {createDefaultHintOption} from './helpers.js';
+import {getWebAppManifest} from './manifest.js';
 import HandlerWindowHeader from './HandlerWindowHeader.vue';
+import {loadOnce} from 'credential-mediator-polyfill';
 import {utils} from 'web-request-rpc';
 import Vue from 'vue';
 
@@ -84,6 +86,27 @@ async function requestPermission(/*permissionDesc*/) {
 
   // show display
   await navigator.credentialMediator.show();
+
+  // attempt to load web app manifest icon
+  const manifest = await getWebAppManifest({host: this.relyingDomain});
+  this.relyingOriginManifest = manifest;
+
+  if(!this.relyingOriginManifest) {
+    console.error('Missing Web app manifest.');
+    resolvePermissionRequest({state: 'denied'});
+    await navigator.credentialMediator.hide();
+  } else {
+    // generate hint option for origin
+    this.defaultHintOption = await createDefaultHintOption(
+      {origin: this.relyingOrigin, manifest: this.relyingOriginManifest});
+    if(!this.defaultHintOption) {
+      console.error(
+        'Missing or invalid "credential_handler" in Web app manifest.');
+      resolvePermissionRequest({state: 'denied'});
+      await navigator.credentialMediator.hide();
+    }
+  }
+
   this.loading = false;
   return promise;
 }
