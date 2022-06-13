@@ -53,8 +53,20 @@
         :relying-origin-manifest="relyingOriginManifest" />
 
       <!-- step 2 request/store iframe -->
+      <div v-if="showGreeting && showHintChooser">
+        <div class="wrm-modal-content-header" />
+        <div
+          class="wrm-modal-content-header"
+          style="margin: 0px -15px; padding: 16px 5px">
+          <div
+            style="font-size: 18px; font-weight: bold; user-select: none;
+              margin-left: 10px">
+            Choose a Wallet
+          </div>
+        </div>
+      </div>
       <wrm-hint-chooser
-        v-else-if="showHintChooser"
+        v-if="showHintChooser"
         style="user-select: none"
         :hints="hintOptions"
         :cancel-remove-hint-timeout="5000"
@@ -167,10 +179,10 @@
     <template
       v-if="hasCustomFooter"
       slot="footer">
-      <!-- clear footer when greeting not shown -->
-      <div v-if="!showGreeting" />
+      <!-- clear footer when greeting not shown / show with hint chooser -->
+      <div v-if="!showGreeting || showHintChooser" />
       <div
-        v-else-if="display === 'permissionRequest'"
+        v-else-if="display === 'permissionRequest' && !popupOpen"
         class="wrm-button-bar"
         style="margin-top: 10px">
         <button
@@ -189,7 +201,7 @@
       </div>
       <!-- FIXME: do not show this button on mobile; it has no effect -->
       <div
-        v-else-if="popupOpen"
+        v-else-if="popupOpen && display !== 'permissionRequest'"
         class="wrm-button-bar"
         style="margin: auto; margin-top: 1em">
         <button
@@ -243,6 +255,7 @@ export default {
   computed: {
     hasCustomFooter() {
       return !this.showGreeting || this.popupOpen ||
+        (this.showGreeting && this.showHintChooser) ||
         (this.display === 'permissionRequest' && !this.firstPartyMode);
     },
     relyingOriginName() {
@@ -342,14 +355,7 @@ export default {
             this.showGreeting = false;
             this.selectHint({...choice, waitUntil: () => {}});
           }
-
-          // early return to prevent going into non-1p mode
-          return;
         }
-
-        // remembered hint not used in 1p mode
-        this.useRememberedHint();
-        this.showGreeting = false;
       } finally {
         this.loading = false;
       }
@@ -368,9 +374,10 @@ export default {
         this.showGreeting = false;
         this.rememberChoice = true;
         this.selectHint({hint, waitUntil() {}});
-      } else {
-        this.showHintChooser = showHintChooser;
+        return true;
       }
+      this.showHintChooser = showHintChooser;
+      return false;
     },
     async selectHint(event) {
       this.selectedHint = event.hint;
@@ -418,9 +425,8 @@ export default {
         this.rememberChoice = true;
         // clear site choice
         setSiteChoice({relyingOrigin, credentialHandler: null});
-        if(this.firstPartyMode) {
-          this.showGreeting = true;
-        } else {
+        this.showGreeting = true;
+        if(!this.firstPartyMode) {
           this.showHintChooser = true;
         }
       } else {
@@ -465,7 +471,7 @@ export default {
         await this.loadHints();
         // this will cause a remembered hint to execute immediately without
         // showing the greeting dialog
-        this.useRememberedHint({showHintChooser: false});
+        this.useRememberedHint();
       }
 
       // await showing mediator UI
