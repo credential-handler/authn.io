@@ -11,6 +11,9 @@ import {utils, WebAppContext} from 'web-request-rpc';
 const DEFAULT_HINT_CHOOSER_POPUP_WIDTH = 500;
 const DEFAULT_HINT_CHOOSER_POPUP_HEIGHT = 400;
 
+const DEFAULT_ALLOW_WALLET_POPUP_WIDTH = 500;
+const DEFAULT_ALLOW_WALLET_POPUP_HEIGHT = 220;
+
 export function createWebShareData({credential, credentialRequestOrigin}) {
   const payload = {credential, credentialRequestOrigin};
   const blob = new Blob(
@@ -238,8 +241,8 @@ export async function openAllowWalletWindow({
     // loading should be quick to same mediator site
     timeout: 30000,
     bounds: {
-      width: DEFAULT_HINT_CHOOSER_POPUP_WIDTH,
-      height: DEFAULT_HINT_CHOOSER_POPUP_HEIGHT
+      width: DEFAULT_ALLOW_WALLET_POPUP_WIDTH,
+      height: DEFAULT_ALLOW_WALLET_POPUP_HEIGHT
     }
   });
 
