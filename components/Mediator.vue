@@ -49,6 +49,7 @@
         v-if="showGreeting"
         style="user-select: none"
         :display="display"
+        :icon-size="greetingIconSize"
         :relying-origin="relyingOrigin"
         :relying-origin-manifest="relyingOriginManifest" />
 
@@ -244,6 +245,13 @@ export default {
     };
   },
   computed: {
+    greetingIconSize() {
+      // combined greeting + hints screen; de-emphasize greeting icon size
+      if(this.showGreeting && this.showHintChooser) {
+        return 36;
+      }
+      return 48;
+    },
     hasCustomFooter() {
       return !this.showGreeting || this.popupOpen ||
         (this.showGreeting && this.showHintChooser) ||

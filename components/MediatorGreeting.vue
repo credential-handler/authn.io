@@ -12,6 +12,7 @@
     </div>
     <wrm-origin-card
       style="padding: 20px 0 10px 0"
+      :icon-size="iconSize"
       :origin="relyingOrigin"
       :manifest="relyingOriginManifest" />
   </div>
@@ -25,11 +26,15 @@
  */
 export default {
   name: 'MediatorGreeting',
-  components: {},
   props: {
     display: {
       type: String,
       required: true
+    },
+    iconSize: {
+      type: Number,
+      required: false,
+      default: () => 48
     },
     relyingOrigin: {
       type: String,

@@ -12,7 +12,7 @@ const DEFAULT_HINT_CHOOSER_POPUP_WIDTH = 500;
 const DEFAULT_HINT_CHOOSER_POPUP_HEIGHT = 400;
 
 const DEFAULT_ALLOW_WALLET_POPUP_WIDTH = 500;
-const DEFAULT_ALLOW_WALLET_POPUP_HEIGHT = 220;
+const DEFAULT_ALLOW_WALLET_POPUP_HEIGHT = 240;
 
 export function createWebShareData({credential, credentialRequestOrigin}) {
   const payload = {credential, credentialRequestOrigin};
