@@ -30,7 +30,7 @@
     "vue-router": "^3.5.1",
     "vue-web-request-mediator": "digitalbazaar/vue-web-request-mediator#disable-buttons",
     "web-request-mediator": "digitalbazaar/web-request-mediator#refactor",
-    "web-request-rpc": "digitalbazaar/web-request-rpc#refactor"
+    "web-request-rpc": "^2.0.0"
   },
   "devDependencies": {
     "eslint": "^7.12.1",
