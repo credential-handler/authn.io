@@ -292,6 +292,8 @@ export default {
       const hint = {name: credentialHintKey, enabledTypes};
       await navigator.credentialMediator.ui.registerCredentialHandler(
         credentialHandler, hint);
+      const resolvePermissionRequest = getResolvePermissionRequest();
+      resolvePermissionRequest({state: 'granted'});
       this.reset();
       await navigator.credentialMediator.hide();
     },
