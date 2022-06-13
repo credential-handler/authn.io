@@ -50,15 +50,6 @@ brVue.setRootVue(async () => {
       meta: {
         title: 'Allow Wallet'
       }
-    }, {
-      // FIXME: remove now-unused route
-      path: '/allow-wallet-access',
-      component: () => import(
-        /* webpackChunkName: "AllowWalletAccess" */
-        './AllowWalletAccess.vue'),
-      meta: {
-        title: 'Allow Wallet Access'
-      }
     }]
   });
 
