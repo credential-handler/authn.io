@@ -21,13 +21,13 @@
               class="fas fa-cog fa-spin" />
           </div>
           <div v-else-if="display === 'credentialRequest'">
-            Credentials Request
+            {{showHintChooser ? 'Choose a Wallet' : 'Credentials Request'}}
             <i
               v-if="loading"
               class="fas fa-cog fa-spin" />
           </div>
           <div v-else>
-            Store Credentials
+            {{showHintChooser ? 'Choose a Wallet' : 'Store Credentials'}}
             <i
               v-if="loading"
               class="fas fa-cog fa-spin" />
@@ -55,15 +55,6 @@
       <!-- step 2 request/store iframe -->
       <div v-if="showGreeting && showHintChooser">
         <div class="wrm-modal-content-header" />
-        <div
-          class="wrm-modal-content-header"
-          style="margin: 0px -15px; padding: 16px 5px">
-          <div
-            style="font-size: 18px; font-weight: bold; user-select: none;
-              margin-left: 10px">
-            Choose a Wallet
-          </div>
-        </div>
       </div>
       <wrm-hint-chooser
         v-if="showHintChooser"
