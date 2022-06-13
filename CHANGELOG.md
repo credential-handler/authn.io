@@ -1,5 +1,16 @@
 # authn.io ChangeLog
 
+## 4.0.0 - 2022-06-xx
+
+### Changed
+- **BREAKING**: Add 1p (first party) flows for non-chrome browsers to
+  eliminate the use of partitioned storage.
+- **BREAKING**: Require `credential_handler` section in `manifest.json`
+  files served from credential handler (aka digital wallet) sites in
+  order for permission to be granted to allow a site to provide a
+  credential handler to a user.
+- **BREAKING**: Deprecate hints and registrations via public APIs.
+
 ## 3.1.0 - 2022-04-xx
 
 ### Added
