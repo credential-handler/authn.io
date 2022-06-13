@@ -3,6 +3,7 @@
   <div v-if="selectedHint" />
   <wrm-wizard-dialog
     v-else-if="!selectedHint"
+    class="wrm-modal-1p"
     style="width: 100vw; height: 100vh;"
     :loading="loading"
     :first="false"

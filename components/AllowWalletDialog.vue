@@ -2,7 +2,7 @@
   <div v-if="loading" />
   <div
     v-else
-    class="wrm-modal">
+    class="wrm-modal wrm-modal-1p">
     <div class="wrm-modal-content wrm-modern">
       <div class="wrm-flex-row wrm-modal-content-header wrm-modern">
         <div
