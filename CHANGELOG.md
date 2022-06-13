@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 4.0.0 - 2022-06-xx
+## 4.0.0 - 2022-06-13
 
 ### Changed
 - **BREAKING**: Add 1p (first party) flows for non-chrome browsers to
