@@ -22,7 +22,7 @@ export function createWebShareData({credential, credentialRequestOrigin}) {
   const file = new File([blob], 'SharedCredentialRequest.txt',
     {type: 'text/plain'});
 
-  const data = {files: [file]};
+  const data = {title: 'Credential Request', files: [file]};
   return {data};
 }
 
