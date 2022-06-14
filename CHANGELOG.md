@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 4.3.0 - 2022-06-xx
+## 4.3.0 - 2022-06-14
 
 ### Changed
 - Make web share button on similar footing to hint options to improve
