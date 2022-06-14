@@ -1,5 +1,12 @@
 # authn.io ChangeLog
 
+## 4.3.0 - 2022-06-xx
+
+### Changed
+- Make web share button on similar footing to hint options to improve
+  UX. A future change should integrate the native app choice as just
+  another hint option in the list (visually).
+
 ## 4.2.0 - 2022-06-14
 
 ### Added

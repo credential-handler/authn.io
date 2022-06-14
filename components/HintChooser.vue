@@ -85,11 +85,11 @@
             style="margin: auto; padding-top: 1em;">
             <button
               type="button"
-              class="wrm-button wrm-primary"
+              class="wrm-button"
               style="margin: auto"
               :disabled="loading"
               @click="webShare()">
-              Share with Native App
+              Select Native App
             </button>
           </div>
         </template>
