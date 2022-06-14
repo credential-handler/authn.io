@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 4.2.0 - 2022-06-xx
+## 4.2.0 - 2022-06-14
 
 ### Added
 - Add web share text to improve UX.
