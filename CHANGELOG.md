@@ -1,5 +1,10 @@
 # authn.io ChangeLog
 
+## 4.1.0 - 2022-06-xx
+
+### Added
+- Include title in native web share.
+
 ## 4.0.0 - 2022-06-13
 
 ### Changed
