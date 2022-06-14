@@ -1,5 +1,11 @@
 # authn.io ChangeLog
 
+## 4.4.0 - 2022-06-xx
+
+### Changed
+- Further clarify in UX that web share button is a different choice
+  from the other options in the list.
+
 ## 4.3.0 - 2022-06-14
 
 ### Changed

@@ -89,7 +89,7 @@
               style="margin: auto"
               :disabled="loading"
               @click="webShare()">
-              Select Native App
+              Select Native App Instead
             </button>
           </div>
         </template>
