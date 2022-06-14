@@ -14,6 +14,10 @@ const DEFAULT_HINT_CHOOSER_POPUP_HEIGHT = 400;
 const DEFAULT_ALLOW_WALLET_POPUP_WIDTH = 500;
 const DEFAULT_ALLOW_WALLET_POPUP_HEIGHT = 240;
 
+export function canWebShare({data}) {
+  return navigator.canShare && navigator.canShare({files: data.files});
+}
+
 export function createWebShareData({credential, credentialRequestOrigin}) {
   const payload = {credential, credentialRequestOrigin};
   const blob = new Blob(
@@ -26,6 +30,7 @@ export function createWebShareData({credential, credentialRequestOrigin}) {
   return {data};
 }
 
+// FIXME: remove this; use `canWebShare` and `doWebShare` instead
 export async function webShareHasFileSupport({data}) {
   // Check if WebShare API with files is supported
   if(navigator.canShare && navigator.canShare({files: data.files})) {
@@ -40,6 +45,10 @@ export async function webShareHasFileSupport({data}) {
   } else {
     console.log('Sharing files through WebShare API not supported.');
   }
+}
+
+export async function doWebShare({data}) {
+  return navigator.share(data);
 }
 
 export function parseUrl({url}) {

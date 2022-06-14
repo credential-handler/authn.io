@@ -69,6 +69,11 @@ export const hintChooserMixin = {
         return;
       }
 
+      const {
+        credential, credentialRequestOptions,
+        relyingOrigin: credentialRequestOrigin
+      } = this;
+
       // get unique credential handlers
       const handlers = [...new Set(hintOptions.map(
         ({credentialHandler}) => credentialHandler))];
@@ -85,12 +90,12 @@ export const hintChooserMixin = {
         if(recommendedHandlerOrigins.length > 0) {
           // get relevant types to match against handler
           let types = [];
-          if(this.credentialRequestOptions) {
+          if(credentialRequestOptions) {
             // types are all capitalized `{web: {Type1, Type2, ..., TypeN}}`
-            types = Object.keys(this.credentialRequestOptions.web)
+            types = Object.keys(credentialRequestOptions.web)
               .filter(k => k[0] === k.toUpperCase()[0]);
           } else {
-            types.push(this.credential.dataType);
+            types.push(credential.dataType);
           }
 
           // use a maximum of 3 recommended handlers
@@ -108,6 +113,18 @@ export const hintChooserMixin = {
 
       hintOptions = await hintOptionsPromise;
       hintOptions.push(...jitHints);
+
+      // see if native web share support is available
+      /*if(credential) {
+        const {data} = createWebShareData(
+          {credential, credentialRequestOrigin});
+        if(canWebShare({data})) {
+          this._webShareData = data;
+          // FIXME: add hint option that will call navigator.share when it
+          // is selected; remove primary "Share with Native App" button
+        }
+      }*/
+
       this.hintOptions = hintOptions;
     },
     async removeHint(event) {
