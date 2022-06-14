@@ -1,5 +1,10 @@
 # authn.io ChangeLog
 
+## 4.5.0 - 2022-06-xx
+
+### Changed
+- Use `Credential Offer` instead of `Credential Request` in web share.
+
 ## 4.4.0 - 2022-06-14
 
 ### Changed

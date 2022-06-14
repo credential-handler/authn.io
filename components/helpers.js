@@ -23,8 +23,8 @@ export function createWebShareData({credential, credentialRequestOrigin}) {
     {type: 'text/plain'});
 
   const data = {
-    title: 'Credential Request',
-    text: 'Choose a wallet to process this request.',
+    title: 'Credential Offer',
+    text: 'Choose a wallet to process this offer.',
     files: [file]
   };
   return {data};
