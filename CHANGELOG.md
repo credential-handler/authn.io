@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 4.6.0 - 2022-06-xx
+## 4.6.0 - 2022-06-15
 
 ### Changed
 - Use cookie driver for brave browser storage.
