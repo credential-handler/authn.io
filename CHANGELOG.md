@@ -1,5 +1,11 @@
 # authn.io ChangeLog
 
+## 4.6.1 - 2022-06-xx
+
+### Fixed
+- Allow web app manifest cache storage to fail gracefully instead
+  of blocking loading web app manifests.
+
 ## 4.6.0 - 2022-06-15
 
 ### Changed

@@ -24,7 +24,11 @@ async function _getWebAppManifest(host) {
 
   try {
     if(!cacheStorage && typeof caches !== 'undefined') {
-      cacheStorage = await caches.open(CACHE_NAME);
+      try {
+        cacheStorage = await caches.open(CACHE_NAME);
+      } catch(e) {
+        console.warn('Cache storage for web app manifest unavailable.', e);
+      }
     }
     if(!cacheStorage) {
       // no cache storage/API available, fetch directly
