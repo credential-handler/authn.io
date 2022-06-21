@@ -1,5 +1,11 @@
 # authn.io ChangeLog
 
+## 4.7.0 - 2022-06-xx
+
+### Changed
+- Use `credential-mediator-polyfill@2.2` to fix storage on browsers
+  like Chromium on Debian with 3rd party storage manually disabled.
+
 ## 4.6.1 - 2022-06-15
 
 ### Fixed
