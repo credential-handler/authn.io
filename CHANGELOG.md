@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 4.7.0 - 2022-06-xx
+## 4.7.0 - 2022-06-21
 
 ### Changed
 - Use `credential-mediator-polyfill@2.2` to fix storage on browsers
