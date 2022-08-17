@@ -4,10 +4,10 @@
     <p>
       This website provides a Credential Mediator polyfill for the W3C CCG
       Credential Handler API specification. This website's code is
-      <a href="https://github.com/digitalbazaar/authn.io">available on GitHub</a>.
+      <a href="https://github.com/credential-handler/authn.io">available on GitHub</a>.
     </p>
     <p>Links to a demo of the Credential Handler API can be found here:</p>
-    <p><a href="https://github.com/digitalbazaar/credential-handler-polyfill#demo">Demo</a></p>
+    <p><a href="https://github.com/credential-handler/credential-handler-polyfill#demo">Demo</a></p>
   </div>
 </template>
 

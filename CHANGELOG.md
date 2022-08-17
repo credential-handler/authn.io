@@ -1,5 +1,10 @@
 # authn.io ChangeLog
 
+## 4.8.0 - 2022-08-xx
+
+### Changed
+- Update links to repos and documentation.
+
 ## 4.7.0 - 2022-06-21
 
 ### Changed

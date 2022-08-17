@@ -103,10 +103,9 @@ A fully static site is possible but see the cookie note in `lib/http.js`.
 
 [authn.io]: https://authn.io
 [NASCAR]: https://indiewebcamp.com/NASCAR_problem "The NASCAR Problem"
-[DID]: https://w3c-ccg.github.io/did-spec
-[Verifiable Credentials]: https://w3c.github.io/vc-data-model
-[Decentralized Identifiers (DIDs)]: https://w3c-ccg.github.io/did-spec
+[DID]: https://www.w3.org/TR/did-core
+[Verifiable Credentials]: https://www.w3.org/TR/vc-data-model
+[Decentralized Identifiers (DIDs)]: https://www.w3.org/TR/did-core
 [Credential Handler API]: https://w3c-ccg.github.io/credential-handler-api
 [Credential Handler API Repo]: https://github.com/w3c-ccg/credential-handler-api
-[Credential Handler API Demo]: https://github.com/digitalbazaar/credential-handler-demo
-[Credential Handler Polyfill]: https://github.com/digitalbazaar/credential-handler-polyfill
+[Credential Handler Polyfill]: https://github.com/credential-handler/credential-handler-polyfill
