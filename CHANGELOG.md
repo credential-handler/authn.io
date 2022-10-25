@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 4.9.0 - 2022-10-xx
+## 4.9.0 - 2022-10-25
 
 ### Added
 - Include `web` `credentialRequestOptions` in WebShare payload.
