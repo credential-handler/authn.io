@@ -141,9 +141,15 @@ export const hintChooserMixin = {
       this.showHintChooser = false;
     },
     async webShare() {
-      const {credential, relyingOrigin: credentialRequestOrigin} = this;
+      const {
+        credential,
+        credentialRequestOptions,
+        relyingOrigin: credentialRequestOrigin
+      } = this;
       const {data} = createWebShareData({
-        credential, credentialRequestOrigin
+        credential,
+        credentialRequestOptions,
+        credentialRequestOrigin
       });
 
       // Check if WebShare API with files is supported
