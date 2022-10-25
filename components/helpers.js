@@ -14,8 +14,19 @@ const DEFAULT_HINT_CHOOSER_POPUP_HEIGHT = 400;
 const DEFAULT_ALLOW_WALLET_POPUP_WIDTH = 500;
 const DEFAULT_ALLOW_WALLET_POPUP_HEIGHT = 240;
 
-export function createWebShareData({credential, credentialRequestOrigin}) {
-  const payload = {credential, credentialRequestOrigin};
+export function createWebShareData({
+  credential, credentialRequestOptions, credentialRequestOrigin
+}) {
+  const payload = {credentialRequestOrigin};
+  if(credential) {
+    payload.credential = credential;
+  }
+  if(credentialRequestOptions) {
+    // only include `web` options
+    payload.credentialRequestOptions = {
+      web: credentialRequestOptions.web
+    };
+  }
   const blob = new Blob(
     [JSON.stringify(payload, null, 2)],
     {type: 'text/plain'});
