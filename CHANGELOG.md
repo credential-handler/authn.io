@@ -1,5 +1,10 @@
 # authn.io ChangeLog
 
+## 4.9.1 - 2022-11-dd
+
+### Fixed
+- Use `web-request-rpc@2.0.1` to avoid chromium-based browsers focus bug.
+
 ## 4.9.0 - 2022-10-25
 
 ### Added
