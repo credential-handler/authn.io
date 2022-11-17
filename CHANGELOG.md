@@ -1,5 +1,10 @@
 # authn.io ChangeLog
 
+## 4.9.2 - 2022-11-dd
+
+### Fixed
+- Use `web-request-rpc@2.0.2` to avoid chromium mouse event bug.
+
 ## 4.9.1 - 2022-11-09
 
 ### Fixed
