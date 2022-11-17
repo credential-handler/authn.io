@@ -1,6 +1,6 @@
 {
   "name": "authio",
-  "version": "4.9.1",
+  "version": "4.9.2",
   "main": "lib",
   "browser": "./components/index.js",
   "scripts": {
