@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 4.9.3 - 2023-01-dd
+## 4.9.3 - 2023-01-26
 
 ### Fixed
 - Update 1p/3p platform detection based on the use of Google Chrome
