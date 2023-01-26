@@ -30,7 +30,7 @@
     "vue-router": "^3.5.1",
     "vue-web-request-mediator": "^5.0.0",
     "web-request-mediator": "^2.0.0",
-    "web-request-rpc": "^2.0.2"
+    "web-request-rpc": "^2.0.3"
   },
   "devDependencies": {
     "eslint": "^7.12.1",

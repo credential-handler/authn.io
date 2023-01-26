@@ -7,6 +7,7 @@
   specifically. Previously feature detection could be used to check
   for the Storage Access API, but this no longer works because it
   is present in Google Chrome even when cookies are not partitioned.
+- Fix popup resize bugs via `web-request-rpc@2.0.3`.
 
 ## 4.9.2 - 2022-11-17
 
