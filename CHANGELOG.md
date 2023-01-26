@@ -1,5 +1,13 @@
 # authn.io ChangeLog
 
+## 4.9.3 - 2023-01-dd
+
+### Fixed
+- Update 1p/3p platform detection based on the use of Google Chrome
+  specifically. Previously feature detection could be used to check
+  for the Storage Access API, but this no longer works because it
+  is present in Google Chrome even when cookies are not partitioned.
+
 ## 4.9.2 - 2022-11-17
 
 ### Fixed
