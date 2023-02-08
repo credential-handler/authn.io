@@ -11,16 +11,16 @@ let cacheStorage;
 const CACHE_NAME = 'authn.io-1';
 const CACHE_TTL = 5 * 60 * 1000;
 
-export async function getWebAppManifest({host, timeout = 1000}) {
+export async function getWebAppManifest({origin, timeout = 1000}) {
   // require web app manifest to be loaded within timeout
   return Promise.race([
     new Promise(r => setTimeout(() => r(null), timeout)),
-    _getWebAppManifest(host)
+    _getWebAppManifest({origin})
   ]);
 }
 
-async function _getWebAppManifest(host) {
-  const url = `https://${host}/manifest.json`;
+async function _getWebAppManifest({origin}) {
+  const url = `${origin}/manifest.json`;
 
   try {
     if(!cacheStorage && typeof caches !== 'undefined') {
@@ -100,7 +100,6 @@ async function _getWebAppManifest(host) {
     response = await cacheStorage.match(url);
     return await _parseBody(response);
   } catch(e) {
-    const {origin} = new URL(url);
     console.warn(
       `Warning: Could not fetch the Web app manifest from "${url}". ` +
       `Fixing this may improve the information displayed for "${origin}".`, e);

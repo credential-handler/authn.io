@@ -76,7 +76,7 @@ export async function createHintOptions({handlers}) {
   return Promise.all(handlers.map(
     async credentialHandler => {
       const {origin, host} = utils.parseUrl(credentialHandler);
-      const manifest = (await getWebAppManifest({host})) || {};
+      const manifest = (await getWebAppManifest({origin})) || {};
       const name = manifest.name || manifest.short_name || host;
       // if `manifest.credential_handler` is set, update registration
       // to use it if it doesn't match already
@@ -126,7 +126,7 @@ export async function createJitHints({
       return;
     }
     const {host, origin} = utils.parseUrl(recommendedOrigin);
-    const manifest = (await getWebAppManifest({host})) || {};
+    const manifest = (await getWebAppManifest({origin})) || {};
     const name = manifest.name || manifest.short_name || host;
     if(!(manifest.credential_handler &&
       manifest.credential_handler.url &&

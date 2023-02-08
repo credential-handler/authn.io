@@ -99,7 +99,8 @@ async function requestPermission(/*permissionDesc*/) {
   // attempt to load web app manifest icon
   // FIXME: start getting web app manifest prior to showing mediator and
   // await result thereafter
-  const manifest = await getWebAppManifest({host: this.relyingDomain});
+  const {relyingOrigin} = this;
+  const manifest = await getWebAppManifest({origin: relyingOrigin});
   this.relyingOriginManifest = manifest;
 
   // no manifest means permission is automatically denied
@@ -113,7 +114,7 @@ async function requestPermission(/*permissionDesc*/) {
 
   // generate hint option for origin
   this.defaultHintOption = await createDefaultHintOption(
-    {origin: this.relyingOrigin, manifest: this.relyingOriginManifest});
+    {origin: relyingOrigin, manifest: this.relyingOriginManifest});
   if(!this.defaultHintOption) {
     console.error(
       'Missing or invalid "credential_handler" in Web app manifest.');
