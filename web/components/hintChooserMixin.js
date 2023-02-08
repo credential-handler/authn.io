@@ -4,7 +4,7 @@
 import {getDeferredCredentialOperation} from '../mediatorPolyfill.js';
 import {
   createJitHints, createHintOptions, createWebShareData,
-  webShareHasFileSupport
+  getOriginName, webShareHasFileSupport
 } from '../helpers.js';
 
 export const hintChooserMixin = {
@@ -25,11 +25,8 @@ export const hintChooserMixin = {
   },
   computed: {
     relyingOriginName() {
-      if(!this.relyingOriginManifest) {
-        return this.relyingDomain;
-      }
-      const {name, short_name} = this.relyingOriginManifest;
-      return name || short_name || this.relyingDomain;
+      const {relyingOriginManifest: manifest, relyingOrigin: origin} = this;
+      return getOriginName({origin, manifest});
     }
   },
   methods: {

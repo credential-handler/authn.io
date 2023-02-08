@@ -54,7 +54,7 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {createDefaultHintOption, parseUrl} from '../helpers.js';
+import {createDefaultHintOption, getOriginName, parseUrl} from '../helpers.js';
 import {CredentialEventProxy} from '../CredentialEventProxy.js';
 import {loadPolyfill} from '../mediatorPolyfill.js';
 import {PermissionManager} from 'credential-mediator-polyfill';
@@ -74,11 +74,8 @@ export default {
   },
   computed: {
     relyingOriginName() {
-      if(!this.relyingOriginManifest) {
-        return this.relyingDomain;
-      }
-      const {name, short_name} = this.relyingOriginManifest;
-      return name || short_name || this.relyingDomain;
+      const {relyingOriginManifest: manifest, relyingOrigin: origin} = this;
+      return getOriginName({origin, manifest});
     }
   },
   async created() {

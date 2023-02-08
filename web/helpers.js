@@ -41,6 +41,15 @@ export function createWebShareData({
   return {data};
 }
 
+export function getOriginName({origin, manifest} = {}) {
+  const {host} = parseUrl({url: origin});
+  if(!manifest) {
+    return host;
+  }
+  const {name, short_name} = manifest;
+  return name || short_name || host;
+}
+
 export async function webShareHasFileSupport({data}) {
   // Check if WebShare API with files is supported
   if(navigator.canShare && navigator.canShare({files: data.files})) {
@@ -60,7 +69,6 @@ export async function webShareHasFileSupport({data}) {
 export function parseUrl({url}) {
   const {origin} = utils.parseUrl(url);
   const {host} = utils.parseUrl(origin);
-
   return {origin, host};
 }
 

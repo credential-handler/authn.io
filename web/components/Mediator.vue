@@ -256,13 +256,6 @@ export default {
       return !this.showGreeting || this.popupOpen ||
         (this.showGreeting && this.showHintChooser) ||
         (this.display === 'permissionRequest' && !this.firstPartyMode);
-    },
-    relyingOriginName() {
-      if(!this.relyingOriginManifest) {
-        return this.relyingDomain;
-      }
-      const {name, short_name} = this.relyingOriginManifest;
-      return name || short_name || this.relyingDomain;
     }
   },
   async created() {
