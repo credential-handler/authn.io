@@ -97,25 +97,29 @@ async function requestPermission(/*permissionDesc*/) {
   await navigator.credentialMediator.show();
 
   // attempt to load web app manifest icon
+  // FIXME: start getting web app manifest prior to showing mediator and
+  // await result thereafter
   const manifest = await getWebAppManifest({host: this.relyingDomain});
   this.relyingOriginManifest = manifest;
 
+  // no manifest means permission is automatically denied
   if(!this.relyingOriginManifest) {
     console.error('Missing Web app manifest.');
     resolvePermissionRequest({state: 'denied'});
     await navigator.credentialMediator.hide();
-  } else {
-    // generate hint option for origin
-    this.defaultHintOption = await createDefaultHintOption(
-      {origin: this.relyingOrigin, manifest: this.relyingOriginManifest});
-    if(!this.defaultHintOption) {
-      console.error(
-        'Missing or invalid "credential_handler" in Web app manifest.');
-      resolvePermissionRequest({state: 'denied'});
-      await navigator.credentialMediator.hide();
-    }
+    this.loading = false;
+    return promise;
   }
 
+  // generate hint option for origin
+  this.defaultHintOption = await createDefaultHintOption(
+    {origin: this.relyingOrigin, manifest: this.relyingOriginManifest});
+  if(!this.defaultHintOption) {
+    console.error(
+      'Missing or invalid "credential_handler" in Web app manifest.');
+    resolvePermissionRequest({state: 'denied'});
+    await navigator.credentialMediator.hide();
+  }
   this.loading = false;
   return promise;
 }
