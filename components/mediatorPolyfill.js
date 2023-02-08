@@ -26,6 +26,8 @@ export function getResolvePermissionRequest() {
   return resolvePermissionRequest;
 }
 
+// FIXME: instead of passing `component`, pass handler callbacks to pass
+// into `loadOnce`
 export async function loadPolyfill({
   component, credentialRequestOrigin, rpcServices = {}
 }) {
@@ -75,6 +77,13 @@ async function getCredentialHandlerInjector({appContext, credentialHandler}) {
   return injector;
 }
 
+// FIXME: these functions are commonly used whether `this` is bound to
+// an `AllowWalletDialog`, `HintChooser`, or `Mediator` component; but some
+// of the properties aren't shared across those components ... this needs
+// refactoring to remove components from it ... the needs here are to show
+// some kind of loading screen in the UI (presumably) while the async calls
+// are made in this function, so need some affordances to do that here
+// FIXME: perhaps create those APIs before the Vue 3 changes land
 async function requestPermission(/*permissionDesc*/) {
   // prep display
   this.display = 'permissionRequest';
