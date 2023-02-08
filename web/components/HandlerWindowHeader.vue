@@ -11,8 +11,8 @@
       </div -->
       <wrm-origin-card
         style="padding-left: 10px"
-        :origin="fields.wallet.origin"
-        :manifest="fields.wallet.manifest" />
+        :origin="wallet.origin"
+        :manifest="wallet.manifest" />
     </div>
     <wrm-header-close-button
       class="wrm-flex-item"
@@ -68,29 +68,12 @@ export default {
       return this.operation === 'request' ?
         'Provider' : 'Storage Provider';
     },
-    fields() {
-      const relyingParty = {
-        name: _getName({
-          manifest: this.relyingOriginManfest,
-          domain: this.relyingDomain
-        }),
-        domain: this.relyingDomain,
-        origin: this.relyingOrigin,
-        manifest: this.relyingOriginManifest
-      };
-      const wallet = {
-        name: _getName({
-          manifest: this.hint.manifest,
-          domain: this.hint.host
-        }),
-        domain: this.hint.host,
+    wallet() {
+      return {
+        name: _getName(this.hint),
         origin: this.hint.origin,
         manifest: this.hint.manifest
       };
-      if(this.operation === 'request') {
-        return {left: wallet, right: relyingParty, wallet, relyingParty};
-      }
-      return {left: relyingParty, right: wallet, wallet, relyingParty};
     }
   },
   methods: {
@@ -103,12 +86,13 @@ export default {
   }
 };
 
-function _getName({manifest, domain}) {
+function _getName(hint) {
+  const {manifest, host} = hint;
   if(!manifest) {
-    return domain;
+    return host;
   }
   const {name, short_name} = manifest;
-  return name || short_name || domain;
+  return name || short_name || host;
 }
 
 </script>
