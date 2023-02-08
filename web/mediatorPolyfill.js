@@ -169,8 +169,6 @@ function updateHandlerWindow({webAppWindow}) {
     return;
   }
   const {container, iframe} = webAppWindow.dialog;
-  const operation = self.display === 'credentialRequest' ? 'request' : 'store';
-  const origin = utils.parseUrl(iframe.src).hostname;
   const Component = Vue.extend(HandlerWindowHeader);
   const el = document.createElement('div');
   container.insertBefore(el, iframe);
@@ -178,11 +176,6 @@ function updateHandlerWindow({webAppWindow}) {
   new Component({
     el,
     propsData: {
-      origin,
-      relyingDomain: self.relyingDomain,
-      relyingOrigin: self.relyingOrigin,
-      relyingOriginManifest: self.relyingOriginManifest,
-      operation,
       hint: self.selectedHint
     },
     created() {
