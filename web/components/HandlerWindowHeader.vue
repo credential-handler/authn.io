@@ -6,9 +6,6 @@
       class="wrm-flex-item"
       @click.native="back()" />
     <div class="wrm-flex-item-grow wrm-flex-column-stretch">
-      <!-- div style="font-size: 14px; padding-bottom: 5px">
-        {{header}}
-      </div -->
       <wrm-origin-card
         style="padding-left: 10px"
         :origin="wallet.origin"
@@ -29,45 +26,12 @@
 export default {
   name: 'HandlerWindowHeader',
   props: {
-    origin: {
-      type: String,
-      required: true
-    },
-    relyingDomain: {
-      type: String,
-      required: true
-    },
-    relyingOrigin: {
-      type: String,
-      required: true
-    },
-    relyingOriginManifest: {
-      type: Object,
-      required: true
-    },
-    operation: {
-      type: String,
-      required: true
-    },
     hint: {
       type: Object,
       required: true
     }
   },
-  data() {
-    return {
-      iconSize: 32
-    };
-  },
   computed: {
-    header() {
-      return this.operation === 'request' ?
-        'Sharing credentials from:' : 'Storing credentials in:';
-    },
-    repositoryLabel() {
-      return this.operation === 'request' ?
-        'Provider' : 'Storage Provider';
-    },
     wallet() {
       return {
         name: _getName(this.hint),
@@ -94,7 +58,6 @@ function _getName(hint) {
   const {name, short_name} = manifest;
   return name || short_name || host;
 }
-
 </script>
 
 <style>
