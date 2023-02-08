@@ -266,9 +266,8 @@ export default {
     // to get the current mode
     this.firstPartyMode = shouldUseFirstPartyMode();
 
-    const {origin, host} = parseUrl({url: document.referrer});
+    const {origin} = parseUrl({url: document.referrer});
     this.relyingOrigin = origin;
-    this.relyingDomain = host;
 
     // FIXME: load polyfill in `index.js` instead; decouple it from vue
     // components
