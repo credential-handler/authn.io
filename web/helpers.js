@@ -118,8 +118,8 @@ export async function createHintOptions({handlers}) {
 }
 
 export async function createJitHints({
-  recommendedHandlerOrigins, types, relyingOriginName, relyingOrigin,
-  relyingOriginManifest, relyingDomain
+  recommendedHandlerOrigins, types,
+  relyingOriginName, relyingOrigin, relyingOriginManifest
 }) {
   return Promise.all(recommendedHandlerOrigins.map(async recommendedOrigin => {
     if(typeof recommendedOrigin !== 'string') {
@@ -174,8 +174,7 @@ export async function createJitHints({
         recommendedBy: {
           name: relyingOriginName,
           origin: relyingOrigin,
-          manifest: relyingOriginManifest,
-          domain: relyingDomain
+          manifest: relyingOriginManifest
         }
       }
     };
