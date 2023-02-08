@@ -463,7 +463,7 @@ export default {
       }
 
       // attempt to load web app manifest icon
-      const manifest = await getWebAppManifest({host: this.relyingDomain});
+      const manifest = await getWebAppManifest({origin: relyingOrigin});
       this.relyingOriginManifest = manifest;
 
       // load and show hints immediately in non-1p mode
