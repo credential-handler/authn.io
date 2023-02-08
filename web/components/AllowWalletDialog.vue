@@ -94,7 +94,7 @@ export default {
       try {
         const proxy = new CredentialEventProxy();
         const rpcServices = proxy.createServiceDescription();
-        // FIXME: move loading polyfill outside of Vue space
+        // FIXME: move loading polyfill outside of Vue component space
         await loadPolyfill({
           component: this,
           credentialRequestOrigin,
@@ -102,11 +102,15 @@ export default {
         });
 
         const event = this.event = await proxy.receive();
-        _resolveCredentialRequestOrigin(event.credentialRequestOrigin);
-        this.relyingOrigin = event.credentialRequestOrigin;
-        this.relyingOriginManifest = event.credentialRequestOriginManifest;
+        const {
+          credentialRequestOrigin: origin,
+          credentialRequestOriginManifest: manifest
+        } = event;
+        _resolveCredentialRequestOrigin(origin);
+        this.relyingOrigin = origin;
+        this.relyingOriginManifest = manifest;
 
-        if(!this.relyingOriginManifest) {
+        if(!manifest) {
           console.error('Missing Web app manifest.');
           event.respondWith({
             error: {
@@ -118,8 +122,7 @@ export default {
         }
 
         // generate hint option for origin
-        this.hintOption = await createDefaultHintOption(
-          {origin: this.relyingOrigin, manifest: this.relyingOriginManifest});
+        this.hintOption = await createDefaultHintOption({origin, manifest});
         if(!this.hintOption) {
           console.error(
             'Missing or invalid "credential_handler" in Web app manifest.');
