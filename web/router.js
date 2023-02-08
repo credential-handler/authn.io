@@ -4,7 +4,6 @@
 import VueRouter from 'vue-router';
 
 export async function createRouter() {
-  // FIXME: convert to routes instead of components
   const router = new VueRouter({
     mode: 'history',
     routes: [{
