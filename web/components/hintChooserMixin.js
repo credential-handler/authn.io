@@ -1,11 +1,11 @@
 /*!
-* Copyright (c) 2022 Digital Bazaar, Inc. All rights reserved.
+* Copyright (c) 2022-2023 Digital Bazaar, Inc. All rights reserved.
 */
-import {getDeferredCredentialOperation} from './mediatorPolyfill.js';
+import {getDeferredCredentialOperation} from '../mediatorPolyfill.js';
 import {
   createJitHints, createHintOptions, createWebShareData,
   webShareHasFileSupport
-} from './helpers.js';
+} from '../helpers.js';
 
 export const hintChooserMixin = {
   data() {

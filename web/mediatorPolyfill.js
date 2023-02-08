@@ -1,12 +1,12 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2022, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
 // FIXME: consider renaming file
 import {createDefaultHintOption} from './helpers.js';
 import {getWebAppManifest} from './manifest.js';
-import HandlerWindowHeader from './HandlerWindowHeader.vue';
+import HandlerWindowHeader from './components/HandlerWindowHeader.vue';
 import {loadOnce} from 'credential-mediator-polyfill';
 import {utils} from 'web-request-rpc';
 import Vue from 'vue';
