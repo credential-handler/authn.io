@@ -8,8 +8,8 @@ import * as WrmWebRequestMediator from 'vue-web-request-mediator';
 import {createRouter} from './router.js';
 import Vue from 'vue';
 
-import './app.less';
 import 'bedrock-fontawesome';
+import './app.less';
 
 // install all plugins
 Vue.use(brVue);
