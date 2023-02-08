@@ -96,12 +96,11 @@ export const hintChooserMixin = {
           // use a maximum of 3 recommended handlers
           recommendedHandlerOrigins = recommendedHandlerOrigins.slice(0, 3);
           const {
-            relyingOriginName, relyingOrigin, relyingOriginManifest,
-            relyingDomain
+            relyingOriginName, relyingOrigin, relyingOriginManifest
           } = this;
           jitHints = (await createJitHints({
             recommendedHandlerOrigins, types, relyingOriginName, relyingOrigin,
-            relyingOriginManifest, relyingDomain
+            relyingOriginManifest
           })).filter(e => !!e);
         }
       }

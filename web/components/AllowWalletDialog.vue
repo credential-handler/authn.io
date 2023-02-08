@@ -66,6 +66,7 @@ export default {
       event: null,
       loading: false,
       hintOption: null,
+      // FIXME: used by `requestPermission` mediatorPolyfill helper
       relyingDomain: null,
       relyingOrigin: null,
       relyingOriginManifest: null
