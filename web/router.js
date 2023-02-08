@@ -18,24 +18,24 @@ export async function createRouter() {
     }, {
       path: '/mediator',
       component: () => import(
-        /* webpackChunkName: "Mediator" */
-        './components/Mediator.vue'),
+        /* webpackChunkName: "MediatorPage" */
+        './routes/MediatorPage.vue'),
       meta: {
         title: 'Credential Mediator'
       }
     }, {
       path: '/mediator/wallet-chooser',
       component: () => import(
-        /* webpackChunkName: "HintChooser" */
-        './components/HintChooser.vue'),
+        /* webpackChunkName: "WalletChooserPage" */
+        './routes/WalletChooserPage.vue'),
       meta: {
         title: 'Credential Wallet Chooser'
       }
     }, {
       path: '/mediator/allow-wallet',
       component: () => import(
-        /* webpackChunkName: "AllowWalletDialog" */
-        './components/AllowWalletDialog.vue'),
+        /* webpackChunkName: "AllowWalletPage" */
+        './routes/AllowWalletPage.vue'),
       meta: {
         title: 'Allow Wallet'
       }
