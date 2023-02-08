@@ -20,7 +20,7 @@
  * All rights reserved.
  */
 export default {
-  name: 'Home'
+  name: 'LandingPage'
 };
 </script>
 
