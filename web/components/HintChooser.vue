@@ -110,7 +110,6 @@
 import {CredentialEventProxy} from '../CredentialEventProxy.js';
 import {hintChooserMixin} from './hintChooserMixin.js';
 import {loadPolyfill} from '../mediatorPolyfill.js';
-import {parseUrl} from '../helpers.js';
 
 export default {
   name: 'HintChooser',
@@ -154,9 +153,6 @@ export default {
         this.showHintChooser = true;
         this.display = this.credential ?
           'credentialStore' : 'credentialRequest';
-
-        const {host} = parseUrl({url: event.relyingOrigin});
-        this.relyingDomain = host;
 
         await this.loadHints();
       } catch(e) {

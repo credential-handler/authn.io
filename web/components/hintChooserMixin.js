@@ -16,7 +16,6 @@ export const hintChooserMixin = {
       hintOptions: [],
       hintRemovalText: 'Hiding...',
       loading: false,
-      relyingDomain: null,
       relyingOrigin: null,
       relyingOriginManifest: null,
       selectedHint: null,

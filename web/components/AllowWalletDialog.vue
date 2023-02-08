@@ -54,7 +54,7 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {createDefaultHintOption, getOriginName, parseUrl} from '../helpers.js';
+import {createDefaultHintOption, getOriginName} from '../helpers.js';
 import {CredentialEventProxy} from '../CredentialEventProxy.js';
 import {loadPolyfill} from '../mediatorPolyfill.js';
 import {PermissionManager} from 'credential-mediator-polyfill';
@@ -66,8 +66,6 @@ export default {
       event: null,
       loading: false,
       hintOption: null,
-      // FIXME: used by `requestPermission` mediatorPolyfill helper
-      relyingDomain: null,
       relyingOrigin: null,
       relyingOriginManifest: null
     };
@@ -107,9 +105,6 @@ export default {
         _resolveCredentialRequestOrigin(event.credentialRequestOrigin);
         this.relyingOrigin = event.credentialRequestOrigin;
         this.relyingOriginManifest = event.credentialRequestOriginManifest;
-
-        const {host} = parseUrl({url: event.relyingOrigin});
-        this.relyingDomain = host;
 
         if(!this.relyingOriginManifest) {
           console.error('Missing Web app manifest.');
