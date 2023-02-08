@@ -8,7 +8,6 @@ import {createDefaultHintOption} from './helpers.js';
 import {getWebAppManifest} from './manifest.js';
 import HandlerWindowHeader from './components/HandlerWindowHeader.vue';
 import {loadOnce} from 'credential-mediator-polyfill';
-import {utils} from 'web-request-rpc';
 import Vue from 'vue';
 
 // default popup handler width and height
