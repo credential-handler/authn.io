@@ -10,8 +10,8 @@ export async function createRouter() {
     routes: [{
       path: '/',
       component: () => import(
-        /* webpackChunkName: "Home" */
-        './components/Home.vue'),
+        /* webpackChunkName: "LandingPage" */
+        './routes/LandingPage.vue'),
       meta: {
         title: 'authn.io'
       }
