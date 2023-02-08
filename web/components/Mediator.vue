@@ -211,7 +211,7 @@
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2022, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
 import {
@@ -219,17 +219,17 @@ import {
   openAllowWalletWindow,
   openCredentialHintWindow,
   parseUrl
-} from './helpers.js';
+} from '../helpers.js';
 import {
   getDeferredCredentialOperation,
   getResolvePermissionRequest,
   loadPolyfill
-} from './mediatorPolyfill.js';
-import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
-import {getWebAppManifest} from './manifest.js';
+} from '../mediatorPolyfill.js';
+import {getSiteChoice, hasSiteChoice, setSiteChoice} from '../siteChoice.js';
+import {getWebAppManifest} from '../manifest.js';
 import {hintChooserMixin} from './hintChooserMixin.js';
 import MediatorGreeting from './MediatorGreeting.vue';
-import {shouldUseFirstPartyMode} from './platformDetection.js';
+import {shouldUseFirstPartyMode} from '../platformDetection.js';
 
 export default {
   name: 'Mediator',

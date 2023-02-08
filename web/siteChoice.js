@@ -1,10 +1,8 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2018-2021, Digital Bazaar, Inc.
+ * Copyright (c) 2018-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-'use strict';
-
 const KEY = 'storedCredentialHandlerChoices';
 
 export function setSiteChoice({relyingOrigin, credentialHandler}) {

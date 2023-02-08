@@ -104,13 +104,13 @@
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2022, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {CredentialEventProxy} from './CredentialEventProxy.js';
+import {CredentialEventProxy} from '../CredentialEventProxy.js';
 import {hintChooserMixin} from './hintChooserMixin.js';
-import {loadPolyfill} from './mediatorPolyfill.js';
-import {parseUrl} from './helpers.js';
+import {loadPolyfill} from '../mediatorPolyfill.js';
+import {parseUrl} from '../helpers.js';
 
 export default {
   name: 'HintChooser',

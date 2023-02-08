@@ -1,6 +1,6 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2022, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
 import {getWebAppManifest} from './manifest.js';

@@ -1,6 +1,6 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2022, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
 import * as brVue from 'bedrock-vue';
@@ -8,7 +8,7 @@ import * as WrmWebRequestMediator from 'vue-web-request-mediator';
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import './main.less';
+import './app.less';
 import 'bedrock-fontawesome';
 
 // install all plugins
@@ -22,7 +22,7 @@ brVue.setRootVue(async () => {
       path: '/',
       component: () => import(
         /* webpackChunkName: "Home" */
-        './Home.vue'),
+        './components/Home.vue'),
       meta: {
         title: 'authn.io'
       }
@@ -30,7 +30,7 @@ brVue.setRootVue(async () => {
       path: '/mediator',
       component: () => import(
         /* webpackChunkName: "Mediator" */
-        './Mediator.vue'),
+        './components/Mediator.vue'),
       meta: {
         title: 'Credential Mediator'
       }
@@ -38,7 +38,7 @@ brVue.setRootVue(async () => {
       path: '/mediator/wallet-chooser',
       component: () => import(
         /* webpackChunkName: "HintChooser" */
-        './HintChooser.vue'),
+        './components/HintChooser.vue'),
       meta: {
         title: 'Credential Wallet Chooser'
       }
@@ -46,7 +46,7 @@ brVue.setRootVue(async () => {
       path: '/mediator/allow-wallet',
       component: () => import(
         /* webpackChunkName: "AllowWalletDialog" */
-        './AllowWalletDialog.vue'),
+        './components/AllowWalletDialog.vue'),
       meta: {
         title: 'Allow Wallet'
       }

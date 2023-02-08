@@ -2,7 +2,7 @@
   "name": "authio",
   "version": "4.9.3",
   "main": "lib",
-  "browser": "./components/index.js",
+  "browser": "./web/index.js",
   "scripts": {
     "start": "node authn.localhost.js",
     "lint": "eslint ."

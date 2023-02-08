@@ -51,12 +51,12 @@
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2022, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {createDefaultHintOption, parseUrl} from './helpers.js';
-import {CredentialEventProxy} from './CredentialEventProxy.js';
-import {loadPolyfill} from './mediatorPolyfill.js';
+import {createDefaultHintOption, parseUrl} from '../helpers.js';
+import {CredentialEventProxy} from '../CredentialEventProxy.js';
+import {loadPolyfill} from '../mediatorPolyfill.js';
 import {PermissionManager} from 'credential-mediator-polyfill';
 
 export default {
