@@ -12,11 +12,7 @@
     hide-cancel-button
     @back="closeWindow">
     <template slot="header">
-      <div style="font-size: 18px; font-weight: bold; user-select: none">
-        <div style="margin-left: -10px">
-          <span>Choose a Wallet</span>
-        </div>
-      </div>
+      <MediatorHeader title="Choose a Wallet" />
     </template>
     <template slot="body">
       <wrm-hint-chooser
@@ -110,9 +106,11 @@
 import {CredentialEventProxy} from '../CredentialEventProxy.js';
 import {hintChooserMixin} from './hintChooserMixin.js';
 import {loadPolyfill} from '../mediatorPolyfill.js';
+import MediatorHeader from './MediatorHeader.vue';
 
 export default {
   name: 'HintChooser',
+  components: {MediatorHeader},
   mixins: [hintChooserMixin],
   data() {
     return {
