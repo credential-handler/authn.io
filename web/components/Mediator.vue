@@ -10,38 +10,9 @@
     @next="nextWizardStep()"
     @back="prevWizardStep()">
     <template slot="header">
-      <div style="font-size: 18px; font-weight: bold; user-select: none">
-        <div
-          v-if="showGreeting"
-          style="margin-left: -5px">
-          <div v-if="display === 'permissionRequest'">
-            Allow Wallet
-            <i
-              v-if="loading"
-              class="fas fa-cog fa-spin" />
-          </div>
-          <div v-else-if="display === 'credentialRequest'">
-            {{showHintChooser ? 'Choose a Wallet' : 'Credentials Request'}}
-            <i
-              v-if="loading"
-              class="fas fa-cog fa-spin" />
-          </div>
-          <div v-else>
-            {{showHintChooser ? 'Choose a Wallet' : 'Store Credentials'}}
-            <i
-              v-if="loading"
-              class="fas fa-cog fa-spin" />
-          </div>
-        </div>
-        <div
-          v-else
-          style="margin-left: -5px">
-          <span v-if="selectedHint">Loading Wallet...
-            <i class="fas fa-cog fa-spin" />
-          </span>
-          <span v-else>Choose a Wallet</span>
-        </div>
-      </div>
+      <MediatorHeader
+        :title="headerTitle"
+        :loading="headerLoading" />
     </template>
     <template slot="body">
       <!-- step 1 -->
@@ -229,11 +200,12 @@ import {getSiteChoice, hasSiteChoice, setSiteChoice} from '../siteChoice.js';
 import {getWebAppManifest} from '../manifest.js';
 import {hintChooserMixin} from './hintChooserMixin.js';
 import MediatorGreeting from './MediatorGreeting.vue';
+import MediatorHeader from './MediatorHeader.vue';
 import {shouldUseFirstPartyMode} from '../platformDetection.js';
 
 export default {
   name: 'Mediator',
-  components: {MediatorGreeting},
+  components: {MediatorGreeting, MediatorHeader},
   mixins: [hintChooserMixin],
   data() {
     return {
@@ -245,6 +217,28 @@ export default {
     };
   },
   computed: {
+    headerLoading() {
+      return this.loading || !!this.selectedHint;
+    },
+    headerTitle() {
+      const {selectedHint, showGreeting, showHintChooser, display} = this;
+      if(selectedHint) {
+        return 'Loading Wallet...';
+      }
+      if(showGreeting) {
+        if(display === 'permissionRequest') {
+          return 'Allow Wallet';
+        }
+        if(showHintChooser) {
+          return 'Choose a Wallet';
+        }
+        if(display === 'credentialRequest') {
+          return 'Credentials Request';
+        }
+        return 'Store Credentials';
+      }
+      return 'Choose a Wallet';
+    },
     greetingIconSize() {
       // combined greeting + hints screen; de-emphasize greeting icon size
       if(this.showGreeting && this.showHintChooser) {
