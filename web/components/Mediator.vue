@@ -35,7 +35,7 @@
         </div>
         <div
           v-else
-          style="margin-left: -10px">
+          style="margin-left: -5px">
           <span v-if="selectedHint">Loading Wallet...
             <i class="fas fa-cog fa-spin" />
           </span>
