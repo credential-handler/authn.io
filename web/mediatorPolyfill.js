@@ -3,7 +3,7 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-// FIXME: consider renaming file
+// FIXME: remove this file once 1p and 3p modes use `Mediator.js`
 import {createDefaultHintOption} from './helpers.js';
 import {getWebAppManifest} from './manifest.js';
 import HandlerWindowHeader from './components/HandlerWindowHeader.vue';
@@ -25,8 +25,6 @@ export function getResolvePermissionRequest() {
   return resolvePermissionRequest;
 }
 
-// FIXME: instead of passing `component`, pass handler callbacks to pass
-// into `loadOnce`
 export async function loadPolyfill({
   component, credentialRequestOrigin, rpcServices = {}
 }) {
@@ -76,13 +74,6 @@ async function getCredentialHandlerInjector({appContext, credentialHandler}) {
   return injector;
 }
 
-// FIXME: these functions are commonly used whether `this` is bound to
-// an `AllowWalletDialog`, `HintChooser`, or `Mediator` component; but some
-// of the properties aren't shared across those components ... this needs
-// refactoring to remove components from it ... the needs here are to show
-// some kind of loading screen in the UI (presumably) while the async calls
-// are made in this function, so need some affordances to do that here
-// FIXME: perhaps create those APIs before the Vue 3 changes land
 async function requestPermission(/*permissionDesc*/) {
   // prep display
   this.display = 'permissionRequest';
@@ -96,8 +87,6 @@ async function requestPermission(/*permissionDesc*/) {
   await navigator.credentialMediator.show();
 
   // attempt to load web app manifest icon
-  // FIXME: start getting web app manifest prior to showing mediator and
-  // await result thereafter
   const {relyingOrigin} = this;
   const manifest = await getWebAppManifest({origin: relyingOrigin});
   this.relyingOriginManifest = manifest;

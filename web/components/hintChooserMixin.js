@@ -3,10 +3,12 @@
 */
 import {getDeferredCredentialOperation} from '../mediatorPolyfill.js';
 import {
-  createJitHints, createHintOptions, createWebShareData,
+  createWebShareData,
+  loadHints as _loadHints,
   getOriginName, webShareHasFileSupport
 } from '../helpers.js';
 
+// FIXME: move most / all of this to Mediator.js
 export const hintChooserMixin = {
   data() {
     return {
@@ -29,7 +31,11 @@ export const hintChooserMixin = {
     }
   },
   methods: {
+    // FIXME: remove
     async cancel() {
+      if(this._mediator) {
+        return this._mediator.cancel();
+      }
       if(this.selectedHint) {
         await this.cancelSelection();
       }
@@ -40,71 +46,25 @@ export const hintChooserMixin = {
       }
       await navigator.credentialMediator.hide();
     },
+    // FIXME: remove
     async cancelSelection() {
+      if(this._mediator) {
+        return this._mediator.cancelSelection();
+      }
       await navigator.credentialMediator.ui.cancelSelectCredentialHint();
     },
     async loadHints() {
-      let hintOptions;
-      let recommendedHandlerOrigins;
-      if(this.credentialRequestOptions) {
-        // get matching hints from request options
-        hintOptions = await navigator.credentialMediator.ui
-          .matchCredentialRequest(this.credentialRequestOptions);
-        ({web: {recommendedHandlerOrigins = []}} =
-          this.credentialRequestOptions);
-      } else if(this.credential) {
-        // get hints that match credential
-        const {credential} = this;
-        hintOptions = await navigator.credentialMediator.ui
-          .matchCredential(credential);
-        ({options: {recommendedHandlerOrigins = []} = {}} = credential);
-      }
-
-      if(!(this.credentialRequestOptions || this.credential)) {
-        // hints loaded asynchronously during a reset; return early
-        return;
-      }
-
-      // get unique credential handlers
-      const handlers = [...new Set(hintOptions.map(
-        ({credentialHandler}) => credentialHandler))];
-      const hintOptionsPromise = createHintOptions({handlers});
-
-      // add any recommended options
-      let jitHints = [];
-      if(Array.isArray(recommendedHandlerOrigins)) {
-        // filter out any handlers that are already in `hintOptions`
-        recommendedHandlerOrigins = recommendedHandlerOrigins.filter(
-          // if credential handler URL starts with a recommended
-          // handler origin, skip it
-          url => !handlers.some(h => h.startsWith(url)));
-        if(recommendedHandlerOrigins.length > 0) {
-          // get relevant types to match against handler
-          let types = [];
-          if(this.credentialRequestOptions) {
-            // types are all capitalized `{web: {Type1, Type2, ..., TypeN}}`
-            types = Object.keys(this.credentialRequestOptions.web)
-              .filter(k => k[0] === k.toUpperCase()[0]);
-          } else {
-            types.push(this.credential.dataType);
-          }
-
-          // use a maximum of 3 recommended handlers
-          recommendedHandlerOrigins = recommendedHandlerOrigins.slice(0, 3);
-          const {
-            relyingOriginName, relyingOrigin, relyingOriginManifest
-          } = this;
-          jitHints = (await createJitHints({
-            recommendedHandlerOrigins, types, relyingOriginName, relyingOrigin,
-            relyingOriginManifest
-          })).filter(e => !!e);
-        }
-      }
-
-      hintOptions = await hintOptionsPromise;
-      hintOptions.push(...jitHints);
+      const {
+        credentialRequestOptions, credential,
+        relyingOrigin, relyingOriginManifest
+      } = this;
+      const hintOptions = await _loadHints({
+        credentialRequestOptions, credential,
+        relyingOrigin, relyingOriginManifest
+      });
       this.hintOptions = hintOptions;
     },
+    // FIXME: move to Mediator.js
     async removeHint(event) {
       const {hint} = event;
       const idx = this.hintOptions.indexOf(hint);
