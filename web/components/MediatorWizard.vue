@@ -186,25 +186,24 @@
  * All rights reserved.
  */
 import {
-  autoRegisterHint,
   openAllowWalletWindow,
   openCredentialHintWindow,
   parseUrl
 } from '../helpers.js';
 import {
-  getDeferredCredentialOperation,
   getResolvePermissionRequest,
   loadPolyfill
 } from '../mediatorPolyfill.js';
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from '../siteChoice.js';
 import {getWebAppManifest} from '../manifest.js';
 import {hintChooserMixin} from './hintChooserMixin.js';
+import {Mediator} from '../Mediator.js';
 import MediatorGreeting from './MediatorGreeting.vue';
 import MediatorHeader from './MediatorHeader.vue';
 import {shouldUseFirstPartyMode} from '../platformDetection.js';
 
 export default {
-  name: 'Mediator',
+  name: 'MediatorWizard',
   components: {MediatorGreeting, MediatorHeader},
   mixins: [hintChooserMixin],
   data() {
@@ -255,40 +254,57 @@ export default {
   async created() {
     this.loading = true;
 
-    // FIXME: change this function to return the flow ID -- and don't cache
-    // the value here, but in `platformDetection` ... always call this function
-    // to get the current mode
+    // FIXME: use `mediator.firstPartyMode`
     this.firstPartyMode = shouldUseFirstPartyMode();
-
+    // FIXME: use `mediator.relyingOrigin`
     const {origin} = parseUrl({url: document.referrer});
     this.relyingOrigin = origin;
 
-    // FIXME: load polyfill in `index.js` instead; decouple it from vue
-    // components
-    await loadPolyfill({component: this, credentialRequestOrigin: origin});
+    // FIXME: move to MediatorPage?
+    const mediator = new Mediator();
+    this._mediator = mediator;
+    await mediator.initialize({
+      show: ({requestType, operationState}) => {
+        // FIXME: is setting `loading=true` here necessary?
+        this.loading = true;
+        this.display = requestType;
+        this.showHintChooser = false;
+        this.showGreeting = true;
+        this.requestType = requestType;
+        if(requestType === 'credentialRequest') {
+          this.credentialRequestOptions =
+            operationState.input.credentialRequestOptions;
+        } else if(requestType === 'credentialStore') {
+          this.credential = operationState.input.credential;
+        }
+
+        // if the web app manifest loads, use it
+        mediator.relyingOriginManifestPromise.then(manifest => {
+          this.relyingOriginManifest = manifest;
+        });
+      },
+      hide: () => {
+        this.loading = false;
+        this.reset();
+      },
+      ready: () => {
+        this.hintOptions = mediator.hintOptions;
+        if(!mediator.firstPartyMode &&
+          this.requestType !== 'permissionRequest') {
+          this.showHintChooser = true;
+        }
+        this.loading = false;
+      }
+    });
   },
   methods: {
     async allow() {
       this.loading = true;
-      const {defaultHintOption: hintOption} = this;
-      if(!hintOption) {
-        return this.deny();
-      }
-      const {credentialHandler, credentialHintKey, enabledTypes} = hintOption;
-      const hint = {name: credentialHintKey, enabledTypes};
-      await navigator.credentialMediator.ui.registerCredentialHandler(
-        credentialHandler, hint);
-      const resolvePermissionRequest = getResolvePermissionRequest();
-      resolvePermissionRequest({state: 'granted'});
-      this.reset();
-      await navigator.credentialMediator.hide();
+      await this._mediator.allowCredentialHandler();
     },
     async deny() {
       this.loading = true;
-      const resolvePermissionRequest = getResolvePermissionRequest();
-      resolvePermissionRequest({state: 'denied'});
-      this.reset();
-      await navigator.credentialMediator.hide();
+      await this._mediator.denyCredentialHandler();
     },
     focusPopup() {
       if(this._popupDialog) {
@@ -353,119 +369,24 @@ export default {
         await this.cancelSelection();
       }
     },
-    useRememberedHint({showHintChooser = true} = {}) {
-      // check to see if there is a reusable choice for the relying party
-      const {hintOptions, relyingOrigin} = this;
-      const hint = getSiteChoice({relyingOrigin, hintOptions});
-      if(hint) {
-        this.showGreeting = false;
-        this.rememberChoice = true;
-        this.selectHint({hint, waitUntil() {}});
-        return true;
-      }
-      this.showHintChooser = showHintChooser;
-      return false;
-    },
     async selectHint(event) {
-      this.selectedHint = event.hint;
-      let _resolve;
-      event.waitUntil(new Promise(r => _resolve = r));
-
-      let {credentialHandler} = event.hint.hintOption;
-
-      // auto-register handler if hint was JIT-created
-      if(event.hint.jit) {
-        await autoRegisterHint({event, credentialHandler});
-      }
-
-      // save choice for site
-      if(!this.rememberChoice || this.firstPartyMode) {
-        credentialHandler = null;
-      }
-      const {relyingOrigin} = this;
-      setSiteChoice({relyingOrigin, credentialHandler});
-
-      let canceled = false;
-      let response;
-      const deferredCredentialOperation = getDeferredCredentialOperation();
+      const {hint} = event;
+      this.selectedHint = hint;
+      const {rememberChoice} = this;
+      console.log('rememberChoice', rememberChoice);
+      const promise = this._mediator.selectHint({hint, rememberChoice});
+      event.waitUntil(promise.catch(() => {}));
       try {
-        response = await navigator.credentialMediator.ui.selectCredentialHint(
-          event.hint.hintOption);
-
-        if(!response) {
-          // clear site choice when `null` response is returned by credential
-          // handler
-          setSiteChoice({relyingOrigin, credentialHandler: null});
-        }
-        deferredCredentialOperation.resolve(response);
-      } catch(e) {
-        if(e.name === 'AbortError') {
-          canceled = true;
-        } else {
-          console.error(e);
-          deferredCredentialOperation.reject(e);
-        }
-      }
-
-      if(canceled) {
+        await promise;
+      } finally {
         this.selectedHint = null;
+        // FIXME: why set `rememberChoice` here?
         this.rememberChoice = true;
-        // clear site choice
-        setSiteChoice({relyingOrigin, credentialHandler: null});
         this.showGreeting = true;
-        if(!this.firstPartyMode) {
+        if(!this._mediator.firstPartyMode) {
           this.showHintChooser = true;
         }
-      } else {
-        try {
-          this.reset();
-          await navigator.credentialMediator.hide();
-        } catch(e) {
-          console.error(e);
-        }
       }
-
-      _resolve();
-    },
-    // FIXME: move to Mediator.js
-    async startCredentialFlow() {
-      this.loading = true;
-
-      // delay showing mediator UI if the site has a potential saved choice as
-      // there may be no need to show it at all
-      const {relyingOrigin} = this;
-      const delayShowMediator = hasSiteChoice({relyingOrigin});
-      let showMediatorPromise;
-      if(delayShowMediator) {
-        // delay showing mediator if request can be handled quickly
-        // (we choose 1 frame here = ~16ms);
-        // otherwise show it to let user know something is happening
-        showMediatorPromise = new Promise((resolve, reject) => {
-          setTimeout(() => {
-            navigator.credentialMediator.show().then(resolve, reject);
-          }, 16);
-        });
-      } else {
-        showMediatorPromise = navigator.credentialMediator.show();
-      }
-
-      // attempt to load web app manifest icon
-      const manifest = await getWebAppManifest({origin: relyingOrigin});
-      this.relyingOriginManifest = manifest;
-
-      // load and show hints immediately in non-1p mode
-      if(!this.firstPartyMode) {
-        // load hints early if possible to avoid showing UI
-        await this.loadHints();
-        // this will cause a remembered hint to execute immediately without
-        // showing the greeting dialog
-        this.useRememberedHint();
-      }
-
-      // await showing mediator UI
-      await showMediatorPromise;
-
-      this.loading = false;
     },
     reset() {
       // reset the same fields found in the hintChooserMixin
