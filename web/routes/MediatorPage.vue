@@ -1,5 +1,5 @@
 <template>
-  <Mediator />
+  <MediatorWizard />
 </template>
 
 <script>
@@ -8,11 +8,11 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import Mediator from '../components/Mediator.vue';
+import MediatorWizard from '../components/MediatorWizard.vue';
 
 export default {
   name: 'MediatorPage',
-  components: {Mediator}
+  components: {MediatorWizard}
 };
 </script>
 

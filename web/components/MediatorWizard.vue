@@ -427,6 +427,7 @@ export default {
 
       _resolve();
     },
+    // FIXME: move to Mediator.js
     async startCredentialFlow() {
       this.loading = true;
 
