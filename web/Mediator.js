@@ -17,14 +17,18 @@ import {
   webShareHasFileSupport
 } from './helpers.js';
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
+import {CredentialEventProxy} from './CredentialEventProxy.js';
 import {getWebAppManifest} from './manifest.js';
 import HandlerWindowHeader from './components/HandlerWindowHeader.vue';
 import {loadOnce} from 'credential-mediator-polyfill';
 import {shouldUseFirstPartyMode} from './platformDetection.js';
 // FIXME: remove this, only vanilla JS permitted in this file
 import Vue from 'vue';
+import {WebAppContext} from 'web-request-rpc';
 
-// default popup handler width and height
+const DEFAULT_ALLOW_WALLET_POPUP_WIDTH = 500;
+const DEFAULT_ALLOW_WALLET_POPUP_HEIGHT = 240;
+
 const DEFAULT_HANDLER_POPUP_WIDTH = 800;
 const DEFAULT_HANDLER_POPUP_HEIGHT = 600;
 
@@ -33,38 +37,85 @@ export class Mediator {
     this.credentialRequestOrigin = null;
     this.deferredCredentialOperation = null;
     this.firstPartyMode = true;
+    this.hide = null;
     this.hintOptions = [];
     this.operationState = null;
+    // FIXME: perhaps rename to firstPartyDialog
+    this.popupDialog = null;
+    this.proxiedEvent = null;
+    this.ready = null;
     this.registrationHintOption = null;
     this.resolvePermissionRequest = null;
+    this.relyingOrigin = null;
+    this.relyingOriginManifestPromise = null;
     this.selectedHint = null;
+    this.show = null;
   }
 
-  // FIXME: change `rpcServices` to `proxy=true|false`
-  async initialize({show, hide, ready, rpcServices = {}} = {}) {
+  async initialize({show, hide, ready, proxy} = {}) {
+    // enable getting credential request origin asynchronously
+    let deferredGetCredentialRequestOrigin;
+    const credentialRequestOrigin = new Promise((resolve, reject) => {
+      deferredGetCredentialRequestOrigin = {resolve, reject};
+    });
+
     try {
       this.show = show;
-      this.hide = hide;
+      // FIXME: might need to augment `hide` with closing `popupDialog
+      this.hide = async () => {
+        await hide();
+        // FIXME: determine if this is the right / only place needed for this
+        if(this.popupDialog) {
+          this.popupDialog.close();
+          this.popupDialog = null;
+        }
+      };
       this.ready = ready;
 
-      // FIXME: consider setting these on construction
+      // FIXME: consider setting this on construction
       this.firstPartyMode = shouldUseFirstPartyMode();
-      const {origin} = parseUrl({url: document.referrer});
-      this.relyingOrigin = origin;
 
-      // start loading web app manifest
-      const promise = getWebAppManifest({origin});
-      this.relyingOriginManifestPromise = promise;
+      let eventProxy;
+      let rpcServices;
+      if(proxy) {
+        // this mediator instance is loaded in a 1p context that
+        // communicates with the mediator instance in the 3p context;
+        // create event proxy to receive events from the 3p context
+        eventProxy = new CredentialEventProxy();
+        rpcServices = eventProxy.createServiceDescription();
+      } else {
+        // this mediator instance is in a 3p context, communicating directly
+        // with the relying origin
+        const {origin} = parseUrl({url: document.referrer});
+        this.relyingOrigin = origin;
+        deferredGetCredentialRequestOrigin.resolve(origin);
+        // start loading web app manifest
+        this.relyingOriginManifestPromise = getWebAppManifest({origin});
+      }
 
       await loadOnce({
-        credentialRequestOrigin: origin,
+        credentialRequestOrigin,
         requestPermission: requestPermission.bind(this),
         getCredential: handleCredentialRequest.bind(this, 'credentialRequest'),
         storeCredential: handleCredentialRequest.bind(this, 'credentialStore'),
         getCredentialHandlerInjector: getCredentialHandlerInjector.bind(this),
         rpcServices
       });
+
+      if(proxy) {
+        const event = this.proxiedEvent = await eventProxy.receive();
+        const {
+          credentialRequestOrigin: origin,
+          credentialRequestOriginManifest: manifest,
+          registrationHintOption
+        } = event;
+        this.relyingOrigin = origin;
+        this.relyingOriginManifestPromise = manifest;
+        this.registrationHintOption = registrationHintOption;
+        deferredGetCredentialRequestOrigin.resolve(origin);
+      }
     } catch(e) {
+      deferredGetCredentialRequestOrigin.reject(e);
       console.error('Error initializing mediator:', e);
     }
   }
@@ -105,6 +156,22 @@ export class Mediator {
     this.resolvePermissionRequest({state: 'denied'});
     await this.hide();
     await navigator.credentialMediator.hide();
+  }
+
+  async handleFirstPartyPermissionRequest({}) {
+    const {status} = await this.openAllowWalletWindow({
+      credentialRequestOrigin: relyingOrigin,
+      credentialRequestOriginManifest: relyingOriginManifest
+    });
+
+    // if a status was returned... (vs. closing the window / error)
+    if(status) {
+      // return that status was already set in 1p window
+      const resolvePermissionRequest = getResolvePermissionRequest();
+      resolvePermissionRequest({state: status.state, set: true});
+      this.reset();
+      await navigator.credentialMediator.hide();
+    }
   }
 
   async selectHint({hint, rememberChoice = false}) {
@@ -175,6 +242,80 @@ export class Mediator {
     // if that case still needs handling now
     this.hintOptions = hintOptions;
     return this.hintOptions;
+  }
+
+  async _openAllowWalletWindow() {
+    const url = `${window.location.origin}/mediator/allow-wallet`;
+    const {
+      registrationHintOption,
+      relyingOrigin, relyingOriginManifestPromise
+    } = this;
+    const relyingOriginManifest = await relyingOriginManifestPromise;
+
+    // create WebAppContext to run WebApp and connect to windowClient
+    const appContext = new WebAppContext();
+    const windowReady = appContext.createWindow(url, {
+      popup: true,
+      // loading should be quick to same mediator site
+      timeout: 30000,
+      bounds: {
+        width: DEFAULT_ALLOW_WALLET_POPUP_WIDTH,
+        height: DEFAULT_ALLOW_WALLET_POPUP_HEIGHT
+      }
+    });
+
+    // save reference to current first party window
+    this.popupDialog = appContext.control.dialog;
+    // FIXME: `popupOpen` should become some kind of callback / abort signal
+    this.popupOpen = true;
+
+    // provide access to injector inside dialog destroy in case the user closes
+    // the dialog -- so we can abort awaiting `proxy.send`
+    let injector = null;
+    let aborted = false;
+    const {dialog} = appContext.control;
+    const abort = () => {
+      aborted = true;
+      if(injector) {
+        injector.client.close();
+      }
+      dialog.removeEventListener('close', abort);
+      this.popupOpen = false;
+    };
+    dialog.addEventListener('close', abort);
+
+    // create proxy interface for making calls in WebApp
+    injector = await windowReady;
+
+    appContext.control.show();
+
+    const proxy = injector.get('credentialEventProxy', {
+      functions: [{name: 'send', options: {timeout: 0}}]
+    });
+
+    try {
+      const result = await proxy.send({
+        type: 'allowcredentialhandler',
+        credentialRequestOrigin: relyingOrigin,
+        credentialRequestOriginManifest: relyingOriginManifest,
+        registrationHintOption
+      });
+      if(result.error) {
+        const error = new Error(result.error.message);
+        error.name = result.error.name;
+        throw error;
+      }
+      const {status} = result;
+      return {status, appContext};
+    } catch(e) {
+      if(!aborted) {
+        // unexpected error, log it
+        console.error(e);
+      }
+      return {status: {state: 'denied'}, appContext: null};
+    } finally {
+      appContext.control.hide();
+    }
   }
 
   async _startCredentialFlow() {

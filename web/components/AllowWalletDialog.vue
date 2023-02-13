@@ -110,9 +110,6 @@ export default {
         this.relyingOrigin = origin;
         this.relyingOriginManifest = manifest;
 
-        // FIXME: receive `registrationHintOption` as well? ... then pass to
-        // mediator.allowCredentialHandler()?
-
         // FIXME: see if this can be consolidated with Mediator.js; potentially
         // unnecessary since proxy event can only be received from same origin
         if(!manifest) {
