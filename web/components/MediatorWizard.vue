@@ -306,6 +306,8 @@ export default {
       await this._mediator.denyCredentialHandler();
     },
     focusPopup() {
+      // FIXME: moved to Mediator.js, expose a function on Mediator to focus
+      // first party window
       if(this._popupDialog) {
         this._popupDialog.handle.focus();
       }
@@ -316,6 +318,8 @@ export default {
         if(this.firstPartyMode) {
           // handle permission request case
           if(this.display === 'permissionRequest') {
+            // FIXME: call Mediator.handleFirstPartyPermissionRequest()
+            // instead of this
             const url = `${window.location.origin}/mediator/allow-wallet`;
             const {relyingOrigin, relyingOriginManifest} = this;
 
@@ -399,6 +403,7 @@ export default {
       this.rememberChoice = true;
       this.showGreeting = true;
       this.popupOpen = false;
+      // FIXME: moved to `Mediator.js` handle cleaning up closing dialog
       if(this._popupDialog) {
         this._popupDialog.close();
       }
