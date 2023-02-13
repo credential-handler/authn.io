@@ -155,6 +155,8 @@
           Block
         </button>
         <span style="margin-right: 5px" />
+        <!-- FIXME: while `relyingOriginManifest` is still loading, do not
+          allow to be clicked; perhaps `loading` handles this, check it -->
         <button
           type="button"
           class="wrm-button"
@@ -191,11 +193,8 @@ import {
   parseUrl
 } from '../helpers.js';
 import {
-  getResolvePermissionRequest,
-  loadPolyfill
+  getResolvePermissionRequest
 } from '../mediatorPolyfill.js';
-import {getSiteChoice, hasSiteChoice, setSiteChoice} from '../siteChoice.js';
-import {getWebAppManifest} from '../manifest.js';
 import {hintChooserMixin} from './hintChooserMixin.js';
 import {Mediator} from '../Mediator.js';
 import MediatorGreeting from './MediatorGreeting.vue';
@@ -373,7 +372,6 @@ export default {
       const {hint} = event;
       this.selectedHint = hint;
       const {rememberChoice} = this;
-      console.log('rememberChoice', rememberChoice);
       const promise = this._mediator.selectHint({hint, rememberChoice});
       event.waitUntil(promise.catch(() => {}));
       try {
