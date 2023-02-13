@@ -11,9 +11,6 @@ import {utils, WebAppContext} from 'web-request-rpc';
 const DEFAULT_HINT_CHOOSER_POPUP_WIDTH = 500;
 const DEFAULT_HINT_CHOOSER_POPUP_HEIGHT = 400;
 
-const DEFAULT_ALLOW_WALLET_POPUP_WIDTH = 500;
-const DEFAULT_ALLOW_WALLET_POPUP_HEIGHT = 240;
-
 export function createWebShareData({
   credential, credentialRequestOptions, credentialRequestOrigin
 }) {
@@ -248,7 +245,7 @@ export async function openCredentialHintWindow({
   });
 
   // save reference to current first party window
-  this._popupDialog = appContext.control.dialog;
+  this.popupDialog = appContext.control.dialog;
   this.popupOpen = true;
 
   // provide access to injector inside dialog destroy in case the user closes
@@ -291,73 +288,6 @@ export async function openCredentialHintWindow({
       console.error(e);
     }
     return {choice: null, appContext: null};
-  }
-}
-
-export async function openAllowWalletWindow({
-  url, credentialRequestOrigin, credentialRequestOriginManifest
-}) {
-  // create WebAppContext to run WebApp and connect to windowClient
-  const appContext = new WebAppContext();
-  const windowReady = appContext.createWindow(url, {
-    popup: true,
-    // loading should be quick to same mediator site
-    timeout: 30000,
-    bounds: {
-      width: DEFAULT_ALLOW_WALLET_POPUP_WIDTH,
-      height: DEFAULT_ALLOW_WALLET_POPUP_HEIGHT
-    }
-  });
-
-  // save reference to current first party window
-  this._popupDialog = appContext.control.dialog;
-  this.popupOpen = true;
-
-  // provide access to injector inside dialog destroy in case the user closes
-  // the dialog -- so we can abort awaiting `proxy.send`
-  let injector = null;
-  let aborted = false;
-  const {dialog} = appContext.control;
-  const abort = () => {
-    aborted = true;
-    if(injector) {
-      injector.client.close();
-    }
-    dialog.removeEventListener('close', abort);
-    this.popupOpen = false;
-  };
-  dialog.addEventListener('close', abort);
-
-  // create proxy interface for making calls in WebApp
-  injector = await windowReady;
-
-  appContext.control.show();
-
-  const proxy = injector.get('credentialEventProxy', {
-    functions: [{name: 'send', options: {timeout: 0}}]
-  });
-
-  try {
-    const result = await proxy.send({
-      type: 'allowcredentialhandler',
-      credentialRequestOrigin,
-      credentialRequestOriginManifest
-    });
-    if(result.error) {
-      const error = new Error(result.error.message);
-      error.name = result.error.name;
-      throw error;
-    }
-    const {status} = result;
-    return {status, appContext};
-  } catch(e) {
-    if(!aborted) {
-      // unexpected error, log it
-      console.error(e);
-    }
-    return {status: {state: 'denied'}, appContext: null};
-  } finally {
-    appContext.control.hide();
   }
 }
 
