@@ -110,7 +110,14 @@ export default {
         this.relyingOrigin = origin;
         this.relyingOriginManifest = manifest;
 
+        // FIXME: receive `registrationHintOption` as well? ... then pass to
+        // mediator.allowCredentialHandler()?
+
+        // FIXME: see if this can be consolidated with Mediator.js; potentially
+        // unnecessary since proxy event can only be received from same origin
         if(!manifest) {
+          // FIXME: remove next line
+          console.log('ALLOW WALLET DIALOG MISSING web app manifest');
           console.error('Missing Web app manifest.');
           event.respondWith({
             error: {

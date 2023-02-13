@@ -40,6 +40,7 @@ export class Mediator {
     this.selectedHint = null;
   }
 
+  // FIXME: change `rpcServices` to `proxy=true|false`
   async initialize({show, hide, ready, rpcServices = {}} = {}) {
     try {
       this.show = show;
