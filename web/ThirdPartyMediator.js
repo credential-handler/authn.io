@@ -37,12 +37,10 @@ export class ThirdPartyMediator extends BaseMediator {
     // confusion with the mediator name
     this.firstPartyMode = true;
     this.hide = null;
-    this.hintOptions = [];
     this.operationState = null;
     // FIXME: perhaps rename to firstPartyDialog
     this.popupDialog = null;
     this.ready = null;
-    this.registrationHintOption = null;
     this.resolvePermissionRequest = null;
     this.relyingOrigin = null;
     this.relyingOriginManifestPromise = null;
@@ -88,9 +86,7 @@ export class ThirdPartyMediator extends BaseMediator {
   }
 
   async cancel() {
-    if(this.selectedHint) {
-      await this.cancelSelection();
-    }
+    await this.cancelSelection();
     await this.hide();
     if(this.deferredCredentialOperation) {
       this.deferredCredentialOperation.resolve(null);
@@ -99,7 +95,9 @@ export class ThirdPartyMediator extends BaseMediator {
   }
 
   async cancelSelection() {
-    await navigator.credentialMediator.ui.cancelSelectCredentialHint();
+    if(this.selectedHint) {
+      await navigator.credentialMediator.ui.cancelSelectCredentialHint();
+    }
   }
 
   async denyCredentialHandler() {
@@ -112,8 +110,9 @@ export class ThirdPartyMediator extends BaseMediator {
     }
   }
 
-  async handlePermissionRequestWithFirstPartyMediator() {
-    const {status} = await this.openAllowWalletWindow();
+  async handlePermissionRequestWithFirstPartyMediator({opened, closed} = {}) {
+    // FIXME: probably move helper contents here once code is made DRY
+    const {status} = await this._openAllowWalletWindow({opened, closed});
     // if a status was returned... (vs. closing the window / error)
     if(status) {
       // return that status was already set in 1p window
@@ -121,18 +120,9 @@ export class ThirdPartyMediator extends BaseMediator {
     }
   }
 
-  async getHintChoiceWithFirstPartyMediator() {
-    const {
-      operationState: {input: {credentialRequestOptions, credential}},
-      relyingOrigin, relyingOriginManifestPromise
-    } = this;
-    const relyingOriginManifest = await relyingOriginManifestPromise;
-
-    return this._openHintChooserWindow({
-      credential, credentialRequestOptions,
-      credentialRequestOrigin: relyingOrigin,
-      credentialRequestOriginManifest: relyingOriginManifest
-    });
+  async getHintChoiceWithFirstPartyMediator({opened, closed} = {}) {
+    // FIXME: move helper contents here, no need for extra helper
+    return this._openHintChooserWindow({opened, closed});
   }
 
   async selectHint({hint, rememberChoice = false}) {
@@ -190,6 +180,9 @@ export class ThirdPartyMediator extends BaseMediator {
     return {canceled};
   }
 
+  // FIXME: better generalize so that `BaseMediator` can provide this function;
+  // perhaps by passing in `relyingOrigin`, etc. or making the variable names
+  // the same across 1p and 3p mediators
   async _loadHints() {
     const {
       operationState: {input: {credentialRequestOptions, credential}},
@@ -205,7 +198,7 @@ export class ThirdPartyMediator extends BaseMediator {
     return this.hintOptions;
   }
 
-  async _openAllowWalletWindow() {
+  async _openAllowWalletWindow({opened, closed} = {}) {
     const url = `${window.location.origin}/mediator/allow-wallet`;
     const {
       registrationHintOption,
@@ -228,20 +221,22 @@ export class ThirdPartyMediator extends BaseMediator {
     // save reference to current first party window
     this.popupDialog = appContext.control.dialog;
     // FIXME: `popupOpen` should become some kind of callback / abort signal
-    this.popupOpen = true;
+    //this.popupOpen = true;
+    await opened();
 
     // provide access to injector inside dialog destroy in case the user closes
     // the dialog -- so we can abort awaiting `proxy.send`
     let injector = null;
     let aborted = false;
     const {dialog} = appContext.control;
-    const abort = () => {
+    const abort = async () => {
       aborted = true;
       if(injector) {
         injector.client.close();
       }
       dialog.removeEventListener('close', abort);
-      this.popupOpen = false;
+      await closed();
+      //this.popupOpen = false;
     };
     dialog.addEventListener('close', abort);
 
@@ -279,7 +274,7 @@ export class ThirdPartyMediator extends BaseMediator {
     }
   }
 
-  async _openHintChooserWindow() {
+  async _openHintChooserWindow({opened, closed} = {}) {
     // FIXME: parameterize to pass just `url`, `bounds`, and `event` and to
     // return result, thereby making all of this DRY w/`_openAllowWalletWindow`
 
@@ -305,7 +300,8 @@ export class ThirdPartyMediator extends BaseMediator {
     // save reference to current first party window
     this.popupDialog = appContext.control.dialog;
     // FIXME: `popupOpen` should become some kind of callback / abort signal
-    this.popupOpen = true;
+    //this.popupOpen = true;
+    await opened();
 
     // provide access to injector inside dialog destroy in case the user closes
     // the dialog -- so we can abort awaiting `proxy.send`
@@ -313,13 +309,14 @@ export class ThirdPartyMediator extends BaseMediator {
     let injector = null;
     let aborted = false;
     const {dialog} = appContext.control;
-    const abort = () => {
+    const abort = async () => {
       aborted = true;
       if(injector) {
         injector.client.close();
       }
       dialog.removeEventListener('close', abort);
-      this.popupOpen = false;
+      await closed();
+      //this.popupOpen = false;
     };
     dialog.addEventListener('close', abort);
 

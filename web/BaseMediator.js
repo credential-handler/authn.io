@@ -3,27 +3,12 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {loadHints} from './helpers.js';
-
 export class BaseMediator {
   constructor() {
     // FIXME: refactor for common vars between 1p and 3p mediator instances
-    this.credentialRequestOrigin = null;
-    this.deferredCredentialOperation = null;
-    this.firstPartyMode = true;
-    this.hide = null;
     this.hintOptions = [];
-    this.operationState = null;
-    // FIXME: perhaps rename to firstPartyDialog
-    this.popupDialog = null;
-    this.proxiedEvent = null;
-    this.ready = null;
     this.registrationHintOption = null;
-    this.resolvePermissionRequest = null;
-    this.relyingOrigin = null;
-    this.relyingOriginManifestPromise = null;
     this.selectedHint = null;
-    this.show = null;
   }
 
   async allowCredentialHandler() {
@@ -43,29 +28,6 @@ export class BaseMediator {
       credentialHandler, hint);
   }
 
-  // FIXME: is this 3p mediator only?
-  async cancel() {
-    if(this.selectedHint) {
-      await this.cancelSelection();
-    }
-    await this.hide();
-    if(this.deferredCredentialOperation) {
-      this.deferredCredentialOperation.resolve(null);
-    }
-    await navigator.credentialMediator.hide();
-  }
-
-  async cancelSelection() {
-    await navigator.credentialMediator.ui.cancelSelectCredentialHint();
-  }
-
-  async denyCredentialHandler() {
-    // FIXME: remove this
-    this.resolvePermissionRequest({state: 'denied'});
-    await this.hide();
-    await navigator.credentialMediator.hide();
-  }
-
   // FIXME: audit / improve this
   async removeHint({hint} = {}) {
     const idx = this.hintOptions.indexOf(hint);
@@ -81,7 +43,7 @@ export class BaseMediator {
         // load hints again to use recommended handler origins if present
         // and include a slight delay to avoid flash of content
         await new Promise(r => setTimeout(r, 1000));
-        await this.loadHints();
+        await this._loadHints();
       }
     } catch(e) {
       console.error(e);
@@ -91,20 +53,11 @@ export class BaseMediator {
     }
   }
 
-  // FIXME: better generalize, perhaps by passing in `relyingOrigin`, etc. or
-  // making the variable names the same across 1p and 3p mediators
+  // FIXME: better generalize so that `BaseMediator` can provide this function;
+  // perhaps by passing in `relyingOrigin`, etc. or making the variable names
+  // the same across 1p and 3p mediators
   async _loadHints() {
-    const {
-      operationState: {input: {credentialRequestOptions, credential}},
-      relyingOrigin, relyingOriginManifestPromise
-    } = this;
-    const hintOptions = await loadHints({
-      credentialRequestOptions, credential,
-      relyingOrigin, relyingOriginManifest: await relyingOriginManifestPromise
-    });
-    // FIXME: handle case that operation changed while the hints were loading,
-    // if that case still needs handling now
-    this.hintOptions = hintOptions;
-    return this.hintOptions;
+    console.log('base mediator _loadHints() called');
+    throw new Error('not implemented');
   }
 }

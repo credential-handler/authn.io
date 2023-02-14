@@ -314,18 +314,20 @@ export default {
         // FIXME: conditional unnecessary, `next` should be gated so that it
         // can only be called in first party mode platforms anyway
         if(this.firstPartyMode) {
+          // FIXME: bikeshed this approach to handling 1p dialog state changes
+          const opened = () => this.popupOpen = true;
+          const closed = () => this.popupClosed = true;
+
           // handle permission request case
           if(this.display === 'permissionRequest') {
-            // FIXME: need to pass something to set `this.popupOpen`
             await this._mediator
-              .handlePermissionRequestWithFirstPartyMediator();
+              .handlePermissionRequestWithFirstPartyMediator({opened, closed});
             return;
           }
 
           // handle all other cases
-          // FIXME: need to pass something to set `this.popupOpen`
           const {choice} = await this._mediator
-            .getHintChoiceWithFirstPartyMediator();
+            .getHintChoiceWithFirstPartyMediator({opened, closed});
           // if a choice was made... (vs. closing the window)
           if(choice) {
             this.showGreeting = false;
@@ -339,7 +341,7 @@ export default {
     async prevWizardStep() {
       this.showGreeting = true;
       if(this.selectedHint) {
-        await this.cancelSelection();
+        await this._mediator.cancelSelection();
       }
     },
     async selectHint(event) {
