@@ -129,8 +129,10 @@ export default {
 
         await mediator.initialize({
           // FIXME: show may not be needed
-          show: () => {
+          show: ({requestType}) => {
             this.loading = true;
+            this.display = requestType;
+            this.showHintChooser = true;
           },
           // FIXME: hide may not be needed
           hide: () => {
@@ -148,10 +150,6 @@ export default {
         this.registrationHintOption = mediator.registrationHintOption;
         this.credential = mediator.credential;
         this.credentialRequestOptions = mediator.credentialRequestOptions;
-
-        this.showHintChooser = true;
-        this.display = this.credential ?
-          'credentialStore' : 'credentialRequest';
       } finally {
         this.loading = false;
       }
