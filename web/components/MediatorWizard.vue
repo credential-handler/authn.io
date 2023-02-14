@@ -187,16 +187,9 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {
-  openAllowWalletWindow,
-  openCredentialHintWindow,
-  parseUrl
-} from '../helpers.js';
-import {
-  getResolvePermissionRequest
-} from '../mediatorPolyfill.js';
+import {parseUrl} from '../helpers.js';
 import {hintChooserMixin} from './hintChooserMixin.js';
-import {Mediator} from '../Mediator.js';
+import {ThirdPartyMediator} from '../ThirdPartyMediator.js';
 import MediatorGreeting from './MediatorGreeting.vue';
 import MediatorHeader from './MediatorHeader.vue';
 import {shouldUseFirstPartyMode} from '../platformDetection.js';
@@ -253,48 +246,53 @@ export default {
   async created() {
     this.loading = true;
 
-    // FIXME: use `mediator.firstPartyMode`
-    this.firstPartyMode = shouldUseFirstPartyMode();
-    // FIXME: use `mediator.relyingOrigin`
-    const {origin} = parseUrl({url: document.referrer});
-    this.relyingOrigin = origin;
+    try {
+      // FIXME: use `mediator.firstPartyMode`
+      this.firstPartyMode = shouldUseFirstPartyMode();
+      // FIXME: use `mediator.relyingOrigin`
+      const {origin} = parseUrl({url: document.referrer});
+      this.relyingOrigin = origin;
 
-    // FIXME: move to MediatorPage?
-    const mediator = new Mediator();
-    this._mediator = mediator;
-    await mediator.initialize({
-      show: ({requestType, operationState}) => {
-        // FIXME: is setting `loading=true` here necessary?
-        this.loading = true;
-        this.display = requestType;
-        this.showHintChooser = false;
-        this.showGreeting = true;
-        this.requestType = requestType;
-        if(requestType === 'credentialRequest') {
-          this.credentialRequestOptions =
-            operationState.input.credentialRequestOptions;
-        } else if(requestType === 'credentialStore') {
-          this.credential = operationState.input.credential;
-        }
+      // FIXME: move to MediatorPage?
+      const mediator = new ThirdPartyMediator();
+      this._mediator = mediator;
+      // FIXME: try/catch?
+      await mediator.initialize({
+        show: ({requestType, operationState}) => {
+          // FIXME: is setting `loading=true` here necessary?
+          this.loading = true;
+          this.display = requestType;
+          this.showHintChooser = false;
+          this.showGreeting = true;
+          this.requestType = requestType;
+          if(requestType === 'credentialRequest') {
+            this.credentialRequestOptions =
+              operationState.input.credentialRequestOptions;
+          } else if(requestType === 'credentialStore') {
+            this.credential = operationState.input.credential;
+          }
 
-        // if the web app manifest loads, use it
-        mediator.relyingOriginManifestPromise.then(manifest => {
-          this.relyingOriginManifest = manifest;
-        });
-      },
-      hide: () => {
-        this.loading = false;
-        this.reset();
-      },
-      ready: () => {
-        this.hintOptions = mediator.hintOptions;
-        if(!mediator.firstPartyMode &&
-          this.requestType !== 'permissionRequest') {
-          this.showHintChooser = true;
+          // if the web app manifest loads, use it
+          mediator.relyingOriginManifestPromise.then(manifest => {
+            this.relyingOriginManifest = manifest;
+          });
+        },
+        hide: () => {
+          this.loading = false;
+          this.reset();
+        },
+        ready: () => {
+          this.hintOptions = mediator.hintOptions;
+          if(!mediator.firstPartyMode &&
+            this.requestType !== 'permissionRequest') {
+            this.showHintChooser = true;
+          }
+          this.loading = false;
         }
-        this.loading = false;
-      }
-    });
+      });
+    } catch(e) {
+      console.error('Error initializing mediator:', e);
+    }
   },
   methods: {
     async allow() {
@@ -306,56 +304,28 @@ export default {
       await this._mediator.denyCredentialHandler();
     },
     focusPopup() {
-      // FIXME: moved to Mediator.js, expose a function on Mediator to focus
-      // first party window
-      if(this._popupDialog) {
-        this._popupDialog.handle.focus();
-      }
+      this._mediator.focusFirstPartyDialog();
     },
     async nextWizardStep() {
+      // FIXME: notably, this is only ever called on platforms that need to
+      // use first party mode, so this can be simplified
       this.loading = true;
       try {
+        // FIXME: conditional unnecessary, `next` should be gated so that it
+        // can only be called in first party mode platforms anyway
         if(this.firstPartyMode) {
           // handle permission request case
           if(this.display === 'permissionRequest') {
-            // FIXME: call Mediator.handleFirstPartyPermissionRequest()
-            // instead of this
-            const url = `${window.location.origin}/mediator/allow-wallet`;
-            const {relyingOrigin, relyingOriginManifest} = this;
-
-            // FIXME: fix broken abstraction by re-engineering helper functions
-            const boundOpenWindow = openAllowWalletWindow.bind(this);
-            const {status} = await boundOpenWindow({
-              url,
-              credentialRequestOrigin: relyingOrigin,
-              credentialRequestOriginManifest: relyingOriginManifest
-            });
-
-            // if a status was returned... (vs. closing the window / error)
-            if(status) {
-              // return that status was already set in 1p window
-              const resolvePermissionRequest = getResolvePermissionRequest();
-              resolvePermissionRequest({state: status.state, set: true});
-              this.reset();
-              await navigator.credentialMediator.hide();
-            }
+            // FIXME: need to pass something to set `this.popupOpen`
+            await this._mediator
+              .handlePermissionRequestWithFirstPartyMediator();
             return;
           }
 
-          const url = `${window.location.origin}/mediator/wallet-chooser`;
-          const {
-            credentialRequestOptions, credential,
-            relyingOrigin, relyingOriginManifest
-          } = this;
-
-          // FIXME: fix broken abstraction by re-engineering helper functions
-          const boundOpenWindow = openCredentialHintWindow.bind(this);
-          const {choice} = await boundOpenWindow({
-            url, credential, credentialRequestOptions,
-            credentialRequestOrigin: relyingOrigin,
-            credentialRequestOriginManifest: relyingOriginManifest
-          });
-
+          // handle all other cases
+          // FIXME: need to pass something to set `this.popupOpen`
+          const {choice} = await this._mediator
+            .getHintChoiceWithFirstPartyMediator();
           // if a choice was made... (vs. closing the window)
           if(choice) {
             this.showGreeting = false;
@@ -403,11 +373,6 @@ export default {
       this.rememberChoice = true;
       this.showGreeting = true;
       this.popupOpen = false;
-      // FIXME: moved to `Mediator.js` handle cleaning up closing dialog
-      if(this._popupDialog) {
-        this._popupDialog.close();
-      }
-      this._popupDialog = null;
     }
   }
 };

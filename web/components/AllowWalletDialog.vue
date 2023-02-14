@@ -54,10 +54,8 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {createDefaultHintOption, getOriginName} from '../helpers.js';
-import {CredentialEventProxy} from '../CredentialEventProxy.js';
-import {loadPolyfill} from '../mediatorPolyfill.js';
-import {PermissionManager} from 'credential-mediator-polyfill';
+import {getOriginName} from '../helpers.js';
+import {FirstPartyMediator} from '../FirstPartyMediator.js';
 
 export default {
   name: 'AllowWalletDialog',
@@ -82,65 +80,28 @@ export default {
   methods: {
     async _setup() {
       this.loading = true;
-
-      // create promise to resolve credential request origin once received
-      let _resolveCredentialRequestOrigin = null;
-      let _rejectCredentialRequestOrigin = null;
-      const credentialRequestOrigin = new Promise((resolve, reject) => {
-        _resolveCredentialRequestOrigin = resolve;
-        _rejectCredentialRequestOrigin = reject;
-      });
-
       try {
-        const proxy = new CredentialEventProxy();
-        const rpcServices = proxy.createServiceDescription();
-        // FIXME: move loading polyfill outside of Vue component space
-        await loadPolyfill({
-          component: this,
-          credentialRequestOrigin,
-          rpcServices
+        const mediator = new FirstPartyMediator();
+        this._mediator = mediator;
+
+        // FIXME: are `show`, `hide`, and `ready` needed at all?
+        await mediator.initialize({
+          show: () => {
+            this.loading = true;
+          },
+          hide: () => {
+            this.loading = false;
+          },
+          ready: () => {
+            this.loading = false;
+          }
         });
 
-        const event = this.event = await proxy.receive();
-        const {
-          credentialRequestOrigin: origin,
-          credentialRequestOriginManifest: manifest
-        } = event;
-        _resolveCredentialRequestOrigin(origin);
-        this.relyingOrigin = origin;
-        this.relyingOriginManifest = manifest;
-
-        // FIXME: see if this can be consolidated with Mediator.js; potentially
-        // unnecessary since proxy event can only be received from same origin
-        if(!manifest) {
-          // FIXME: remove next line
-          console.log('ALLOW WALLET DIALOG MISSING web app manifest');
-          console.error('Missing Web app manifest.');
-          event.respondWith({
-            error: {
-              name: 'NotAllowedError',
-              message: 'Missing Web app manifest.'
-            }
-          });
-          return;
-        }
-
-        // generate hint option for origin
-        this.hintOption = await createDefaultHintOption({origin, manifest});
-        if(!this.hintOption) {
-          console.error(
-            'Missing or invalid "credential_handler" in Web app manifest.');
-          event.respondWith({
-            error: {
-              name: 'NotAllowedError',
-              message:
-                'Missing or invalid "credential_handler" in Web app manifest.'
-            }
-          });
-        }
-      } catch(e) {
-        _rejectCredentialRequestOrigin(e);
-        throw e;
+        // FIXME: rename, use same as mediator names or remove and just use
+        // mediator vars directly
+        this.relyingOrigin = mediator.credentialRequestOrigin;
+        this.relyingOriginManifest = mediator.credentialRequestOriginManifest;
+        this.registrationHintOption = mediator.registrationHintOption;
       } finally {
         this.loading = false;
       }
@@ -150,36 +111,14 @@ export default {
     },
     async allow() {
       this.loading = true;
-      const status = {state: 'granted'};
-      const {hintOption} = this;
-      if(!hintOption) {
-        return this.deny();
-      }
-      const {credentialHandler, credentialHintKey, enabledTypes} = hintOption;
-      const hint = {name: credentialHintKey, enabledTypes};
-      await navigator.credentialMediator.ui.registerCredentialHandler(
-        credentialHandler, hint);
-      this.event.respondWith({status});
+      await this._mediator.allowCredentialHandler();
     },
     async deny() {
       this.loading = true;
-      const {relyingOrigin} = this;
-      const status = {state: 'denied'};
-      await setPermission({relyingOrigin, status});
-      this.event.respondWith({status});
+      await this._mediator.denyCredentialHandler();
     }
   }
 };
-
-async function setPermission({relyingOrigin, status}) {
-  try {
-    const pm = new PermissionManager(relyingOrigin, {request: () => status});
-    pm._registerPermission('credentialhandler');
-    await pm.request({name: 'credentialhandler'});
-  } catch(e) {
-    console.error(e);
-  }
-}
 </script>
 
 <style>

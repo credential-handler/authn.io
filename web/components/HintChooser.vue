@@ -103,9 +103,8 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {CredentialEventProxy} from '../CredentialEventProxy.js';
+import {FirstPartyMediator} from '../FirstPartyMediator.js';
 import {hintChooserMixin} from './hintChooserMixin.js';
-import {loadPolyfill} from '../mediatorPolyfill.js';
 import MediatorHeader from './MediatorHeader.vue';
 
 export default {
@@ -124,38 +123,35 @@ export default {
     async _setup() {
       this.loading = true;
 
-      // create promise to resolve credential request origin once received
-      let _resolveCredentialRequestOrigin = null;
-      let _rejectCredentialRequestOrigin = null;
-      const credentialRequestOrigin = new Promise((resolve, reject) => {
-        _resolveCredentialRequestOrigin = resolve;
-        _rejectCredentialRequestOrigin = reject;
-      });
-
       try {
-        const proxy = new CredentialEventProxy();
-        const rpcServices = proxy.createServiceDescription();
-        // FIXME: move loading polyfill outside of Vue space
-        await loadPolyfill({
-          component: this,
-          credentialRequestOrigin,
-          rpcServices
+        const mediator = new FirstPartyMediator();
+        this._mediator = mediator;
+
+        await mediator.initialize({
+          // FIXME: show may not be needed
+          show: () => {
+            this.loading = true;
+          },
+          // FIXME: hide may not be needed
+          hide: () => {
+            this.loading = false;
+          },
+          ready: () => {
+            this.loading = false;
+          }
         });
 
-        const event = this.event = await proxy.receive();
-        _resolveCredentialRequestOrigin(event.credentialRequestOrigin);
-        this.relyingOrigin = event.credentialRequestOrigin;
-        this.credential = event.credential;
-        this.credentialRequestOptions = event.credentialRequestOptions;
-        this.relyingOriginManifest = event.credentialRequestOriginManifest;
+        // FIXME: rename, use same as mediator names or remove and just use
+        // mediator vars directly
+        this.relyingOrigin = mediator.credentialRequestOrigin;
+        this.relyingOriginManifest = mediator.credentialRequestOriginManifest;
+        this.registrationHintOption = mediator.registrationHintOption;
+        this.credential = mediator.credential;
+        this.credentialRequestOptions = mediator.credentialRequestOptions;
+
         this.showHintChooser = true;
         this.display = this.credential ?
           'credentialStore' : 'credentialRequest';
-
-        await this.loadHints();
-      } catch(e) {
-        _rejectCredentialRequestOrigin(e);
-        throw e;
       } finally {
         this.loading = false;
       }

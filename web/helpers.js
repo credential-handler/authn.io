@@ -5,11 +5,7 @@
  */
 import {getWebAppManifest} from './manifest.js';
 import {getWebAppManifestIcon} from 'vue-web-request-mediator';
-import {utils, WebAppContext} from 'web-request-rpc';
-
-// default popup handler width and height
-const DEFAULT_HINT_CHOOSER_POPUP_WIDTH = 500;
-const DEFAULT_HINT_CHOOSER_POPUP_HEIGHT = 400;
+import {utils} from 'web-request-rpc';
 
 export function createWebShareData({
   credential, credentialRequestOptions, credentialRequestOrigin
@@ -225,70 +221,6 @@ export async function loadHints({
   hintOptions = await hintOptionsPromise;
   hintOptions.push(...jitHints);
   return hintOptions;
-}
-
-// FIXME: rename to `openHintChooserWindow`?
-export async function openCredentialHintWindow({
-  url, credential, credentialRequestOptions, credentialRequestOrigin,
-  credentialRequestOriginManifest
-}) {
-  // create WebAppContext to run WebApp and connect to windowClient
-  const appContext = new WebAppContext();
-  const windowReady = appContext.createWindow(url, {
-    popup: true,
-    // loading should be quick to same mediator site
-    timeout: 30000,
-    bounds: {
-      width: DEFAULT_HINT_CHOOSER_POPUP_WIDTH,
-      height: DEFAULT_HINT_CHOOSER_POPUP_HEIGHT
-    }
-  });
-
-  // save reference to current first party window
-  this.popupDialog = appContext.control.dialog;
-  this.popupOpen = true;
-
-  // provide access to injector inside dialog destroy in case the user closes
-  // the dialog -- so we can abort awaiting `proxy.send`
-  let injector = null;
-  let aborted = false;
-  const {dialog} = appContext.control;
-  const abort = () => {
-    aborted = true;
-    if(injector) {
-      injector.client.close();
-    }
-    dialog.removeEventListener('close', abort);
-    this.popupOpen = false;
-  };
-  dialog.addEventListener('close', abort);
-
-  // create proxy interface for making calls in WebApp
-  injector = await windowReady;
-
-  appContext.control.show();
-
-  const proxy = injector.get('credentialEventProxy', {
-    functions: [{name: 'send', options: {timeout: 0}}]
-  });
-
-  try {
-    const {choice} = await proxy.send({
-      type: 'selectcredentialhint',
-      credentialRequestOptions,
-      credentialRequestOrigin,
-      credentialRequestOriginManifest,
-      credential,
-      hintKey: undefined
-    });
-    return {choice, appContext};
-  } catch(e) {
-    if(!aborted) {
-      // unexpected error, log it
-      console.error(e);
-    }
-    return {choice: null, appContext: null};
-  }
 }
 
 // FIXME: change to `createRegistrationHintOption` or similar
