@@ -187,20 +187,29 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {parseUrl} from '../helpers.js';
-import {hintChooserMixin} from './hintChooserMixin.js';
-import {ThirdPartyMediator} from '../ThirdPartyMediator.js';
+import {getOriginName, parseUrl} from '../helpers.js';
 import MediatorGreeting from './MediatorGreeting.vue';
 import MediatorHeader from './MediatorHeader.vue';
 import {shouldUseFirstPartyMode} from '../platformDetection.js';
+import {ThirdPartyMediator} from '../ThirdPartyMediator.js';
 
 export default {
   name: 'MediatorWizard',
   components: {MediatorGreeting, MediatorHeader},
-  mixins: [hintChooserMixin],
   data() {
     return {
-      defaultHintOption: null,
+      // FIXME: audit whether all of these are needed
+      credential: null,
+      credentialRequestOptions: null,
+      display: null,
+      hintOptions: [],
+      hintRemovalText: 'Hiding...',
+      loading: false,
+      relyingOrigin: null,
+      relyingOriginManifest: null,
+      selectedHint: null,
+      showHintChooser: false,
+      // FIXME: alphabetize once needs are determined
       firstPartyMode: true,
       rememberChoice: true,
       showGreeting: true,
@@ -241,10 +250,15 @@ export default {
       return !this.showGreeting || this.popupOpen ||
         (this.showGreeting && this.showHintChooser) ||
         (this.display === 'permissionRequest' && !this.firstPartyMode);
+    },
+    relyingOriginName() {
+      const {relyingOriginManifest: manifest, relyingOrigin: origin} = this;
+      return getOriginName({origin, manifest});
     }
   },
   async created() {
     this.loading = true;
+    console.log('new MediatorWizard created');
 
     try {
       // FIXME: use `mediator.firstPartyMode`
@@ -259,6 +273,7 @@ export default {
       // FIXME: try/catch?
       await mediator.initialize({
         show: ({requestType, operationState}) => {
+          console.log('show MediatorWizard');
           // FIXME: is setting `loading=true` here necessary?
           this.loading = true;
           this.display = requestType;
@@ -278,10 +293,11 @@ export default {
           });
         },
         hide: () => {
-          this.loading = false;
+          console.log('hide MediatorWizard');
           this.reset();
         },
         ready: () => {
+          console.log('ready MediatorWizard');
           this.hintOptions = mediator.hintOptions;
           if(!mediator.firstPartyMode &&
             this.requestType !== 'permissionRequest') {
@@ -362,8 +378,21 @@ export default {
         }
       }
     },
+    async removeHint(event) {
+      const {hint} = event;
+      if(this._mediator.hintOptions.length === 1) {
+        this.loading = true;
+      }
+      try {
+        await this._mediator.removeHint({hint});
+        this.hintOptions = this._mediator.hintOptions;
+      } catch(e) {
+        console.error(e);
+      } finally {
+        this.loading = false;
+      }
+    },
     reset() {
-      // reset the same fields found in the hintChooserMixin
       this.credentialRequestOptions = this.credential = null;
       this.display = null;
       this.hintOptions = [];
@@ -375,6 +404,9 @@ export default {
       this.rememberChoice = true;
       this.showGreeting = true;
       this.popupOpen = false;
+    },
+    async webShare() {
+      return this._mediator.webShare();
     }
   }
 };
