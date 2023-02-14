@@ -11,7 +11,7 @@ import {getSiteChoice, hasSiteChoice} from './siteChoice.js';
 import {CredentialEventProxy} from './CredentialEventProxy.js';
 import HandlerWindowHeader from './components/HandlerWindowHeader.vue';
 import {loadOnce} from 'credential-mediator-polyfill';
-import {BaseMediator} from './Mediator.js';
+import {BaseMediator} from './BaseMediator.js';
 import {PermissionManager} from 'credential-mediator-polyfill';
 import {shouldUseFirstPartyMode} from './platformDetection.js';
 // FIXME: remove this, only vanilla JS permitted in this file
