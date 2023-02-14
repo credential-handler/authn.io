@@ -6,8 +6,10 @@
 import {
   autoRegisterHint,
   createDefaultHintOption,
+  createWebShareData,
   loadHints,
   parseUrl,
+  webShareHasFileSupport
 } from './helpers.js';
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
 import {getWebAppManifest} from './manifest.js';
@@ -178,6 +180,24 @@ export class ThirdPartyMediator extends BaseMediator {
     }
 
     return {canceled};
+  }
+
+  // FIXME: better generalize so that `BaseMediator` can provide this function
+  async webShare() {
+    const {
+      operationState: {input: {credentialRequestOptions, credential}},
+      relyingOrigin: credentialRequestOrigin
+    } = this;
+    const {data} = createWebShareData({
+      credential,
+      credentialRequestOptions,
+      credentialRequestOrigin
+    });
+
+    // Check if WebShare API with files is supported
+    await webShareHasFileSupport({data});
+
+    return false;
   }
 
   // FIXME: better generalize so that `BaseMediator` can provide this function;
