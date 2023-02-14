@@ -15,6 +15,8 @@
       <MediatorHeader title="Choose a Wallet" />
     </template>
     <template slot="body">
+      <!-- move what is common between here and MediatorWizard into its own
+      component -->
       <wrm-hint-chooser
         v-if="showHintChooser"
         style="user-select: none"
@@ -104,17 +106,33 @@
  * All rights reserved.
  */
 import {FirstPartyMediator} from '../FirstPartyMediator.js';
-import {hintChooserMixin} from './hintChooserMixin.js';
+import {getOriginName} from '../helpers.js';
 import MediatorHeader from './MediatorHeader.vue';
 
+// FIXME: rename this component to avoid confusion with WrmHintChooser
 export default {
   name: 'HintChooser',
   components: {MediatorHeader},
-  mixins: [hintChooserMixin],
   data() {
     return {
-      event: null
+      // FIXME: audit whether all of these are needed
+      credential: null,
+      credentialRequestOptions: null,
+      display: null,
+      hintOptions: [],
+      hintRemovalText: 'Hiding...',
+      loading: false,
+      relyingOrigin: null,
+      relyingOriginManifest: null,
+      selectedHint: null,
+      showHintChooser: false
     };
+  },
+  computed: {
+    relyingOriginName() {
+      const {relyingOriginManifest: manifest, relyingOrigin: origin} = this;
+      return getOriginName({origin, manifest});
+    }
   },
   async created() {
     this._setup().catch(console.error);
@@ -130,15 +148,19 @@ export default {
         await mediator.initialize({
           // FIXME: show may not be needed
           show: ({requestType}) => {
+            console.log('show HintChooser');
             this.loading = true;
             this.display = requestType;
             this.showHintChooser = true;
           },
           // FIXME: hide may not be needed
           hide: () => {
-            this.loading = false;
+            console.log('hide HintChooser');
+            this.reset();
           },
           ready: () => {
+            console.log('ready HintChooser');
+            this.hintOptions = mediator.hintOptions;
             this.loading = false;
           }
         });
@@ -158,8 +180,34 @@ export default {
       window.close();
     },
     async selectHint({hint}) {
+      // FIXME: should the display be immediately hidden?
       this.selectedHint = hint;
-      this.event.respondWith({choice: {hint}});
+      return this._mediator.selectHint({hint});
+    },
+    async removeHint(event) {
+      const {hint} = event;
+      if(this._mediator.hintOptions.length === 1) {
+        this.loading = true;
+      }
+      try {
+        await this._mediator.removeHint({hint});
+        this.hintOptions = this._mediator.hintOptions;
+      } catch(e) {
+        console.error(e);
+      } finally {
+        this.loading = false;
+      }
+    },
+    reset() {
+      this.credentialRequestOptions = this.credential = null;
+      this.display = null;
+      this.hintOptions = [];
+      this.loading = false;
+      this.selectedHint = null;
+      this.showHintChooser = false;
+    },
+    async webShare() {
+      return this._mediator.webShare();
     }
   }
 };
