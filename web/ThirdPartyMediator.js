@@ -75,10 +75,10 @@ export class ThirdPartyMediator extends BaseMediator {
 
     await loadOnce({
       credentialRequestOrigin: origin,
-      requestPermission: requestPermission.bind(this),
-      getCredential: handleCredentialRequest.bind(this, 'credentialRequest'),
-      storeCredential: handleCredentialRequest.bind(this, 'credentialStore'),
-      getCredentialHandlerInjector: getCredentialHandlerInjector.bind(this)
+      requestPermission: _requestPermission.bind(this),
+      getCredential: _handleCredentialRequest.bind(this, 'credentialRequest'),
+      storeCredential: _handleCredentialRequest.bind(this, 'credentialStore'),
+      getCredentialHandlerInjector: _getCredentialHandlerInjector.bind(this)
     });
   }
 
@@ -406,42 +406,8 @@ export class ThirdPartyMediator extends BaseMediator {
   }
 }
 
-// FIXME: reorder helpers
-
-async function getCredentialHandlerInjector({appContext, credentialHandler}) {
-  // `popupDialog` will be set when using a platform that requires 1p mode
-  const {popupDialog: dialog} = this;
-  if(dialog) {
-    dialog.setLocation(credentialHandler);
-  }
-
-  const width = Math.min(DEFAULT_HANDLER_POPUP_WIDTH, window.innerWidth);
-  const height = Math.min(DEFAULT_HANDLER_POPUP_HEIGHT, window.innerHeight);
-
-  const windowReady = appContext.createWindow(credentialHandler, {
-    dialog,
-    popup: !!dialog,
-    customize: updateHandlerWindow.bind(this),
-    // default to 10 minute timeout for loading other window on same site
-    // to allow for authentication pages and similar
-    // FIXME: remove timeout entirely?
-    timeout: 600000,
-    // default bounding rectangle for the credential handler window
-    bounds: {
-      top: window.screenY + (window.innerHeight - height) / 2,
-      left: window.screenX + (window.innerWidth - width) / 2,
-      width,
-      height
-    }
-  });
-
-  const injector = await windowReady;
-
-  return injector;
-}
-
 // called when a request for credential handler permission is made by the RP
-async function requestPermission(/*permissionDesc*/) {
+async function _requestPermission(/*permissionDesc*/) {
   const promise = new Promise(resolve => {
     this.resolvePermissionRequest = status => resolve(status);
   });
@@ -481,7 +447,39 @@ async function requestPermission(/*permissionDesc*/) {
   return promise;
 }
 
-async function handleCredentialRequest(requestType, operationState) {
+async function _getCredentialHandlerInjector({appContext, credentialHandler}) {
+  // `popupDialog` will be set when using a platform that requires 1p mode
+  const {popupDialog: dialog} = this;
+  if(dialog) {
+    dialog.setLocation(credentialHandler);
+  }
+
+  const width = Math.min(DEFAULT_HANDLER_POPUP_WIDTH, window.innerWidth);
+  const height = Math.min(DEFAULT_HANDLER_POPUP_HEIGHT, window.innerHeight);
+
+  const windowReady = appContext.createWindow(credentialHandler, {
+    dialog,
+    popup: !!dialog,
+    customize: _updateHandlerWindow.bind(this),
+    // default to 10 minute timeout for loading other window on same site
+    // to allow for authentication pages and similar
+    // FIXME: remove timeout entirely?
+    timeout: 600000,
+    // default bounding rectangle for the credential handler window
+    bounds: {
+      top: window.screenY + (window.innerHeight - height) / 2,
+      left: window.screenX + (window.innerWidth - width) / 2,
+      width,
+      height
+    }
+  });
+
+  const injector = await windowReady;
+
+  return injector;
+}
+
+async function _handleCredentialRequest(requestType, operationState) {
   this.operationState = operationState;
   const promise = new Promise((resolve, reject) => {
     this.deferredCredentialOperation = {resolve, reject};
@@ -495,7 +493,7 @@ async function handleCredentialRequest(requestType, operationState) {
 }
 
 // FIXME: determine abstraction boundary to enable injection of this
-function updateHandlerWindow({webAppWindow}) {
+function _updateHandlerWindow({webAppWindow}) {
   const self = this;
 
   if(webAppWindow.popup) {
