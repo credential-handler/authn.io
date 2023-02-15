@@ -88,6 +88,9 @@ export class ThirdPartyMediator extends BaseMediator {
   }
 
   async cancel() {
+    if(this.resolvePermissionRequest) {
+      return this.denyCredentialHandler();
+    }
     await this.cancelSelection();
     await this.hide();
     if(this.deferredCredentialOperation) {
