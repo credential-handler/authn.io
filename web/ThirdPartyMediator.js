@@ -313,11 +313,14 @@ export class ThirdPartyMediator extends BaseMediator {
     let aborted = false;
     const {dialog} = appContext.control;
     const abort = async () => {
+      // note that `dialog` is not native so `{once: true}` does not work as
+      // and option to pass to `addEventListener`
+      dialog.removeEventListener('close', abort);
       aborted = true;
       windowReady.then(injector => injector.client.close());
       await closed();
     };
-    dialog.addEventListener('close', abort, {once: true});
+    dialog.addEventListener('close', abort);
 
     // create proxy interface for making calls in WebApp
     const injector = await windowReady;
@@ -494,13 +497,14 @@ function _updateHandlerWindow({webAppWindow}) {
   if(webAppWindow.popup) {
     // handle user closing popup
     const {dialog} = webAppWindow;
-    // FIXME: use `{once: true}` instead of using removeEventListener
     dialog.addEventListener('close', function abort() {
+      // note that `dialog` is not native so `{once: true}` does not work as
+      // and option to pass to `addEventListener`
+      dialog.removeEventListener('close', abort);
       // Options for cancelation behavior are:
       // self.cancelSelection -- close handler UI but keep CHAPI UI up
       // self.cancel -- close CHAPI entirely
       self.cancelSelection();
-      dialog.removeEventListener('close', abort);
     });
     return;
   }
