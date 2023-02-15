@@ -310,22 +310,17 @@ export class ThirdPartyMediator extends BaseMediator {
 
     // provide access to injector inside dialog destroy in case the user closes
     // the dialog -- so we can abort awaiting `proxy.send`
-    let injector = null;
     let aborted = false;
     const {dialog} = appContext.control;
     const abort = async () => {
       aborted = true;
-      if(injector) {
-        injector.client.close();
-      }
-      dialog.removeEventListener('close', abort);
+      windowReady.then(injector => injector.client.close());
       await closed();
     };
-    // FIXME: use `{once: true}`
-    dialog.addEventListener('close', abort);
+    dialog.addEventListener('close', abort, {once: true});
 
     // create proxy interface for making calls in WebApp
-    injector = await windowReady;
+    const injector = await windowReady;
 
     appContext.control.show();
 
