@@ -315,6 +315,9 @@ export default {
       this.loading = true;
       await this._mediator.allowCredentialHandler();
     },
+    async cancel() {
+      return this._mediator.cancel();
+    },
     async deny() {
       this.loading = true;
       await this._mediator.denyCredentialHandler();
