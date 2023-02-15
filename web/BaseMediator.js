@@ -28,14 +28,9 @@ export class BaseMediator {
       credentialHandler, hint);
   }
 
-  // FIXME: audit / improve this
   async removeHint({hint} = {}) {
     const idx = this.hintOptions.indexOf(hint);
     this.hintOptions.splice(idx, 1);
-    if(this.hintOptions.length === 0) {
-      // FIXME: remove this / map to new implementation needs
-      //this.loading = true;
-    }
     try {
       await navigator.credentialMediator.ui.unregisterCredentialHandler(
         hint.hintOption.credentialHandler);
@@ -47,9 +42,6 @@ export class BaseMediator {
       }
     } catch(e) {
       console.error(e);
-    } finally {
-      // FIXME: remove this / map to new implementation needs
-      //this.loading = false;
     }
   }
 
