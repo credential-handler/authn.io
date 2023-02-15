@@ -176,6 +176,9 @@ export default {
         this.loading = false;
       }
     },
+    async cancel() {
+      return this._mediator.cancel();
+    },
     closeWindow() {
       window.close();
     },
