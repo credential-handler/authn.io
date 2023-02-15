@@ -222,113 +222,94 @@ export class ThirdPartyMediator extends BaseMediator {
   }
 
   async _openAllowWalletWindow({opened, closed} = {}) {
-    const url = `${window.location.origin}/mediator/allow-wallet`;
     const {
       registrationHintOption,
       relyingOrigin, relyingOriginManifestPromise
     } = this;
     const relyingOriginManifest = await relyingOriginManifestPromise;
 
-    // create WebAppContext to run WebApp and connect to windowClient
-    const appContext = new WebAppContext();
-    const windowReady = appContext.createWindow(url, {
-      popup: true,
-      // loading should be quick to same mediator site
-      timeout: 30000,
-      bounds: {
-        width: DEFAULT_ALLOW_WALLET_POPUP_WIDTH,
-        height: DEFAULT_ALLOW_WALLET_POPUP_HEIGHT
-      }
-    });
-
-    // save reference to current first party window
-    this.popupDialog = appContext.control.dialog;
-    // FIXME: `popupOpen` should become some kind of callback / abort signal
-    //this.popupOpen = true;
-    await opened();
-
-    // provide access to injector inside dialog destroy in case the user closes
-    // the dialog -- so we can abort awaiting `proxy.send`
-    let injector = null;
-    let aborted = false;
-    const {dialog} = appContext.control;
-    const abort = async () => {
-      aborted = true;
-      if(injector) {
-        injector.client.close();
-      }
-      dialog.removeEventListener('close', abort);
-      await closed();
-      //this.popupOpen = false;
-    };
-    dialog.addEventListener('close', abort);
-
-    // create proxy interface for making calls in WebApp
-    injector = await windowReady;
-
-    appContext.control.show();
-
-    const proxy = injector.get('credentialEventProxy', {
-      functions: [{name: 'send', options: {timeout: 0}}]
-    });
-
     try {
-      const result = await proxy.send({
-        type: 'allowcredentialhandler',
-        credentialRequestOrigin: relyingOrigin,
-        credentialRequestOriginManifest: relyingOriginManifest,
-        registrationHintOption
+      const result = await this._handleEventInFirstPartyDialog({
+        url: `${window.location.origin}/mediator/allow-wallet`,
+        bounds: {
+          width: DEFAULT_ALLOW_WALLET_POPUP_WIDTH,
+          height: DEFAULT_ALLOW_WALLET_POPUP_HEIGHT
+        },
+        event: {
+          type: 'allowcredentialhandler',
+          credentialRequestOrigin: relyingOrigin,
+          credentialRequestOriginManifest: relyingOriginManifest,
+          registrationHintOption
+        },
+        opened,
+        closed,
+        autoClose: true
       });
+      if(!result) {
+        return {status: {state: 'denied'}};
+      }
       if(result.error) {
         const error = new Error(result.error.message);
         error.name = result.error.name;
         throw error;
       }
       const {status} = result;
-      return {status, appContext};
+      return {status};
     } catch(e) {
-      if(!aborted) {
-        // unexpected error, log it
-        console.error(e);
-      }
-      return {status: {state: 'denied'}, appContext: null};
-    } finally {
-      appContext.control.hide();
+      return {status: {state: 'denied'}};
     }
   }
 
   async _openHintChooserWindow({opened, closed} = {}) {
-    // FIXME: parameterize to pass just `url`, `bounds`, and `event` and to
-    // return result, thereby making all of this DRY w/`_openAllowWalletWindow`
-
-    const url = `${window.location.origin}/mediator/wallet-chooser`;
     const {
       operationState: {input: {credentialRequestOptions, credential}},
       relyingOrigin, relyingOriginManifestPromise
     } = this;
     const relyingOriginManifest = await relyingOriginManifestPromise;
 
+    try {
+      const result = await this._handleEventInFirstPartyDialog({
+        url: `${window.location.origin}/mediator/wallet-chooser`,
+        bounds: {
+          width: DEFAULT_HINT_CHOOSER_POPUP_WIDTH,
+          height: DEFAULT_HINT_CHOOSER_POPUP_HEIGHT
+        },
+        event: {
+          type: 'selectcredentialhint',
+          credentialRequestOptions,
+          credentialRequestOrigin: relyingOrigin,
+          credentialRequestOriginManifest: relyingOriginManifest,
+          credential,
+          hintKey: undefined
+        },
+        opened,
+        closed
+      });
+      const {choice} = result;
+      return {choice};
+    } catch(e) {
+      return {choice: null};
+    }
+  }
+
+  async _handleEventInFirstPartyDialog({
+    url, bounds, event, opened, closed, autoClose = false
+  } = {}) {
     // create WebAppContext to run WebApp and connect to windowClient
     const appContext = new WebAppContext();
     const windowReady = appContext.createWindow(url, {
       popup: true,
       // loading should be quick to same mediator site
       timeout: 30000,
-      bounds: {
-        width: DEFAULT_HINT_CHOOSER_POPUP_WIDTH,
-        height: DEFAULT_HINT_CHOOSER_POPUP_HEIGHT
-      }
+      bounds
     });
 
     // save reference to current first party window
     this.popupDialog = appContext.control.dialog;
-    // FIXME: `popupOpen` should become some kind of callback / abort signal
-    //this.popupOpen = true;
     await opened();
 
     // provide access to injector inside dialog destroy in case the user closes
     // the dialog -- so we can abort awaiting `proxy.send`
-    // FIXME: make abort code DRY with `_openAllowWalletWindow`
     let injector = null;
     let aborted = false;
     const {dialog} = appContext.control;
@@ -339,8 +320,8 @@ export class ThirdPartyMediator extends BaseMediator {
       }
       dialog.removeEventListener('close', abort);
       await closed();
-      //this.popupOpen = false;
     };
+    // FIXME: use `{once: true}`
     dialog.addEventListener('close', abort);
 
     // create proxy interface for making calls in WebApp
@@ -353,21 +334,17 @@ export class ThirdPartyMediator extends BaseMediator {
     });
 
     try {
-      const {choice} = await proxy.send({
-        type: 'selectcredentialhint',
-        credentialRequestOptions,
-        credentialRequestOrigin: relyingOrigin,
-        credentialRequestOriginManifest: relyingOriginManifest,
-        credential,
-        hintKey: undefined
-      });
-      return {choice, appContext};
+      return await proxy.send(event);
     } catch(e) {
       if(!aborted) {
         // unexpected error, log it
         console.error(e);
       }
-      return {choice: null, appContext: null};
+      return null;
+    } finally {
+      if(autoClose) {
+        appContext.control.hide();
+      }
     }
   }
 
