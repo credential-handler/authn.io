@@ -432,9 +432,8 @@ export class ThirdPartyMediator extends BaseMediator {
 // FIXME: reorder helpers
 
 async function getCredentialHandlerInjector({appContext, credentialHandler}) {
-  // FIXME: define `_popupDialog` in `Mediator`?
-  // FIXME: this will come from 1p mode only
-  const {_popupDialog: dialog} = this;
+  // `popupDialog` will be set when using a platform that requires 1p mode
+  const {popupDialog: dialog} = this;
   if(dialog) {
     dialog.setLocation(credentialHandler);
   }
