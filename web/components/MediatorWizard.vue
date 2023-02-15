@@ -335,7 +335,7 @@ export default {
         if(this.firstPartyMode) {
           // FIXME: bikeshed this approach to handling 1p dialog state changes
           const opened = () => this.popupOpen = true;
-          const closed = () => this.popupClosed = true;
+          const closed = () => this.popupOpen = false;
 
           // handle permission request case
           if(this.display === 'permissionRequest') {
