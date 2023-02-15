@@ -10,7 +10,7 @@
     :has-next="false"
     :blocked="loading || !selectedHint"
     hide-cancel-button
-    @back="closeWindow">
+    @back="cancel()">
     <template slot="header">
       <MediatorHeader title="Choose a Wallet" />
     </template>
@@ -29,51 +29,13 @@
         @confirm="selectHint"
         @cancel="cancel()">
         <template slot="message">
-          <div style="padding-top: 10px">
-            <div v-if="loading">
-              Loading options... <i class="fas fa-cog fa-spin" />
-            </div>
-            <div
-              v-else-if="hintOptions.length === 0"
-              style="font-size: 14px">
-              <div style="font-weight: bold">
-                Warning
-              </div>
-              <div v-if="display === 'credentialRequest'">
-                <p>
-                  You don't have the credentials requested by this website.
-                  Please check <strong>{{relyingOriginName}}</strong> to find
-                  out how to obtain the credentials you need to continue.
-                </p>
-                <p>
-                  It may also be that your browser has unregistered your
-                  credential wallet. This does not mean your credentials have
-                  been removed or lost. Please simply visit your credential
-                  wallet website to register again.
-                </p>
-              </div>
-              <div v-else>
-                <p>
-                  You don't have a credential wallet to store credentials or
-                  your browser has recently unregistered your wallet. This
-                  does not mean your credentials have been removed or lost.
-                  Please simply visit your credential wallet website to
-                  register again.
-                </p>
-              </div>
-              <div
-                class="wrm-button-bar"
-                style="margin-top: 10px">
-                <button
-                  type="button"
-                  class="wrm-button wrm-primary"
-                  :disabled="loading"
-                  @click="cancel()">
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
+          <HintChooserMessage
+            :loading="loading"
+            :relying-origin="relyingOrigin"
+            :relying-origin-manifest="relyingOriginManifest"
+            :request-type="display"
+            :show-warning="hintOptions.length === 0"
+            @close="cancel()" />
         </template>
         <template
           v-if="hintOptions.length > 0"
@@ -107,12 +69,13 @@
  */
 import {FirstPartyMediator} from '../FirstPartyMediator.js';
 import {getOriginName} from '../helpers.js';
+import HintChooserMessage from './HintChooserMessage.vue';
 import MediatorHeader from './MediatorHeader.vue';
 
 // FIXME: rename this component to avoid confusion with WrmHintChooser
 export default {
   name: 'HintChooser',
-  components: {MediatorHeader},
+  components: {HintChooserMessage, MediatorHeader},
   data() {
     return {
       // FIXME: audit whether all of these are needed
@@ -176,10 +139,7 @@ export default {
         this.loading = false;
       }
     },
-    async cancel() {
-      return this._mediator.cancel();
-    },
-    closeWindow() {
+    cancel() {
       window.close();
     },
     async selectHint({hint}) {
