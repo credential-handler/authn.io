@@ -6,10 +6,8 @@
 import {
   autoRegisterHint,
   createDefaultHintOption,
-  createWebShareData,
   loadHints,
-  parseUrl,
-  webShareHasFileSupport
+  parseUrl
 } from './helpers.js';
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
 import {getWebAppManifest} from './manifest.js';
@@ -20,6 +18,7 @@ import {shouldUseFirstPartyMode} from './platformDetection.js';
 // FIXME: remove this, only vanilla JS permitted in this file
 import Vue from 'vue';
 import {WebAppContext} from 'web-request-rpc';
+import {WebShareHandler} from './WebShareHandler.js';
 
 const DEFAULT_ALLOW_WALLET_POPUP_WIDTH = 500;
 const DEFAULT_ALLOW_WALLET_POPUP_HEIGHT = 240;
@@ -115,6 +114,17 @@ export class ThirdPartyMediator extends BaseMediator {
     }
   }
 
+  async getWebShareHandler() {
+    const handler = new WebShareHandler();
+    const {
+      operationState: {input: {credentialRequestOptions, credential}},
+      relyingOrigin: credentialRequestOrigin
+    } = this;
+    await handler.initialize(
+      {credential, credentialRequestOptions, credentialRequestOrigin});
+    return handler;
+  }
+
   async handlePermissionRequestWithFirstPartyMediator({opened, closed} = {}) {
     // FIXME: probably move helper contents here once code is made DRY
     const {status} = await this._openAllowWalletWindow({opened, closed});
@@ -185,21 +195,14 @@ export class ThirdPartyMediator extends BaseMediator {
     return {canceled};
   }
 
-  // FIXME: better generalize so that `BaseMediator` can provide this function
+  // FIXME: remove and use `getWebShareHandler` externally
   async webShare() {
-    const {
-      operationState: {input: {credentialRequestOptions, credential}},
-      relyingOrigin: credentialRequestOrigin
-    } = this;
-    const {data} = createWebShareData({
-      credential,
-      credentialRequestOptions,
-      credentialRequestOrigin
-    });
-
-    // Check if WebShare API with files is supported
-    await webShareHasFileSupport({data});
-
+    const handler = await this.getWebShareHandler();
+    if(!handler.enabled) {
+      console.log('WebShare not available on this platform.');
+      return false;
+    }
+    await handler.share();
     return false;
   }
 

@@ -6,15 +6,14 @@
 export class WebShareHandler {
   constructor() {
     this._data = null;
-    this._resolveEnabled = null;
-    this.enabled = new Promise(resolve => this._resolveEnabled = resolve);
+    this.enabled = false;
   }
 
   async initialize({
     credential, credentialRequestOptions, credentialRequestOrigin
   } = {}) {
     if(!(navigator.canShare && navigator.share)) {
-      this._resolveEnabled(false);
+      this.enabled = false;
       return;
     }
 
@@ -23,17 +22,17 @@ export class WebShareHandler {
     });
 
     if(!navigator.canShare({files: data.files})) {
-      this._resolveEnabled(false);
+      this.enabled = false;
       return;
     }
 
-    this.data = data;
-    this._resolveEnabled(true);
+    this._data = data;
+    this.enabled = true;
   }
 
   async share() {
     try {
-      const result = await navigator.share(this.data);
+      const result = await navigator.share(this._data);
       console.log('WebShare result', result);
     } catch(e) {
       console.error('WebShare error', e);
