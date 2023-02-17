@@ -3,15 +3,12 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {
-  createWebShareData,
-  loadHints,
-  webShareHasFileSupport
-} from './helpers.js';
 import {BaseMediator} from './BaseMediator.js';
 import {CredentialEventProxy} from './CredentialEventProxy.js';
+import {loadHints} from './helpers.js';
 import {loadOnce} from 'credential-mediator-polyfill';
 import {PermissionManager} from 'credential-mediator-polyfill';
+import {WebShareHandler} from './WebShareHandler.js';
 
 export class FirstPartyMediator extends BaseMediator {
   constructor() {
@@ -113,27 +110,30 @@ export class FirstPartyMediator extends BaseMediator {
     await this.hide();
   }
 
-  async selectHint({hint}) {
-    this.proxiedEvent.respondWith({choice: {hint}});
-  }
-
-  // FIXME: better generalize so that `BaseMediator` can provide this function
-  async webShare() {
+  async getWebShareHandler() {
+    const handler = new WebShareHandler();
     const {
-      // FIXME: generalize
       credential,
       credentialRequestOptions,
       credentialRequestOrigin
     } = this;
-    const {data} = createWebShareData({
-      credential,
-      credentialRequestOptions,
-      credentialRequestOrigin
-    });
+    await handler.initialize(
+      {credential, credentialRequestOptions, credentialRequestOrigin});
+    return handler;
+  }
 
-    // Check if WebShare API with files is supported
-    await webShareHasFileSupport({data});
+  async selectHint({hint}) {
+    this.proxiedEvent.respondWith({choice: {hint}});
+  }
 
+  // FIXME: remove and use `getWebShareHandler` externally
+  async webShare() {
+    const handler = await this.getWebShareHandler();
+    if(!handler.enabled) {
+      console.log('WebShare not available on this platform.');
+      return false;
+    }
+    await handler.share();
     return false;
   }
 
