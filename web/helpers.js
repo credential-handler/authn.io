@@ -7,33 +7,6 @@ import {getWebAppManifest} from './manifest.js';
 import {getWebAppManifestIcon} from 'vue-web-request-mediator';
 import {utils} from 'web-request-rpc';
 
-export function createWebShareData({
-  credential, credentialRequestOptions, credentialRequestOrigin
-}) {
-  const payload = {credentialRequestOrigin};
-  if(credential) {
-    payload.credential = credential;
-  }
-  if(credentialRequestOptions) {
-    // only include `web` options
-    payload.credentialRequestOptions = {
-      web: credentialRequestOptions.web
-    };
-  }
-  const blob = new Blob(
-    [JSON.stringify(payload, null, 2)],
-    {type: 'text/plain'});
-  const file = new File([blob], 'SharedCredentialRequest.txt',
-    {type: 'text/plain'});
-
-  const data = {
-    title: 'Credential Offer',
-    text: 'Choose a wallet to process this offer.',
-    files: [file]
-  };
-  return {data};
-}
-
 export function getOriginName({origin, manifest} = {}) {
   const {host} = parseUrl({url: origin});
   if(!manifest) {
@@ -41,22 +14,6 @@ export function getOriginName({origin, manifest} = {}) {
   }
   const {name, short_name} = manifest;
   return name || short_name || host;
-}
-
-export async function webShareHasFileSupport({data}) {
-  // Check if WebShare API with files is supported
-  if(navigator.canShare && navigator.canShare({files: data.files})) {
-    console.log('WebShare API with files is supported, sharing...');
-    navigator.share(data)
-      .then(result => {
-        console.log('result:', result);
-      })
-      .catch(err => {
-        console.log('Error during WebShare:', err);
-      });
-  } else {
-    console.log('Sharing files through WebShare API not supported.');
-  }
 }
 
 export function parseUrl({url}) {
