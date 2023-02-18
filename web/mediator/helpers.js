@@ -6,20 +6,12 @@
 import {utils} from 'web-request-rpc';
 
 export function getOriginName({origin, manifest} = {}) {
-  const {host} = parseUrl({url: origin});
+  const {host} = utils.parseUrl(origin);
   if(!manifest) {
     return host;
   }
   const {name, short_name} = manifest;
   return name || short_name || host;
-}
-
-// FIXME: remove, only use `utils.parseUrl` which returns both `origin` and
-// `host`
-export function parseUrl({url}) {
-  const {origin} = utils.parseUrl(url);
-  const {host} = utils.parseUrl(origin);
-  return {origin, host};
 }
 
 export async function autoRegisterHint({hint}) {
