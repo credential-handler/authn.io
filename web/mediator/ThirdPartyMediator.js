@@ -31,10 +31,9 @@ export class ThirdPartyMediator extends BaseMediator {
   constructor() {
     super();
     this.deferredCredentialOperation = null;
+    this.firstPartyDialog = null;
     this.firstPartyMode = shouldUseFirstPartyMode();
     this.hide = null;
-    // FIXME: perhaps rename to firstPartyDialog
-    this.popupDialog = null;
     this.ready = null;
     this.resolvePermissionRequest = null;
     this.selectedHint = null;
@@ -50,13 +49,12 @@ export class ThirdPartyMediator extends BaseMediator {
 
   async initialize({show, hide, ready} = {}) {
     this.show = show;
-    // FIXME: might need to augment `hide` with closing `popupDialog
     this.hide = async () => {
       await hide();
       // FIXME: determine if this is the right / only place needed for this
-      if(this.popupDialog) {
-        this.popupDialog.close();
-        this.popupDialog = null;
+      if(this.firstPartyDialog) {
+        this.firstPartyDialog.close();
+        this.firstPartyDialog = null;
       }
     };
     this.ready = ready;
@@ -99,8 +97,8 @@ export class ThirdPartyMediator extends BaseMediator {
   }
 
   focusFirstPartyDialog() {
-    if(this.popupDialog) {
-      this.popupDialog.handle.focus();
+    if(this.firstPartyDialog) {
+      this.firstPartyDialog.handle.focus();
     }
   }
 
@@ -249,7 +247,7 @@ export class ThirdPartyMediator extends BaseMediator {
     });
 
     // save reference to current first party window
-    this.popupDialog = appContext.control.dialog;
+    this.firstPartyDialog = appContext.control.dialog;
     await opened();
 
     // provide access to injector inside dialog destroy in case the user closes
@@ -400,8 +398,8 @@ async function _requestPermission(/*permissionDesc*/) {
 }
 
 async function _getCredentialHandlerInjector({appContext, credentialHandler}) {
-  // `popupDialog` will be set when using a platform that requires 1p mode
-  const {popupDialog: dialog} = this;
+  // `firstPartyDialog` will be set when using a platform that requires 1p mode
+  const {firstPartyDialog: dialog} = this;
   if(dialog) {
     dialog.setLocation(credentialHandler);
   }
