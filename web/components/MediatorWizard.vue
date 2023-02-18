@@ -232,7 +232,7 @@ export default {
 
       // FIXME: try/catch?
       await mediator.initialize({
-        show: ({requestType, operationState}) => {
+        show: ({requestType}) => {
           console.log('show MediatorWizard');
           // FIXME: is setting `loading=true` here necessary?
           this.loading = true;
@@ -240,12 +240,8 @@ export default {
           this.showHintChooser = false;
           this.showGreeting = true;
           this.requestType = requestType;
-          if(requestType === 'credentialRequest') {
-            this.credentialRequestOptions =
-              operationState.input.credentialRequestOptions;
-          } else if(requestType === 'credentialStore') {
-            this.credential = operationState.input.credential;
-          }
+          this.credential = mediator.credential;
+          this.credentialRequestOptions = mediator.credentialRequestOptions;
 
           // if the web app manifest loads, use it
           mediator.credentialRequestOriginManifestPromise.then(manifest => {

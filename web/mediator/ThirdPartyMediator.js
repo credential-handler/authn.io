@@ -12,12 +12,10 @@ import {getWebAppManifest} from './manifest.js';
 import HandlerWindowHeader from '../components/HandlerWindowHeader.vue';
 import {loadOnce} from 'credential-mediator-polyfill';
 import {BaseMediator} from './BaseMediator.js';
-import {HintManager} from './HintManager.js';
 import {shouldUseFirstPartyMode} from './platformDetection.js';
 // FIXME: remove this, only vanilla JS permitted in this file
 import Vue from 'vue';
 import {WebAppContext} from 'web-request-rpc';
-import {WebShareHandler} from './WebShareHandler.js';
 import {utils} from 'web-request-rpc';
 
 const DEFAULT_ALLOW_WALLET_POPUP_WIDTH = 500;
@@ -32,11 +30,9 @@ const DEFAULT_HINT_CHOOSER_POPUP_HEIGHT = 400;
 export class ThirdPartyMediator extends BaseMediator {
   constructor() {
     super();
-    this.credentialRequestOrigin = null;
     this.deferredCredentialOperation = null;
     this.firstPartyMode = shouldUseFirstPartyMode();
     this.hide = null;
-    this.operationState = null;
     // FIXME: perhaps rename to firstPartyDialog
     this.popupDialog = null;
     this.ready = null;
@@ -106,17 +102,6 @@ export class ThirdPartyMediator extends BaseMediator {
     if(this.popupDialog) {
       this.popupDialog.handle.focus();
     }
-  }
-
-  async getWebShareHandler() {
-    const handler = new WebShareHandler();
-    const {
-      operationState: {input: {credentialRequestOptions, credential}},
-      credentialRequestOrigin
-    } = this;
-    await handler.initialize(
-      {credential, credentialRequestOptions, credentialRequestOrigin});
-    return handler;
   }
 
   async handlePermissionRequestWithFirstPartyMediator({opened, closed} = {}) {
@@ -189,17 +174,6 @@ export class ThirdPartyMediator extends BaseMediator {
     return {canceled};
   }
 
-  // FIXME: remove and use `getWebShareHandler` externally
-  async webShare() {
-    const handler = await this.getWebShareHandler();
-    if(!handler.enabled) {
-      console.log('WebShare not available on this platform.');
-      return false;
-    }
-    await handler.share();
-    return false;
-  }
-
   async _openAllowWalletWindow({opened, closed} = {}) {
     const {
       registrationHintOption,
@@ -242,7 +216,7 @@ export class ThirdPartyMediator extends BaseMediator {
 
   async _openHintChooserWindow({opened, closed} = {}) {
     const {
-      operationState: {input: {credentialRequestOptions, credential}},
+      credential, credentialRequestOptions,
       credentialRequestOrigin, credentialRequestOriginManifestPromise
     } = this;
     const credentialRequestOriginManifest =
@@ -357,15 +331,12 @@ export class ThirdPartyMediator extends BaseMediator {
     // start loading hint manager in non-1p mode
     if(!this.firstPartyMode) {
       const {
-        operationState: {input: {credentialRequestOptions, credential}},
-        credentialRequestOrigin,
-        credentialRequestOriginManifestPromise
+        credential, credentialRequestOptions,
+        credentialRequestOrigin, credentialRequestOriginManifestPromise
       } = this;
-      const credentialRequestOriginManifest =
-        await credentialRequestOriginManifestPromise;
       await this.hintManager.initialize({
         credential, credentialRequestOptions,
-        credentialRequestOrigin, credentialRequestOriginManifest
+        credentialRequestOrigin, credentialRequestOriginManifestPromise
       });
       // if there is a remembered hint, it will cause the handler window
       // to open immediately
@@ -402,11 +373,10 @@ async function _requestPermission(/*permissionDesc*/) {
     this.resolvePermissionRequest = status => resolve(status);
   });
 
-  // new hint manager for new request
-  this.hintManager = new HintManager();
+  this.startNewRequest();
 
   // show custom UI
-  await this.show({requestType: 'permissionRequest', operationState: null});
+  await this.show({requestType: 'permissionRequest'});
 
   // show display
   await navigator.credentialMediator.show();
@@ -473,16 +443,19 @@ async function _getCredentialHandlerInjector({appContext, credentialHandler}) {
 }
 
 async function _handleCredentialRequest(requestType, operationState) {
-  this.operationState = operationState;
+  const {
+    input: {credential = null, credentialRequestOptions = null}
+  } = operationState;
+  this.credential = credential;
+  this.credentialRequestOptions = credentialRequestOptions;
   const promise = new Promise((resolve, reject) => {
     this.deferredCredentialOperation = {resolve, reject};
   });
 
-  // new hint manager for new request
-  this.hintManager = new HintManager();
+  this.startNewRequest();
 
   // show custom UI
-  await this.show({requestType, operationState});
+  await this.show({requestType});
 
   await this._startCredentialFlow();
   return promise;
