@@ -10,7 +10,7 @@ import {
 } from './helpers.js';
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
 import {getWebAppManifest} from './manifest.js';
-import HandlerWindowHeader from './components/HandlerWindowHeader.vue';
+import HandlerWindowHeader from '../components/HandlerWindowHeader.vue';
 import {loadOnce} from 'credential-mediator-polyfill';
 import {BaseMediator} from './BaseMediator.js';
 import {HintManager} from './HintManager.js';

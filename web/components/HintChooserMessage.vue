@@ -52,7 +52,7 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {getOriginName} from '../helpers.js';
+import {getOriginName} from '../mediator/helpers.js';
 
 export default {
   name: 'HintChooserMessage',

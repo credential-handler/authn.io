@@ -149,12 +149,12 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {getOriginName, parseUrl} from '../helpers.js';
+import {getOriginName, parseUrl} from '../mediator/helpers.js';
 import HintChooserMessage from './HintChooserMessage.vue';
 import MediatorGreeting from './MediatorGreeting.vue';
 import MediatorHeader from './MediatorHeader.vue';
-import {shouldUseFirstPartyMode} from '../platformDetection.js';
-import {ThirdPartyMediator} from '../ThirdPartyMediator.js';
+import {shouldUseFirstPartyMode} from '../mediator/platformDetection.js';
+import {ThirdPartyMediator} from '../mediator/ThirdPartyMediator.js';
 
 export default {
   name: 'MediatorWizard',
