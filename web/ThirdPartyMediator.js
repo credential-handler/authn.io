@@ -6,7 +6,6 @@
 import {
   autoRegisterHint,
   createDefaultHintOption,
-  loadHints,
   parseUrl
 } from './helpers.js';
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
@@ -14,6 +13,7 @@ import {getWebAppManifest} from './manifest.js';
 import HandlerWindowHeader from './components/HandlerWindowHeader.vue';
 import {loadOnce} from 'credential-mediator-polyfill';
 import {BaseMediator} from './BaseMediator.js';
+import {HintManager} from './HintManager.js';
 import {shouldUseFirstPartyMode} from './platformDetection.js';
 // FIXME: remove this, only vanilla JS permitted in this file
 import Vue from 'vue';
@@ -206,24 +206,6 @@ export class ThirdPartyMediator extends BaseMediator {
     return false;
   }
 
-  // FIXME: better generalize so that `BaseMediator` can provide this function;
-  // perhaps by passing in `relyingOrigin`, etc. or making the variable names
-  // the same across 1p and 3p mediators
-  async _loadHints() {
-    const {
-      operationState: {input: {credentialRequestOptions, credential}},
-      relyingOrigin, relyingOriginManifestPromise
-    } = this;
-    const hintOptions = await loadHints({
-      credentialRequestOptions, credential,
-      relyingOrigin, relyingOriginManifest: await relyingOriginManifestPromise
-    });
-    // FIXME: handle case that operation changed while the hints were loading,
-    // if that case still needs handling now
-    this.hintOptions = hintOptions;
-    return this.hintOptions;
-  }
-
   async _openAllowWalletWindow({opened, closed} = {}) {
     const {
       registrationHintOption,
@@ -376,10 +358,19 @@ export class ThirdPartyMediator extends BaseMediator {
       showMediatorPromise = navigator.credentialMediator.show();
     }
 
-    // load and show hints immediately in non-1p mode
+    // start loading hint manager in non-1p mode
     if(!this.firstPartyMode) {
-      // load hints early if possible to avoid showing UI
-      await this._loadHints();
+      const {
+        operationState: {input: {credentialRequestOptions, credential}},
+        relyingOrigin: credentialRequestOrigin,
+        relyingOriginManifestPromise
+      } = this;
+      const credentialRequestOriginManifest =
+        await relyingOriginManifestPromise;
+      await this.hintManager.initialize({
+        credential, credentialRequestOptions,
+        credentialRequestOrigin, credentialRequestOriginManifest
+      });
       // if there is a remembered hint, it will cause the handler window
       // to open immediately
       this._useRememberedHint();
@@ -393,7 +384,8 @@ export class ThirdPartyMediator extends BaseMediator {
 
   _useRememberedHint() {
     // check to see if there is a reusable choice for the relying party
-    const {hintOptions, relyingOrigin} = this;
+    const {relyingOrigin} = this;
+    const {hintOptions} = this.hintManager;
     const hint = getSiteChoice({relyingOrigin, hintOptions});
     console.log('use remembered hint', hint);
     if(hint) {
@@ -412,6 +404,9 @@ async function _requestPermission(/*permissionDesc*/) {
   const promise = new Promise(resolve => {
     this.resolvePermissionRequest = status => resolve(status);
   });
+
+  // new hint manager for new request
+  this.hintManager = new HintManager();
 
   // show custom UI
   await this.show({requestType: 'permissionRequest', operationState: null});
@@ -485,6 +480,9 @@ async function _handleCredentialRequest(requestType, operationState) {
   const promise = new Promise((resolve, reject) => {
     this.deferredCredentialOperation = {resolve, reject};
   });
+
+  // new hint manager for new request
+  this.hintManager = new HintManager();
 
   // show custom UI
   await this.show({requestType, operationState});

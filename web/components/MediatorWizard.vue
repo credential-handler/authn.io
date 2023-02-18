@@ -262,7 +262,7 @@ export default {
         },
         ready: () => {
           console.log('ready MediatorWizard');
-          this.hintOptions = mediator.hintOptions;
+          this.hintOptions = mediator.hintManager.hintOptions;
           if(!mediator.firstPartyMode &&
             this.requestType !== 'permissionRequest') {
             this.showHintChooser = true;
@@ -347,12 +347,13 @@ export default {
     },
     async removeHint(event) {
       const {hint} = event;
-      if(this._mediator.hintOptions.length === 1) {
+      const {_mediator: {hintManager}} = this;
+      if(hintManager.hintOptions.length === 1) {
         this.loading = true;
       }
       try {
-        await this._mediator.removeHint({hint});
-        this.hintOptions = this._mediator.hintOptions;
+        await hintManager.removeHint({hint});
+        this.hintOptions = hintManager.hintOptions;
       } catch(e) {
         console.error(e);
       } finally {
