@@ -5,8 +5,7 @@
  */
 import {
   autoRegisterHint,
-  createDefaultHintOption,
-  parseUrl
+  createDefaultHintOption
 } from './helpers.js';
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
 import {getWebAppManifest} from './manifest.js';
@@ -19,6 +18,7 @@ import {shouldUseFirstPartyMode} from './platformDetection.js';
 import Vue from 'vue';
 import {WebAppContext} from 'web-request-rpc';
 import {WebShareHandler} from './WebShareHandler.js';
+import {utils} from 'web-request-rpc';
 
 const DEFAULT_ALLOW_WALLET_POPUP_WIDTH = 500;
 const DEFAULT_ALLOW_WALLET_POPUP_HEIGHT = 240;
@@ -34,19 +34,22 @@ export class ThirdPartyMediator extends BaseMediator {
     super();
     this.credentialRequestOrigin = null;
     this.deferredCredentialOperation = null;
-    // FIXME: rename to `firstPartyPlatform` or TBD that does not cause
-    // confusion with the mediator name
-    this.firstPartyMode = true;
+    this.firstPartyMode = shouldUseFirstPartyMode();
     this.hide = null;
     this.operationState = null;
     // FIXME: perhaps rename to firstPartyDialog
     this.popupDialog = null;
     this.ready = null;
     this.resolvePermissionRequest = null;
-    this.relyingOrigin = null;
-    this.relyingOriginManifestPromise = null;
     this.selectedHint = null;
     this.show = null;
+
+    // this mediator instance is in a 3p context, communicating directly
+    // with the relying origin
+    const {origin} = utils.parseUrl(document.referrer);
+    this.relyingOrigin = origin;
+    // start loading web app manifest immediately
+    this.relyingOriginManifestPromise = getWebAppManifest({origin});
   }
 
   async initialize({show, hide, ready} = {}) {
@@ -62,18 +65,8 @@ export class ThirdPartyMediator extends BaseMediator {
     };
     this.ready = ready;
 
-    // FIXME: consider setting this on construction
-    this.firstPartyMode = shouldUseFirstPartyMode();
-
-    // this mediator instance is in a 3p context, communicating directly
-    // with the relying origin
-    const {origin} = parseUrl({url: document.referrer});
-    this.relyingOrigin = origin;
-    // start loading web app manifest
-    this.relyingOriginManifestPromise = getWebAppManifest({origin});
-
     await loadOnce({
-      credentialRequestOrigin: origin,
+      credentialRequestOrigin: this.relyingOrigin,
       requestPermission: _requestPermission.bind(this),
       getCredential: _handleCredentialRequest.bind(this, 'credentialRequest'),
       storeCredential: _handleCredentialRequest.bind(this, 'credentialStore'),
