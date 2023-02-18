@@ -103,8 +103,9 @@ export class FirstPartyMediator extends BaseMediator {
     const status = {state: 'denied'};
     try {
       // set permission directly via permission manager
-      const {relyingOrigin} = this;
-      const pm = new PermissionManager(relyingOrigin, {request: () => status});
+      const {credentialRequestOrigin} = this;
+      const pm = new PermissionManager(
+        credentialRequestOrigin, {request: () => status});
       pm._registerPermission('credentialhandler');
       await pm.request({name: 'credentialhandler'});
     } catch(e) {

@@ -19,8 +19,8 @@
         </div>
         <wrm-origin-card
           style="padding: 20px 0 10px 0"
-          :origin="relyingOrigin"
-          :manifest="relyingOriginManifest" />
+          :origin="credentialRequestOrigin"
+          :manifest="credentialRequestOriginManifest" />
       </div>
       <div>
         <!-- div class="wrm-separator"></div -->
@@ -54,7 +54,6 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {getOriginName} from '../mediator/helpers.js';
 import {FirstPartyMediator} from '../mediator/FirstPartyMediator.js';
 
 export default {
@@ -64,15 +63,9 @@ export default {
       event: null,
       loading: false,
       hintOption: null,
-      relyingOrigin: null,
-      relyingOriginManifest: null
+      credentialRequestOrigin: null,
+      credentialRequestOriginManifest: null
     };
-  },
-  computed: {
-    relyingOriginName() {
-      const {relyingOriginManifest: manifest, relyingOrigin: origin} = this;
-      return getOriginName({origin, manifest});
-    }
   },
   async created() {
     this._setup().catch(console.error);
@@ -99,8 +92,9 @@ export default {
 
         // FIXME: rename, use same as mediator names or remove and just use
         // mediator vars directly
-        this.relyingOrigin = mediator.credentialRequestOrigin;
-        this.relyingOriginManifest = mediator.credentialRequestOriginManifest;
+        this.credentialRequestOrigin = mediator.credentialRequestOrigin;
+        this.credentialRequestOriginManifest =
+          mediator.credentialRequestOriginManifest;
         this.registrationHintOption = mediator.registrationHintOption;
       } finally {
         this.loading = false;

@@ -5,14 +5,14 @@
  */
 const KEY = 'storedCredentialHandlerChoices';
 
-export function setSiteChoice({relyingOrigin, credentialHandler}) {
-  // store hint as *the* choice for the current site (relying origin)
+export function setSiteChoice({credentialRequestOrigin, credentialHandler}) {
+  // store hint as *the* choice for current site (credential request origin)
   try {
     const choices = _getChoices();
     if(credentialHandler) {
-      choices[relyingOrigin] = credentialHandler;
+      choices[credentialRequestOrigin] = credentialHandler;
     } else {
-      delete choices[relyingOrigin];
+      delete choices[credentialRequestOrigin];
     }
     localStorage.setItem(KEY, JSON.stringify(choices));
   } catch(e) {
@@ -20,10 +20,10 @@ export function setSiteChoice({relyingOrigin, credentialHandler}) {
   }
 }
 
-export function getSiteChoice({relyingOrigin, hintOptions}) {
+export function getSiteChoice({credentialRequestOrigin, hintOptions}) {
   try {
     const choices = _getChoices();
-    const credentialHandler = choices[relyingOrigin];
+    const credentialHandler = choices[credentialRequestOrigin];
     if(!credentialHandler) {
       return null;
     }
@@ -38,10 +38,10 @@ export function getSiteChoice({relyingOrigin, hintOptions}) {
   return null;
 }
 
-export function hasSiteChoice({relyingOrigin}) {
+export function hasSiteChoice({credentialRequestOrigin}) {
   try {
     const choices = _getChoices();
-    const credentialHandler = choices[relyingOrigin];
+    const credentialHandler = choices[credentialRequestOrigin];
     if(credentialHandler) {
       return true;
     }

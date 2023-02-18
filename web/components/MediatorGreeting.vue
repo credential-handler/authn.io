@@ -13,8 +13,8 @@
     <wrm-origin-card
       style="padding: 20px 0 10px 0"
       :icon-size="iconSize"
-      :origin="relyingOrigin"
-      :manifest="relyingOriginManifest" />
+      :origin="credentialRequestOrigin"
+      :manifest="credentialRequestOriginManifest" />
   </div>
 </template>
 
@@ -36,11 +36,11 @@ export default {
       required: false,
       default: () => 48
     },
-    relyingOrigin: {
+    credentialRequestOrigin: {
       type: String,
       required: true
     },
-    relyingOriginManifest: {
+    credentialRequestOriginManifest: {
       type: Object,
       required: false,
       default: () => null
