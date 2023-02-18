@@ -151,10 +151,12 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
+import HandlerWindowHeader from './HandlerWindowHeader.vue';
 import HintChooserMessage from './HintChooserMessage.vue';
 import MediatorGreeting from './MediatorGreeting.vue';
 import MediatorHeader from './MediatorHeader.vue';
 import {ThirdPartyMediator} from '../mediator/ThirdPartyMediator.js';
+import Vue from 'vue';
 
 export default {
   name: 'MediatorWizard',
@@ -260,6 +262,9 @@ export default {
             this.showHintChooser = true;
           }
           this.loading = false;
+        },
+        showHandlerWindow: ({webAppWindow}) => {
+          _showHandlerWindow({webAppWindow, mediator});
         }
       });
     } catch(e) {
@@ -371,6 +376,40 @@ export default {
   }
 };
 
+function _showHandlerWindow({webAppWindow, mediator}) {
+  // FIXME: convert to vue 3 via:
+  /*
+  const el = document.createElement('div');
+  container.insertBefore(el, iframe);
+  container.classList.add('wrm-slide-up');
+  const component = createApp({extends: HandlerWindowHeader}, {
+    // FIXME: determine how to do clean up
+    onClose() {
+      component.unmount();
+      el.remove();
+    }
+  });
+  component.mount(el);
+  */
+  const {container, iframe} = webAppWindow.dialog;
+  const Component = Vue.extend(HandlerWindowHeader);
+  const el = document.createElement('div');
+  container.insertBefore(el, iframe);
+  container.classList.add('wrm-slide-up');
+  new Component({
+    el,
+    propsData: {
+      hint: mediator.selectedHint
+    },
+    created() {
+      this.$on('back', mediator.cancelSelection.bind(mediator));
+      this.$on('cancel', mediator.cancel.bind(mediator));
+    }
+  });
+  // clear iframe style that was set by web-request-rpc; set instead via CSS
+  iframe.style.cssText = null;
+  iframe.classList.add('wrm-handler-iframe');
+}
 </script>
 
 <style>
