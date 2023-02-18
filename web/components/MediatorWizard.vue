@@ -21,8 +21,8 @@
         style="user-select: none"
         :display="display"
         :icon-size="greetingIconSize"
-        :relying-origin="relyingOrigin"
-        :relying-origin-manifest="relyingOriginManifest" />
+        :credential-request-origin="credentialRequestOrigin"
+        :credential-request-origin-manifest="credentialRequestOriginManifest" />
 
       <!-- step 2 request/store iframe -->
       <div v-if="showGreeting && showHintChooser">
@@ -42,8 +42,9 @@
         <template slot="message">
           <HintChooserMessage
             :loading="loading"
-            :relying-origin="relyingOrigin"
-            :relying-origin-manifest="relyingOriginManifest"
+            :credential-request-origin="credentialRequestOrigin"
+            :credential-request-origin-manifest="
+              credentialRequestOriginManifest"
             :request-type="display"
             :show-warning="hintOptions.length === 0"
             @close="cancel()" />
@@ -117,8 +118,9 @@
           Block
         </button>
         <span style="margin-right: 5px" />
-        <!-- FIXME: while `relyingOriginManifest` is still loading, do not
-          allow to be clicked; perhaps `loading` handles this, check it -->
+        <!-- FIXME: while `credentialRequestOriginManifest` is still loading,
+          do not allow to be clicked; perhaps `loading` handles this,
+          check it -->
         <button
           type="button"
           class="wrm-button"
@@ -149,7 +151,6 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {getOriginName} from '../mediator/helpers.js';
 import HintChooserMessage from './HintChooserMessage.vue';
 import MediatorGreeting from './MediatorGreeting.vue';
 import MediatorHeader from './MediatorHeader.vue';
@@ -167,8 +168,8 @@ export default {
       hintOptions: [],
       hintRemovalText: 'Hiding...',
       loading: false,
-      relyingOrigin: null,
-      relyingOriginManifest: null,
+      credentialRequestOrigin: null,
+      credentialRequestOriginManifest: null,
       selectedHint: null,
       showHintChooser: false,
       // FIXME: alphabetize once needs are determined
@@ -213,10 +214,6 @@ export default {
       return !this.showGreeting || this.popupOpen ||
         (this.showGreeting && this.showHintChooser) ||
         (this.display === 'permissionRequest' && !this.firstPartyMode);
-    },
-    relyingOriginName() {
-      const {relyingOriginManifest: manifest, relyingOrigin: origin} = this;
-      return getOriginName({origin, manifest});
     }
   },
   async created() {
@@ -230,8 +227,8 @@ export default {
 
       // FIXME: create computed from `mediator.firstPartyMode`
       this.firstPartyMode = mediator.firstPartyMode;
-      // FIXME: create computed from `mediator.relyingOrigin`
-      this.relyingOrigin = mediator.relyingOrigin;
+      // FIXME: create computed from `mediator.credentialRequestOrigin`
+      this.credentialRequestOrigin = mediator.credentialRequestOrigin;
 
       // FIXME: try/catch?
       await mediator.initialize({
@@ -251,8 +248,8 @@ export default {
           }
 
           // if the web app manifest loads, use it
-          mediator.relyingOriginManifestPromise.then(manifest => {
-            this.relyingOriginManifest = manifest;
+          mediator.credentialRequestOriginManifestPromise.then(manifest => {
+            this.credentialRequestOriginManifest = manifest;
           });
         },
         hide: () => {

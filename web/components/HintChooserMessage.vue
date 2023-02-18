@@ -12,7 +12,7 @@
       <div v-if="requestType === 'credentialRequest'">
         <p>
           You don't have the credentials requested by this website.
-          Please check <strong>{{relyingOriginName}}</strong> to find
+          Please check <strong>{{credentialRequestOriginName}}</strong> to find
           out how to obtain the credentials you need to continue.
         </p>
         <p>
@@ -62,11 +62,11 @@ export default {
       required: false,
       default: false
     },
-    relyingOrigin: {
+    credentialRequestOrigin: {
       type: String,
       required: true
     },
-    relyingOriginManifest: {
+    credentialRequestOriginManifest: {
       type: Object,
       required: false,
       default: () => null
@@ -81,8 +81,11 @@ export default {
     }
   },
   computed: {
-    relyingOriginName() {
-      const {relyingOriginManifest: manifest, relyingOrigin: origin} = this;
+    credentialRequestOriginName() {
+      const {
+        credentialRequestOrigin: origin,
+        credentialRequestOriginManifest: manifest
+      } = this;
       return getOriginName({origin, manifest});
     }
   },

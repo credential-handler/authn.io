@@ -45,11 +45,11 @@ export class ThirdPartyMediator extends BaseMediator {
     this.show = null;
 
     // this mediator instance is in a 3p context, communicating directly
-    // with the relying origin
+    // with the origin making a credential-related request
     const {origin} = utils.parseUrl(document.referrer);
-    this.relyingOrigin = origin;
+    this.credentialRequestOrigin = origin;
     // start loading web app manifest immediately
-    this.relyingOriginManifestPromise = getWebAppManifest({origin});
+    this.credentialRequestOriginManifestPromise = getWebAppManifest({origin});
   }
 
   async initialize({show, hide, ready} = {}) {
@@ -65,8 +65,9 @@ export class ThirdPartyMediator extends BaseMediator {
     };
     this.ready = ready;
 
+    const {credentialRequestOrigin} = this;
     await loadOnce({
-      credentialRequestOrigin: this.relyingOrigin,
+      credentialRequestOrigin,
       requestPermission: _requestPermission.bind(this),
       getCredential: _handleCredentialRequest.bind(this, 'credentialRequest'),
       storeCredential: _handleCredentialRequest.bind(this, 'credentialStore'),
@@ -111,7 +112,7 @@ export class ThirdPartyMediator extends BaseMediator {
     const handler = new WebShareHandler();
     const {
       operationState: {input: {credentialRequestOptions, credential}},
-      relyingOrigin: credentialRequestOrigin
+      credentialRequestOrigin
     } = this;
     await handler.initialize(
       {credential, credentialRequestOptions, credentialRequestOrigin});
@@ -142,14 +143,14 @@ export class ThirdPartyMediator extends BaseMediator {
       await autoRegisterHint({hint});
     }
 
-    const {relyingOrigin} = this;
+    const {credentialRequestOrigin} = this;
     if(rememberChoice && !this.firstPartyMode) {
       // save choice for site
       const {credentialHandler} = hint.hintOption;
-      setSiteChoice({relyingOrigin, credentialHandler});
+      setSiteChoice({credentialRequestOrigin, credentialHandler});
     } else {
       // clear choice for site
-      setSiteChoice({relyingOrigin, credentialHandler: null});
+      setSiteChoice({credentialRequestOrigin, credentialHandler: null});
     }
 
     let canceled = false;
@@ -159,7 +160,7 @@ export class ThirdPartyMediator extends BaseMediator {
         hint.hintOption);
       if(!response) {
         // no response from credential handler, so clear site choice
-        setSiteChoice({relyingOrigin, credentialHandler: null});
+        setSiteChoice({credentialRequestOrigin, credentialHandler: null});
       }
       this.deferredCredentialOperation.resolve(response);
     } catch(e) {
@@ -175,7 +176,7 @@ export class ThirdPartyMediator extends BaseMediator {
 
     if(canceled) {
       // clear site choice
-      setSiteChoice({relyingOrigin, credentialHandler: null});
+      setSiteChoice({credentialRequestOrigin, credentialHandler: null});
     } else {
       try {
         await this.hide();
@@ -202,9 +203,10 @@ export class ThirdPartyMediator extends BaseMediator {
   async _openAllowWalletWindow({opened, closed} = {}) {
     const {
       registrationHintOption,
-      relyingOrigin, relyingOriginManifestPromise
+      credentialRequestOrigin, credentialRequestOriginManifestPromise
     } = this;
-    const relyingOriginManifest = await relyingOriginManifestPromise;
+    const credentialRequestOriginManifest =
+      await credentialRequestOriginManifestPromise;
 
     try {
       const result = await this._handleEventInFirstPartyDialog({
@@ -215,8 +217,8 @@ export class ThirdPartyMediator extends BaseMediator {
         },
         event: {
           type: 'allowcredentialhandler',
-          credentialRequestOrigin: relyingOrigin,
-          credentialRequestOriginManifest: relyingOriginManifest,
+          credentialRequestOrigin,
+          credentialRequestOriginManifest,
           registrationHintOption
         },
         opened,
@@ -241,9 +243,10 @@ export class ThirdPartyMediator extends BaseMediator {
   async _openHintChooserWindow({opened, closed} = {}) {
     const {
       operationState: {input: {credentialRequestOptions, credential}},
-      relyingOrigin, relyingOriginManifestPromise
+      credentialRequestOrigin, credentialRequestOriginManifestPromise
     } = this;
-    const relyingOriginManifest = await relyingOriginManifestPromise;
+    const credentialRequestOriginManifest =
+      await credentialRequestOriginManifestPromise;
 
     try {
       const result = await this._handleEventInFirstPartyDialog({
@@ -255,8 +258,8 @@ export class ThirdPartyMediator extends BaseMediator {
         event: {
           type: 'selectcredentialhint',
           credentialRequestOptions,
-          credentialRequestOrigin: relyingOrigin,
-          credentialRequestOriginManifest: relyingOriginManifest,
+          credentialRequestOrigin,
+          credentialRequestOriginManifest,
           credential,
           hintKey: undefined
         },
@@ -335,8 +338,8 @@ export class ThirdPartyMediator extends BaseMediator {
   async _startCredentialFlow() {
     // delay showing mediator UI if the site has a potential saved choice as
     // there may be no need to show it at all
-    const {relyingOrigin} = this;
-    const delayShowMediator = hasSiteChoice({relyingOrigin});
+    const {credentialRequestOrigin} = this;
+    const delayShowMediator = hasSiteChoice({credentialRequestOrigin});
     let showMediatorPromise;
     if(delayShowMediator) {
       // delay showing mediator if request can be handled quickly
@@ -355,11 +358,11 @@ export class ThirdPartyMediator extends BaseMediator {
     if(!this.firstPartyMode) {
       const {
         operationState: {input: {credentialRequestOptions, credential}},
-        relyingOrigin: credentialRequestOrigin,
-        relyingOriginManifestPromise
+        credentialRequestOrigin,
+        credentialRequestOriginManifestPromise
       } = this;
       const credentialRequestOriginManifest =
-        await relyingOriginManifestPromise;
+        await credentialRequestOriginManifestPromise;
       await this.hintManager.initialize({
         credential, credentialRequestOptions,
         credentialRequestOrigin, credentialRequestOriginManifest
@@ -377,9 +380,10 @@ export class ThirdPartyMediator extends BaseMediator {
 
   _useRememberedHint() {
     // check to see if there is a reusable choice for the relying party
-    const {relyingOrigin} = this;
+    // (as identified by the credential request origin)
+    const {credentialRequestOrigin} = this;
     const {hintOptions} = this.hintManager;
-    const hint = getSiteChoice({relyingOrigin, hintOptions});
+    const hint = getSiteChoice({credentialRequestOrigin, hintOptions});
     console.log('use remembered hint', hint);
     if(hint) {
       // FIXME: old UI flags here
@@ -408,7 +412,7 @@ async function _requestPermission(/*permissionDesc*/) {
   await navigator.credentialMediator.show();
 
   // no manifest means permission is automatically denied
-  const manifest = await this.relyingOriginManifestPromise;
+  const manifest = await this.credentialRequestOriginManifestPromise;
   if(!manifest) {
     console.error('Missing Web app manifest.');
     this.resolvePermissionRequest({state: 'denied'});
@@ -421,7 +425,7 @@ async function _requestPermission(/*permissionDesc*/) {
   // FIXME: rename `hintOption` to be more clear that it's for registering
   // a credential handler
   this.registrationHintOption = await createDefaultHintOption(
-    {origin: this.relyingOrigin, manifest});
+    {origin: this.credentialRequestOrigin, manifest});
   if(!this.registrationHintOption) {
     console.error(
       'Missing or invalid "credential_handler" in Web app manifest.');
