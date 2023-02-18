@@ -149,11 +149,10 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {getOriginName, parseUrl} from '../mediator/helpers.js';
+import {getOriginName} from '../mediator/helpers.js';
 import HintChooserMessage from './HintChooserMessage.vue';
 import MediatorGreeting from './MediatorGreeting.vue';
 import MediatorHeader from './MediatorHeader.vue';
-import {shouldUseFirstPartyMode} from '../mediator/platformDetection.js';
 import {ThirdPartyMediator} from '../mediator/ThirdPartyMediator.js';
 
 export default {
@@ -225,15 +224,15 @@ export default {
     console.log('new MediatorWizard created');
 
     try {
-      // FIXME: use `mediator.firstPartyMode`
-      this.firstPartyMode = shouldUseFirstPartyMode();
-      // FIXME: use `mediator.relyingOrigin`
-      const {origin} = parseUrl({url: document.referrer});
-      this.relyingOrigin = origin;
-
       // FIXME: move to MediatorPage?
       const mediator = new ThirdPartyMediator();
       this._mediator = mediator;
+
+      // FIXME: create computed from `mediator.firstPartyMode`
+      this.firstPartyMode = mediator.firstPartyMode;
+      // FIXME: create computed from `mediator.relyingOrigin`
+      this.relyingOrigin = mediator.relyingOrigin;
+
       // FIXME: try/catch?
       await mediator.initialize({
         show: ({requestType, operationState}) => {
