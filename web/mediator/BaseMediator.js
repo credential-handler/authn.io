@@ -16,6 +16,11 @@ export class BaseMediator {
     this.selectedHint = null;
     this.hintManager = null;
     this.webShareHandler = null;
+
+    // core UI hooks
+    this.hide = null;
+    this.ready = null;
+    this.show = null;
   }
 
   async allowCredentialHandler() {

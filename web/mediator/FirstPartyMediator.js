@@ -11,10 +11,6 @@ import {PermissionManager} from 'credential-mediator-polyfill';
 export class FirstPartyMediator extends BaseMediator {
   constructor() {
     super();
-    // FIXME: determine utility
-    this.hide = null;
-    this.ready = null;
-    this.show = null;
   }
 
   async initialize({show, hide, ready} = {}) {
@@ -26,7 +22,6 @@ export class FirstPartyMediator extends BaseMediator {
 
     try {
       this.show = show;
-      // FIXME: is `hide` needed?
       this.hide = hide;
       this.ready = ready;
 
@@ -91,7 +86,6 @@ export class FirstPartyMediator extends BaseMediator {
     await super.allowCredentialHandler();
     const status = {state: 'granted'};
     this.proxiedEvent.respondWith({status});
-    // FIXME: do we need to call `hide` here?
     await this.hide();
   }
 
@@ -108,7 +102,6 @@ export class FirstPartyMediator extends BaseMediator {
       console.error(e);
     }
     this.proxiedEvent.respondWith({status});
-    // FIXME: do we need to call `hide` here?
     await this.hide();
   }
 
