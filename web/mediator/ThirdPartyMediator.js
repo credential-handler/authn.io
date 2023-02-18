@@ -9,12 +9,9 @@ import {
 } from './helpers.js';
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
 import {getWebAppManifest} from './manifest.js';
-import HandlerWindowHeader from '../components/HandlerWindowHeader.vue';
 import {loadOnce} from 'credential-mediator-polyfill';
 import {BaseMediator} from './BaseMediator.js';
 import {shouldUseFirstPartyMode} from './platformDetection.js';
-// FIXME: remove this, only vanilla JS permitted in this file
-import Vue from 'vue';
 import {WebAppContext} from 'web-request-rpc';
 import {utils} from 'web-request-rpc';
 
@@ -38,6 +35,7 @@ export class ThirdPartyMediator extends BaseMediator {
     this.resolvePermissionRequest = null;
     this.selectedHint = null;
     this.show = null;
+    this.showHandlerWindow = null;
 
     // this mediator instance is in a 3p context, communicating directly
     // with the origin making a credential-related request
@@ -47,7 +45,7 @@ export class ThirdPartyMediator extends BaseMediator {
     this.credentialRequestOriginManifestPromise = getWebAppManifest({origin});
   }
 
-  async initialize({show, hide, ready} = {}) {
+  async initialize({show, hide, ready, showHandlerWindow} = {}) {
     this.show = show;
     this.hide = async () => {
       await hide();
@@ -58,6 +56,7 @@ export class ThirdPartyMediator extends BaseMediator {
       }
     };
     this.ready = ready;
+    this.showHandlerWindow = showHandlerWindow;
 
     const {credentialRequestOrigin} = this;
     await loadOnce({
@@ -448,55 +447,24 @@ async function _handleCredentialRequest(requestType, operationState) {
   return promise;
 }
 
-// FIXME: determine abstraction boundary to enable injection of this
 function _updateHandlerWindow({webAppWindow}) {
-  const self = this;
-
+  // handle 1p dialog
   if(webAppWindow.popup) {
     // handle user closing popup
     const {dialog} = webAppWindow;
-    dialog.addEventListener('close', function abort() {
+    const abort = () => {
       // note that `dialog` is not native so `{once: true}` does not work as
       // and option to pass to `addEventListener`
       dialog.removeEventListener('close', abort);
       // Options for cancelation behavior are:
       // self.cancelSelection -- close handler UI but keep CHAPI UI up
       // self.cancel -- close CHAPI entirely
-      self.cancelSelection();
-    });
+      this.cancelSelection();
+    };
+    dialog.addEventListener('close', abort);
     return;
   }
 
-  // FIXME: convert to vue 3 via:
-  /*
-  const el = document.createElement('div');
-  container.insertBefore(el, iframe);
-  container.classList.add('wrm-slide-up');
-  const component = createApp({extends: HandlerWindowHeader}, {
-    // FIXME: determine how to do clean up
-    onClose() {
-      component.unmount();
-      el.remove();
-    }
-  });
-  component.mount(el);
-  */
-  const {container, iframe} = webAppWindow.dialog;
-  const Component = Vue.extend(HandlerWindowHeader);
-  const el = document.createElement('div');
-  container.insertBefore(el, iframe);
-  container.classList.add('wrm-slide-up');
-  new Component({
-    el,
-    propsData: {
-      hint: self.selectedHint
-    },
-    created() {
-      this.$on('back', self.cancelSelection.bind(self));
-      this.$on('cancel', self.cancel.bind(self));
-    }
-  });
-  // clear iframe style that was set by web-request-rpc; set instead via CSS
-  iframe.style.cssText = null;
-  iframe.classList.add('wrm-handler-iframe');
+  // handle 3p dialog
+  this.showHandlerWindow({webAppWindow});
 }
