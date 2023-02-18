@@ -5,7 +5,7 @@
  */
 import {BaseMediator} from './BaseMediator.js';
 import {CredentialEventProxy} from './CredentialEventProxy.js';
-import {loadHints} from './helpers.js';
+import {HintManager} from './HintManager.js';
 import {loadOnce} from 'credential-mediator-polyfill';
 import {PermissionManager} from 'credential-mediator-polyfill';
 import {WebShareHandler} from './WebShareHandler.js';
@@ -71,13 +71,18 @@ export class FirstPartyMediator extends BaseMediator {
       this.registrationHintOption = registrationHintOption;
       deferredGetCredentialRequestOrigin.resolve(credentialRequestOrigin);
 
+      this.hintManager = new HintManager();
+
       const needsHintSelection = type === 'selectcredentialhint';
       const requestType = needsHintSelection ?
         (credential ? 'credentialStore' : 'credentialRequest') :
         'requestPermission';
       await this.show({requestType});
       if(needsHintSelection) {
-        await this._loadHints();
+        await this.hintManager.initialize({
+          credential, credentialRequestOptions,
+          credentialRequestOrigin, credentialRequestOriginManifest
+        });
       }
       await this.ready();
     } catch(e) {
@@ -135,27 +140,6 @@ export class FirstPartyMediator extends BaseMediator {
     }
     await handler.share();
     return false;
-  }
-
-  // FIXME: better generalize so that `BaseMediator` can provide this function;
-  // perhaps by passing in `relyingOrigin`, etc. or making the variable names
-  // the same across 1p and 3p mediators
-  async _loadHints() {
-    const {
-      // FIXME: generalize
-      credentialRequestOptions, credential,
-      // FIXME: generalize
-      credentialRequestOrigin: relyingOrigin,
-      credentialRequestOriginManifest: relyingOriginManifest
-    } = this;
-    const hintOptions = await loadHints({
-      credentialRequestOptions, credential,
-      relyingOrigin, relyingOriginManifest
-    });
-    // FIXME: handle case that operation changed while the hints were loading,
-    // if that case still needs handling now
-    this.hintOptions = hintOptions;
-    return this.hintOptions;
   }
 }
 
