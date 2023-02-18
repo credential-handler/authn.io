@@ -457,8 +457,8 @@ function _updateHandlerWindow({webAppWindow}) {
       // and option to pass to `addEventListener`
       dialog.removeEventListener('close', abort);
       // Options for cancelation behavior are:
-      // self.cancelSelection -- close handler UI but keep CHAPI UI up
-      // self.cancel -- close CHAPI entirely
+      // this.cancelSelection -- close handler UI but keep CHAPI UI up
+      // this.cancel -- close CHAPI entirely
       this.cancelSelection();
     };
     dialog.addEventListener('close', abort);
