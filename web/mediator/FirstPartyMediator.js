@@ -5,19 +5,12 @@
  */
 import {BaseMediator} from './BaseMediator.js';
 import {CredentialEventProxy} from './CredentialEventProxy.js';
-import {HintManager} from './HintManager.js';
 import {loadOnce} from 'credential-mediator-polyfill';
 import {PermissionManager} from 'credential-mediator-polyfill';
-import {WebShareHandler} from './WebShareHandler.js';
 
 export class FirstPartyMediator extends BaseMediator {
   constructor() {
     super();
-    this.credential = null;
-    this.credentialRequestOptions = null;
-    this.credentialRequestOrigin = null;
-    this.credentialRequestOriginManifest = null;
-
     // FIXME: determine utility
     this.hide = null;
     this.ready = null;
@@ -67,11 +60,12 @@ export class FirstPartyMediator extends BaseMediator {
       this.credential = credential;
       this.credentialRequestOptions = credentialRequestOptions;
       this.credentialRequestOrigin = credentialRequestOrigin;
-      this.credentialRequestOriginManifest = credentialRequestOriginManifest;
+      this.credentialRequestOriginManifestPromise =
+        Promise.resolve(credentialRequestOriginManifest);
       this.registrationHintOption = registrationHintOption;
       deferredGetCredentialRequestOrigin.resolve(credentialRequestOrigin);
 
-      this.hintManager = new HintManager();
+      this.startNewRequest();
 
       const needsHintSelection = type === 'selectcredentialhint';
       const requestType = needsHintSelection ?
@@ -81,7 +75,9 @@ export class FirstPartyMediator extends BaseMediator {
       if(needsHintSelection) {
         await this.hintManager.initialize({
           credential, credentialRequestOptions,
-          credentialRequestOrigin, credentialRequestOriginManifest
+          credentialRequestOrigin,
+          credentialRequestOriginManifestPromise:
+            this.credentialRequestOriginManifestPromise
         });
       }
       await this.ready();
@@ -116,31 +112,8 @@ export class FirstPartyMediator extends BaseMediator {
     await this.hide();
   }
 
-  async getWebShareHandler() {
-    const handler = new WebShareHandler();
-    const {
-      credential,
-      credentialRequestOptions,
-      credentialRequestOrigin
-    } = this;
-    await handler.initialize(
-      {credential, credentialRequestOptions, credentialRequestOrigin});
-    return handler;
-  }
-
   async selectHint({hint}) {
     this.proxiedEvent.respondWith({choice: {hint}});
-  }
-
-  // FIXME: remove and use `getWebShareHandler` externally
-  async webShare() {
-    const handler = await this.getWebShareHandler();
-    if(!handler.enabled) {
-      console.log('WebShare not available on this platform.');
-      return false;
-    }
-    await handler.share();
-    return false;
   }
 }
 
