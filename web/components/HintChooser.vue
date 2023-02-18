@@ -67,8 +67,8 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {FirstPartyMediator} from '../FirstPartyMediator.js';
-import {getOriginName} from '../helpers.js';
+import {FirstPartyMediator} from '../mediator/FirstPartyMediator.js';
+import {getOriginName} from '../mediator/helpers.js';
 import HintChooserMessage from './HintChooserMessage.vue';
 import MediatorHeader from './MediatorHeader.vue';
 
