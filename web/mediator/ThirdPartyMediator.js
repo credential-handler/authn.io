@@ -29,12 +29,11 @@ export class ThirdPartyMediator extends BaseMediator {
     super();
     this.deferredCredentialOperation = null;
     this.firstPartyDialog = null;
+    // FIXME: rename this to avoid confusion w/third party mediator usage...
+    // this property indicates that the platform requires the mediator to
+    // load in a 1p window to access storage
     this.firstPartyMode = shouldUseFirstPartyMode();
-    this.hide = null;
-    this.ready = null;
     this.resolvePermissionRequest = null;
-    this.selectedHint = null;
-    this.show = null;
     this.showHandlerWindow = null;
 
     // this mediator instance is in a 3p context, communicating directly
@@ -49,7 +48,6 @@ export class ThirdPartyMediator extends BaseMediator {
     this.show = show;
     this.hide = async () => {
       await hide();
-      // FIXME: determine if this is the right / only place needed for this
       if(this.firstPartyDialog) {
         this.firstPartyDialog.close();
         this.firstPartyDialog = null;
@@ -70,7 +68,7 @@ export class ThirdPartyMediator extends BaseMediator {
 
   async allowCredentialHandler() {
     await super.allowCredentialHandler();
-    await this._resolvePermissionRequest({state: 'granted'});
+    await this._finishPermissionRequest({state: 'granted'});
   }
 
   async cancel() {
@@ -92,7 +90,7 @@ export class ThirdPartyMediator extends BaseMediator {
   }
 
   async denyCredentialHandler() {
-    return this._resolvePermissionRequest({state: 'denied'});
+    return this._finishPermissionRequest({state: 'denied'});
   }
 
   focusFirstPartyDialog() {
@@ -141,8 +139,8 @@ export class ThirdPartyMediator extends BaseMediator {
       status = {state: 'denied'};
     }
 
-    // return that status was already set in 1p window
-    await this._resolvePermissionRequest({state: status.state, set: true});
+    // return that status was already `set` in 1p window
+    await this._finishPermissionRequest({state: status.state, set: true});
   }
 
   async getHintChoiceWithFirstPartyMediator({opened, closed} = {}) {
@@ -233,6 +231,12 @@ export class ThirdPartyMediator extends BaseMediator {
     return {canceled};
   }
 
+  async _finishPermissionRequest(result) {
+    this.resolvePermissionRequest(result);
+    await this.hide();
+    await navigator.credentialMediator.hide();
+  }
+
   async _handleEventInFirstPartyDialog({
     url, bounds, event, opened, closed, autoClose = false
   } = {}) {
@@ -255,7 +259,7 @@ export class ThirdPartyMediator extends BaseMediator {
     const {dialog} = appContext.control;
     const abort = async () => {
       // note that `dialog` is not native so `{once: true}` does not work as
-      // and option to pass to `addEventListener`
+      // an option to pass to `addEventListener`
       dialog.removeEventListener('close', abort);
       aborted = true;
       windowReady.then(injector => injector.client.close());
@@ -285,14 +289,6 @@ export class ThirdPartyMediator extends BaseMediator {
         appContext.control.hide();
       }
     }
-  }
-
-  // FIXME: rename `_resolvePermissionRequest` or `resolvePermissionRequest`
-  // to reduce confusion
-  async _resolvePermissionRequest(result) {
-    this.resolvePermissionRequest(result);
-    await this.hide();
-    await navigator.credentialMediator.hide();
   }
 
   async _startCredentialFlow() {
@@ -341,11 +337,7 @@ export class ThirdPartyMediator extends BaseMediator {
     const {credentialRequestOrigin} = this;
     const {hintOptions} = this.hintManager;
     const hint = getSiteChoice({credentialRequestOrigin, hintOptions});
-    console.log('use remembered hint', hint);
     if(hint) {
-      // FIXME: old UI flags here
-      // this.showGreeting = false;
-      //this.selectHint({hint, waitUntil() {}});
       this.selectHint({hint, rememberChoice: true}).catch(() => {});
       return true;
     }
@@ -390,7 +382,6 @@ async function _requestPermission(/*permissionDesc*/) {
     await navigator.credentialMediator.hide();
   }
 
-  // FIXME: see if this can be removed
   await this.ready();
 
   return promise;
@@ -410,10 +401,10 @@ async function _getCredentialHandlerInjector({appContext, credentialHandler}) {
     dialog,
     popup: !!dialog,
     customize: _updateHandlerWindow.bind(this),
-    // default to 10 minute timeout for loading other window on same site
-    // to allow for authentication pages and similar
-    // FIXME: remove timeout entirely?
-    timeout: 600000,
+    // allow 24 hour timeout for loading other window on same site
+    // to allow for authentication pages and similar; user can reload site or
+    // close window if there is a problem
+    timeout: 24 * 60 * 60 * 1000,
     // default bounding rectangle for the credential handler window
     bounds: {
       top: window.screenY + (window.innerHeight - height) / 2,
@@ -423,9 +414,8 @@ async function _getCredentialHandlerInjector({appContext, credentialHandler}) {
     }
   });
 
-  const injector = await windowReady;
-
-  return injector;
+  // `windowReady` resolves to injector instance
+  return windowReady;
 }
 
 async function _handleCredentialRequest(requestType, operationState) {
