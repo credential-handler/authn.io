@@ -19,12 +19,13 @@ export class HintManager {
 
   async initialize({
     credential, credentialRequestOptions,
-    credentialRequestOrigin, credentialRequestOriginManifest
+    credentialRequestOrigin, credentialRequestOriginManifestPromise
   } = {}) {
     this.credential = credential;
     this.credentialRequestOptions = credentialRequestOptions;
     this.credentialRequestOrigin = credentialRequestOrigin;
-    this.credentialRequestOriginManifest = credentialRequestOriginManifest;
+    this.credentialRequestOriginManifest =
+      await credentialRequestOriginManifestPromise;
     this.hintOptions = await this.reload();
   }
 
