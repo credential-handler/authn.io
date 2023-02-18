@@ -31,8 +31,9 @@
         <template slot="message">
           <HintChooserMessage
             :loading="loading"
-            :relying-origin="relyingOrigin"
-            :relying-origin-manifest="relyingOriginManifest"
+            :credential-request-origin="credentialRequestOrigin"
+            :credential-request-origin-manifest="
+              credentialRequestOriginManifest"
             :request-type="display"
             :show-warning="hintOptions.length === 0"
             @close="cancel()" />
@@ -68,7 +69,6 @@
  * All rights reserved.
  */
 import {FirstPartyMediator} from '../mediator/FirstPartyMediator.js';
-import {getOriginName} from '../mediator/helpers.js';
 import HintChooserMessage from './HintChooserMessage.vue';
 import MediatorHeader from './MediatorHeader.vue';
 
@@ -85,17 +85,11 @@ export default {
       hintOptions: [],
       hintRemovalText: 'Hiding...',
       loading: false,
-      relyingOrigin: null,
-      relyingOriginManifest: null,
+      credentialRequestOrigin: null,
+      credentialRequestOriginManifest: null,
       selectedHint: null,
       showHintChooser: false
     };
-  },
-  computed: {
-    relyingOriginName() {
-      const {relyingOriginManifest: manifest, relyingOrigin: origin} = this;
-      return getOriginName({origin, manifest});
-    }
   },
   async created() {
     this._setup().catch(console.error);
@@ -130,8 +124,9 @@ export default {
 
         // FIXME: rename, use same as mediator names or remove and just use
         // mediator vars directly
-        this.relyingOrigin = mediator.credentialRequestOrigin;
-        this.relyingOriginManifest = mediator.credentialRequestOriginManifest;
+        this.credentialRequestOrigin = mediator.credentialRequestOrigin;
+        this.credentialRequestOriginManifest =
+          mediator.credentialRequestOriginManifest;
         this.registrationHintOption = mediator.registrationHintOption;
         this.credential = mediator.credential;
         this.credentialRequestOptions = mediator.credentialRequestOptions;
