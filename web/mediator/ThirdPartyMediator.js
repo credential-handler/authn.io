@@ -105,18 +105,80 @@ export class ThirdPartyMediator extends BaseMediator {
   }
 
   async handlePermissionRequestWithFirstPartyMediator({opened, closed} = {}) {
-    // FIXME: probably move helper contents here once code is made DRY
-    const {status} = await this._openAllowWalletWindow({opened, closed});
-    // if a status was returned... (vs. closing the window / error)
-    if(status) {
-      // return that status was already set in 1p window
-      await this._resolvePermissionRequest({state: status.state, set: true});
+    const {
+      registrationHintOption,
+      credentialRequestOrigin, credentialRequestOriginManifestPromise
+    } = this;
+    const credentialRequestOriginManifest =
+      await credentialRequestOriginManifestPromise;
+
+    let status;
+    try {
+      const result = await this._handleEventInFirstPartyDialog({
+        url: `${window.location.origin}/mediator/allow-wallet`,
+        bounds: {
+          width: DEFAULT_ALLOW_WALLET_POPUP_WIDTH,
+          height: DEFAULT_ALLOW_WALLET_POPUP_HEIGHT
+        },
+        event: {
+          type: 'allowcredentialhandler',
+          credentialRequestOrigin,
+          credentialRequestOriginManifest,
+          registrationHintOption
+        },
+        opened,
+        closed,
+        autoClose: true
+      });
+      if(!result) {
+        status = {state: 'denied'};
+      } else if(result.error) {
+        const error = new Error(result.error.message);
+        error.name = result.error.name;
+        throw error;
+      } else {
+        ({status} = result);
+      }
+    } catch(e) {
+      console.error('Error while setting permission', e);
+      status = {state: 'denied'};
     }
+
+    // return that status was already set in 1p window
+    await this._resolvePermissionRequest({state: status.state, set: true});
   }
 
   async getHintChoiceWithFirstPartyMediator({opened, closed} = {}) {
-    // FIXME: move helper contents here, no need for extra helper
-    return this._openHintChooserWindow({opened, closed});
+    const {
+      credential, credentialRequestOptions,
+      credentialRequestOrigin, credentialRequestOriginManifestPromise
+    } = this;
+    const credentialRequestOriginManifest =
+      await credentialRequestOriginManifestPromise;
+
+    try {
+      const result = await this._handleEventInFirstPartyDialog({
+        url: `${window.location.origin}/mediator/wallet-chooser`,
+        bounds: {
+          width: DEFAULT_HINT_CHOOSER_POPUP_WIDTH,
+          height: DEFAULT_HINT_CHOOSER_POPUP_HEIGHT
+        },
+        event: {
+          type: 'selectcredentialhint',
+          credentialRequestOptions,
+          credentialRequestOrigin,
+          credentialRequestOriginManifest,
+          credential,
+          hintKey: undefined
+        },
+        opened,
+        closed
+      });
+      const {choice} = result;
+      return {choice};
+    } catch(e) {
+      return {choice: null};
+    }
   }
 
   async selectHint({hint, rememberChoice = false}) {
@@ -172,79 +234,6 @@ export class ThirdPartyMediator extends BaseMediator {
     }
 
     return {canceled};
-  }
-
-  async _openAllowWalletWindow({opened, closed} = {}) {
-    const {
-      registrationHintOption,
-      credentialRequestOrigin, credentialRequestOriginManifestPromise
-    } = this;
-    const credentialRequestOriginManifest =
-      await credentialRequestOriginManifestPromise;
-
-    try {
-      const result = await this._handleEventInFirstPartyDialog({
-        url: `${window.location.origin}/mediator/allow-wallet`,
-        bounds: {
-          width: DEFAULT_ALLOW_WALLET_POPUP_WIDTH,
-          height: DEFAULT_ALLOW_WALLET_POPUP_HEIGHT
-        },
-        event: {
-          type: 'allowcredentialhandler',
-          credentialRequestOrigin,
-          credentialRequestOriginManifest,
-          registrationHintOption
-        },
-        opened,
-        closed,
-        autoClose: true
-      });
-      if(!result) {
-        return {status: {state: 'denied'}};
-      }
-      if(result.error) {
-        const error = new Error(result.error.message);
-        error.name = result.error.name;
-        throw error;
-      }
-      const {status} = result;
-      return {status};
-    } catch(e) {
-      return {status: {state: 'denied'}};
-    }
-  }
-
-  async _openHintChooserWindow({opened, closed} = {}) {
-    const {
-      credential, credentialRequestOptions,
-      credentialRequestOrigin, credentialRequestOriginManifestPromise
-    } = this;
-    const credentialRequestOriginManifest =
-      await credentialRequestOriginManifestPromise;
-
-    try {
-      const result = await this._handleEventInFirstPartyDialog({
-        url: `${window.location.origin}/mediator/wallet-chooser`,
-        bounds: {
-          width: DEFAULT_HINT_CHOOSER_POPUP_WIDTH,
-          height: DEFAULT_HINT_CHOOSER_POPUP_HEIGHT
-        },
-        event: {
-          type: 'selectcredentialhint',
-          credentialRequestOptions,
-          credentialRequestOrigin,
-          credentialRequestOriginManifest,
-          credential,
-          hintKey: undefined
-        },
-        opened,
-        closed
-      });
-      const {choice} = result;
-      return {choice};
-    } catch(e) {
-      return {choice: null};
-    }
   }
 
   async _handleEventInFirstPartyDialog({
