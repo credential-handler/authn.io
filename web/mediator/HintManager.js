@@ -60,7 +60,7 @@ export class HintManager {
 
     // get both non-JIT and JIT hint options
     const [nonJitHints, jitHints] = await Promise.all([
-      _createHints({handlers}),
+      _createRegisteredHints({handlers}),
       _createRecommendedHints({
         recommendedHandlerOrigins, handlers,
         credentialRequestOptions, credential,
@@ -82,29 +82,20 @@ export class HintManager {
   }
 
   static createHintOption({origin, manifest} = {}) {
-    if(!(manifest && manifest.credential_handler &&
-      manifest.credential_handler.url &&
-      Array.isArray(manifest.credential_handler.enabledTypes))) {
-      // manifest does not have credential handler info
-      return null;
-    }
-
-    // resolve credential handler URL
-    let credentialHandler;
+    let handlerInfo;
     try {
-      const {url} = manifest.credential_handler;
-      credentialHandler = _resolveRelativeUrl({url, origin});
+      handlerInfo = _getManifestCredentialHandlerInfo({manifest, origin});
     } catch(e) {
+      // manifest does not have valid credential handler info
       console.error(e);
       return null;
     }
-
-    const {enabledTypes} = manifest.credential_handler;
+    const {credentialHandler, enabledTypes} = handlerInfo;
     return _createHintOption({credentialHandler, enabledTypes});
   }
 }
 
-async function _createHints({handlers}) {
+async function _createRegisteredHints({handlers}) {
   // FIXME: make map function this a helper function
   return Promise.all(handlers.map(async credentialHandler => {
     // FIXME: replace all `utils.parseUrl` with WHATWG `URL`
@@ -112,27 +103,22 @@ async function _createHints({handlers}) {
     const manifest = await getWebAppManifest({origin});
     const originalCredentialHandler = credentialHandler;
 
-    // FIXME: if `manifest.credential_handler` is NOT set, then permission
-    // should be revoked for the handler
-    // FIXME: make this a helper function; make DRY with static
-    // `createHintOption` method above
-    if(manifest && manifest.credential_handler &&
-      manifest.credential_handler.url &&
-      manifest.credential_handler.enabledTypes) {
-      // resolve credential handler URL
-      try {
-        const {url} = manifest.credential_handler;
-        credentialHandler = _resolveRelativeUrl({url, origin});
-      } catch(e) {
-        console.error(e);
-      }
+    let handlerInfo;
+    try {
+      handlerInfo = _getManifestCredentialHandlerInfo({manifest, origin});
+      const {credentialHandler: newCredentialHandler} = handlerInfo;
+      credentialHandler = newCredentialHandler;
+    } catch(e) {
+      // FIXME: if `manifest` is not `null`, then manifest entry is invalid,
+      // and permission should be revoked for the handler
+      console.error(e);
     }
+
     const hint = _createHint({credentialHandler, host, origin, manifest});
     // if credential handler has changed, update registration
+    // FIXME: also re-register credential handler if enabled types have changed
     if(originalCredentialHandler !== credentialHandler) {
-      // FIXME: also re-register credential handler if enabled types have
-      // changed
-      const {enabledTypes} = manifest.credential_handler;
+      const {enabledTypes} = handlerInfo;
       await navigator.credentialMediator.ui.registerCredentialHandler(
         credentialHandler, {name: hint.name, enabledTypes, icons: []});
     }
@@ -140,38 +126,35 @@ async function _createHints({handlers}) {
   }));
 }
 
+// FIXME: rename `types` to `acceptedTypes`
 async function _createJitHint({recommendedOrigin, recommendedBy, types}) {
   if(typeof recommendedOrigin !== 'string') {
     return;
   }
   const {host, origin} = utils.parseUrl(recommendedOrigin);
   const manifest = await getWebAppManifest({origin});
-  // FIXME: make validation of `manifest.credential_handler` more DRY
-  if(!(manifest && manifest.credential_handler &&
-    manifest.credential_handler.url &&
-    Array.isArray(manifest.credential_handler.enabledTypes))) {
-    // manifest does not have credential handler info
+
+  let handlerInfo;
+  try {
+    handlerInfo = _getManifestCredentialHandlerInfo({manifest, origin});
+  } catch(e) {
+    // FIXME: if `manifest` is not `null`, then manifest entry is invalid,
+    // and permission should be revoked for the handler
+    console.error(e);
     return;
   }
+
   // see if manifest expressed types match request/credential type
+  const {credentialHandler, enabledTypes} = handlerInfo;
   let match = false;
   for(const t of types) {
-    if(manifest.credential_handler.enabledTypes.includes(t)) {
+    if(enabledTypes.includes(t)) {
       match = true;
       break;
     }
   }
   if(!match) {
     // no match
-    return;
-  }
-  // resolve credential handler URL
-  let credentialHandler;
-  try {
-    const {url} = manifest.credential_handler;
-    credentialHandler = _resolveRelativeUrl({url, origin});
-  } catch(e) {
-    console.error(e);
     return;
   }
   return _createHint(
@@ -259,6 +242,26 @@ async function _createRecommendedHints({
   return unfilteredHints.filter(e => !!e);
 }
 
-function _resolveRelativeUrl({url, origin}) {
-  return new URL(url, origin).href;
+function _getManifestCredentialHandlerInfo({manifest, origin}) {
+  if(!manifest) {
+    throw new Error(`No Web app manifest for origin "${origin}".`);
+  }
+  if(typeof manifest.credential_handler !== 'object') {
+    throw new Error(
+      'Missing "credential_handler" object in Web app manifest for ' +
+      `origin "${origin}".`);
+  }
+  if(typeof manifest.credential_handler.url !== 'string') {
+    throw new Error(
+      'Missing "credential_handler.url" string in Web app manifest for ' +
+      `origin "${origin}".`);
+  }
+  if(!Array.isArray(manifest.credential_handler.enabledTypes)) {
+    throw new Error(
+      'Missing "credential_handler.enabledTypes" array in Web app manifest ' +
+      `for origin "${origin}".`);
+  }
+  const {credential_handler: {url, enabledTypes}} = manifest;
+  const credentialHandler = new URL(url, origin).href;
+  return {credentialHandler, enabledTypes};
 }
