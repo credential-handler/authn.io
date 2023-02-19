@@ -60,7 +60,7 @@ export class HintManager {
 
     // get both non-JIT and JIT hint options
     const [nonJitHints, jitHints] = await Promise.all([
-      _createHintOptions({handlers}),
+      _createHints({handlers}),
       _createRecommendedHints({
         recommendedHandlerOrigins, handlers,
         credentialRequestOptions, credential,
@@ -80,28 +80,49 @@ export class HintManager {
     await this.reload();
     await timeout;
   }
+
+  static createHintOption({origin, manifest} = {}) {
+    if(!(manifest && manifest.credential_handler &&
+      manifest.credential_handler.url &&
+      Array.isArray(manifest.credential_handler.enabledTypes))) {
+      // manifest does not have credential handler info
+      return null;
+    }
+
+    // resolve credential handler URL
+    let credentialHandler;
+    try {
+      const {url} = manifest.credential_handler;
+      credentialHandler = _resolveRelativeUrl({url, origin});
+    } catch(e) {
+      console.error(e);
+      return null;
+    }
+
+    const {enabledTypes} = manifest.credential_handler;
+    return _createHintOption({credentialHandler, enabledTypes});
+  }
 }
 
-// FIXME: integrate below into above......
-
-async function _createHintOptions({handlers}) {
+async function _createHints({handlers}) {
   // FIXME: make map function this a helper function
   return Promise.all(handlers.map(async credentialHandler => {
     // FIXME: replace all `utils.parseUrl` with WHATWG `URL`
     const {origin, host} = utils.parseUrl(credentialHandler);
-    const manifest = (await getWebAppManifest({origin})) || {};
+    const manifest = await getWebAppManifest({origin});
     const originalCredentialHandler = credentialHandler;
 
     // FIXME: if `manifest.credential_handler` is NOT set, then permission
     // should be revoked for the handler
-    // FIXME: make this a helper function
-    if(manifest.credential_handler &&
+    // FIXME: make this a helper function; make DRY with static
+    // `createHintOption` method above
+    if(manifest && manifest.credential_handler &&
       manifest.credential_handler.url &&
       manifest.credential_handler.enabledTypes) {
       // resolve credential handler URL
       try {
         const {url} = manifest.credential_handler;
-        credentialHandler = new URL(url, origin).href;
+        credentialHandler = _resolveRelativeUrl({url, origin});
       } catch(e) {
         console.error(e);
       }
@@ -124,8 +145,9 @@ async function _createJitHint({recommendedOrigin, recommendedBy, types}) {
     return;
   }
   const {host, origin} = utils.parseUrl(recommendedOrigin);
-  const manifest = (await getWebAppManifest({origin})) || {};
-  if(!(manifest.credential_handler &&
+  const manifest = await getWebAppManifest({origin});
+  // FIXME: make validation of `manifest.credential_handler` more DRY
+  if(!(manifest && manifest.credential_handler &&
     manifest.credential_handler.url &&
     Array.isArray(manifest.credential_handler.enabledTypes))) {
     // manifest does not have credential handler info
@@ -146,7 +168,8 @@ async function _createJitHint({recommendedOrigin, recommendedBy, types}) {
   // resolve credential handler URL
   let credentialHandler;
   try {
-    credentialHandler = new URL(manifest.credential_handler.url, origin).href;
+    const {url} = manifest.credential_handler;
+    credentialHandler = _resolveRelativeUrl({url, origin});
   } catch(e) {
     console.error(e);
     return;
@@ -165,12 +188,20 @@ function _createHint({
   }
   const hint = {
     name, icon, origin, host, manifest,
-    hintOption: {credentialHandler, credentialHintKey: 'default'}
+    hintOption: _createHintOption({credentialHandler})
   };
   if(recommendedBy) {
     hint.jit = {recommendedBy};
   }
   return hint;
+}
+
+function _createHintOption({credentialHandler, enabledTypes}) {
+  const hintOption = {credentialHandler, credentialHintKey: 'default'};
+  if(enabledTypes) {
+    hintOption.enabledTypes = enabledTypes;
+  }
+  return hintOption;
 }
 
 async function _createJitHints({
@@ -226,4 +257,8 @@ async function _createRecommendedHints({
     credentialRequestOrigin, credentialRequestOriginManifest
   });
   return unfilteredHints.filter(e => !!e);
+}
+
+function _resolveRelativeUrl({url, origin}) {
+  return new URL(url, origin).href;
 }

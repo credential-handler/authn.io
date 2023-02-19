@@ -3,9 +3,10 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {autoRegisterHint, createDefaultHintOption} from './helpers.js';
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
+import {autoRegisterHint} from './helpers.js';
 import {getWebAppManifest} from './manifest.js';
+import {HintManager} from './HintManager.js';
 import {loadOnce} from 'credential-mediator-polyfill';
 import {BaseMediator} from './BaseMediator.js';
 import {shouldUseFirstPartyMode} from './platformDetection.js';
@@ -367,9 +368,7 @@ async function _requestPermission(/*permissionDesc*/) {
   }
 
   // create registration hint option for origin
-  // FIXME: rename `hintOption` to be more clear that it's for registering
-  // a credential handler
-  this.registrationHintOption = await createDefaultHintOption(
+  this.registrationHintOption = await HintManager.createHintOption(
     {origin: this.credentialRequestOrigin, manifest});
   if(!this.registrationHintOption) {
     console.error(
