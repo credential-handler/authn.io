@@ -6,6 +6,7 @@
 import {utils} from 'web-request-rpc';
 
 export function getOriginName({origin, manifest} = {}) {
+  // FIXME: use WHATWG URL parser
   const {host} = utils.parseUrl(origin);
   if(!manifest) {
     return host;
