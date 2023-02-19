@@ -3,6 +3,7 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
+import {autoRegisterHint} from './helpers.js';
 import {BaseMediator} from './BaseMediator.js';
 import {CredentialEventProxy} from './CredentialEventProxy.js';
 import {loadOnce} from 'credential-mediator-polyfill';
@@ -106,6 +107,10 @@ export class FirstPartyMediator extends BaseMediator {
   }
 
   async selectHint({hint}) {
+    // auto-register handler if hint was JIT-created
+    if(hint.jit) {
+      await autoRegisterHint({hint});
+    }
     this.proxiedEvent.respondWith({choice: {hint}});
   }
 }
