@@ -90,42 +90,32 @@ async function _createHintOptions({handlers}) {
     // FIXME: replace all `utils.parseUrl` with WHATWG `URL`
     const {origin, host} = utils.parseUrl(credentialHandler);
     const manifest = (await getWebAppManifest({origin})) || {};
-    // FIXME: use `getOriginName()`
-    const name = manifest.name || manifest.short_name || host;
+    const originalCredentialHandler = credentialHandler;
+
     // FIXME: if `manifest.credential_handler` is NOT set, then permission
-    // should be revoked for the handler...
-    // if `manifest.credential_handler` is set, update registration
-    // to use it if it doesn't match already
-    // TODO: consider also updating if `enabledTypes` does not match
+    // should be revoked for the handler
     // FIXME: make this a helper function
     if(manifest.credential_handler &&
       manifest.credential_handler.url &&
       manifest.credential_handler.enabledTypes) {
-      const {url, enabledTypes} = manifest.credential_handler;
-      let newCredentialHandler;
       // resolve credential handler URL
       try {
-        newCredentialHandler = new URL(url, origin).href;
-        if(newCredentialHandler !== credentialHandler) {
-          credentialHandler = newCredentialHandler;
-          await navigator.credentialMediator.ui.registerCredentialHandler(
-            credentialHandler, {name, enabledTypes, icons: []});
-        }
+        const {url} = manifest.credential_handler;
+        credentialHandler = new URL(url, origin).href;
       } catch(e) {
         console.error(e);
       }
     }
-
-    // FIXME: consolidate with JIT hint creation code below
-    // get updated name and icons
-    let icon = getWebAppManifestIcon({manifest, origin, size: 32});
-    if(icon) {
-      icon = {fetchedImage: icon.src};
+    const hint = _createHint({credentialHandler, host, origin, manifest});
+    // if credential handler has changed, update registration
+    if(originalCredentialHandler !== credentialHandler) {
+      // FIXME: also re-register credential handler if enabled types have
+      // changed
+      const {enabledTypes} = manifest.credential_handler;
+      await navigator.credentialMediator.ui.registerCredentialHandler(
+        credentialHandler, {name: hint.name, enabledTypes, icons: []});
     }
-    return {
-      name, icon, origin, host, manifest,
-      hintOption: {credentialHandler, credentialHintKey: 'default'}
-    };
+    return hint;
   }));
 }
 
@@ -135,8 +125,6 @@ async function _createJitHint({recommendedOrigin, recommendedBy, types}) {
   }
   const {host, origin} = utils.parseUrl(recommendedOrigin);
   const manifest = (await getWebAppManifest({origin})) || {};
-  // FIXME: use `getOriginName()`
-  const name = manifest.name || manifest.short_name || host;
   if(!(manifest.credential_handler &&
     manifest.credential_handler.url &&
     Array.isArray(manifest.credential_handler.enabledTypes))) {
@@ -163,17 +151,26 @@ async function _createJitHint({recommendedOrigin, recommendedBy, types}) {
     console.error(e);
     return;
   }
+  return _createHint(
+    {credentialHandler, host, origin, manifest, recommendedBy});
+}
 
-  // create hint
+function _createHint({
+  credentialHandler, host, origin, manifest, recommendedBy
+}) {
+  const name = getOriginName({origin, manifest});
   let icon = getWebAppManifestIcon({manifest, origin, size: 32});
   if(icon) {
     icon = {fetchedImage: icon.src};
   }
-  return {
+  const hint = {
     name, icon, origin, host, manifest,
-    hintOption: {credentialHandler, credentialHintKey: 'default'},
-    jit: {recommendedBy}
+    hintOption: {credentialHandler, credentialHintKey: 'default'}
   };
+  if(recommendedBy) {
+    hint.jit = {recommendedBy};
+  }
+  return hint;
 }
 
 async function _createJitHints({
