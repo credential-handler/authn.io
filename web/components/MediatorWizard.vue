@@ -169,7 +169,7 @@ export default {
       display: null,
       hintOptions: [],
       hintRemovalText: 'Hiding...',
-      loading: false,
+      loading: true,
       credentialRequestOrigin: null,
       credentialRequestOriginManifest: null,
       selectedHint: null,
@@ -219,9 +219,6 @@ export default {
     }
   },
   async created() {
-    this.loading = true;
-    console.log('new MediatorWizard created');
-
     try {
       // FIXME: move to MediatorPage?
       const mediator = new ThirdPartyMediator();
@@ -232,11 +229,8 @@ export default {
       // FIXME: create computed from `mediator.credentialRequestOrigin`
       this.credentialRequestOrigin = mediator.credentialRequestOrigin;
 
-      // FIXME: try/catch?
       await mediator.initialize({
         show: ({requestType}) => {
-          console.log('show MediatorWizard');
-          // FIXME: is setting `loading=true` here necessary?
           this.loading = true;
           this.display = requestType;
           this.showHintChooser = false;
@@ -250,12 +244,8 @@ export default {
             this.credentialRequestOriginManifest = manifest;
           });
         },
-        hide: () => {
-          console.log('hide MediatorWizard');
-          this.reset();
-        },
+        hide: () => this.reset(),
         ready: () => {
-          console.log('ready MediatorWizard');
           this.hintOptions = mediator.hintManager.hintOptions;
           if(!mediator.firstPartyMode &&
             this.requestType !== 'permissionRequest') {
@@ -263,9 +253,8 @@ export default {
           }
           this.loading = false;
         },
-        showHandlerWindow: ({webAppWindow}) => {
-          _showHandlerWindow({webAppWindow, mediator});
-        }
+        showHandlerWindow: ({webAppWindow}) =>
+          _showHandlerWindow({webAppWindow, mediator})
       });
     } catch(e) {
       console.error('Error initializing mediator:', e);

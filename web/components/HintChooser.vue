@@ -84,7 +84,7 @@ export default {
       display: null,
       hintOptions: [],
       hintRemovalText: 'Hiding...',
-      loading: false,
+      loading: true,
       credentialRequestOrigin: null,
       credentialRequestOriginManifest: null,
       selectedHint: null,
@@ -96,34 +96,24 @@ export default {
   },
   methods: {
     async _setup() {
-      this.loading = true;
-
       try {
         const mediator = new FirstPartyMediator();
         this._mediator = mediator;
 
         await mediator.initialize({
-          // FIXME: show may not be needed
           show: ({requestType}) => {
-            console.log('show HintChooser');
             this.loading = true;
             this.display = requestType;
             this.showHintChooser = true;
           },
-          // FIXME: hide may not be needed
-          hide: () => {
-            console.log('hide HintChooser');
-            this.reset();
-          },
+          hide: () => this.reset(),
           ready: () => {
-            console.log('ready HintChooser');
             this.hintOptions = mediator.hintManager.hintOptions;
             this.loading = false;
           }
         });
 
-        // FIXME: rename, use same as mediator names or remove and just use
-        // mediator vars directly
+        // FIXME: use computed vars from mediator properties instead
         this.credentialRequestOrigin = mediator.credentialRequestOrigin;
         this.credentialRequestOriginManifest =
           mediator.credentialRequestOriginManifest;
