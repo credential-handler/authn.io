@@ -87,10 +87,13 @@ export class HintManager {
 async function _createHintOptions({handlers}) {
   // FIXME: make map function this a helper function
   return Promise.all(handlers.map(async credentialHandler => {
+    // FIXME: replace all `utils.parseUrl` with WHATWG `URL`
     const {origin, host} = utils.parseUrl(credentialHandler);
     const manifest = (await getWebAppManifest({origin})) || {};
     // FIXME: use `getOriginName()`
     const name = manifest.name || manifest.short_name || host;
+    // FIXME: if `manifest.credential_handler` is NOT set, then permission
+    // should be revoked for the handler...
     // if `manifest.credential_handler` is set, update registration
     // to use it if it doesn't match already
     // TODO: consider also updating if `enabledTypes` does not match
@@ -152,11 +155,6 @@ async function _createJitHint({recommendedOrigin, recommendedBy, types}) {
     // no match
     return;
   }
-  // create hint
-  let icon = getWebAppManifestIcon({manifest, origin, size: 32});
-  if(icon) {
-    icon = {fetchedImage: icon.src};
-  }
   // resolve credential handler URL
   let credentialHandler;
   try {
@@ -164,6 +162,12 @@ async function _createJitHint({recommendedOrigin, recommendedBy, types}) {
   } catch(e) {
     console.error(e);
     return;
+  }
+
+  // create hint
+  let icon = getWebAppManifestIcon({manifest, origin, size: 32});
+  if(icon) {
+    icon = {fetchedImage: icon.src};
   }
   return {
     name, icon, origin, host, manifest,
@@ -210,7 +214,8 @@ async function _createRecommendedHints({
   // get relevant types to match against handler
   let types = [];
   if(credentialRequestOptions) {
-    // types are all capitalized `{web: {Type1, Type2, ..., TypeN}}`
+    // types are all capitalized `{web: {Type1, Type2, ..., TypeN}}`; use this
+    // to filter out any non-type parameters in the request
     types = Object.keys(credentialRequestOptions.web)
       .filter(k => k[0] === k.toUpperCase()[0]);
   } else {
