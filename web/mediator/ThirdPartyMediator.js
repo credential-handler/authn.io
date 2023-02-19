@@ -3,10 +3,7 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {
-  autoRegisterHint,
-  createDefaultHintOption
-} from './helpers.js';
+import {autoRegisterHint, createDefaultHintOption} from './helpers.js';
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
 import {getWebAppManifest} from './manifest.js';
 import {loadOnce} from 'credential-mediator-polyfill';
