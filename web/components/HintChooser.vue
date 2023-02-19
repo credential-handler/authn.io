@@ -137,6 +137,7 @@ export default {
       const {_mediator: {hintManager}} = this;
       this.loading = true;
       try {
+        // FIXME: replace `hintOptions` with `hints`
         this.hintOptions = [];
         await hintManager.removeHint({hint});
         this.hintOptions = hintManager.hintOptions.slice();
