@@ -76,12 +76,11 @@ export class HintManager {
     this.hintOptions.splice(idx, 1);
     await navigator.credentialMediator.ui.unregisterCredentialHandler(
       hint.hintOption.credentialHandler);
-    if(this.hintOptions.length === 0) {
-      // load hints again to use recommended handler origins if present
-      // and include a slight delay to avoid flash of content
-      await new Promise(r => setTimeout(r, 1000));
-      await this.reload();
-    }
+    // load hints again to use recommended handler origins if present
+    // and include a slight delay to avoid flash of content
+    const timeout = new Promise(r => setTimeout(r, 500));
+    await this.reload();
+    await timeout;
   }
 }
 
@@ -129,6 +128,52 @@ async function _createHintOptions({handlers}) {
     }));
 }
 
+async function _createJitHint({recommendedOrigin, recommendedBy, types}) {
+  if(typeof recommendedOrigin !== 'string') {
+    return;
+  }
+  const {host, origin} = utils.parseUrl(recommendedOrigin);
+  const manifest = (await getWebAppManifest({origin})) || {};
+  // FIXME: use `getOriginName()`
+  const name = manifest.name || manifest.short_name || host;
+  if(!(manifest.credential_handler &&
+    manifest.credential_handler.url &&
+    Array.isArray(manifest.credential_handler.enabledTypes))) {
+    // manifest does not have credential handler info
+    return;
+  }
+  // see if manifest expressed types match request/credential type
+  let match = false;
+  for(const t of types) {
+    if(manifest.credential_handler.enabledTypes.includes(t)) {
+      match = true;
+      break;
+    }
+  }
+  if(!match) {
+    // no match
+    return;
+  }
+  // create hint
+  let icon = getWebAppManifestIcon({manifest, origin, size: 32});
+  if(icon) {
+    icon = {fetchedImage: icon.src};
+  }
+  // resolve credential handler URL
+  let credentialHandler;
+  try {
+    credentialHandler = new URL(manifest.credential_handler.url, origin).href;
+  } catch(e) {
+    console.error(e);
+    return;
+  }
+  return {
+    name, icon, origin, host, manifest,
+    hintOption: {credentialHandler, credentialHintKey: 'default'},
+    jit: {recommendedBy}
+  };
+}
+
 async function _createJitHints({
   recommendedHandlerOrigins, types,
   credentialRequestOrigin, credentialRequestOriginManifest
@@ -137,66 +182,13 @@ async function _createJitHints({
     origin: credentialRequestOrigin,
     manifest: credentialRequestOriginManifest
   });
-  // FIXME: pass static helper function to .map()
-  return Promise.all(recommendedHandlerOrigins.map(async recommendedOrigin => {
-    if(typeof recommendedOrigin !== 'string') {
-      return;
-    }
-    const {host, origin} = utils.parseUrl(recommendedOrigin);
-    const manifest = (await getWebAppManifest({origin})) || {};
-    // FIXME: use `getOriginName()`
-    const name = manifest.name || manifest.short_name || host;
-    if(!(manifest.credential_handler &&
-      manifest.credential_handler.url &&
-      Array.isArray(manifest.credential_handler.enabledTypes))) {
-      // manifest does not have credential handler info
-      return;
-    }
-    // see if manifest expressed types match request/credential type
-    let match = false;
-    for(const t of types) {
-      if(manifest.credential_handler.enabledTypes.includes(t)) {
-        match = true;
-        break;
-      }
-    }
-    if(!match) {
-      // no match
-      return;
-    }
-    // create hint
-    let icon = getWebAppManifestIcon({manifest, origin, size: 32});
-    if(icon) {
-      icon = {fetchedImage: icon.src};
-    }
-    // resolve credential handler URL
-    let credentialHandler;
-    try {
-      credentialHandler = new URL(
-        manifest.credential_handler.url, origin).href;
-    } catch(e) {
-      console.error(e);
-      return;
-    }
-    return {
-      name,
-      icon,
-      origin,
-      host,
-      manifest,
-      hintOption: {
-        credentialHandler,
-        credentialHintKey: 'default'
-      },
-      jit: {
-        recommendedBy: {
-          name: credentialRequestOriginName,
-          origin: credentialRequestOrigin,
-          manifest: credentialRequestOriginManifest
-        }
-      }
-    };
-  }));
+  const recommendedBy = {
+    name: credentialRequestOriginName,
+    origin: credentialRequestOrigin,
+    manifest: credentialRequestOriginManifest
+  };
+  return Promise.all(recommendedHandlerOrigins.map(async recommendedOrigin =>
+    _createJitHint({recommendedOrigin, recommendedBy, types})));
 }
 
 async function _createRecommendedHints({

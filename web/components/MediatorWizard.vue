@@ -246,7 +246,7 @@ export default {
         },
         hide: () => this.reset(),
         ready: () => {
-          this.hintOptions = mediator.hintManager.hintOptions;
+          this.hintOptions = mediator.hintManager.hintOptions.slice();
           if(!mediator.firstPartyMode &&
             this.requestType !== 'permissionRequest') {
             this.showHintChooser = true;
@@ -334,12 +334,11 @@ export default {
     async removeHint(event) {
       const {hint} = event;
       const {_mediator: {hintManager}} = this;
-      if(hintManager.hintOptions.length === 1) {
-        this.loading = true;
-      }
+      this.loading = true;
       try {
+        this.hintOptions = [];
         await hintManager.removeHint({hint});
-        this.hintOptions = hintManager.hintOptions;
+        this.hintOptions = hintManager.hintOptions.slice();
       } catch(e) {
         console.error(e);
       } finally {
