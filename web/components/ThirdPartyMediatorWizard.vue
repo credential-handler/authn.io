@@ -29,31 +29,20 @@
         v-if="showGreeting && showHintChooser"
         class="wrm-modal-content-header" />
 
-      <!-- step 2 request/store iframe -->
-      <wrm-hint-chooser
+      <!-- integrated with 3p -->
+      <HintChooser
         v-if="showHintChooser"
-        style="user-select: none"
         :hints="hints"
-        :cancel-remove-hint-timeout="5000"
-        :hint-removal-text="hintRemovalText"
-        default-hint-icon="fas fa-wallet"
-        enable-remove-hint
-        @remove-hint="removeHint"
+        :loading="loading"
+        :credential-request-origin="credentialRequestOrigin"
+        :credential-request-origin-manifest="credentialRequestOriginManifest"
+        :request-type="display"
+        @cancel="cancel()"
         @confirm="selectHint"
-        @cancel="cancel()">
-        <template slot="message">
-          <HintChooserMessage
-            :loading="loading"
-            :credential-request-origin="credentialRequestOrigin"
-            :credential-request-origin-manifest="
-              credentialRequestOriginManifest"
-            :request-type="display"
-            :show-warning="hints.length === 0"
-            @close="cancel()" />
-        </template>
-        <template
-          v-if="hints.length > 0"
-          slot="hint-list-footer">
+        @remove-hint="removeHint"
+        @select-hint="selectHint"
+        @web-share="webShare()">
+        <template slot="hint-list-footer">
           <div
             style="margin: 10px -15px 0px -15px; padding: 15px 15px 0px 15px;"
             class="wrm-separator wrm-modern">
@@ -64,21 +53,10 @@
               label="Remember my choice for this site"
               label-class="wrm-dark-gray" />
           </div>
-          <!-- FIXME: do not show this button if WebShare is not available -->
-          <div
-            class="wrm-button-bar"
-            style="margin: auto; padding-top: 1em;">
-            <button
-              type="button"
-              class="wrm-button"
-              style="margin: auto"
-              :disabled="loading"
-              @click="webShare()">
-              Select Native App Instead
-            </button>
-          </div>
         </template>
-      </wrm-hint-chooser>
+      </HintChooser>
+
+      <!-- shown while a hint has been selected w/ open handler window -->
       <div
         v-else-if="selectedHint"
         style="padding-top: 15px">
@@ -154,7 +132,7 @@
  * All rights reserved.
  */
 import HandlerWindowHeader from './HandlerWindowHeader.vue';
-import HintChooserMessage from './HintChooserMessage.vue';
+import HintChooser from './HintChooser.vue';
 import MediatorGreeting from './MediatorGreeting.vue';
 import MediatorHeader from './MediatorHeader.vue';
 import {ThirdPartyMediator} from '../mediator/ThirdPartyMediator.js';
@@ -162,7 +140,7 @@ import Vue from 'vue';
 
 export default {
   name: 'ThirdPartyMediatorWizard',
-  components: {HintChooserMessage, MediatorGreeting, MediatorHeader},
+  components: {HintChooser, MediatorGreeting, MediatorHeader},
   data() {
     return {
       // FIXME: audit whether all of these are needed
