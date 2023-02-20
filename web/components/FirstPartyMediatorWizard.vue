@@ -12,7 +12,9 @@
     @back="cancel()"
     @cancel="cancel()">
     <template slot="header">
-      <MediatorHeader title="Choose a Wallet" />
+      <MediatorHeader
+        title="Choose a Wallet"
+        :loading="loading" />
     </template>
     <template slot="body">
       <mediator-greeting
