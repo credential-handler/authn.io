@@ -5,7 +5,7 @@
     :loading="loading"
     :first="true"
     :has-next="true"
-    :blocked="loading || (!showGreeting && !selectedHint)"
+    :blocked="loading"
     @cancel="cancel()"
     @next="openFirstPartyDialog()">
     <template slot="header">
@@ -16,7 +16,6 @@
     <template slot="body">
       <!-- step 1 w/ 1p, integrated with 3p -->
       <mediator-greeting
-        v-if="showGreeting"
         :icon-size="greetingIconSize"
         :credential-request-origin="credentialRequestOrigin"
         :credential-request-origin-manifest="credentialRequestOriginManifest"
@@ -24,7 +23,7 @@
 
       <!-- separator between greeting and any hints shown -->
       <div
-        v-if="showGreeting && (showHintChooser || selectedHint)"
+        v-if="showHintChooser || selectedHint"
         class="wrm-modal-content-header" />
 
       <!-- integrated with 3p -->
@@ -154,7 +153,6 @@ export default {
       // FIXME: alphabetize once needs are determined
       firstPartyMode: true,
       rememberChoice: true,
-      showGreeting: true,
       popupOpen: false
     };
   },
@@ -163,27 +161,24 @@ export default {
       return this.loading || !!this.selectedHint;
     },
     headerTitle() {
-      const {selectedHint, showGreeting, showHintChooser, requestType} = this;
+      const {selectedHint, showHintChooser, requestType} = this;
       if(selectedHint) {
         return 'Loading Wallet...';
       }
-      if(showGreeting) {
-        if(requestType === 'permissionRequest') {
-          return 'Allow Wallet';
-        }
-        if(showHintChooser) {
-          return 'Choose a Wallet';
-        }
-        if(requestType === 'credentialRequest') {
-          return 'Credentials Request';
-        }
-        return 'Store Credentials';
+      if(showHintChooser) {
+        return 'Choose a Wallet';
       }
-      return 'Choose a Wallet';
+      if(requestType === 'permissionRequest') {
+        return 'Allow Wallet';
+      }
+      if(requestType === 'credentialRequest') {
+        return 'Credentials Request';
+      }
+      return 'Store Credentials';
     },
     greetingIconSize() {
-      // combined greeting + hints screen; de-emphasize greeting icon size
-      if(this.showGreeting && this.showHintChooser) {
+      // on hints screen, de-emphasize greeting icon size
+      if(this.showHintChooser) {
         return 36;
       }
       return 48;
@@ -208,7 +203,6 @@ export default {
           this.loading = true;
           this.requestType = requestType;
           this.showHintChooser = false;
-          this.showGreeting = true;
           this.requestType = requestType;
           this.credential = mediator.credential;
           this.credentialRequestOptions = mediator.credentialRequestOptions;
@@ -286,7 +280,6 @@ export default {
         this.selectedHint = null;
         // FIXME: why set `rememberChoice` here?
         this.rememberChoice = true;
-        this.showGreeting = true;
         if(!this._mediator.firstPartyMode) {
           this.showHintChooser = true;
         }
@@ -316,7 +309,6 @@ export default {
 
       // reset other fields
       this.rememberChoice = true;
-      this.showGreeting = true;
       this.popupOpen = false;
     },
     async webShare() {
