@@ -15,6 +15,7 @@ export function getOriginName({origin, manifest} = {}) {
   return name || short_name || host;
 }
 
+// FIXME: move to HintManager
 export async function autoRegisterHint({hint}) {
   const {
     hintOption: {credentialHandler},
