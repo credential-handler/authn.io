@@ -34,17 +34,12 @@ export default {
   components: {MediatorWizard},
   data() {
     return {
-      // FIXME: audit whether all of these are needed
-      credential: null,
-      credentialRequestOptions: null,
-      requestType: null,
-      greetingIconSize: 36,
-      hints: [],
-      loading: true,
       credentialRequestOrigin: '',
       credentialRequestOriginManifest: null,
-      selectedHint: null,
-      showHintChooser: false
+      hints: [],
+      loading: true,
+      requestType: null,
+      selectedHint: null
     };
   },
   async created() {
@@ -60,7 +55,6 @@ export default {
           show: ({requestType}) => {
             this.loading = true;
             this.requestType = requestType;
-            this.showHintChooser = true;
           },
           hide: () => this.reset(),
           ready: () => {
@@ -74,8 +68,6 @@ export default {
         this.credentialRequestOriginManifest =
           mediator.credentialRequestOriginManifest;
         this.registrationHintOption = mediator.registrationHintOption;
-        this.credential = mediator.credential;
-        this.credentialRequestOptions = mediator.credentialRequestOptions;
       } finally {
         this.loading = false;
       }
@@ -103,12 +95,10 @@ export default {
       }
     },
     reset() {
-      this.credentialRequestOptions = this.credential = null;
-      this.requestType = null;
       this.hints = [];
       this.loading = false;
+      this.requestType = null;
       this.selectedHint = null;
-      this.showHintChooser = false;
     },
     async webShare() {
       await this._mediator.webShare();
