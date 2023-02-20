@@ -82,7 +82,7 @@
       </div>
     </template>
     <template
-      v-if="hasCustomFooter"
+      v-if="!firstPartyMode || popupOpen"
       slot="footer">
       <!-- clear footer when shown with hint chooser or selected hint -->
       <div v-if="showHintChooser || selectedHint" />
@@ -188,9 +188,6 @@ export default {
         return 36;
       }
       return 48;
-    },
-    hasCustomFooter() {
-      return !this.firstPartyMode;
     }
   },
   async created() {
