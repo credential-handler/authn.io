@@ -126,8 +126,9 @@ async function _createRegisteredHints({handlers}) {
   }));
 }
 
-// FIXME: rename `types` to `acceptedTypes`
-async function _createJitHint({recommendedOrigin, recommendedBy, types}) {
+async function _createJitHint({
+  recommendedOrigin, recommendedBy, acceptedTypes
+}) {
   if(typeof recommendedOrigin !== 'string') {
     return;
   }
@@ -147,7 +148,7 @@ async function _createJitHint({recommendedOrigin, recommendedBy, types}) {
   // see if manifest expressed types match request/credential type
   const {credentialHandler, enabledTypes} = handlerInfo;
   let match = false;
-  for(const t of types) {
+  for(const t of acceptedTypes) {
     if(enabledTypes.includes(t)) {
       match = true;
       break;
@@ -188,7 +189,7 @@ function _createHintOption({credentialHandler, enabledTypes}) {
 }
 
 async function _createJitHints({
-  recommendedHandlerOrigins, types,
+  recommendedHandlerOrigins, acceptedTypes,
   credentialRequestOrigin, credentialRequestOriginManifest
 }) {
   const credentialRequestOriginName = getOriginName({
@@ -201,7 +202,7 @@ async function _createJitHints({
     manifest: credentialRequestOriginManifest
   };
   return Promise.all(recommendedHandlerOrigins.map(async recommendedOrigin =>
-    _createJitHint({recommendedOrigin, recommendedBy, types})));
+    _createJitHint({recommendedOrigin, recommendedBy, acceptedTypes})));
 }
 
 async function _createRecommendedHints({
@@ -213,7 +214,7 @@ async function _createRecommendedHints({
     return [];
   }
 
-  // filter out any handlers that are already in `hintOptions`
+  // filter out any recommended handler origins that are already in `handlers`
   recommendedHandlerOrigins = recommendedHandlerOrigins.filter(
     // if credential handler URL starts with a recommended
     // handler origin, skip it
@@ -222,21 +223,21 @@ async function _createRecommendedHints({
     return [];
   }
 
-  // get relevant types to match against handler
-  let types = [];
+  // get relevant accepted types to match against handler
+  let acceptedTypes;
   if(credentialRequestOptions) {
     // types are all capitalized `{web: {Type1, Type2, ..., TypeN}}`; use this
     // to filter out any non-type parameters in the request
-    types = Object.keys(credentialRequestOptions.web)
+    acceptedTypes = Object.keys(credentialRequestOptions.web)
       .filter(k => k[0] === k.toUpperCase()[0]);
   } else {
-    types.push(credential.dataType);
+    acceptedTypes = [credential.dataType];
   }
 
   // use a maximum of 3 recommended handlers
   recommendedHandlerOrigins = recommendedHandlerOrigins.slice(0, 3);
   const unfilteredHints = await _createJitHints({
-    recommendedHandlerOrigins, types,
+    recommendedHandlerOrigins, acceptedTypes,
     credentialRequestOrigin, credentialRequestOriginManifest
   });
   return unfilteredHints.filter(e => !!e);
