@@ -12,7 +12,7 @@ import FirstPartyMediatorWizard from
   '../components/FirstPartyMediatorWizard.vue';
 
 export default {
-  name: 'WalletChooserPage',
+  name: 'FirstPartyMediatorPage',
   components: {FirstPartyMediatorWizard}
 };
 </script>
