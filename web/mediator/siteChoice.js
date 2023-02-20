@@ -20,16 +20,16 @@ export function setSiteChoice({credentialRequestOrigin, credentialHandler}) {
   }
 }
 
-export function getSiteChoice({credentialRequestOrigin, hintOptions}) {
+export function getSiteChoice({credentialRequestOrigin, hints}) {
   try {
     const choices = _getChoices();
     const credentialHandler = choices[credentialRequestOrigin];
     if(!credentialHandler) {
       return null;
     }
-    for(const option of hintOptions) {
-      if(option.hintOption.credentialHandler === credentialHandler) {
-        return option;
+    for(const hint of hints) {
+      if(hint.hintOption.credentialHandler === credentialHandler) {
+        return hint;
       }
     }
   } catch(e) {
