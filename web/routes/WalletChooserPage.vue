@@ -1,5 +1,5 @@
 <template>
-  <HintChooser />
+  <FirstPartyMediatorWizard />
 </template>
 
 <script>
@@ -8,11 +8,12 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import HintChooser from '../components/HintChooser.vue';
+import FirstPartyMediatorWizard from
+  '../components/FirstPartyMediatorWizard.vue';
 
 export default {
   name: 'WalletChooserPage',
-  components: {HintChooser}
+  components: {FirstPartyMediatorWizard}
 };
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-  <MediatorWizard />
+  <ThirdPartyMediatorWizard />
 </template>
 
 <script>
@@ -8,11 +8,12 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import MediatorWizard from '../components/MediatorWizard.vue';
+import ThirdPartyMediatorWizard from
+  '../components/ThirdPartyMediatorWizard.vue';
 
 export default {
   name: 'MediatorPage',
-  components: {MediatorWizard}
+  components: {ThirdPartyMediatorWizard}
 };
 </script>
 
