@@ -9,8 +9,8 @@
     :first="false"
     :has-next="false"
     :blocked="loading || !selectedHint"
-    hide-cancel-button
-    @back="cancel()">
+    @back="cancel()"
+    @cancel="cancel()">
     <template slot="header">
       <MediatorHeader title="Choose a Wallet" />
     </template>
@@ -105,8 +105,8 @@ export default {
         this.loading = false;
       }
     },
-    cancel() {
-      this._mediator.cancel();
+    async cancel() {
+      await this._mediator.cancel();
     },
     selectHint(event) {
       const {hint} = event;
