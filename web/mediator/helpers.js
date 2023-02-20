@@ -14,14 +14,3 @@ export function getOriginName({origin, manifest} = {}) {
   const {name, short_name} = manifest;
   return name || short_name || host;
 }
-
-// FIXME: move to HintManager
-export async function autoRegisterHint({hint}) {
-  const {
-    hintOption: {credentialHandler},
-    manifest: {credential_handler: {enabledTypes}},
-    name
-  } = hint;
-  await navigator.credentialMediator.ui.registerCredentialHandler(
-    credentialHandler, {name, enabledTypes, icons: []});
-}
