@@ -2,7 +2,7 @@
   <!-- blank screen once hint is selected and wallet window is loading -->
   <div v-if="selectedHint" />
   <wrm-wizard-dialog
-    v-else-if="!selectedHint"
+    v-else
     class="wrm-modal-1p"
     style="width: 100vw; height: 100vh;"
     :loading="loading"
