@@ -93,16 +93,15 @@
         <button
           type="button"
           class="wrm-button"
+          :disabled="loading"
           @click="deny()">
           Block
         </button>
         <span style="margin-right: 5px" />
-        <!-- FIXME: while `credentialRequestOriginManifest` is still loading,
-          do not allow to be clicked; perhaps `loading` handles this,
-          check it -->
         <button
           type="button"
           class="wrm-button"
+          :disabled="loading"
           @click="allow()">
           Allow
         </button>
