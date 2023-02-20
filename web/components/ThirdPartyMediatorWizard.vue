@@ -51,58 +51,17 @@ export default {
   components: {MediatorWizard},
   data() {
     return {
-      // FIXME: audit whether all of these are needed
-      credential: null,
-      credentialRequestOptions: null,
-      requestType: null,
-      hints: [],
-      loading: true,
       credentialRequestOrigin: null,
       credentialRequestOriginManifest: null,
-      selectedHint: null,
-      showHintChooser: false,
-      // FIXME: alphabetize once needs are determined
       firstPartyMode: true,
+      hints: [],
+      loading: true,
+      popupOpen: false,
       rememberChoice: true,
-      popupOpen: false
+      requestType: null,
+      selectedHint: null,
+      showHintChooser: false
     };
-  },
-  computed: {
-    headerLoading() {
-      return this.loading || !!this.selectedHint;
-    },
-    headerTitle() {
-      const {selectedHint, showHintChooser, requestType} = this;
-      if(selectedHint) {
-        return 'Loading Wallet...';
-      }
-      if(showHintChooser) {
-        return 'Choose a Wallet';
-      }
-      if(requestType === 'permissionRequest') {
-        return 'Allow Wallet';
-      }
-      if(requestType === 'credentialRequest') {
-        return 'Credentials Request';
-      }
-      return 'Store Credentials';
-    },
-    greetingIconSize() {
-      // on hints screen, de-emphasize greeting icon size
-      if(this.showHintChooser) {
-        return 36;
-      }
-      return 48;
-    },
-    hasCustomFooter() {
-      return !this.firstPartyMode || this.popupOpen;
-    },
-    firstPartyDialogFocusText() {
-      if(this.requestType === 'permissionRequest') {
-        return 'Show Permission Window';
-      }
-      return 'Show Wallet Chooser';
-    }
   },
   async created() {
     try {
@@ -120,9 +79,6 @@ export default {
           this.loading = true;
           this.requestType = requestType;
           this.showHintChooser = false;
-          this.requestType = requestType;
-          this.credential = mediator.credential;
-          this.credentialRequestOptions = mediator.credentialRequestOptions;
 
           // if the web app manifest loads, use it
           mediator.credentialRequestOriginManifestPromise.then(manifest => {
@@ -219,16 +175,13 @@ export default {
       }
     },
     reset() {
-      this.credentialRequestOptions = this.credential = null;
-      this.requestType = null;
       this.hints = [];
       this.loading = false;
+      this.popupOpen = false;
+      this.rememberChoice = true;
+      this.requestType = null;
       this.selectedHint = null;
       this.showHintChooser = false;
-
-      // reset other fields
-      this.rememberChoice = true;
-      this.popupOpen = false;
     },
     async webShare() {
       await this._mediator.webShare();
