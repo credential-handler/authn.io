@@ -220,6 +220,7 @@ export default {
         hide: () => this.reset(),
         ready: () => {
           this.hints = mediator.hintManager.hints.slice();
+          // FIXME: make `showHintChooser` a computed var in Vue 3
           if(!mediator.firstPartyMode &&
             this.requestType !== 'permissionRequest') {
             this.showHintChooser = true;
