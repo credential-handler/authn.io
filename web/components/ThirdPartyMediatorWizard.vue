@@ -106,8 +106,7 @@
       </div>
       <!-- FIXME: do not show this button on mobile; it has no effect -->
       <div
-        v-else-if="!selectedHint && popupOpen &&
-          requestType !== 'permissionRequest'"
+        v-else-if="!selectedHint && popupOpen"
         class="wrm-button-bar"
         style="margin: auto; margin-top: 1em">
         <button
@@ -115,7 +114,7 @@
           class="wrm-button wrm-primary"
           style="margin: auto"
           @click="focusPopup()">
-          Show Wallet Chooser
+          {{firstPartyDialogFocusText}}
         </button>
       </div>
     </template>
@@ -185,6 +184,12 @@ export default {
     },
     hasCustomFooter() {
       return !this.firstPartyMode || this.popupOpen;
+    },
+    firstPartyDialogFocusText() {
+      if(this.requestType === 'permissionRequest') {
+        return 'Show Permission Window';
+      }
+      return 'Show Wallet Chooser';
     }
   },
   async created() {
