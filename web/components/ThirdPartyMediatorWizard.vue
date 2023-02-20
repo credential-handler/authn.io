@@ -161,7 +161,7 @@ import {ThirdPartyMediator} from '../mediator/ThirdPartyMediator.js';
 import Vue from 'vue';
 
 export default {
-  name: 'MediatorWizard',
+  name: 'ThirdPartyMediatorWizard',
   components: {HintChooserMessage, MediatorGreeting, MediatorHeader},
   data() {
     return {

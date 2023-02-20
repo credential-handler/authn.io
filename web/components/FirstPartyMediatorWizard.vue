@@ -86,10 +86,10 @@ import HintChooserMessage from './HintChooserMessage.vue';
 import MediatorGreeting from './MediatorGreeting.vue';
 import MediatorHeader from './MediatorHeader.vue';
 
-// FIXME: rename this component to avoid confusion with WrmHintChooser
-// FIXME: abstract out a common component between this and MediatorWizard
+// FIXME: abstract out a common component between this and
+// ThirdPartyMediatorWizard
 export default {
-  name: 'HintChooser',
+  name: 'FirstPartyMediatorWizard',
   components: {HintChooserMessage, MediatorGreeting, MediatorHeader},
   data() {
     return {
