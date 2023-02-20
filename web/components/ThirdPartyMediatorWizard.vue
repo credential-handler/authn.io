@@ -337,13 +337,13 @@ export default {
       const {hint} = event;
       const {_mediator: {hintManager}} = this;
       this.loading = true;
+      this.hints = [];
+      const promise = hintManager.removeHint({hint});
+      event.waitUntil(promise.catch(() => {}));
       try {
-        this.hints = [];
-        await hintManager.removeHint({hint});
-        this.hints = hintManager.hints.slice();
-      } catch(e) {
-        console.error(e);
+        await promise;
       } finally {
+        this.hints = hintManager.hints.slice();
         this.loading = false;
       }
     },
