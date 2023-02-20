@@ -15,8 +15,6 @@
       <MediatorHeader title="Choose a Wallet" />
     </template>
     <template slot="body">
-      <!-- move what is common between here and MediatorWizard into its own
-      component -->
       <mediator-greeting
         v-if="!loading"
         style="user-select: none"
@@ -26,48 +24,21 @@
         :credential-request-origin-manifest="credentialRequestOriginManifest" />
 
       <!-- separator between greeting and hint chooser -->
-      <div>
-        <div class="wrm-modal-content-header" />
-      </div>
+      <!-- FIXME: simplify to a single div? -->
+      <div class="wrm-modal-content-header" />
 
-      <wrm-hint-chooser
+      <HintChooser
         v-if="showHintChooser"
-        style="user-select: none"
         :hints="hints"
-        :cancel-remove-hint-timeout="5000"
-        :hint-removal-text="hintRemovalText"
-        default-hint-icon="fas fa-wallet"
-        enable-remove-hint
-        @remove-hint="removeHint"
+        :loading="loading"
+        :credential-request-origin="credentialRequestOrigin"
+        :credential-request-origin-manifest="credentialRequestOriginManifest"
+        :request-type="display"
+        @cancel="cancel()"
         @confirm="selectHint"
-        @cancel="cancel()">
-        <template slot="message">
-          <HintChooserMessage
-            :loading="loading"
-            :credential-request-origin="credentialRequestOrigin"
-            :credential-request-origin-manifest="
-              credentialRequestOriginManifest"
-            :request-type="display"
-            :show-warning="hints.length === 0"
-            @close="cancel()" />
-        </template>
-        <template
-          v-if="hints.length > 0"
-          slot="hint-list-footer">
-          <div
-            class="wrm-button-bar"
-            style="margin: auto; padding-top: 1em;">
-            <button
-              type="button"
-              class="wrm-button"
-              style="margin: auto"
-              :disabled="loading"
-              @click="webShare()">
-              Select Native App Instead
-            </button>
-          </div>
-        </template>
-      </wrm-hint-chooser>
+        @remove-hint="removeHint"
+        @select-hint="selectHint"
+        @web-share="webShare()" />
     </template>
     <template slot="footer">
       <div />
@@ -82,15 +53,13 @@
  * All rights reserved.
  */
 import {FirstPartyMediator} from '../mediator/FirstPartyMediator.js';
-import HintChooserMessage from './HintChooserMessage.vue';
+import HintChooser from './HintChooser.vue';
 import MediatorGreeting from './MediatorGreeting.vue';
 import MediatorHeader from './MediatorHeader.vue';
 
-// FIXME: abstract out a common component between this and
-// ThirdPartyMediatorWizard
 export default {
   name: 'FirstPartyMediatorWizard',
-  components: {HintChooserMessage, MediatorGreeting, MediatorHeader},
+  components: {HintChooser, MediatorGreeting, MediatorHeader},
   data() {
     return {
       // FIXME: audit whether all of these are needed
@@ -101,7 +70,7 @@ export default {
       hints: [],
       hintRemovalText: 'Hiding...',
       loading: true,
-      credentialRequestOrigin: null,
+      credentialRequestOrigin: '',
       credentialRequestOriginManifest: null,
       selectedHint: null,
       showHintChooser: false
@@ -141,24 +110,24 @@ export default {
       }
     },
     cancel() {
-      window.close();
+      this._mediator.cancel();
     },
-    async selectHint({hint}) {
-      // FIXME: should the display be immediately hidden?
+    selectHint(event) {
+      const {hint} = event;
       this.selectedHint = hint;
-      return this._mediator.selectHint({hint});
+      event.waitUntil(this._mediator.selectHint({hint}));
     },
     async removeHint(event) {
       const {hint} = event;
       const {_mediator: {hintManager}} = this;
       this.loading = true;
+      this.hints = [];
+      const promise = hintManager.removeHint({hint});
+      event.waitUntil(promise.catch(() => {}));
       try {
-        this.hints = [];
-        await hintManager.removeHint({hint});
-        this.hints = hintManager.hints.slice();
-      } catch(e) {
-        console.error(e);
+        await promise;
       } finally {
+        this.hints = hintManager.hints.slice();
         this.loading = false;
       }
     },
@@ -171,7 +140,7 @@ export default {
       this.showHintChooser = false;
     },
     async webShare() {
-      return this._mediator.webShare();
+      await this._mediator.webShare();
     }
   }
 };
