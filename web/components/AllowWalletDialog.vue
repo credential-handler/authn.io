@@ -60,9 +60,7 @@ export default {
   name: 'AllowWalletDialog',
   data() {
     return {
-      event: null,
       loading: false,
-      hintOption: null,
       credentialRequestOrigin: null,
       credentialRequestOriginManifest: null
     };
@@ -76,18 +74,10 @@ export default {
       try {
         const mediator = new FirstPartyMediator();
         this._mediator = mediator;
-
-        // FIXME: are `show`, `hide`, and `ready` needed at all?
         await mediator.initialize({
-          show: () => {
-            this.loading = true;
-          },
-          hide: () => {
-            this.loading = false;
-          },
-          ready: () => {
-            this.loading = false;
-          }
+          show: () => this.loading = true,
+          hide: () => this.loading = false,
+          ready: () => this.loading = false
         });
 
         // FIXME: rename, use same as mediator names or remove and just use
