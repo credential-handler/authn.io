@@ -90,9 +90,6 @@ export default {
         this.loading = false;
       }
     },
-    closeWindow() {
-      window.close();
-    },
     async allow() {
       this.loading = true;
       await this._mediator.allowCredentialHandler();
