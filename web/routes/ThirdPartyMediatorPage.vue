@@ -12,7 +12,7 @@ import ThirdPartyMediatorWizard from
   '../components/ThirdPartyMediatorWizard.vue';
 
 export default {
-  name: 'MediatorPage',
+  name: 'ThirdPartyMediatorPage',
   components: {ThirdPartyMediatorWizard}
 };
 </script>
