@@ -4,7 +4,6 @@
  * All rights reserved.
  */
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
-import {autoRegisterHint} from './helpers.js';
 import {getWebAppManifest} from './manifest.js';
 import {HintManager} from './HintManager.js';
 import {loadOnce} from 'credential-mediator-polyfill';
@@ -175,13 +174,7 @@ export class ThirdPartyMediator extends BaseMediator {
   }
 
   async selectHint({hint, rememberChoice = false}) {
-    // track to enable later cancelation
-    this.selectedHint = hint;
-
-    // auto-register handler if hint was JIT-created
-    if(hint.jit) {
-      await autoRegisterHint({hint});
-    }
+    await super.selectHint({hint});
 
     const {credentialRequestOrigin} = this;
     if(rememberChoice && !this.firstPartyMode) {

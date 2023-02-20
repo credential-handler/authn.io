@@ -81,6 +81,16 @@ export class HintManager {
     await timeout;
   }
 
+  static async autoRegisterHint({hint}) {
+    const {
+      hintOption: {credentialHandler},
+      manifest: {credential_handler: {enabledTypes}},
+      name
+    } = hint;
+    await navigator.credentialMediator.ui.registerCredentialHandler(
+      credentialHandler, {name, enabledTypes, icons: []});
+  }
+
   static createHintOption({origin, manifest} = {}) {
     let handlerInfo;
     try {

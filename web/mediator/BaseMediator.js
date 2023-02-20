@@ -48,8 +48,18 @@ export class BaseMediator {
     return handler;
   }
 
+  async selectHint({hint}) {
+    this.selectedHint = hint;
+
+    // auto-register handler if hint was JIT-created
+    if(hint.jit) {
+      await HintManager.autoRegisterHint({hint});
+    }
+  }
+
   startNewRequest() {
     this.hintManager = new HintManager();
+    this.selectedHint = null;
     this.webShareHandler = null;
   }
 
