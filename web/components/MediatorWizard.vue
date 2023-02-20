@@ -196,6 +196,7 @@ export default {
       return 48;
     },
     hasCustomFooter() {
+      // FIXME: rename `firstPartyMode` to avoid confusion
       return !this.firstPartyMode || this.popupOpen;
     },
     firstPartyDialogFocusText() {

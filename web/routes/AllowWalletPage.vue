@@ -1,5 +1,5 @@
 <template>
-  <AllowWalletDialog />
+  <FirstPartyMediatorWizard />
 </template>
 
 <script>
@@ -8,11 +8,13 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import AllowWalletDialog from '../components/AllowWalletDialog.vue';
+//import AllowWalletDialog from '../components/AllowWalletDialog.vue';
+import FirstPartyMediatorWizard from
+  '../components/FirstPartyMediatorWizard.vue';
 
 export default {
   name: 'AllowWalletPage',
-  components: {AllowWalletDialog}
+  components: {FirstPartyMediatorWizard}
 };
 </script>
 
