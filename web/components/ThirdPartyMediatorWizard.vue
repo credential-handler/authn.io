@@ -1,4 +1,5 @@
 <template>
+  <!-- blank screen while credential request is loading -->
   <div v-if="!requestType" />
   <wrm-wizard-dialog
     v-else
