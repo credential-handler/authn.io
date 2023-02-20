@@ -17,14 +17,12 @@
     <template slot="body">
       <mediator-greeting
         v-if="!loading"
-        style="user-select: none"
         :display="display"
         :icon-size="greetingIconSize"
         :credential-request-origin="credentialRequestOrigin"
         :credential-request-origin-manifest="credentialRequestOriginManifest" />
 
       <!-- separator between greeting and hint chooser -->
-      <!-- FIXME: simplify to a single div? -->
       <div class="wrm-modal-content-header" />
 
       <HintChooser
