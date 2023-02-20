@@ -15,7 +15,7 @@
         :loading="headerLoading" />
     </template>
     <template slot="body">
-      <!-- step 1 -->
+      <!-- step 1 w/ 1p, integrated with 3p -->
       <mediator-greeting
         v-if="showGreeting"
         style="user-select: none"
@@ -24,10 +24,12 @@
         :credential-request-origin="credentialRequestOrigin"
         :credential-request-origin-manifest="credentialRequestOriginManifest" />
 
-      <!-- step 2 request/store iframe -->
+      <!-- separator between greeting and hint chooser when both shown -->
       <div v-if="showGreeting && showHintChooser">
         <div class="wrm-modal-content-header" />
       </div>
+
+      <!-- step 2 request/store iframe -->
       <wrm-hint-chooser
         v-if="showHintChooser"
         style="user-select: none"
