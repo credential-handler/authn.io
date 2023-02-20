@@ -25,9 +25,9 @@
         :credential-request-origin-manifest="credentialRequestOriginManifest" />
 
       <!-- separator between greeting and hint chooser when both shown -->
-      <div v-if="showGreeting && showHintChooser">
-        <div class="wrm-modal-content-header" />
-      </div>
+      <div
+        v-if="showGreeting && showHintChooser"
+        class="wrm-modal-content-header" />
 
       <!-- step 2 request/store iframe -->
       <wrm-hint-chooser
