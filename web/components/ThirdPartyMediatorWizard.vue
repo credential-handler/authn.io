@@ -18,10 +18,10 @@
       <!-- step 1 w/ 1p, integrated with 3p -->
       <mediator-greeting
         v-if="showGreeting"
-        :display="display"
         :icon-size="greetingIconSize"
         :credential-request-origin="credentialRequestOrigin"
-        :credential-request-origin-manifest="credentialRequestOriginManifest" />
+        :credential-request-origin-manifest="credentialRequestOriginManifest"
+        :request-type="display" />
 
       <!-- separator between greeting and hint chooser when both shown -->
       <div
