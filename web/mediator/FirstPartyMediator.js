@@ -65,7 +65,7 @@ export class FirstPartyMediator extends BaseMediator {
       const needsHintSelection = type === 'selectcredentialhint';
       const requestType = needsHintSelection ?
         (credential ? 'credentialStore' : 'credentialRequest') :
-        'requestPermission';
+        'permissionRequest';
       await this.show({requestType});
       if(needsHintSelection) {
         await this.hintManager.initialize({

@@ -7,14 +7,15 @@
     style="width: 100vw; height: 100vh;"
     :credential-request-origin="credentialRequestOrigin"
     :credential-request-origin-manifest="credentialRequestOriginManifest"
-    :first-party-mode="true"
+    :first-party-mode="false"
     :hints="hints"
     :loading="loading"
-    :popup-open="true"
     :request-type="requestType"
     :selected-hint="selectedHint"
-    :show-hint-chooser="true"
+    :show-hint-chooser="showHintChooser"
+    @allow="allow()"
     @cancel="cancel()"
+    @deny="deny()"
     @remove-hint="removeHint"
     @select-hint="selectHint"
     @web-share="webShare" />
@@ -41,6 +42,11 @@ export default {
       requestType: null,
       selectedHint: null
     };
+  },
+  computed: {
+    showHintChooser() {
+      return this.requestType !== 'permissionRequest';
+    }
   },
   async created() {
     this._setup().catch(console.error);
@@ -72,13 +78,16 @@ export default {
         this.loading = false;
       }
     },
+    async allow() {
+      this.loading = true;
+      await this._mediator.allowCredentialHandler();
+    },
     async cancel() {
       await this._mediator.cancel();
     },
-    selectHint(event) {
-      const {hint} = event;
-      this.selectedHint = hint;
-      event.waitUntil(this._mediator.selectHint({hint}));
+    async deny() {
+      this.loading = true;
+      await this._mediator.denyCredentialHandler();
     },
     async removeHint(event) {
       const {hint} = event;
@@ -99,6 +108,11 @@ export default {
       this.loading = false;
       this.requestType = null;
       this.selectedHint = null;
+    },
+    selectHint(event) {
+      const {hint} = event;
+      this.selectedHint = hint;
+      event.waitUntil(this._mediator.selectHint({hint}));
     },
     async webShare() {
       await this._mediator.webShare();
