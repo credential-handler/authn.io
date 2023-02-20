@@ -89,6 +89,10 @@ export class FirstPartyMediator extends BaseMediator {
     await this.hide();
   }
 
+  async cancel() {
+    window.close();
+  }
+
   async denyCredentialHandler() {
     const status = {state: 'denied'};
     try {
