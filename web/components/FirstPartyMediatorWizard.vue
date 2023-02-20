@@ -65,7 +65,6 @@ export default {
       requestType: null,
       greetingIconSize: 36,
       hints: [],
-      hintRemovalText: 'Hiding...',
       loading: true,
       credentialRequestOrigin: '',
       credentialRequestOriginManifest: null,

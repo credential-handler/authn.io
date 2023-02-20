@@ -146,7 +146,6 @@ export default {
       credentialRequestOptions: null,
       requestType: null,
       hints: [],
-      hintRemovalText: 'Hiding...',
       loading: true,
       credentialRequestOrigin: null,
       credentialRequestOriginManifest: null,
