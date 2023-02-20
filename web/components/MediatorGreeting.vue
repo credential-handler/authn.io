@@ -1,14 +1,7 @@
 <template>
   <div style="user-select: none">
     <div style="font-size: 14px; padding-top: 10px">
-      The following website wants to
-      <span v-if="display === 'credentialRequest'">
-        receive credentials from you:
-      </span>
-      <span v-else-if="display === 'credentialStore'">
-        send credentials to you:
-      </span>
-      <span v-else>manage credentials for you:</span>
+      The following website wants to {{websiteDesire}}
     </div>
     <wrm-origin-card
       style="padding: 20px 0 10px 0"
@@ -27,10 +20,6 @@
 export default {
   name: 'MediatorGreeting',
   props: {
-    display: {
-      type: String,
-      required: true
-    },
     iconSize: {
       type: Number,
       required: false,
@@ -44,6 +33,21 @@ export default {
       type: Object,
       required: false,
       default: () => null
+    },
+    requestType: {
+      type: String,
+      required: true
+    }
+  },
+  computed: {
+    websiteDesire() {
+      if(this.requestType === 'credentialRequest') {
+        return 'receive credentials from you:';
+      }
+      if(this.requestType === 'credentialStore') {
+        return 'send credentials to you:';
+      }
+      return 'manage credentials for you:';
     }
   }
 };
