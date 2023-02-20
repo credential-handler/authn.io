@@ -22,6 +22,8 @@
     <template
       v-if="hints.length > 0"
       slot="hint-list-footer">
+      <slot name="hint-list-footer" />
+      <!-- FIXME: do not show this button if WebShare is not available -->
       <div
         class="wrm-button-bar"
         style="margin: auto; padding-top: 1em;">
