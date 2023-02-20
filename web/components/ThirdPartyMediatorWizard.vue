@@ -7,7 +7,7 @@
     :has-next="true"
     :blocked="loading || (!showGreeting && !selectedHint)"
     @cancel="cancel()"
-    @next="nextWizardStep()">
+    @next="openFirstPartyDialog()">
     <template slot="header">
       <MediatorHeader
         :title="headerTitle"
@@ -249,32 +249,26 @@ export default {
     focusPopup() {
       this._mediator.focusFirstPartyDialog();
     },
-    async nextWizardStep() {
-      // FIXME: notably, this is only ever called on platforms that need to
-      // use first party mode, so this can be simplified
+    async openFirstPartyDialog() {
       this.loading = true;
       try {
-        // FIXME: conditional unnecessary, `next` should be gated so that it
-        // can only be called in first party mode platforms anyway
-        if(this.firstPartyMode) {
-          // FIXME: bikeshed this approach to handling 1p dialog state changes
-          const opened = () => this.popupOpen = true;
-          const closed = () => this.popupOpen = false;
+        // FIXME: bikeshed this approach to handling 1p dialog state changes
+        const opened = () => this.popupOpen = true;
+        const closed = () => this.popupOpen = false;
 
-          // handle permission request case
-          if(this.requestType === 'permissionRequest') {
-            await this._mediator
-              .handlePermissionRequestWithFirstPartyMediator({opened, closed});
-            return;
-          }
+        // handle permission request case
+        if(this.requestType === 'permissionRequest') {
+          await this._mediator
+            .handlePermissionRequestWithFirstPartyMediator({opened, closed});
+          return;
+        }
 
-          // handle all other cases
-          const {choice} = await this._mediator
-            .getHintChoiceWithFirstPartyMediator({opened, closed});
-          // if a choice was made... (vs. closing the window)
-          if(choice) {
-            this.selectHint({...choice, waitUntil: () => {}});
-          }
+        // handle all other cases
+        const {choice} = await this._mediator
+          .getHintChoiceWithFirstPartyMediator({opened, closed});
+        // if a choice was made... (vs. closing the window)
+        if(choice) {
+          this.selectHint({...choice, waitUntil: () => {}});
         }
       } finally {
         this.loading = false;
