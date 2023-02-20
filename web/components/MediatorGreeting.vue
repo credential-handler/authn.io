@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="user-select: none">
     <div style="font-size: 14px; padding-top: 10px">
       The following website wants to
       <span v-if="display === 'credentialRequest'">
