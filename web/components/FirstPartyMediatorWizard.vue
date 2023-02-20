@@ -1,49 +1,23 @@
 <template>
   <!-- blank screen once hint is selected and wallet window is loading -->
   <div v-if="selectedHint" />
-  <wrm-wizard-dialog
+  <MediatorWizard
     v-else
     class="wrm-modal-1p"
     style="width: 100vw; height: 100vh;"
+    :credential-request-origin="credentialRequestOrigin"
+    :credential-request-origin-manifest="credentialRequestOriginManifest"
+    :first-party-mode="true"
+    :hints="hints"
     :loading="loading"
-    :first="false"
-    :has-next="false"
-    :blocked="loading"
-    @back="cancel()"
-    @cancel="cancel()">
-    <template slot="header">
-      <MediatorHeader
-        title="Choose a Wallet"
-        :loading="loading" />
-    </template>
-    <template slot="body">
-      <mediator-greeting
-        :icon-size="greetingIconSize"
-        :credential-request-origin="credentialRequestOrigin"
-        :credential-request-origin-manifest="credentialRequestOriginManifest"
-        :request-type="requestType" />
-
-      <!-- separator between greeting and hint chooser -->
-      <div class="wrm-modal-content-header" />
-
-      <HintChooser
-        v-if="showHintChooser"
-        :hints="hints"
-        :loading="loading"
-        :credential-request-origin="credentialRequestOrigin"
-        :credential-request-origin-manifest="credentialRequestOriginManifest"
-        :request-type="requestType"
-        @cancel="cancel()"
-        @confirm="selectHint"
-        @remove-hint="removeHint"
-        @select-hint="selectHint"
-        @web-share="webShare()" />
-    </template>
-    <template slot="footer">
-      <!-- no footer used in 1p mode -->
-      <div />
-    </template>
-  </wrm-wizard-dialog>
+    :popup-open="true"
+    :request-type="requestType"
+    :selected-hint="selectedHint"
+    :show-hint-chooser="true"
+    @cancel="cancel()"
+    @remove-hint="removeHint"
+    @select-hint="selectHint"
+    @web-share="webShare" />
 </template>
 
 <script>
@@ -53,13 +27,11 @@
  * All rights reserved.
  */
 import {FirstPartyMediator} from '../mediator/FirstPartyMediator.js';
-import HintChooser from './HintChooser.vue';
-import MediatorGreeting from './MediatorGreeting.vue';
-import MediatorHeader from './MediatorHeader.vue';
+import MediatorWizard from './MediatorWizard.vue';
 
 export default {
   name: 'FirstPartyMediatorWizard',
-  components: {HintChooser, MediatorGreeting, MediatorHeader},
+  components: {MediatorWizard},
   data() {
     return {
       // FIXME: audit whether all of these are needed

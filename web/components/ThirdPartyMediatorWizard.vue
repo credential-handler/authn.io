@@ -1,125 +1,38 @@
 <template>
   <!-- blank screen while credential request is loading -->
   <div v-if="!requestType" />
-  <wrm-wizard-dialog
+  <MediatorWizard
     v-else
+    :credential-request-origin="credentialRequestOrigin"
+    :credential-request-origin-manifest="credentialRequestOriginManifest"
+    :first-party-mode="firstPartyMode"
+    :hints="hints"
     :loading="loading"
-    :first="true"
-    :has-next="true"
-    :blocked="loading"
+    :popup-open="popupOpen"
+    :request-type="requestType"
+    :selected-hint="selectedHint"
+    :show-hint-chooser="showHintChooser"
+    @allow="allow()"
     @cancel="cancel()"
-    @next="openFirstPartyDialog()">
-    <template slot="header">
-      <MediatorHeader
-        :title="headerTitle"
-        :loading="headerLoading" />
-    </template>
-    <template slot="body">
-      <!-- step 1 w/ 1p, integrated with 3p -->
-      <mediator-greeting
-        :icon-size="greetingIconSize"
-        :credential-request-origin="credentialRequestOrigin"
-        :credential-request-origin-manifest="credentialRequestOriginManifest"
-        :request-type="requestType" />
-
-      <!-- separator between greeting and any hints shown -->
+    @deny="deny()"
+    @focus-first-party-dialog="focusFirstPartyDialog()"
+    @open-first-party-dialog="openFirstPartyDialog()"
+    @remove-hint="removeHint"
+    @select-hint="selectHint"
+    @web-share="webShare">
+    <template slot="hint-list-footer">
       <div
-        v-if="showHintChooser || selectedHint"
-        class="wrm-modal-content-header" />
-
-      <!-- integrated with 3p -->
-      <HintChooser
-        v-if="showHintChooser"
-        :hints="hints"
-        :loading="loading"
-        :credential-request-origin="credentialRequestOrigin"
-        :credential-request-origin-manifest="credentialRequestOriginManifest"
-        :request-type="requestType"
-        @cancel="cancel()"
-        @confirm="selectHint"
-        @remove-hint="removeHint"
-        @select-hint="selectHint"
-        @web-share="webShare()">
-        <template slot="hint-list-footer">
-          <div
-            style="margin: 10px -15px 0px -15px; padding: 15px 15px 0px 15px;"
-            class="wrm-separator wrm-modern">
-            <wrm-checkbox
-              v-model="rememberChoice"
-              checkbox-class="wrm-blue"
-              checkbox-style="font-size: 14px"
-              label="Remember my choice for this site"
-              label-class="wrm-dark-gray" />
-          </div>
-        </template>
-      </HintChooser>
-
-      <!-- shown while a hint has been selected w/ open handler window -->
-      <div
-        v-else-if="selectedHint"
-        style="padding-top: 15px">
-        <wrm-hint
-          :hint="selectedHint"
-          default-icon="fas fa-wallet"
-          :active="true"
-          :selected="true"
-          :selectable="false"
-          :disabled="true" />
-        <!-- FIXME: do not show this button on mobile; it has no effect -->
-        <div
-          v-if="popupOpen"
-          class="wrm-button-bar"
-          style="margin: auto; margin-top: 1em">
-          <button
-            type="button"
-            class="wrm-button wrm-primary"
-            style="margin: auto"
-            @click="focusPopup()">
-            Show Wallet
-          </button>
-        </div>
+        style="margin: 10px -15px 0px -15px; padding: 15px 15px 0px 15px;"
+        class="wrm-separator wrm-modern">
+        <wrm-checkbox
+          v-model="rememberChoice"
+          checkbox-class="wrm-blue"
+          checkbox-style="font-size: 14px"
+          label="Remember my choice for this site"
+          label-class="wrm-dark-gray" />
       </div>
     </template>
-    <template
-      v-if="hasCustomFooter"
-      slot="footer">
-      <!-- clear footer when shown with hint chooser or selected hint -->
-      <div v-if="showHintChooser || selectedHint" />
-      <div
-        v-else-if="requestType === 'permissionRequest' && !popupOpen"
-        class="wrm-button-bar"
-        style="margin-top: 10px">
-        <button
-          type="button"
-          class="wrm-button"
-          :disabled="loading"
-          @click="deny()">
-          Block
-        </button>
-        <span style="margin-right: 5px" />
-        <button
-          type="button"
-          class="wrm-button"
-          :disabled="loading"
-          @click="allow()">
-          Allow
-        </button>
-      </div>
-      <!-- FIXME: do not show this button on mobile; it has no effect -->
-      <div
-        v-else-if="!selectedHint && popupOpen"
-        class="wrm-button-bar"
-        style="margin: auto; margin-top: 1em">
-        <button
-          type="button"
-          class="wrm-button wrm-primary"
-          style="margin: auto"
-          @click="focusPopup()">
-          {{firstPartyDialogFocusText}}
-        </button>
-      </div>
-    </template>
-  </wrm-wizard-dialog>
+  </MediatorWizard>
 </template>
 
 <script>
@@ -129,15 +42,13 @@
  * All rights reserved.
  */
 import HandlerWindowHeader from './HandlerWindowHeader.vue';
-import HintChooser from './HintChooser.vue';
-import MediatorGreeting from './MediatorGreeting.vue';
-import MediatorHeader from './MediatorHeader.vue';
+import MediatorWizard from './MediatorWizard.vue';
 import {ThirdPartyMediator} from '../mediator/ThirdPartyMediator.js';
 import Vue from 'vue';
 
 export default {
   name: 'ThirdPartyMediatorWizard',
-  components: {HintChooser, MediatorGreeting, MediatorHeader},
+  components: {MediatorWizard},
   data() {
     return {
       // FIXME: audit whether all of these are needed
@@ -241,13 +152,14 @@ export default {
       await this._mediator.allowCredentialHandler();
     },
     async cancel() {
+      this.loading = true;
       return this._mediator.cancel();
     },
     async deny() {
       this.loading = true;
       await this._mediator.denyCredentialHandler();
     },
-    focusPopup() {
+    focusFirstPartyDialog() {
       this._mediator.focusFirstPartyDialog();
     },
     async openFirstPartyDialog() {
@@ -319,7 +231,7 @@ export default {
       this.popupOpen = false;
     },
     async webShare() {
-      return this._mediator.webShare();
+      await this._mediator.webShare();
     }
   }
 };
