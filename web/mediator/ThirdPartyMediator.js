@@ -19,7 +19,7 @@ const DEFAULT_HANDLER_POPUP_WIDTH = 800;
 const DEFAULT_HANDLER_POPUP_HEIGHT = 600;
 
 const DEFAULT_HINT_CHOOSER_POPUP_WIDTH = 500;
-const DEFAULT_HINT_CHOOSER_POPUP_HEIGHT = 400;
+const DEFAULT_HINT_CHOOSER_POPUP_HEIGHT = 440;
 
 export class ThirdPartyMediator extends BaseMediator {
   constructor() {
