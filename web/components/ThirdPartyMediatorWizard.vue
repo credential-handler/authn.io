@@ -190,8 +190,7 @@ export default {
       return 48;
     },
     hasCustomFooter() {
-      return this.popupOpen ||
-        (this.requestType === 'permissionRequest' && !this.firstPartyMode);
+      return !this.firstPartyMode;
     }
   },
   async created() {
