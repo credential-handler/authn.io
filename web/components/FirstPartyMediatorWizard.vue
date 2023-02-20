@@ -8,7 +8,7 @@
     :loading="loading"
     :first="false"
     :has-next="false"
-    :blocked="loading || !selectedHint"
+    :blocked="loading"
     @back="cancel()"
     @cancel="cancel()">
     <template slot="header">
@@ -40,6 +40,7 @@
         @web-share="webShare()" />
     </template>
     <template slot="footer">
+      <!-- no footer used in 1p mode -->
       <div />
     </template>
   </wrm-wizard-dialog>
