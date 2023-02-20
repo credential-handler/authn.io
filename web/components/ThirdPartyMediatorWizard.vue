@@ -3,12 +3,11 @@
   <wrm-wizard-dialog
     v-else
     :loading="loading"
-    :first="showGreeting"
-    :has-next="showGreeting"
+    :first="true"
+    :has-next="true"
     :blocked="loading || (!showGreeting && !selectedHint)"
     @cancel="cancel()"
-    @next="nextWizardStep()"
-    @back="prevWizardStep()">
+    @next="nextWizardStep()">
     <template slot="header">
       <MediatorHeader
         :title="headerTitle"
@@ -279,12 +278,6 @@ export default {
         }
       } finally {
         this.loading = false;
-      }
-    },
-    async prevWizardStep() {
-      this.showGreeting = true;
-      if(this.selectedHint) {
-        await this._mediator.cancelSelection();
       }
     },
     async selectHint(event) {
