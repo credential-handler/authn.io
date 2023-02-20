@@ -17,6 +17,19 @@
     <template slot="body">
       <!-- move what is common between here and MediatorWizard into its own
       component -->
+      <mediator-greeting
+        v-if="!loading"
+        style="user-select: none"
+        :display="display"
+        :icon-size="greetingIconSize"
+        :credential-request-origin="credentialRequestOrigin"
+        :credential-request-origin-manifest="credentialRequestOriginManifest" />
+
+      <!-- separator between greeting and hint chooser -->
+      <div>
+        <div class="wrm-modal-content-header" />
+      </div>
+
       <wrm-hint-chooser
         v-if="showHintChooser"
         style="user-select: none"
@@ -70,19 +83,21 @@
  */
 import {FirstPartyMediator} from '../mediator/FirstPartyMediator.js';
 import HintChooserMessage from './HintChooserMessage.vue';
+import MediatorGreeting from './MediatorGreeting.vue';
 import MediatorHeader from './MediatorHeader.vue';
 
 // FIXME: rename this component to avoid confusion with WrmHintChooser
 // FIXME: abstract out a common component between this and MediatorWizard
 export default {
   name: 'HintChooser',
-  components: {HintChooserMessage, MediatorHeader},
+  components: {HintChooserMessage, MediatorGreeting, MediatorHeader},
   data() {
     return {
       // FIXME: audit whether all of these are needed
       credential: null,
       credentialRequestOptions: null,
       display: null,
+      greetingIconSize: 36,
       hints: [],
       hintRemovalText: 'Hiding...',
       loading: true,
