@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!display" />
+  <div v-if="!requestType" />
   <wrm-wizard-dialog
     v-else
     :loading="loading"
@@ -21,7 +21,7 @@
         :icon-size="greetingIconSize"
         :credential-request-origin="credentialRequestOrigin"
         :credential-request-origin-manifest="credentialRequestOriginManifest"
-        :request-type="display" />
+        :request-type="requestType" />
 
       <!-- separator between greeting and hint chooser when both shown -->
       <div
@@ -35,7 +35,7 @@
         :loading="loading"
         :credential-request-origin="credentialRequestOrigin"
         :credential-request-origin-manifest="credentialRequestOriginManifest"
-        :request-type="display"
+        :request-type="requestType"
         @cancel="cancel()"
         @confirm="selectHint"
         @remove-hint="removeHint"
@@ -87,7 +87,7 @@
       <!-- clear footer when greeting not shown / show with hint chooser -->
       <div v-if="!showGreeting || showHintChooser" />
       <div
-        v-else-if="display === 'permissionRequest' && !popupOpen"
+        v-else-if="requestType === 'permissionRequest' && !popupOpen"
         class="wrm-button-bar"
         style="margin-top: 10px">
         <button
@@ -109,7 +109,7 @@
       </div>
       <!-- FIXME: do not show this button on mobile; it has no effect -->
       <div
-        v-else-if="popupOpen && display !== 'permissionRequest'"
+        v-else-if="popupOpen && requestType !== 'permissionRequest'"
         class="wrm-button-bar"
         style="margin: auto; margin-top: 1em">
         <button
@@ -145,7 +145,7 @@ export default {
       // FIXME: audit whether all of these are needed
       credential: null,
       credentialRequestOptions: null,
-      display: null,
+      requestType: null,
       hints: [],
       hintRemovalText: 'Hiding...',
       loading: true,
@@ -165,18 +165,18 @@ export default {
       return this.loading || !!this.selectedHint;
     },
     headerTitle() {
-      const {selectedHint, showGreeting, showHintChooser, display} = this;
+      const {selectedHint, showGreeting, showHintChooser, requestType} = this;
       if(selectedHint) {
         return 'Loading Wallet...';
       }
       if(showGreeting) {
-        if(display === 'permissionRequest') {
+        if(requestType === 'permissionRequest') {
           return 'Allow Wallet';
         }
         if(showHintChooser) {
           return 'Choose a Wallet';
         }
-        if(display === 'credentialRequest') {
+        if(requestType === 'credentialRequest') {
           return 'Credentials Request';
         }
         return 'Store Credentials';
@@ -194,7 +194,7 @@ export default {
       // FIXME: this conditional can be simplified
       return !this.showGreeting || this.popupOpen ||
         (this.showGreeting && this.showHintChooser) ||
-        (this.display === 'permissionRequest' && !this.firstPartyMode);
+        (this.requestType === 'permissionRequest' && !this.firstPartyMode);
     }
   },
   async created() {
@@ -211,7 +211,7 @@ export default {
       await mediator.initialize({
         show: ({requestType}) => {
           this.loading = true;
-          this.display = requestType;
+          this.requestType = requestType;
           this.showHintChooser = false;
           this.showGreeting = true;
           this.requestType = requestType;
@@ -267,7 +267,7 @@ export default {
           const closed = () => this.popupOpen = false;
 
           // handle permission request case
-          if(this.display === 'permissionRequest') {
+          if(this.requestType === 'permissionRequest') {
             await this._mediator
               .handlePermissionRequestWithFirstPartyMediator({opened, closed});
             return;
@@ -326,7 +326,7 @@ export default {
     },
     reset() {
       this.credentialRequestOptions = this.credential = null;
-      this.display = null;
+      this.requestType = null;
       this.hints = [];
       this.loading = false;
       this.selectedHint = null;

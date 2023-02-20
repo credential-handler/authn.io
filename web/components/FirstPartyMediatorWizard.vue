@@ -16,11 +16,10 @@
     </template>
     <template slot="body">
       <mediator-greeting
-        :display="display"
         :icon-size="greetingIconSize"
         :credential-request-origin="credentialRequestOrigin"
         :credential-request-origin-manifest="credentialRequestOriginManifest"
-        :request-type="display" />
+        :request-type="requestType" />
 
       <!-- separator between greeting and hint chooser -->
       <div class="wrm-modal-content-header" />
@@ -31,7 +30,7 @@
         :loading="loading"
         :credential-request-origin="credentialRequestOrigin"
         :credential-request-origin-manifest="credentialRequestOriginManifest"
-        :request-type="display"
+        :request-type="requestType"
         @cancel="cancel()"
         @confirm="selectHint"
         @remove-hint="removeHint"
@@ -63,7 +62,7 @@ export default {
       // FIXME: audit whether all of these are needed
       credential: null,
       credentialRequestOptions: null,
-      display: null,
+      requestType: null,
       greetingIconSize: 36,
       hints: [],
       hintRemovalText: 'Hiding...',
@@ -86,7 +85,7 @@ export default {
         await mediator.initialize({
           show: ({requestType}) => {
             this.loading = true;
-            this.display = requestType;
+            this.requestType = requestType;
             this.showHintChooser = true;
           },
           hide: () => this.reset(),
@@ -131,7 +130,7 @@ export default {
     },
     reset() {
       this.credentialRequestOptions = this.credential = null;
-      this.display = null;
+      this.requestType = null;
       this.hints = [];
       this.loading = false;
       this.selectedHint = null;
