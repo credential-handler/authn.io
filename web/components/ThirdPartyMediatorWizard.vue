@@ -23,9 +23,9 @@
         :credential-request-origin-manifest="credentialRequestOriginManifest"
         :request-type="requestType" />
 
-      <!-- separator between greeting and hint chooser when both shown -->
+      <!-- separator between greeting and any hints shown -->
       <div
-        v-if="showGreeting && showHintChooser"
+        v-if="showGreeting && (showHintChooser || selectedHint)"
         class="wrm-modal-content-header" />
 
       <!-- integrated with 3p -->
@@ -84,8 +84,8 @@
     <template
       v-if="hasCustomFooter"
       slot="footer">
-      <!-- clear footer when greeting not shown / show with hint chooser -->
-      <div v-if="!showGreeting || showHintChooser" />
+      <!-- clear footer when shown with hint chooser or selected hint -->
+      <div v-if="showHintChooser || selectedHint" />
       <div
         v-else-if="requestType === 'permissionRequest' && !popupOpen"
         class="wrm-button-bar"
@@ -108,7 +108,8 @@
       </div>
       <!-- FIXME: do not show this button on mobile; it has no effect -->
       <div
-        v-else-if="popupOpen && requestType !== 'permissionRequest'"
+        v-else-if="!selectedHint && popupOpen &&
+          requestType !== 'permissionRequest'"
         class="wrm-button-bar"
         style="margin: auto; margin-top: 1em">
         <button
@@ -189,9 +190,7 @@ export default {
       return 48;
     },
     hasCustomFooter() {
-      // FIXME: this conditional can be simplified
-      return !this.showGreeting || this.popupOpen ||
-        (this.showGreeting && this.showHintChooser) ||
+      return this.popupOpen ||
         (this.requestType === 'permissionRequest' && !this.firstPartyMode);
     }
   },
@@ -276,7 +275,6 @@ export default {
             .getHintChoiceWithFirstPartyMediator({opened, closed});
           // if a choice was made... (vs. closing the window)
           if(choice) {
-            this.showGreeting = false;
             this.selectHint({...choice, waitUntil: () => {}});
           }
         }
