@@ -333,8 +333,8 @@ export class ThirdPartyMediator extends BaseMediator {
     // check to see if there is a reusable choice for the relying party
     // (as identified by the credential request origin)
     const {credentialRequestOrigin} = this;
-    const {hintOptions} = this.hintManager;
-    const hint = getSiteChoice({credentialRequestOrigin, hintOptions});
+    const {hints} = this.hintManager;
+    const hint = getSiteChoice({credentialRequestOrigin, hints});
     if(hint) {
       this.selectHint({hint, rememberChoice: true}).catch(() => {});
       return true;

@@ -14,7 +14,7 @@ export class HintManager {
     this.credentialRequestOptions = null;
     this.credentialRequestOrigin = null;
     this.credentialRequestOriginManifest = null;
-    this.hintOptions = [];
+    this.hints = [];
   }
 
   async initialize({
@@ -67,7 +67,7 @@ export class HintManager {
         credentialRequestOrigin, credentialRequestOriginManifest
       })
     ]);
-    this.hintOptions = nonJitHints.concat(jitHints);
+    this.hints = nonJitHints.concat(jitHints);
   }
 
   async removeHint({hint} = {}) {

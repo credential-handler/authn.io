@@ -20,7 +20,7 @@
       <wrm-hint-chooser
         v-if="showHintChooser"
         style="user-select: none"
-        :hints="hintOptions"
+        :hints="hints"
         :cancel-remove-hint-timeout="5000"
         :hint-removal-text="hintRemovalText"
         default-hint-icon="fas fa-wallet"
@@ -35,11 +35,11 @@
             :credential-request-origin-manifest="
               credentialRequestOriginManifest"
             :request-type="display"
-            :show-warning="hintOptions.length === 0"
+            :show-warning="hints.length === 0"
             @close="cancel()" />
         </template>
         <template
-          v-if="hintOptions.length > 0"
+          v-if="hints.length > 0"
           slot="hint-list-footer">
           <div
             class="wrm-button-bar"
@@ -73,6 +73,7 @@ import HintChooserMessage from './HintChooserMessage.vue';
 import MediatorHeader from './MediatorHeader.vue';
 
 // FIXME: rename this component to avoid confusion with WrmHintChooser
+// FIXME: abstract out a common component between this and MediatorWizard
 export default {
   name: 'HintChooser',
   components: {HintChooserMessage, MediatorHeader},
@@ -82,7 +83,7 @@ export default {
       credential: null,
       credentialRequestOptions: null,
       display: null,
-      hintOptions: [],
+      hints: [],
       hintRemovalText: 'Hiding...',
       loading: true,
       credentialRequestOrigin: null,
@@ -108,7 +109,7 @@ export default {
           },
           hide: () => this.reset(),
           ready: () => {
-            this.hintOptions = mediator.hintManager.hintOptions.slice();
+            this.hints = mediator.hintManager.hints.slice();
             this.loading = false;
           }
         });
@@ -137,10 +138,9 @@ export default {
       const {_mediator: {hintManager}} = this;
       this.loading = true;
       try {
-        // FIXME: replace `hintOptions` with `hints`
-        this.hintOptions = [];
+        this.hints = [];
         await hintManager.removeHint({hint});
-        this.hintOptions = hintManager.hintOptions.slice();
+        this.hints = hintManager.hints.slice();
       } catch(e) {
         console.error(e);
       } finally {
@@ -150,7 +150,7 @@ export default {
     reset() {
       this.credentialRequestOptions = this.credential = null;
       this.display = null;
-      this.hintOptions = [];
+      this.hints = [];
       this.loading = false;
       this.selectedHint = null;
       this.showHintChooser = false;
