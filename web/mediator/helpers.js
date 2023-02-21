@@ -3,11 +3,8 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {utils} from 'web-request-rpc';
-
 export function getOriginName({origin, manifest} = {}) {
-  // FIXME: use WHATWG URL parser
-  const {host} = utils.parseUrl(origin);
+  const {host} = new URL(origin);
   if(!manifest) {
     return host;
   }

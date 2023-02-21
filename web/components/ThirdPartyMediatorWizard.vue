@@ -67,7 +67,7 @@ export default {
   },
   async created() {
     try {
-      // FIXME: move to MediatorPage?
+      // FIXME: move / (rename this component) to ThirdPartyMediatorPage?
       const mediator = new ThirdPartyMediator();
       this._mediator = mediator;
 
