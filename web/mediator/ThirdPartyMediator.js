@@ -5,10 +5,10 @@
  */
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
 import {getWebAppManifest} from './manifest.js';
+import {hasPartitionedStorage} from './platformDetection.js';
 import {HintManager} from './HintManager.js';
 import {loadOnce} from 'credential-mediator-polyfill';
 import {BaseMediator} from './BaseMediator.js';
-import {shouldUseFirstPartyMode} from './platformDetection.js';
 import {WebAppContext} from 'web-request-rpc';
 import {utils} from 'web-request-rpc';
 
@@ -26,10 +26,9 @@ export class ThirdPartyMediator extends BaseMediator {
     super();
     this.deferredCredentialOperation = null;
     this.firstPartyDialog = null;
-    // FIXME: rename this to avoid confusion w/third party mediator usage...
-    // this function indicates that the platform requires the mediator to
-    // load in a 1p window to access storage
-    this.hasStorageAccess = !shouldUseFirstPartyMode();
+    // 3p mediator has no access to 1p storage if platform's storage is
+    // partitioned
+    this.hasStorageAccess = !hasPartitionedStorage();
     this.resolvePermissionRequest = null;
     this.showHandlerWindow = null;
 
