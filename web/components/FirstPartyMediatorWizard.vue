@@ -7,7 +7,7 @@
     style="width: 100vw; height: 100vh;"
     :credential-request-origin="credentialRequestOrigin"
     :credential-request-origin-manifest="credentialRequestOriginManifest"
-    :first-party-mode="false"
+    :has-storage-access="true"
     :hints="hints"
     :loading="loading"
     :request-type="requestType"

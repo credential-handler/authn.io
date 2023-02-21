@@ -27,9 +27,9 @@ export class ThirdPartyMediator extends BaseMediator {
     this.deferredCredentialOperation = null;
     this.firstPartyDialog = null;
     // FIXME: rename this to avoid confusion w/third party mediator usage...
-    // this property indicates that the platform requires the mediator to
+    // this function indicates that the platform requires the mediator to
     // load in a 1p window to access storage
-    this.firstPartyMode = shouldUseFirstPartyMode();
+    this.hasStorageAccess = !shouldUseFirstPartyMode();
     this.resolvePermissionRequest = null;
     this.showHandlerWindow = null;
 
@@ -177,7 +177,7 @@ export class ThirdPartyMediator extends BaseMediator {
     await super.selectHint({hint});
 
     const {credentialRequestOrigin} = this;
-    if(rememberChoice && !this.firstPartyMode) {
+    if(rememberChoice && this.hasStorageAccess) {
       // save choice for site
       const {credentialHandler} = hint.hintOption;
       setSiteChoice({credentialRequestOrigin, credentialHandler});
@@ -301,8 +301,8 @@ export class ThirdPartyMediator extends BaseMediator {
       showMediatorPromise = navigator.credentialMediator.show();
     }
 
-    // start loading hint manager in non-1p mode
-    if(!this.firstPartyMode) {
+    // start loading hint manager if mediator has storage access
+    if(this.hasStorageAccess) {
       const {
         credential, credentialRequestOptions,
         credentialRequestOrigin, credentialRequestOriginManifestPromise
