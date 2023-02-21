@@ -24,12 +24,12 @@ try {
   isChrome = false;
 }
 
-// always use 1p window if browser:
+// platform has partitioned storage if browser:
 // 1. is Brave
 // 2. is not Google Chrome
 // 3. has no local storage
-const _useFirstPartyMode = !!(navigator.brave || !isChrome || !hasLocalStorage);
+const _partitioned = !!(navigator.brave || !isChrome || !hasLocalStorage);
 
-export function shouldUseFirstPartyMode() {
-  return _useFirstPartyMode;
+export function hasPartitionedStorage() {
+  return _partitioned;
 }
