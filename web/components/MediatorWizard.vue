@@ -146,7 +146,7 @@ export default {
       required: false,
       default: false
     },
-    firstPartyMode: {
+    hasStorageAccess: {
       type: Boolean,
       required: false,
       default: false
@@ -195,8 +195,12 @@ export default {
       return 48;
     },
     hasCustomFooter() {
-      // FIXME: rename `firstPartyMode` to avoid confusion
-      return !this.firstPartyMode || this.firstPartyDialogOpen;
+      /* Note: The wizard default footer shows cancel/next buttons. But if
+      mediator has storage access, all wizard steps are integrated and a
+      custom footer will provide different buttons. If the first party dialog
+      is open to access storage, then the footer is also replaced, this time
+      with a button to focus that dialog if it does not have focus. */
+      return this.hasStorageAccess || this.firstPartyDialogOpen;
     },
     firstPartyDialogFocusText() {
       if(this.requestType === 'permissionRequest') {

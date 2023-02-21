@@ -6,7 +6,7 @@
     :credential-request-origin="credentialRequestOrigin"
     :credential-request-origin-manifest="credentialRequestOriginManifest"
     :first-party-dialog-open="firstPartyDialogOpen"
-    :first-party-mode="firstPartyMode"
+    :has-storage-access="hasStorageAccess"
     :hints="hints"
     :loading="loading"
     :request-type="requestType"
@@ -54,7 +54,7 @@ export default {
       credentialRequestOrigin: null,
       credentialRequestOriginManifest: null,
       firstPartyDialogOpen: false,
-      firstPartyMode: true,
+      hasStorageAccess: false,
       hints: [],
       loading: true,
       rememberChoice: true,
@@ -69,8 +69,8 @@ export default {
       const mediator = new ThirdPartyMediator();
       this._mediator = mediator;
 
-      // FIXME: create computed from `mediator.firstPartyMode`
-      this.firstPartyMode = mediator.firstPartyMode;
+      // FIXME: create computed from `mediator.hasStorageAccess`
+      this.hasStorageAccess = mediator.hasStorageAccess;
       // FIXME: create computed from `mediator.credentialRequestOrigin`
       this.credentialRequestOrigin = mediator.credentialRequestOrigin;
 
@@ -89,7 +89,7 @@ export default {
         ready: () => {
           this.hints = mediator.hintManager.hints.slice();
           // FIXME: make `showHintChooser` a computed var in Vue 3
-          if(!mediator.firstPartyMode &&
+          if(mediator.hasStorageAccess &&
             this.requestType !== 'permissionRequest') {
             this.showHintChooser = true;
           }
@@ -155,7 +155,8 @@ export default {
         this.selectedHint = null;
         // FIXME: why set `rememberChoice` here?
         this.rememberChoice = true;
-        if(!this._mediator.firstPartyMode) {
+        // show hint selection when mediator has storage access
+        if(this._mediator.hasStorageAccess) {
           this.showHintChooser = true;
         }
       }
