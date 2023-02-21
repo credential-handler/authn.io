@@ -17,10 +17,13 @@
         :show-warning="hints.length === 0"
         @close="cancel()" />
     </template>
-    <template
-      v-if="hints.length > 0"
-      slot="hint-list-footer">
+    <template slot="hint-list-footer">
       <slot name="hint-list-footer" />
+      <!-- include separator before web share button if there are no hints -->
+      <div
+        v-if="canWebShare && hints.length === 0"
+        class="wrm-separator wrm-modern"
+        style="margin: 15px -15px 0px" />
       <div
         v-if="canWebShare"
         class="wrm-button-bar"

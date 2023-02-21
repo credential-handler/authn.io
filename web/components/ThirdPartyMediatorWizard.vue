@@ -23,6 +23,7 @@
     @web-share="webShare">
     <template slot="hint-list-footer">
       <div
+        v-if="hints.length > 0"
         style="margin: 10px -15px 0px -15px; padding: 15px 15px 0px 15px;"
         class="wrm-separator wrm-modern">
         <wrm-checkbox
