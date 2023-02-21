@@ -63,7 +63,6 @@ export class BaseMediator {
     this.webShareHandler = null;
   }
 
-  // FIXME: remove and use `getWebShareHandler` externally
   async webShare() {
     const handler = await this.getWebShareHandler();
     if(!handler.enabled) {

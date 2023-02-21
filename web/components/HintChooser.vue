@@ -23,8 +23,8 @@
       v-if="hints.length > 0"
       slot="hint-list-footer">
       <slot name="hint-list-footer" />
-      <!-- FIXME: do not show this button if WebShare is not available -->
       <div
+        v-if="canWebShare"
         class="wrm-button-bar"
         style="margin: auto; padding-top: 1em;">
         <button
@@ -52,14 +52,10 @@ export default {
   name: 'HintChooser',
   components: {HintChooserMessage},
   props: {
-    hints: {
-      type: Array,
-      required: false,
-      default: () => []
-    },
-    loading: {
+    canWebShare: {
       type: Boolean,
-      required: true
+      required: false,
+      default: false
     },
     credentialRequestOrigin: {
       type: String,
@@ -70,6 +66,15 @@ export default {
       type: Object,
       required: false,
       default: () => null
+    },
+    hints: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+    loading: {
+      type: Boolean,
+      required: true
     },
     requestType: {
       type: String,
