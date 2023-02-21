@@ -26,8 +26,7 @@
       <HintChooser
         v-if="showHintChooser"
         :can-web-share="canWebShare"
-        :credential-request-origin="credentialRequestOrigin"
-        :credential-request-origin-manifest="credentialRequestOriginManifest"
+        :credential-request-origin-name="credentialRequestOriginName"
         :hints="hints"
         :loading="loading"
         :request-type="requestType"
@@ -115,6 +114,7 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
+import {getOriginName} from '../mediator/helpers.js';
 import HintChooser from './HintChooser.vue';
 import MediatorGreeting from './MediatorGreeting.vue';
 import MediatorHeader from './MediatorHeader.vue';
@@ -174,6 +174,37 @@ export default {
     }
   },
   computed: {
+    credentialRequestOriginName() {
+      const {
+        credentialRequestOrigin: origin,
+        credentialRequestOriginManifest: manifest
+      } = this;
+      if(!origin) {
+        return '';
+      }
+      return getOriginName({origin, manifest});
+    },
+    firstPartyDialogFocusText() {
+      if(this.requestType === 'permissionRequest') {
+        return 'Show Permission Window';
+      }
+      return 'Show Wallet Chooser';
+    },
+    greetingIconSize() {
+      // on hints screen, de-emphasize greeting icon size
+      if(this.showHintChooser) {
+        return 36;
+      }
+      return 48;
+    },
+    hasCustomFooter() {
+      /* Note: The wizard default footer shows cancel/next buttons. But if
+      mediator has storage access, all wizard steps are integrated and a
+      custom footer will provide different buttons. If the first party dialog
+      is open to access storage, then the footer is also replaced, this time
+      with a button to focus that dialog if it does not have focus. */
+      return this.hasStorageAccess || this.firstPartyDialogOpen;
+    },
     headerLoading() {
       return this.loading || !!this.selectedHint;
     },
@@ -192,27 +223,6 @@ export default {
         return 'Credentials Request';
       }
       return 'Store Credentials';
-    },
-    greetingIconSize() {
-      // on hints screen, de-emphasize greeting icon size
-      if(this.showHintChooser) {
-        return 36;
-      }
-      return 48;
-    },
-    hasCustomFooter() {
-      /* Note: The wizard default footer shows cancel/next buttons. But if
-      mediator has storage access, all wizard steps are integrated and a
-      custom footer will provide different buttons. If the first party dialog
-      is open to access storage, then the footer is also replaced, this time
-      with a button to focus that dialog if it does not have focus. */
-      return this.hasStorageAccess || this.firstPartyDialogOpen;
-    },
-    firstPartyDialogFocusText() {
-      if(this.requestType === 'permissionRequest') {
-        return 'Show Permission Window';
-      }
-      return 'Show Wallet Chooser';
     }
   },
   methods: {
