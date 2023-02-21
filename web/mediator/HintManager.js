@@ -104,34 +104,30 @@ export class HintManager {
   }
 }
 
-async function _createRegisteredHints({handlers}) {
-  // FIXME: make map function this a helper function
-  return Promise.all(handlers.map(async credentialHandler => {
-    const {origin, host} = new URL(credentialHandler);
-    const manifest = await getWebAppManifest({origin});
-    const originalCredentialHandler = credentialHandler;
+function _createHint({
+  credentialHandler, host, origin, manifest, recommendedBy
+}) {
+  const name = getOriginName({origin, manifest});
+  let icon = getWebAppManifestIcon({manifest, origin, size: 32});
+  if(icon) {
+    icon = {fetchedImage: icon.src};
+  }
+  const hint = {
+    name, icon, origin, host, manifest,
+    hintOption: _createHintOption({credentialHandler})
+  };
+  if(recommendedBy) {
+    hint.jit = {recommendedBy};
+  }
+  return hint;
+}
 
-    let handlerInfo;
-    try {
-      handlerInfo = _getManifestCredentialHandlerInfo({manifest, origin});
-      const {credentialHandler: newCredentialHandler} = handlerInfo;
-      credentialHandler = newCredentialHandler;
-    } catch(e) {
-      // FIXME: if `manifest` is not `null`, then manifest entry is invalid,
-      // and permission should be revoked for the handler
-      console.error(e);
-    }
-
-    const hint = _createHint({credentialHandler, host, origin, manifest});
-    // if credential handler has changed, update registration
-    // FIXME: also re-register credential handler if enabled types have changed
-    if(originalCredentialHandler !== credentialHandler) {
-      const {enabledTypes} = handlerInfo;
-      await navigator.credentialMediator.ui.registerCredentialHandler(
-        credentialHandler, {name: hint.name, enabledTypes, icons: []});
-    }
-    return hint;
-  }));
+function _createHintOption({credentialHandler, enabledTypes}) {
+  const hintOption = {credentialHandler, credentialHintKey: 'default'};
+  if(enabledTypes) {
+    hintOption.enabledTypes = enabledTypes;
+  }
+  return hintOption;
 }
 
 async function _createJitHint({
@@ -169,32 +165,6 @@ async function _createJitHint({
     console.error(e);
     return;
   }
-}
-
-function _createHint({
-  credentialHandler, host, origin, manifest, recommendedBy
-}) {
-  const name = getOriginName({origin, manifest});
-  let icon = getWebAppManifestIcon({manifest, origin, size: 32});
-  if(icon) {
-    icon = {fetchedImage: icon.src};
-  }
-  const hint = {
-    name, icon, origin, host, manifest,
-    hintOption: _createHintOption({credentialHandler})
-  };
-  if(recommendedBy) {
-    hint.jit = {recommendedBy};
-  }
-  return hint;
-}
-
-function _createHintOption({credentialHandler, enabledTypes}) {
-  const hintOption = {credentialHandler, credentialHintKey: 'default'};
-  if(enabledTypes) {
-    hintOption.enabledTypes = enabledTypes;
-  }
-  return hintOption;
 }
 
 async function _createJitHints({
@@ -250,6 +220,36 @@ async function _createRecommendedHints({
     credentialRequestOrigin, credentialRequestOriginManifest
   });
   return unfilteredHints.filter(e => !!e);
+}
+
+async function _createRegisteredHints({handlers}) {
+  // FIXME: make map function this a helper function
+  return Promise.all(handlers.map(async credentialHandler => {
+    const {origin, host} = new URL(credentialHandler);
+    const manifest = await getWebAppManifest({origin});
+    const originalCredentialHandler = credentialHandler;
+
+    let handlerInfo;
+    try {
+      handlerInfo = _getManifestCredentialHandlerInfo({manifest, origin});
+      const {credentialHandler: newCredentialHandler} = handlerInfo;
+      credentialHandler = newCredentialHandler;
+    } catch(e) {
+      // FIXME: if `manifest` is not `null`, then manifest entry is invalid,
+      // and permission should be revoked for the handler
+      console.error(e);
+    }
+
+    const hint = _createHint({credentialHandler, host, origin, manifest});
+    // if credential handler has changed, update registration
+    // FIXME: also re-register credential handler if enabled types have changed
+    if(originalCredentialHandler !== credentialHandler) {
+      const {enabledTypes} = handlerInfo;
+      await navigator.credentialMediator.ui.registerCredentialHandler(
+        credentialHandler, {name: hint.name, enabledTypes, icons: []});
+    }
+    return hint;
+  }));
 }
 
 function _getManifestCredentialHandlerInfo({manifest, origin}) {
