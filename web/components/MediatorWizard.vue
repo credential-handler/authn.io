@@ -25,10 +25,11 @@
 
       <HintChooser
         v-if="showHintChooser"
-        :hints="hints"
-        :loading="loading"
+        :can-web-share="canWebShare"
         :credential-request-origin="credentialRequestOrigin"
         :credential-request-origin-manifest="credentialRequestOriginManifest"
+        :hints="hints"
+        :loading="loading"
         :request-type="requestType"
         @cancel="cancel()"
         @confirm="selectHint"
@@ -122,14 +123,10 @@ export default {
   name: 'MediatorWizard',
   components: {HintChooser, MediatorGreeting, MediatorHeader},
   props: {
-    hints: {
-      type: Array,
-      required: false,
-      default: () => []
-    },
-    loading: {
+    canWebShare: {
       type: Boolean,
-      required: true
+      required: false,
+      default: false
     },
     credentialRequestOrigin: {
       type: String,
@@ -150,6 +147,15 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    hints: {
+      type: Array,
+      required: false,
+      default: () => []
+    },
+    loading: {
+      type: Boolean,
+      required: true
     },
     requestType: {
       type: String,

@@ -5,6 +5,7 @@
     v-else
     class="wrm-modal-1p"
     style="width: 100vw; height: 100vh;"
+    :can-web-share="canWebShare"
     :credential-request-origin="credentialRequestOrigin"
     :credential-request-origin-manifest="credentialRequestOriginManifest"
     :has-storage-access="true"
@@ -35,6 +36,7 @@ export default {
   components: {MediatorWizard},
   data() {
     return {
+      canWebShare: false,
       credentialRequestOrigin: '',
       credentialRequestOriginManifest: null,
       hints: [],
@@ -61,6 +63,10 @@ export default {
           show: ({requestType}) => {
             this.loading = true;
             this.requestType = requestType;
+
+            // determine web share capability
+            mediator.getWebShareHandler()
+              .then(({enabled}) => this.canWebShare = enabled);
           },
           hide: () => this.reset(),
           ready: () => {

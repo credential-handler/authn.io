@@ -3,6 +3,7 @@
   <div v-if="!requestType" />
   <MediatorWizard
     v-else
+    :can-web-share="canWebShare"
     :credential-request-origin="credentialRequestOrigin"
     :credential-request-origin-manifest="credentialRequestOriginManifest"
     :first-party-dialog-open="firstPartyDialogOpen"
@@ -51,6 +52,7 @@ export default {
   components: {MediatorWizard},
   data() {
     return {
+      canWebShare: false,
       credentialRequestOrigin: null,
       credentialRequestOriginManifest: null,
       firstPartyDialogOpen: false,
@@ -79,6 +81,10 @@ export default {
           this.loading = true;
           this.requestType = requestType;
           this.showHintChooser = false;
+
+          // determine web share capability
+          mediator.getWebShareHandler()
+            .then(({enabled}) => this.canWebShare = enabled);
 
           // if the web app manifest loads, use it
           mediator.credentialRequestOriginManifestPromise.then(manifest => {
