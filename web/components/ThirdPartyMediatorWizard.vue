@@ -5,10 +5,10 @@
     v-else
     :credential-request-origin="credentialRequestOrigin"
     :credential-request-origin-manifest="credentialRequestOriginManifest"
+    :first-party-dialog-open="firstPartyDialogOpen"
     :first-party-mode="firstPartyMode"
     :hints="hints"
     :loading="loading"
-    :popup-open="popupOpen"
     :request-type="requestType"
     :selected-hint="selectedHint"
     :show-hint-chooser="showHintChooser"
@@ -53,10 +53,10 @@ export default {
     return {
       credentialRequestOrigin: null,
       credentialRequestOriginManifest: null,
+      firstPartyDialogOpen: false,
       firstPartyMode: true,
       hints: [],
       loading: true,
-      popupOpen: false,
       rememberChoice: true,
       requestType: null,
       selectedHint: null,
@@ -122,8 +122,8 @@ export default {
       this.loading = true;
       try {
         // FIXME: bikeshed this approach to handling 1p dialog state changes
-        const opened = () => this.popupOpen = true;
-        const closed = () => this.popupOpen = false;
+        const opened = () => this.firstPartyDialogOpen = true;
+        const closed = () => this.firstPartyDialogOpen = false;
 
         // handle permission request case
         if(this.requestType === 'permissionRequest') {
@@ -177,7 +177,7 @@ export default {
     reset() {
       this.hints = [];
       this.loading = false;
-      this.popupOpen = false;
+      this.firstPartyDialogOpen = false;
       this.rememberChoice = true;
       this.requestType = null;
       this.selectedHint = null;
