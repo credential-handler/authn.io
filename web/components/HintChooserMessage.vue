@@ -52,8 +52,6 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {getOriginName} from '../mediator/helpers.js';
-
 export default {
   name: 'HintChooserMessage',
   props: {
@@ -62,14 +60,9 @@ export default {
       required: false,
       default: false
     },
-    credentialRequestOrigin: {
+    credentialRequestOriginName: {
       type: String,
       required: true
-    },
-    credentialRequestOriginManifest: {
-      type: Object,
-      required: false,
-      default: () => null
     },
     requestType: {
       type: String,
@@ -80,18 +73,8 @@ export default {
       required: true
     }
   },
-  computed: {
-    credentialRequestOriginName() {
-      const {
-        credentialRequestOrigin: origin,
-        credentialRequestOriginManifest: manifest
-      } = this;
-      return getOriginName({origin, manifest});
-    }
-  },
   methods: {
     close() {
-      console.log('closing');
       this.$emit('close');
     }
   }

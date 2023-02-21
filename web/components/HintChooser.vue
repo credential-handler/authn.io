@@ -12,9 +12,7 @@
     <template slot="message">
       <HintChooserMessage
         :loading="loading"
-        :credential-request-origin="credentialRequestOrigin"
-        :credential-request-origin-manifest="
-          credentialRequestOriginManifest"
+        :credential-request-origin-name="credentialRequestOriginName"
         :request-type="requestType"
         :show-warning="hints.length === 0"
         @close="cancel()" />
@@ -57,15 +55,9 @@ export default {
       required: false,
       default: false
     },
-    credentialRequestOrigin: {
+    credentialRequestOriginName: {
       type: String,
-      required: false,
-      default: ''
-    },
-    credentialRequestOriginManifest: {
-      type: Object,
-      required: false,
-      default: () => null
+      required: true
     },
     hints: {
       type: Array,
