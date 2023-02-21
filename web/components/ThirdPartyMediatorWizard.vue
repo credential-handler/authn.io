@@ -153,8 +153,6 @@ export default {
         await promise;
       } finally {
         this.selectedHint = null;
-        // FIXME: why set `rememberChoice` here?
-        this.rememberChoice = true;
         // show hint selection when mediator has storage access
         if(this._mediator.hasStorageAccess) {
           this.showHintChooser = true;
