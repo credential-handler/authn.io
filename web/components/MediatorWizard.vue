@@ -53,7 +53,7 @@
           :disabled="true" />
         <!-- FIXME: do not show this button on mobile; it has no effect -->
         <div
-          v-if="popupOpen"
+          v-if="firstPartyDialogOpen"
           class="wrm-button-bar"
           style="margin: auto; margin-top: 1em">
           <button
@@ -72,7 +72,7 @@
       <!-- clear footer when shown with hint chooser or selected hint -->
       <div v-if="showHintChooser || selectedHint" />
       <div
-        v-else-if="requestType === 'permissionRequest' && !popupOpen"
+        v-else-if="requestType === 'permissionRequest' && !firstPartyDialogOpen"
         class="wrm-button-bar"
         style="margin-top: 10px">
         <button
@@ -93,7 +93,7 @@
       </div>
       <!-- FIXME: do not show this button on mobile; it has no effect -->
       <div
-        v-else-if="!selectedHint && popupOpen"
+        v-else-if="!selectedHint && firstPartyDialogOpen"
         class="wrm-button-bar"
         style="margin: auto; margin-top: 1em">
         <button
@@ -141,13 +141,12 @@ export default {
       required: false,
       default: () => null
     },
-    firstPartyMode: {
+    firstPartyDialogOpen: {
       type: Boolean,
       required: false,
       default: false
     },
-    // FIXME: rename to `firstPartyDialogOpen`
-    popupOpen: {
+    firstPartyMode: {
       type: Boolean,
       required: false,
       default: false
@@ -197,7 +196,7 @@ export default {
     },
     hasCustomFooter() {
       // FIXME: rename `firstPartyMode` to avoid confusion
-      return !this.firstPartyMode || this.popupOpen;
+      return !this.firstPartyMode || this.firstPartyDialogOpen;
     },
     firstPartyDialogFocusText() {
       if(this.requestType === 'permissionRequest') {
