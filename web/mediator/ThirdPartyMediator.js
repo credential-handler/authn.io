@@ -10,7 +10,6 @@ import {HintManager} from './HintManager.js';
 import {loadOnce} from 'credential-mediator-polyfill';
 import {BaseMediator} from './BaseMediator.js';
 import {WebAppContext} from 'web-request-rpc';
-import {utils} from 'web-request-rpc';
 
 const DEFAULT_ALLOW_WALLET_POPUP_WIDTH = 500;
 const DEFAULT_ALLOW_WALLET_POPUP_HEIGHT = 240;
