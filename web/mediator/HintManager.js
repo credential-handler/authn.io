@@ -6,7 +6,6 @@
 import {getOriginName} from './helpers.js';
 import {getWebAppManifest} from './manifest.js';
 import {getWebAppManifestIcon} from 'vue-web-request-mediator';
-import {utils} from 'web-request-rpc';
 
 export class HintManager {
   constructor() {
@@ -108,8 +107,7 @@ export class HintManager {
 async function _createRegisteredHints({handlers}) {
   // FIXME: make map function this a helper function
   return Promise.all(handlers.map(async credentialHandler => {
-    // FIXME: replace all `utils.parseUrl` with WHATWG `URL`
-    const {origin, host} = utils.parseUrl(credentialHandler);
+    const {origin, host} = new URL(credentialHandler);
     const manifest = await getWebAppManifest({origin});
     const originalCredentialHandler = credentialHandler;
 
@@ -142,34 +140,35 @@ async function _createJitHint({
   if(typeof recommendedOrigin !== 'string') {
     return;
   }
-  const {host, origin} = utils.parseUrl(recommendedOrigin);
-  const manifest = await getWebAppManifest({origin});
 
-  let handlerInfo;
   try {
-    handlerInfo = _getManifestCredentialHandlerInfo({manifest, origin});
+    const {host, origin} = new URL(recommendedOrigin);
+    const manifest = await getWebAppManifest({origin});
+    if(manifest === null) {
+      // manifest must be present to use recommended origin
+      return;
+    }
+
+    // see if manifest expressed types match request/credential type
+    const handlerInfo = _getManifestCredentialHandlerInfo({manifest, origin});
+    const {credentialHandler, enabledTypes} = handlerInfo;
+    let match = false;
+    for(const t of acceptedTypes) {
+      if(enabledTypes.includes(t)) {
+        match = true;
+        break;
+      }
+    }
+    if(!match) {
+      // no match
+      return;
+    }
+    return _createHint(
+      {credentialHandler, host, origin, manifest, recommendedBy});
   } catch(e) {
-    // FIXME: if `manifest` is not `null`, then manifest entry is invalid,
-    // and permission should be revoked for the handler
     console.error(e);
     return;
   }
-
-  // see if manifest expressed types match request/credential type
-  const {credentialHandler, enabledTypes} = handlerInfo;
-  let match = false;
-  for(const t of acceptedTypes) {
-    if(enabledTypes.includes(t)) {
-      match = true;
-      break;
-    }
-  }
-  if(!match) {
-    // no match
-    return;
-  }
-  return _createHint(
-    {credentialHandler, host, origin, manifest, recommendedBy});
 }
 
 function _createHint({

@@ -34,7 +34,7 @@ export class ThirdPartyMediator extends BaseMediator {
 
     // this mediator instance is in a 3p context, communicating directly
     // with the origin making a credential-related request
-    const {origin} = utils.parseUrl(document.referrer);
+    const {origin} = new URL(document.referrer);
     this.credentialRequestOrigin = origin;
     // start loading web app manifest immediately
     this.credentialRequestOriginManifestPromise = getWebAppManifest({origin});
