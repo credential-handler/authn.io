@@ -28,9 +28,9 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
+import {computed, ref, toRaw} from 'vue';
 import {FirstPartyMediator} from '../mediator/FirstPartyMediator.js';
 import MediatorWizard from './MediatorWizard.vue';
-import {ref} from 'vue';
 
 export default {
   name: 'FirstPartyMediatorWizard',
@@ -64,7 +64,7 @@ export default {
       await mediator.denyCredentialHandler();
     };
     const removeHint = async event => {
-      const {hint} = event;
+      const hint = toRaw(event.hint);
       const {hintManager} = mediator;
       loading.value = true;
       hints.value = [];
@@ -78,7 +78,7 @@ export default {
       }
     };
     const selectHint = async event => {
-      const {hint} = event;
+      const hint = toRaw(event.hint);
       selectedHint.value = hint;
       event.waitUntil(mediator.selectHint({hint}));
     };
