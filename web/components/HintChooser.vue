@@ -9,7 +9,7 @@
     @cancel="cancel()"
     @confirm="selectHint"
     @remove-hint="removeHint">
-    <template slot="message">
+    <template #message>
       <HintChooserMessage
         :loading="loading"
         :credential-request-origin-name="credentialRequestOriginName"
@@ -17,7 +17,7 @@
         :show-warning="hints.length === 0"
         @close="cancel()" />
     </template>
-    <template slot="hint-list-footer">
+    <template #hint-list-footer>
       <slot name="hint-list-footer" />
       <!-- include separator before web share button if there are no hints -->
       <div

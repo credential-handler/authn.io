@@ -6,12 +6,12 @@
     :blocked="loading"
     @cancel="cancel()"
     @next="next()">
-    <template slot="header">
+    <template #header>
       <MediatorHeader
         :title="headerTitle"
         :loading="headerLoading" />
     </template>
-    <template slot="body">
+    <template #body>
       <MediatorGreeting
         :icon-size="greetingIconSize"
         :credential-request-origin="credentialRequestOrigin"
@@ -35,7 +35,7 @@
         @remove-hint="removeHint"
         @select-hint="selectHint"
         @web-share="webShare()">
-        <template slot="hint-list-footer">
+        <template #hint-list-footer>
           <slot name="hint-list-footer" />
         </template>
       </HintChooser>
