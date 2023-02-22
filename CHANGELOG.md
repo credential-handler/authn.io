@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 4.10.0 - 2023-02-dd
+## 4.10.0 - 2023-02-22
 
 ### Changed
 - Internal refactoring to separate core mediator code from Vue
