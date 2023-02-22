@@ -68,7 +68,7 @@
     </template>
     <template
       v-if="hasCustomFooter"
-      slot="footer">
+      #footer>
       <!-- clear footer when shown with hint chooser or selected hint -->
       <div v-if="showHintChooser || selectedHint" />
       <div
