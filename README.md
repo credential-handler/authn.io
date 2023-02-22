@@ -45,8 +45,8 @@ implements the [Credential Handler API][] would function.
 
 ## Requirements
 
-* Node.js v14+
-* npm v6+
+* Node.js v16+
+* npm v8+
 
 ## Development
 
