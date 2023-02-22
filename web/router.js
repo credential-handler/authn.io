@@ -5,7 +5,7 @@ import {createRouter as _createRouter, createWebHistory} from 'vue-router';
 
 export async function createRouter() {
   return _createRouter({
-    mode: createWebHistory(),
+    history: createWebHistory(),
     routes: [{
       path: '/',
       component: () => import(
