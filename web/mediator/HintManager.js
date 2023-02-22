@@ -162,7 +162,7 @@ async function _createJitHint({
     return _createHint(
       {credentialHandler, host, origin, manifest, recommendedBy});
   } catch(e) {
-    console.error(e);
+    console.warn(e);
     return;
   }
 }
@@ -234,8 +234,9 @@ async function _createRegisteredHint(credentialHandler) {
     credentialHandler = newCredentialHandler;
   } catch(e) {
     // FIXME: if `manifest` is not `null`, then manifest entry is invalid,
-    // and permission should be revoked for the handler
-    console.error(e);
+    // and permission should be revoked for the handler; change to
+    // `console.error` once this is implemented
+    console.warn(e);
   }
 
   const hint = _createHint({credentialHandler, host, origin, manifest});
