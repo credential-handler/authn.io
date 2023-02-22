@@ -2,16 +2,16 @@
   <div
     class="wrm-panel wrm-handler-header wrm-flex-row"
     style="user-select: none">
-    <wrm-header-back-button
+    <WrmHeaderBackButton
       class="wrm-flex-item"
       @click.native="back()" />
     <div class="wrm-flex-item-grow wrm-flex-column-stretch">
-      <wrm-origin-card
+      <WrmOriginCard
         style="padding-left: 10px"
         :origin="wallet.origin"
         :manifest="wallet.manifest" />
     </div>
-    <wrm-header-close-button
+    <WrmHeaderCloseButton
       class="wrm-flex-item"
       @click.native="cancel()" />
   </div>
@@ -23,8 +23,15 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
+import {
+  WrmHeaderBackButton,
+  WrmHeaderCloseButton,
+  WrmOriginCard
+} from 'vue-web-request-mediator';
+
 export default {
   name: 'HandlerWindowHeader',
+  components: {WrmHeaderBackButton, WrmHeaderCloseButton, WrmOriginCard},
   props: {
     hint: {
       type: Object,

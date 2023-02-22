@@ -3,7 +3,7 @@
     <div style="font-size: 14px; padding-top: 10px">
       The following website wants to {{websiteDesire}}
     </div>
-    <wrm-origin-card
+    <WrmOriginCard
       style="padding: 20px 0 10px 0"
       :icon-size="iconSize"
       :origin="credentialRequestOrigin"
@@ -17,8 +17,11 @@
  * Copyright (c) 2019-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
+import {WrmOriginCard} from 'vue-web-request-mediator';
+
 export default {
   name: 'MediatorGreeting',
+  components: {WrmOriginCard},
   props: {
     iconSize: {
       type: Number,

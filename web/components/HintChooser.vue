@@ -1,5 +1,5 @@
 <template>
-  <wrm-hint-chooser
+  <WrmHintChooser
     style="user-select: none"
     :hints="hints"
     :cancel-remove-hint-timeout="5000"
@@ -38,7 +38,7 @@
         </button>
       </div>
     </template>
-  </wrm-hint-chooser>
+  </WrmHintChooser>
 </template>
 
 <script>
@@ -48,10 +48,11 @@
  * All rights reserved.
  */
 import HintChooserMessage from './HintChooserMessage.vue';
+import {WrmHintChooser} from 'vue-web-request-mediator';
 
 export default {
   name: 'HintChooser',
-  components: {HintChooserMessage},
+  components: {HintChooserMessage, WrmHintChooser},
   props: {
     canWebShare: {
       type: Boolean,
