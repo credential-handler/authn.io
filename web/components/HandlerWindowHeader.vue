@@ -23,6 +23,7 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
+import {computed, toRef} from 'vue';
 import {
   WrmHeaderBackButton,
   WrmHeaderCloseButton,
@@ -38,22 +39,19 @@ export default {
       required: true
     }
   },
-  computed: {
-    wallet() {
+  emits: ['back', 'cancel'],
+  setup(props, {emit}) {
+    const hint = toRef(props, 'hint');
+    const wallet = computed(() => {
       return {
-        name: _getName(this.hint),
-        origin: this.hint.origin,
-        manifest: this.hint.manifest
+        name: _getName(hint.value),
+        origin: hint.value.origin,
+        manifest: hint.value.manifest
       };
-    }
-  },
-  methods: {
-    back() {
-      this.$emit('back');
-    },
-    cancel() {
-      this.$emit('cancel');
-    }
+    });
+    const back = () => emit('back');
+    const cancel = () => emit('cancel');
+    return {wallet, back, cancel};
   }
 };
 
