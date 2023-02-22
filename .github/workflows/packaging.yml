@@ -40,6 +40,7 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         push: true
+        provenance: false
         tags: us.gcr.io/${{ env.CONTAINER_OWNER }}/${{ env.CONTAINER_IMAGE_NAME }}:${{ steps.version.outputs.current-version }}-rc${{ steps.rc.outputs.version_build_number }}
 
     - name: Display Docker image
