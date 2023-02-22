@@ -4,7 +4,7 @@
     style="user-select: none">
     <WrmHeaderBackButton
       class="wrm-flex-item"
-      @click.native="back()" />
+      @click="back()" />
     <div class="wrm-flex-item-grow wrm-flex-column-stretch">
       <WrmOriginCard
         style="padding-left: 10px"
@@ -13,7 +13,7 @@
     </div>
     <WrmHeaderCloseButton
       class="wrm-flex-item"
-      @click.native="cancel()" />
+      @click="cancel()" />
   </div>
 </template>
 

@@ -17,6 +17,7 @@
  * Copyright (c) 2019-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
+import {computed, toRef} from 'vue';
 import {WrmOriginCard} from 'vue-web-request-mediator';
 
 export default {
@@ -42,16 +43,18 @@ export default {
       required: true
     }
   },
-  computed: {
-    websiteDesire() {
-      if(this.requestType === 'credentialRequest') {
+  setup(props) {
+    const requestType = toRef(props, 'requestType');
+    const websiteDesire = computed(() => {
+      if(requestType.value === 'credentialRequest') {
         return 'receive credentials from you:';
       }
-      if(this.requestType === 'credentialStore') {
+      if(requestType.value === 'credentialStore') {
         return 'send credentials to you:';
       }
       return 'manage credentials for you:';
-    }
+    });
+    return {websiteDesire};
   }
 };
 </script>

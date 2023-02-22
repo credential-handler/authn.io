@@ -73,10 +73,10 @@ export default {
       required: true
     }
   },
-  methods: {
-    close() {
-      this.$emit('close');
-    }
+  emits: ['close'],
+  setup(props, {emit}) {
+    const close = () => emit('close');
+    return {close};
   }
 };
 </script>

@@ -43,66 +43,136 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
+import {createApp, ref} from 'vue';
 import HandlerWindowHeader from './HandlerWindowHeader.vue';
 import MediatorWizard from './MediatorWizard.vue';
 import {ThirdPartyMediator} from '../mediator/ThirdPartyMediator.js';
-// FIXME: use vue 3 instead
-import Vue from 'vue';
 import {WrmCheckbox} from 'vue-web-request-mediator';
 
 export default {
   name: 'ThirdPartyMediatorWizard',
   components: {MediatorWizard, WrmCheckbox},
-  data() {
-    return {
-      canWebShare: false,
-      credentialRequestOrigin: null,
-      credentialRequestOriginManifest: null,
-      firstPartyDialogOpen: false,
-      hasStorageAccess: false,
-      hints: [],
-      loading: true,
-      rememberChoice: true,
-      requestType: null,
-      selectedHint: null,
-      showHintChooser: false
+  // FIXME: replace async setup with onMounted life-cycle hook
+  async setup() {
+    const mediator = new ThirdPartyMediator();
+
+    const canWebShare = ref(false);
+    const credentialRequestOrigin = ref(mediator.credentialRequestOrigin);
+    const credentialRequestOriginManifest = ref(null);
+    const firstPartyDialogOpen = ref(false);
+    const hasStorageAccess = ref(mediator.hasStorageAccess);
+    const hints = ref([]);
+    const loading = ref(true);
+    const rememberChoice = ref(true);
+    const requestType = ref(null);
+    const selectedHint = ref(null);
+    const showHintChooser = ref(false);
+
+    const allow = async () => {
+      loading.value = true;
+      await mediator.allowCredentialHandler();
     };
-  },
-  async created() {
+    const cancel = async () => {
+      loading.value = true;
+      return mediator.cancel();
+    };
+    const deny = async () => {
+      loading.value = true;
+      await mediator.denyCredentialHandler();
+    };
+    const focusFirstPartyDialog = () => mediator.focusFirstPartyDialog();
+    const openFirstPartyDialog = async () => {
+      loading.value = true;
+      try {
+        // FIXME: bikeshed this approach to handling 1p dialog state changes
+        const opened = () => firstPartyDialogOpen.value = true;
+        const closed = () => firstPartyDialogOpen.value = false;
+
+        // handle permission request case
+        if(requestType.value === 'permissionRequest') {
+          await mediator.handlePermissionRequestWithFirstPartyMediator(
+            {opened, closed});
+          return;
+        }
+
+        // handle all other cases
+        const {choice} = await mediator.getHintChoiceWithFirstPartyMediator(
+          {opened, closed});
+        // if a choice was made... (vs. closing the window)
+        if(choice) {
+          selectHint({...choice, waitUntil: () => {}});
+        }
+      } finally {
+        loading.value = false;
+      }
+    };
+    const removeHint = async event => {
+      const {hint} = event;
+      const {hintManager} = mediator;
+      loading.value = true;
+      hints.value = [];
+      const promise = hintManager.removeHint({hint});
+      event.waitUntil(promise.catch(() => {}));
+      try {
+        await promise;
+      } finally {
+        hints.value = hintManager.hints.slice();
+        loading.value = false;
+      }
+    };
+    const selectHint = async event => {
+      const {hint} = event;
+      selectedHint.value = hint;
+      const promise = mediator.selectHint(
+        {hint, rememberChoice: rememberChoice.value});
+      event.waitUntil(promise.catch(() => {}));
+      try {
+        await promise;
+      } finally {
+        selectedHint.value = null;
+        // show hint selection when mediator has storage access
+        if(mediator.hasStorageAccess) {
+          showHintChooser.value = true;
+        }
+      }
+    };
+    const webShare = async () => {
+      await mediator.webShare();
+    };
+
     try {
-      // FIXME: move / (rename this component) to ThirdPartyMediatorPage?
-      const mediator = new ThirdPartyMediator();
-      this._mediator = mediator;
-
-      // FIXME: create computed from `mediator.hasStorageAccess`
-      this.hasStorageAccess = mediator.hasStorageAccess;
-      // FIXME: create computed from `mediator.credentialRequestOrigin`
-      this.credentialRequestOrigin = mediator.credentialRequestOrigin;
-
       await mediator.initialize({
-        show: ({requestType}) => {
-          this.loading = true;
-          this.requestType = requestType;
-          this.showHintChooser = false;
+        show: ({requestType: _requestType}) => {
+          loading.value = true;
+          requestType.value = _requestType;
+          showHintChooser.value = false;
 
           // determine web share capability
           mediator.getWebShareHandler()
-            .then(({enabled}) => this.canWebShare = enabled);
+            .then(({enabled}) => canWebShare.value = enabled);
 
           // if the web app manifest loads, use it
           mediator.credentialRequestOriginManifestPromise.then(manifest => {
-            this.credentialRequestOriginManifest = manifest;
+            credentialRequestOriginManifest.value = manifest;
           });
         },
-        hide: () => this.reset(),
+        hide: () => {
+          hints.value = [];
+          loading.value = false;
+          firstPartyDialogOpen.value = false;
+          rememberChoice.value = true;
+          requestType.value = null;
+          selectedHint.value = null;
+          showHintChooser.value = false;
+        },
         ready: () => {
-          this.hints = mediator.hintManager.hints.slice();
-          // FIXME: make `showHintChooser` a computed var in Vue 3
+          hints.value = mediator.hintManager.hints.slice();
+          // FIXME: make `showHintChooser` a computed var
           if(mediator.hasStorageAccess &&
-            this.requestType !== 'permissionRequest') {
-            this.showHintChooser = true;
+            requestType.value !== 'permissionRequest') {
+            showHintChooser.value = true;
           }
-          this.loading = false;
+          loading.value = false;
         },
         showHandlerWindow: ({webAppWindow}) =>
           _showHandlerWindow({webAppWindow, mediator})
@@ -110,108 +180,40 @@ export default {
     } catch(e) {
       console.error('Error initializing mediator:', e);
     }
-  },
-  methods: {
-    async allow() {
-      this.loading = true;
-      await this._mediator.allowCredentialHandler();
-    },
-    async cancel() {
-      this.loading = true;
-      return this._mediator.cancel();
-    },
-    async deny() {
-      this.loading = true;
-      await this._mediator.denyCredentialHandler();
-    },
-    focusFirstPartyDialog() {
-      this._mediator.focusFirstPartyDialog();
-    },
-    async openFirstPartyDialog() {
-      this.loading = true;
-      try {
-        // FIXME: bikeshed this approach to handling 1p dialog state changes
-        const opened = () => this.firstPartyDialogOpen = true;
-        const closed = () => this.firstPartyDialogOpen = false;
 
-        // handle permission request case
-        if(this.requestType === 'permissionRequest') {
-          await this._mediator
-            .handlePermissionRequestWithFirstPartyMediator({opened, closed});
-          return;
-        }
-
-        // handle all other cases
-        const {choice} = await this._mediator
-          .getHintChoiceWithFirstPartyMediator({opened, closed});
-        // if a choice was made... (vs. closing the window)
-        if(choice) {
-          this.selectHint({...choice, waitUntil: () => {}});
-        }
-      } finally {
-        this.loading = false;
-      }
-    },
-    async selectHint(event) {
-      const {hint} = event;
-      this.selectedHint = hint;
-      const {rememberChoice} = this;
-      const promise = this._mediator.selectHint({hint, rememberChoice});
-      event.waitUntil(promise.catch(() => {}));
-      try {
-        await promise;
-      } finally {
-        this.selectedHint = null;
-        // show hint selection when mediator has storage access
-        if(this._mediator.hasStorageAccess) {
-          this.showHintChooser = true;
-        }
-      }
-    },
-    async removeHint(event) {
-      const {hint} = event;
-      const {_mediator: {hintManager}} = this;
-      this.loading = true;
-      this.hints = [];
-      const promise = hintManager.removeHint({hint});
-      event.waitUntil(promise.catch(() => {}));
-      try {
-        await promise;
-      } finally {
-        this.hints = hintManager.hints.slice();
-        this.loading = false;
-      }
-    },
-    reset() {
-      this.hints = [];
-      this.loading = false;
-      this.firstPartyDialogOpen = false;
-      this.rememberChoice = true;
-      this.requestType = null;
-      this.selectedHint = null;
-      this.showHintChooser = false;
-    },
-    async webShare() {
-      await this._mediator.webShare();
-    }
+    return {
+      // data
+      canWebShare, credentialRequestOrigin, credentialRequestOriginManifest,
+      firstPartyDialogOpen, hasStorageAccess, hints, loading,
+      rememberChoice, requestType, selectedHint, showHintChooser,
+      // methods
+      allow, cancel, deny, focusFirstPartyDialog, openFirstPartyDialog,
+      removeHint, selectHint, webShare
+    };
   }
 };
 
 function _showHandlerWindow({webAppWindow, mediator}) {
-  // FIXME: convert to vue 3 via:
-  /*
+  console.log('_showHandlerWindow');
+
+  // clear iframe style that was set by web-request-rpc; set instead via CSS
+  const {container, iframe} = webAppWindow.dialog;
+  iframe.style.cssText = null;
+  iframe.classList.add('wrm-handler-iframe');
+
+  // attach handler window header
   const el = document.createElement('div');
   container.insertBefore(el, iframe);
   container.classList.add('wrm-slide-up');
   const component = createApp({extends: HandlerWindowHeader}, {
-    // FIXME: determine how to do clean up
-    onClose() {
-      component.unmount();
-      el.remove();
-    }
+    hint: mediator.selectedHint,
+    onBack: mediator.cancelSelection.bind(mediator),
+    onCancel: mediator.cancel.bind(mediator)
+    // FIXME: determine if `component.unmount()` and `el.remove()` need to
+    // be called
   });
   component.mount(el);
-  */
+ /*
   const {container, iframe} = webAppWindow.dialog;
   const Component = Vue.extend(HandlerWindowHeader);
   const el = document.createElement('div');
@@ -229,7 +231,7 @@ function _showHandlerWindow({webAppWindow, mediator}) {
   });
   // clear iframe style that was set by web-request-rpc; set instead via CSS
   iframe.style.cssText = null;
-  iframe.classList.add('wrm-handler-iframe');
+  iframe.classList.add('wrm-handler-iframe');*/
 }
 </script>
 
