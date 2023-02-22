@@ -2,13 +2,16 @@
  * authn.io production configuration.
  *
  * New BSD License (3-clause)
- * Copyright (c) 2015-2021, Digital Bazaar, Inc.
+ * Copyright (c) 2015-2023, Digital Bazaar, Inc.
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-const {config} = require('bedrock');
-const os = require('os');
-const path = require('path');
+import {config} from '@bedrock/core';
+import {fileURLToPath} from 'node:url';
+import os from 'node:os';
+import path from 'node:path';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // core configuration
 config.core.workers = 1;
