@@ -1,5 +1,5 @@
 <template>
-  <wrm-wizard-dialog
+  <WrmWizardDialog
     :loading="loading"
     :first="true"
     :has-next="true"
@@ -12,7 +12,7 @@
         :loading="headerLoading" />
     </template>
     <template slot="body">
-      <mediator-greeting
+      <MediatorGreeting
         :icon-size="greetingIconSize"
         :credential-request-origin="credentialRequestOrigin"
         :credential-request-origin-manifest="credentialRequestOriginManifest"
@@ -44,7 +44,7 @@
       <div
         v-else-if="selectedHint"
         style="padding-top: 15px">
-        <wrm-hint
+        <WrmHint
           :hint="selectedHint"
           default-icon="fas fa-wallet"
           :active="true"
@@ -105,7 +105,7 @@
         </button>
       </div>
     </template>
-  </wrm-wizard-dialog>
+  </WrmWizardDialog>
 </template>
 
 <script>
@@ -118,10 +118,13 @@ import {getOriginName} from '../mediator/helpers.js';
 import HintChooser from './HintChooser.vue';
 import MediatorGreeting from './MediatorGreeting.vue';
 import MediatorHeader from './MediatorHeader.vue';
+import {WrmHint, WrmWizardDialog} from 'vue-web-request-mediator';
 
 export default {
   name: 'MediatorWizard',
-  components: {HintChooser, MediatorGreeting, MediatorHeader},
+  components: {
+    HintChooser, MediatorGreeting, MediatorHeader, WrmHint, WrmWizardDialog
+  },
   props: {
     canWebShare: {
       type: Boolean,

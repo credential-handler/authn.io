@@ -26,7 +26,7 @@
         v-if="hints.length > 0"
         style="margin: 10px -15px 0px -15px; padding: 15px 15px 0px 15px;"
         class="wrm-separator wrm-modern">
-        <wrm-checkbox
+        <WrmCheckbox
           v-model="rememberChoice"
           checkbox-class="wrm-blue"
           checkbox-style="font-size: 14px"
@@ -46,11 +46,13 @@
 import HandlerWindowHeader from './HandlerWindowHeader.vue';
 import MediatorWizard from './MediatorWizard.vue';
 import {ThirdPartyMediator} from '../mediator/ThirdPartyMediator.js';
+// FIXME: use vue 3 instead
 import Vue from 'vue';
+import {WrmCheckbox} from 'vue-web-request-mediator';
 
 export default {
   name: 'ThirdPartyMediatorWizard',
-  components: {MediatorWizard},
+  components: {MediatorWizard, WrmCheckbox},
   data() {
     return {
       canWebShare: false,
