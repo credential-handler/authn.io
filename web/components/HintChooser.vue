@@ -78,19 +78,13 @@ export default {
       default: ''
     }
   },
-  methods: {
-    cancel(event) {
-      this.$emit('cancel', event);
-    },
-    selectHint(event) {
-      this.$emit('select-hint', event);
-    },
-    removeHint(event) {
-      this.$emit('remove-hint', event);
-    },
-    webShare() {
-      this.$emit('web-share');
-    }
+  emits: ['cancel', 'select-hint', 'remove-hint', 'web-share'],
+  setup(props, {emit}) {
+    const cancel = event => emit('cancel', event);
+    const selectHint = event => emit('select-hint', event);
+    const removeHint = event => emit('remove-hint', event);
+    const webShare = () => emit('web-share');
+    return {cancel, removeHint, selectHint, webShare};
   }
 };
 </script>

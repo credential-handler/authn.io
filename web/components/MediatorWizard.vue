@@ -114,6 +114,7 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
+import {computed, toRef} from 'vue';
 import {getOriginName} from '../mediator/helpers.js';
 import HintChooser from './HintChooser.vue';
 import MediatorGreeting from './MediatorGreeting.vue';
@@ -176,83 +177,87 @@ export default {
       default: false
     }
   },
-  computed: {
-    credentialRequestOriginName() {
-      const {
-        credentialRequestOrigin: origin,
-        credentialRequestOriginManifest: manifest
-      } = this;
-      if(!origin) {
+  emits: [
+    'allow', 'cancel', 'deny',
+    'focus-first-party-dialog', 'open-first-party-dialog',
+    'remove-hint', 'select-hint', 'web-share'
+  ],
+  setup(props, {emit}) {
+    const credentialRequestOrigin = toRef(props, 'credentialRequestOrigin');
+    const credentialRequestOriginManifest = toRef(
+      props, 'credentialRequestOriginManifest');
+    const firstPartyDialogOpen = toRef(props, 'firstPartyDialogOpen');
+    const hasStorageAccess = toRef(props, 'hasStorageAccess');
+    const loading = toRef(props, 'loading');
+    const requestType = toRef(props, 'requestType');
+    const selectedHint = toRef(props, 'selectedHint');
+    const showHintChooser = toRef(props, 'showHintChooser');
+
+    const credentialRequestOriginName = computed(() => {
+      if(!credentialRequestOrigin.value) {
         return '';
       }
-      return getOriginName({origin, manifest});
-    },
-    firstPartyDialogFocusText() {
-      if(this.requestType === 'permissionRequest') {
+      return getOriginName({
+        origin: credentialRequestOrigin.value,
+        manifest: credentialRequestOriginManifest.value
+      });
+    });
+    const firstPartyDialogFocusText = computed(() => {
+      if(requestType.value === 'permissionRequest') {
         return 'Show Permission Window';
       }
       return 'Show Wallet Chooser';
-    },
-    greetingIconSize() {
+    });
+    const greetingIconSize = computed(() => {
       // on hints screen, de-emphasize greeting icon size
-      if(this.showHintChooser) {
+      if(showHintChooser.value) {
         return 36;
       }
       return 48;
-    },
-    hasCustomFooter() {
+    });
+    const hasCustomFooter = computed(() => {
       /* Note: The wizard default footer shows cancel/next buttons. But if
       mediator has storage access, all wizard steps are integrated and a
       custom footer will provide different buttons. If the first party dialog
       is open to access storage, then the footer is also replaced, this time
       with a button to focus that dialog if it does not have focus. */
-      return this.hasStorageAccess || this.firstPartyDialogOpen;
-    },
-    headerLoading() {
-      return this.loading || !!this.selectedHint;
-    },
-    headerTitle() {
-      const {selectedHint, showHintChooser, requestType} = this;
-      if(selectedHint) {
+      return hasStorageAccess.value || firstPartyDialogOpen.value;
+    });
+    const headerLoading = computed(() => {
+      return loading.value || !!selectedHint.value;
+    });
+    const headerTitle = computed(() => {
+      if(selectedHint.value) {
         return 'Loading Wallet...';
       }
-      if(showHintChooser) {
+      if(showHintChooser.value) {
         return 'Choose a Wallet';
       }
-      if(requestType === 'permissionRequest') {
+      if(requestType.value === 'permissionRequest') {
         return 'Allow Wallet';
       }
-      if(requestType === 'credentialRequest') {
+      if(requestType.value === 'credentialRequest') {
         return 'Credentials Request';
       }
       return 'Store Credentials';
-    }
-  },
-  methods: {
-    allow() {
-      this.$emit('allow');
-    },
-    deny() {
-      this.$emit('deny');
-    },
-    cancel() {
-      this.$emit('cancel');
-    },
-    focusFirstPartyDialog() {
-      this.$emit('focus-first-party-dialog');
-    },
-    next() {
-      this.$emit('open-first-party-dialog');
-    },
-    removeHint(event) {
-      this.$emit('remove-hint', event);
-    },
-    selectHint(event) {
-      this.$emit('select-hint', event);
-    },
-    webShare() {
-      this.$emit('web-share');
-    }
+    });
+
+    const allow = () => emit('allow');
+    const cancel = () => emit('cancel');
+    const deny = () => emit('deny');
+    const focusFirstPartyDialog = () => emit('focus-first-party-dialog');
+    const next = () => emit('open-first-party-dialog');
+    const removeHint = event => emit('remove-hint', event);
+    const selectHint = event => emit('select-hint', event);
+    const webShare = () => emit('web-share');
+    return {
+      // data
+      credentialRequestOriginName, firstPartyDialogFocusText,
+      greetingIconSize, hasCustomFooter, headerLoading, headerTitle,
+      // methods
+      allow, cancel, deny, focusFirstPartyDialog, next,
+      removeHint, selectHint, webShare
+    };
   }
 };
 </script>
