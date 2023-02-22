@@ -1,5 +1,14 @@
 # authn.io ChangeLog
 
+## 4.10.0 - 2023-02-dd
+
+### Changed
+- Internal refactoring to separate core mediator code from Vue
+  UI code.
+- Use `web-request-mediator@2.0.3` and `credential-mediator-polyfill@3` to
+  get latest fixes and better browser storage management.
+- Update github packaging actions.
+
 ## 4.9.3 - 2023-01-26
 
 ### Fixed
