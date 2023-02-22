@@ -43,7 +43,7 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {createApp, ref} from 'vue';
+import {createApp, ref, toRaw} from 'vue';
 import HandlerWindowHeader from './HandlerWindowHeader.vue';
 import MediatorWizard from './MediatorWizard.vue';
 import {ThirdPartyMediator} from '../mediator/ThirdPartyMediator.js';
@@ -107,7 +107,7 @@ export default {
       }
     };
     const removeHint = async event => {
-      const {hint} = event;
+      const hint = toRaw(event.hint);
       const {hintManager} = mediator;
       loading.value = true;
       hints.value = [];
@@ -121,7 +121,7 @@ export default {
       }
     };
     const selectHint = async event => {
-      const {hint} = event;
+      const hint = toRaw(event.hint);
       selectedHint.value = hint;
       const promise = mediator.selectHint(
         {hint, rememberChoice: rememberChoice.value});
@@ -194,7 +194,9 @@ export default {
 };
 
 function _showHandlerWindow({webAppWindow, mediator}) {
-  console.log('_showHandlerWindow');
+  console.log('_showHandlerWindow', {
+    hint: mediator.selectedHint
+  });
 
   // clear iframe style that was set by web-request-rpc; set instead via CSS
   const {container, iframe} = webAppWindow.dialog;
@@ -205,7 +207,7 @@ function _showHandlerWindow({webAppWindow, mediator}) {
   const el = document.createElement('div');
   container.insertBefore(el, iframe);
   container.classList.add('wrm-slide-up');
-  const component = createApp({extends: HandlerWindowHeader}, {
+  const component = createApp(HandlerWindowHeader, {
     hint: mediator.selectedHint,
     onBack: mediator.cancelSelection.bind(mediator),
     onCancel: mediator.cancel.bind(mediator)
