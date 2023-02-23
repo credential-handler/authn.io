@@ -49,6 +49,9 @@ export class BaseMediator {
   }
 
   async selectHint({hint}) {
+    if(this.selectedHint) {
+      throw new Error('Hint already selected.');
+    }
     this.selectedHint = hint;
 
     // auto-register handler if hint was JIT-created
