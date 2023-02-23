@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 5.0.2 - 2023-02-dd
+## 5.0.2 - 2023-02-23
 
 ### Fixed
 - Use node 16 in Dockerfile for deployment.
