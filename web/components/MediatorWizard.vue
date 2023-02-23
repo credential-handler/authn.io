@@ -54,7 +54,6 @@
           :selected="true"
           :selectable="false"
           :disabled="true" />
-        <!-- FIXME: do not show this button on mobile; it has no effect -->
         <div
           v-if="firstPartyDialogOpen"
           class="wrm-button-bar"
@@ -94,7 +93,6 @@
           Allow
         </button>
       </div>
-      <!-- FIXME: do not show this button on mobile; it has no effect -->
       <div
         v-else-if="!selectedHint && firstPartyDialogOpen"
         class="wrm-button-bar"
