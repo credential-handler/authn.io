@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 5.0.1 - 2023-02-dd
+## 5.0.1 - 2023-02-22
 
 ### Fixed
 - Fix first party dialog CSS.
