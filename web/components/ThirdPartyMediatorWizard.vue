@@ -43,7 +43,7 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {createApp, ref, toRaw} from 'vue';
+import {computed, createApp, ref, toRaw} from 'vue';
 import HandlerWindowHeader from './HandlerWindowHeader.vue';
 import MediatorWizard from './MediatorWizard.vue';
 import {ThirdPartyMediator} from '../mediator/ThirdPartyMediator.js';
@@ -66,7 +66,9 @@ export default {
     const rememberChoice = ref(true);
     const requestType = ref(null);
     const selectedHint = ref(null);
-    const showHintChooser = ref(false);
+
+    const showHintChooser = computed(() =>
+      hasStorageAccess.value && requestType.value !== 'permissionRequest');
 
     const allow = async () => {
       loading.value = true;
@@ -130,10 +132,6 @@ export default {
         await promise;
       } finally {
         selectedHint.value = null;
-        // show hint selection when mediator has storage access
-        if(mediator.hasStorageAccess) {
-          showHintChooser.value = true;
-        }
       }
     };
     const webShare = async () => {
@@ -145,7 +143,6 @@ export default {
         show: ({requestType: _requestType}) => {
           loading.value = true;
           requestType.value = _requestType;
-          showHintChooser.value = false;
 
           // determine web share capability
           mediator.getWebShareHandler()
@@ -163,15 +160,9 @@ export default {
           rememberChoice.value = true;
           requestType.value = null;
           selectedHint.value = null;
-          showHintChooser.value = false;
         },
         ready: () => {
           hints.value = mediator.hintManager.hints.slice();
-          // FIXME: make `showHintChooser` a computed var
-          if(mediator.hasStorageAccess &&
-            requestType.value !== 'permissionRequest') {
-            showHintChooser.value = true;
-          }
           loading.value = false;
         },
         showHandlerWindow: ({webAppWindow}) =>
