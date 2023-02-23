@@ -31,7 +31,6 @@
         :loading="loading"
         :request-type="requestType"
         @cancel="cancel()"
-        @confirm="selectHint"
         @remove-hint="removeHint"
         @select-hint="selectHint"
         @web-share="webShare()">
