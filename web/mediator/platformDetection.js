@@ -17,9 +17,8 @@ try {
 // specifically, branded Google Chrome, not just chromium
 let isChrome;
 try {
-  isChrome = browser && browser.name === 'chrome' &&
-    navigator.userAgentData &&
-    navigator.userAgentData.brands.some(({brand}) => brand === 'Google Chrome');
+  isChrome = browser?.name === 'chrome' &&
+  navigator.userAgentData?.brands.some(({brand}) => brand === 'Google Chrome');
 } catch(e) {
   isChrome = false;
 }
