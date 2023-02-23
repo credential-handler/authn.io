@@ -1,5 +1,8 @@
 <template>
+  <!-- blank screen while credential request origin loads -->
+  <div v-if="!credentialRequestOrigin" />
   <WrmWizardDialog
+    v-else
     :loading="loading"
     :first="true"
     :has-next="true"

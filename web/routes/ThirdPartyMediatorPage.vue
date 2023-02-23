@@ -1,7 +1,5 @@
 <template>
-  <Suspense>
-    <ThirdPartyMediatorWizard />
-  </Suspense>
+  <ThirdPartyMediatorWizard />
 </template>
 
 <script>

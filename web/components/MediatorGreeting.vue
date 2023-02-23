@@ -1,13 +1,18 @@
 <template>
   <div style="user-select: none">
-    <div style="font-size: 14px; padding-top: 10px">
-      The following website wants to {{websiteDesire}}
+    <div v-if="!credentialRequestOrigin">
+      Loading... <i class="fas fa-cog fa-spin" />
     </div>
-    <WrmOriginCard
-      style="padding: 20px 0 10px 0"
-      :icon-size="iconSize"
-      :origin="credentialRequestOrigin"
-      :manifest="credentialRequestOriginManifest" />
+    <div else>
+      <div style="font-size: 14px; padding-top: 10px">
+        The following website wants to {{websiteDesire}}
+      </div>
+      <WrmOriginCard
+        style="padding: 20px 0 10px 0"
+        :icon-size="iconSize"
+        :origin="credentialRequestOrigin"
+        :manifest="credentialRequestOriginManifest" />
+    </div>
   </div>
 </template>
 
