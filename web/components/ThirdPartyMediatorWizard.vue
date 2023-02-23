@@ -1,8 +1,5 @@
 <template>
-  <!-- blank screen while credential request is loading -->
-  <div v-if="!requestType" />
   <MediatorWizard
-    v-else
     :can-web-share="canWebShare"
     :credential-request-origin="credentialRequestOrigin"
     :credential-request-origin-manifest="credentialRequestOriginManifest"
@@ -43,7 +40,7 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {computed, createApp, ref, toRaw} from 'vue';
+import {computed, createApp, onMounted, ref, toRaw} from 'vue';
 import HandlerWindowHeader from './HandlerWindowHeader.vue';
 import MediatorWizard from './MediatorWizard.vue';
 import {ThirdPartyMediator} from '../mediator/ThirdPartyMediator.js';
@@ -52,8 +49,7 @@ import {WrmCheckbox} from 'vue-web-request-mediator';
 export default {
   name: 'ThirdPartyMediatorWizard',
   components: {MediatorWizard, WrmCheckbox},
-  // FIXME: replace async setup with onMounted life-cycle hook
-  async setup() {
+  setup() {
     const mediator = new ThirdPartyMediator();
 
     const canWebShare = ref(false);
@@ -64,7 +60,7 @@ export default {
     const hints = ref([]);
     const loading = ref(true);
     const rememberChoice = ref(true);
-    const requestType = ref(null);
+    const requestType = ref('');
     const selectedHint = ref(null);
 
     const showHintChooser = computed(() =>
@@ -138,39 +134,38 @@ export default {
       await mediator.webShare();
     };
 
-    try {
-      await mediator.initialize({
-        show: ({requestType: _requestType}) => {
-          loading.value = true;
-          requestType.value = _requestType;
+    onMounted(async () => {
+      try {
+        await mediator.initialize({
+          show: ({requestType: _requestType}) => {
+            loading.value = true;
+            requestType.value = _requestType;
 
-          // determine web share capability
-          mediator.getWebShareHandler()
-            .then(({enabled}) => canWebShare.value = enabled);
-
-          // if the web app manifest loads, use it
-          mediator.credentialRequestOriginManifestPromise.then(manifest => {
-            credentialRequestOriginManifest.value = manifest;
-          });
-        },
-        hide: () => {
-          hints.value = [];
-          loading.value = false;
-          firstPartyDialogOpen.value = false;
-          rememberChoice.value = true;
-          requestType.value = null;
-          selectedHint.value = null;
-        },
-        ready: () => {
-          hints.value = mediator.hintManager.hints.slice();
-          loading.value = false;
-        },
-        showHandlerWindow: ({webAppWindow}) =>
-          _showHandlerWindow({webAppWindow, mediator})
-      });
-    } catch(e) {
-      console.error('Error initializing mediator:', e);
-    }
+            // determine web share capability
+            mediator.getWebShareHandler()
+              .then(({enabled}) => canWebShare.value = enabled);
+          },
+          hide: () => {
+            hints.value = [];
+            loading.value = false;
+            firstPartyDialogOpen.value = false;
+            rememberChoice.value = true;
+            requestType.value = '';
+            selectedHint.value = null;
+          },
+          ready: async () => {
+            hints.value = mediator.hintManager.hints.slice();
+            credentialRequestOriginManifest.value =
+              await mediator.credentialRequestOriginManifestPromise;
+            loading.value = false;
+          },
+          showHandlerWindow: ({webAppWindow}) =>
+            _showHandlerWindow({webAppWindow, mediator})
+        });
+      } catch(e) {
+        console.error('Error initializing mediator:', e);
+      }
+    });
 
     return {
       // data

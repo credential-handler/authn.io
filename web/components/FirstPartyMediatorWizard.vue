@@ -28,15 +28,14 @@
  * Copyright (c) 2017-2023, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {computed, ref, toRaw} from 'vue';
+import {computed, onMounted, ref, toRaw} from 'vue';
 import {FirstPartyMediator} from '../mediator/FirstPartyMediator.js';
 import MediatorWizard from './MediatorWizard.vue';
 
 export default {
   name: 'FirstPartyMediatorWizard',
   components: {MediatorWizard},
-  // FIXME: replace async setup with onMounted life-cycle hook
-  async setup() {
+  setup() {
     const mediator = new FirstPartyMediator();
 
     const canWebShare = ref(false);
@@ -44,7 +43,7 @@ export default {
     const credentialRequestOriginManifest = ref(null);
     const hints = ref([]);
     const loading = ref(true);
-    const requestType = ref(null);
+    const requestType = ref('');
     const selectedHint = ref(null);
 
     const showHintChooser = computed(() => {
@@ -86,34 +85,35 @@ export default {
       await mediator.webShare();
     };
 
-    try {
-      await mediator.initialize({
-        show: ({requestType: _requestType}) => {
-          loading.value = true;
-          requestType.value = _requestType;
+    onMounted(async () => {
+      try {
+        await mediator.initialize({
+          show: ({requestType: _requestType}) => {
+            loading.value = true;
+            requestType.value = _requestType;
 
-          // determine web share capability
-          mediator.getWebShareHandler()
-            .then(({enabled}) => canWebShare.value = enabled);
-        },
-        hide: () => {
-          hints.value = [];
-          loading.value = false;
-          requestType.value = null;
-          selectedHint.value = null;
-        },
-        ready: () => {
-          hints.value = mediator.hintManager.hints.slice();
-          loading.value = false;
-        }
-      });
-
-      credentialRequestOrigin.value = mediator.credentialRequestOrigin;
-      credentialRequestOriginManifest.value =
-        mediator.credentialRequestOriginManifest;
-    } catch(e) {
-      console.error('Error initializing mediator:', e);
-    }
+            // determine web share capability
+            mediator.getWebShareHandler()
+              .then(({enabled}) => canWebShare.value = enabled);
+          },
+          hide: () => {
+            hints.value = [];
+            loading.value = false;
+            requestType.value = '';
+            selectedHint.value = null;
+          },
+          ready: async () => {
+            hints.value = mediator.hintManager.hints.slice();
+            credentialRequestOriginManifest.value =
+              await mediator.credentialRequestOriginManifestPromise;
+            credentialRequestOrigin.value = mediator.credentialRequestOrigin;
+            loading.value = false;
+          }
+        });
+      } catch(e) {
+        console.error('Error initializing mediator:', e);
+      }
+    });
 
     return {
       // data
