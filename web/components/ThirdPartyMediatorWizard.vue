@@ -46,6 +46,7 @@ import MediatorWizard from './MediatorWizard.vue';
 import {ThirdPartyMediator} from '../mediator/ThirdPartyMediator.js';
 import {WrmCheckbox} from 'vue-web-request-mediator';
 
+// eslint-disable-next-line vue/one-component-per-file
 export default {
   name: 'ThirdPartyMediatorWizard',
   components: {MediatorWizard, WrmCheckbox},
@@ -77,6 +78,18 @@ export default {
     const deny = async () => {
       loading.value = true;
       await mediator.denyCredentialHandler();
+    };
+    const selectHint = async event => {
+      const hint = toRaw(event.hint);
+      selectedHint.value = hint;
+      const promise = mediator.selectHint(
+        {hint, rememberChoice: rememberChoice.value});
+      event.waitUntil(promise.catch(() => {}));
+      try {
+        await promise;
+      } finally {
+        selectedHint.value = null;
+      }
     };
     const focusFirstPartyDialog = () => mediator.focusFirstPartyDialog();
     const openFirstPartyDialog = async () => {
@@ -116,18 +129,6 @@ export default {
       } finally {
         hints.value = hintManager.hints.slice();
         loading.value = false;
-      }
-    };
-    const selectHint = async event => {
-      const hint = toRaw(event.hint);
-      selectedHint.value = hint;
-      const promise = mediator.selectHint(
-        {hint, rememberChoice: rememberChoice.value});
-      event.waitUntil(promise.catch(() => {}));
-      try {
-        await promise;
-      } finally {
-        selectedHint.value = null;
       }
     };
     const webShare = async () => {
@@ -190,6 +191,7 @@ function _showHandlerWindow({webAppWindow, mediator}) {
   el.style = 'width: 100%';
   container.insertBefore(el, iframe);
   container.classList.add('wrm-slide-up');
+  // eslint-disable-next-line vue/one-component-per-file
   const component = createApp(HandlerWindowHeader, {
     hint: mediator.selectedHint,
     onBack: mediator.cancelSelection.bind(mediator),

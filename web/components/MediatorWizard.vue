@@ -117,11 +117,11 @@
  * All rights reserved.
  */
 import {computed, toRef} from 'vue';
+import {WrmHint, WrmWizardDialog} from 'vue-web-request-mediator';
 import {getOriginName} from '../mediator/helpers.js';
 import HintChooser from './HintChooser.vue';
 import MediatorGreeting from './MediatorGreeting.vue';
 import MediatorHeader from './MediatorHeader.vue';
-import {WrmHint, WrmWizardDialog} from 'vue-web-request-mediator';
 
 export default {
   name: 'MediatorWizard',

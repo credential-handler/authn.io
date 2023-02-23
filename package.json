@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node authn.localhost.js",
-    "lint": "eslint ."
+    "lint": "eslint \"**/*.{js,vue}\""
   },
   "repository": {
     "type": "git",
