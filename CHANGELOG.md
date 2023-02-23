@@ -1,5 +1,11 @@
 # authn.io ChangeLog
 
+## 5.0.0 - 2023-02-dd
+
+### Changed
+- **BREAKING**: Use Vue 3 to implement UI. UI functionality should be
+  generally the same as the previous 4.10 version.
+
 ## 4.10.0 - 2023-02-22
 
 ### Changed
