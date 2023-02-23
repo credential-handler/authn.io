@@ -194,10 +194,6 @@ export default {
 };
 
 function _showHandlerWindow({webAppWindow, mediator}) {
-  console.log('_showHandlerWindow', {
-    hint: mediator.selectedHint
-  });
-
   // clear iframe style that was set by web-request-rpc; set instead via CSS
   const {container, iframe} = webAppWindow.dialog;
   iframe.style.cssText = null;
@@ -205,35 +201,15 @@ function _showHandlerWindow({webAppWindow, mediator}) {
 
   // attach handler window header
   const el = document.createElement('div');
+  el.style = 'width: 100%';
   container.insertBefore(el, iframe);
   container.classList.add('wrm-slide-up');
   const component = createApp(HandlerWindowHeader, {
     hint: mediator.selectedHint,
     onBack: mediator.cancelSelection.bind(mediator),
     onCancel: mediator.cancel.bind(mediator)
-    // FIXME: determine if `component.unmount()` and `el.remove()` need to
-    // be called
   });
   component.mount(el);
- /*
-  const {container, iframe} = webAppWindow.dialog;
-  const Component = Vue.extend(HandlerWindowHeader);
-  const el = document.createElement('div');
-  container.insertBefore(el, iframe);
-  container.classList.add('wrm-slide-up');
-  new Component({
-    el,
-    propsData: {
-      hint: mediator.selectedHint
-    },
-    created() {
-      this.$on('back', mediator.cancelSelection.bind(mediator));
-      this.$on('cancel', mediator.cancel.bind(mediator));
-    }
-  });
-  // clear iframe style that was set by web-request-rpc; set instead via CSS
-  iframe.style.cssText = null;
-  iframe.classList.add('wrm-handler-iframe');*/
 }
 </script>
 
