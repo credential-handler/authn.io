@@ -7,6 +7,7 @@
   UI code.
 - Use `web-request-mediator@2.0.3` and `credential-mediator-polyfill@3` to
   get latest fixes and better browser storage management.
+- Use `vue-web-request-mediator@6` for Vue 3 implementation.
 - Update github packaging actions.
 
 ## 4.9.3 - 2023-01-26
