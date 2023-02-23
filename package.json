@@ -27,7 +27,7 @@
     "@bedrock/webpack": "^9.0.0",
     "@digitalbazaar/http-client": "^3.3.0",
     "content-type": "^1.0.4",
-    "credential-mediator-polyfill": "^3.0.0",
+    "credential-mediator-polyfill": "^3.0.1",
     "detect-browser": "^5.3.0",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6",
