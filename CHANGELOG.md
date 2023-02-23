@@ -1,5 +1,11 @@
 # authn.io ChangeLog
 
+## 5.0.1 - 2023-02-dd
+
+### Fixed
+- Fix first party dialog CSS.
+- Use `vue-web-request-mediator@6.0.1`.
+
 ## 5.0.0 - 2023-02-22
 
 ### Changed

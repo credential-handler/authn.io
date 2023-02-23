@@ -3,13 +3,12 @@
   <div v-if="selectedHint" />
   <MediatorWizard
     v-else
-    class="wrm-modal-1p"
-    style="width: 100vw; height: 100vh;"
     :can-web-share="canWebShare"
     :credential-request-origin="credentialRequestOrigin"
     :credential-request-origin-manifest="credentialRequestOriginManifest"
     :has-storage-access="true"
     :hints="hints"
+    :is-first-party="true"
     :loading="loading"
     :request-type="requestType"
     :selected-hint="selectedHint"

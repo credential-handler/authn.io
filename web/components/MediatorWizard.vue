@@ -3,6 +3,7 @@
   <div v-if="!credentialRequestOrigin" />
   <WrmWizardDialog
     v-else
+    :class="isFirstParty ? 'wrm-modal-1p' : ''"
     :loading="loading"
     :first="true"
     :has-next="true"
@@ -143,6 +144,11 @@ export default {
       type: Object,
       required: false,
       default: () => null
+    },
+    isFirstParty: {
+      type: Boolean,
+      required: false,
+      default: false
     },
     firstPartyDialogOpen: {
       type: Boolean,
