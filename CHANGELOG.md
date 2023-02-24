@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 5.0.3 - 2023-02-dd
+## 5.0.3 - 2023-02-24
 
 ### Fixed
 - Use `web-request-mediator@2.0.5` to resolve issues with browsers
