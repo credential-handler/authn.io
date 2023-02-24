@@ -1,5 +1,12 @@
 # authn.io ChangeLog
 
+## 5.0.3 - 2023-02-dd
+
+### Fixed
+- Use `web-request-mediator@2.0.5` to resolve issues with browsers
+  that cannot check permissions in a third party context due to
+  lack of any storage capability (not even ephemeral storage).
+
 ## 5.0.2 - 2023-02-23
 
 ### Fixed
