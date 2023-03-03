@@ -24,7 +24,7 @@
     "@bedrock/vue": "^5.0.1",
     "@bedrock/web": "^3.0.0",
     "@bedrock/web-fontawesome": "^2.0.0",
-    "@bedrock/webpack": "^9.0.0",
+    "@bedrock/webpack": "^9.0.1",
     "@digitalbazaar/http-client": "^3.3.0",
     "content-type": "^1.0.4",
     "credential-mediator-polyfill": "^3.0.1",
