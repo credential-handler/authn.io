@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 5.0.4 - 2023-03-dd
+## 5.0.4 - 2023-03-03
 
 ### Fixed
 - Use `@bedrock/webpack@9.0.1` to get updated subdependencies.
