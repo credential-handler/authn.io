@@ -187,6 +187,19 @@ export class ThirdPartyMediator extends BaseMediator {
     let canceled = false;
     let response;
     try {
+      // FIXME: check `hint.hintOption` credential handler protocol info to
+      // determine whether to send an event or send the request via a URL
+      // query parameter
+
+      // FIXME:
+      /* For `credential_handler.protocol.input === 'url'`, auto-respond with:
+      {
+        "type": "web",
+        // wallet responded to the request out-of-band
+        "dataType": "OutOfBand",
+        "data": null
+      }
+      */
       response = await navigator.credentialMediator.ui.selectCredentialHint(
         hint.hintOption);
       if(!response) {
