@@ -5,7 +5,7 @@
     </div>
     <div else>
       <div style="font-size: 14px; padding-top: 10px">
-        The following website wants to {{websiteDesire}}
+        The following website {{websiteDesire}}
       </div>
       <WrmOriginCard
         style="padding: 20px 0 10px 0"
@@ -52,12 +52,12 @@ export default {
     const requestType = toRef(props, 'requestType');
     const websiteDesire = computed(() => {
       if(requestType.value === 'credentialRequest') {
-        return 'receive credentials from you:';
+        return 'has a credential request or offer for you:';
       }
       if(requestType.value === 'credentialStore') {
-        return 'send credentials to you:';
+        return 'wants to send credentials to you:';
       }
-      return 'manage credentials for you:';
+      return 'wants to manage credentials for you:';
     });
     return {websiteDesire};
   }
