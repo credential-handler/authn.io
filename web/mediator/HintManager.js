@@ -53,6 +53,10 @@ export class HintManager {
       return [];
     }
 
+    // FIXME: if `credential` is set, this is a store request; remove any
+    // matching hints that use `manifest.credential_handler.protocol.input`
+    // of `url`
+
     // get unique credential handlers from matches
     const handlers = [...new Set(matchingHintOptions.map(
       ({credentialHandler}) => credentialHandler))];
@@ -99,6 +103,7 @@ export class HintManager {
       console.error(e);
       return null;
     }
+    // FIXME: include `manifest.credential_handler.protocol` info
     const {credentialHandler, enabledTypes} = handlerInfo;
     return _createHintOption({credentialHandler, enabledTypes});
   }
@@ -215,6 +220,12 @@ async function _createRecommendedHints({
 
   // use a maximum of 3 recommended handlers
   recommendedHandlerOrigins = recommendedHandlerOrigins.slice(0, 3);
+  // FIXME: pass `credential` so, if it is defined, credential handlers that
+  // only support requests will not be used; notably, it would be ideal to
+  // select 3 recommended handlers *after* this filtering, but it means having
+  // to fetch manifests for either more handlers or require some feedback
+  // and looping ... so leave a note as to why it isn't done here; sites can
+  // list non-oob choices first to ensure that they make the list
   const unfilteredHints = await _createJitHints({
     recommendedHandlerOrigins, acceptedTypes,
     credentialRequestOrigin, credentialRequestOriginManifest
