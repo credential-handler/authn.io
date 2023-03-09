@@ -53,17 +53,13 @@ export class HintManager {
       return [];
     }
 
-    // FIXME: if `credential` is set, this is a store request; remove any
-    // matching hints that use `manifest.credential_handler.protocol.input`
-    // of `url`
-
     // get unique credential handlers from matches
     const handlers = [...new Set(matchingHintOptions.map(
       ({credentialHandler}) => credentialHandler))];
 
     // get both non-JIT and JIT hint options
     const [nonJitHints, jitHints] = await Promise.all([
-      _createRegisteredHints({handlers}),
+      _createRegisteredHints({handlers, credential}),
       _createRecommendedHints({
         recommendedHandlerOrigins, handlers,
         credentialRequestOptions, credential,
@@ -103,7 +99,6 @@ export class HintManager {
       console.error(e);
       return null;
     }
-    // FIXME: include `manifest.credential_handler.protocol` info
     const {credentialHandler, enabledTypes} = handlerInfo;
     return _createHintOption({credentialHandler, enabledTypes});
   }
@@ -136,7 +131,7 @@ function _createHintOption({credentialHandler, enabledTypes}) {
 }
 
 async function _createJitHint({
-  recommendedOrigin, recommendedBy, acceptedTypes
+  recommendedOrigin, recommendedBy, acceptedTypes, credential
 }) {
   if(typeof recommendedOrigin !== 'string') {
     return;
@@ -150,9 +145,17 @@ async function _createJitHint({
       return;
     }
 
-    // see if manifest expressed types match request/credential type
+    // get handler info from manifest
     const handlerInfo = _getManifestCredentialHandlerInfo({manifest, origin});
-    const {credentialHandler, enabledTypes} = handlerInfo;
+    const {credentialHandler, enabledTypes, protocol} = handlerInfo;
+
+    // if a `credential` is to be stored, exclude any handlers that receive
+    // input via the `url` as some credentials are too large to send through
+    if(credential && protocol?.input === 'url') {
+      return;
+    }
+
+    // see if manifest expressed types match request/credential type
     let match = false;
     for(const t of acceptedTypes) {
       if(enabledTypes.includes(t)) {
@@ -174,7 +177,7 @@ async function _createJitHint({
 
 async function _createJitHints({
   recommendedHandlerOrigins, acceptedTypes,
-  credentialRequestOrigin, credentialRequestOriginManifest
+  credential, credentialRequestOrigin, credentialRequestOriginManifest
 }) {
   const credentialRequestOriginName = getOriginName({
     origin: credentialRequestOrigin,
@@ -185,8 +188,9 @@ async function _createJitHints({
     origin: credentialRequestOrigin,
     manifest: credentialRequestOriginManifest
   };
-  return Promise.all(recommendedHandlerOrigins.map(async recommendedOrigin =>
-    _createJitHint({recommendedOrigin, recommendedBy, acceptedTypes})));
+  return Promise.all(recommendedHandlerOrigins.map(
+    async recommendedOrigin => _createJitHint(
+      {recommendedOrigin, recommendedBy, acceptedTypes, credential})));
 }
 
 async function _createRecommendedHints({
@@ -220,23 +224,28 @@ async function _createRecommendedHints({
 
   // use a maximum of 3 recommended handlers
   recommendedHandlerOrigins = recommendedHandlerOrigins.slice(0, 3);
-  // FIXME: pass `credential` so, if it is defined, credential handlers that
-  // only support requests will not be used; notably, it would be ideal to
-  // select 3 recommended handlers *after* this filtering, but it means having
-  // to fetch manifests for either more handlers or require some feedback
-  // and looping ... so leave a note as to why it isn't done here; sites can
-  // list non-oob choices first to ensure that they make the list
+  /* Note: If `credential` is defined, credential handlers that only support
+  receiving input via a URL will not be used (due to the potential for size
+  limitations and a need for predictably consistent behavior). This creates a
+  conflict with how N recommended handler origins are selected: the current
+  implementation here will only allow the top three options from the list to
+  possibly become hints for user selection, even if some of those three end up
+  being filtered out. Ideally, if any of those three get filtered out more
+  options could be checked, however, checking whether to filter an option
+  involves fetching its Web app manifest. So either we fetch chunks of Web app
+  manifests in parallel or we potentially fetch too many in parallel creating a
+  possibility for bad UX. Right now we just rely on sites only recommending a
+  maximum of three handlers anyway until we have a better fix for this. */
   const unfilteredHints = await _createJitHints({
     recommendedHandlerOrigins, acceptedTypes,
-    credentialRequestOrigin, credentialRequestOriginManifest
+    credential, credentialRequestOrigin, credentialRequestOriginManifest
   });
   return unfilteredHints.filter(e => !!e);
 }
 
-async function _createRegisteredHint(credentialHandler) {
+async function _createRegisteredHint({credentialHandler, credential}) {
   const {origin, host} = new URL(credentialHandler);
   const manifest = await getWebAppManifest({origin});
-  const originalCredentialHandler = credentialHandler;
 
   let handlerInfo;
   try {
@@ -244,25 +253,27 @@ async function _createRegisteredHint(credentialHandler) {
     const {credentialHandler: newCredentialHandler} = handlerInfo;
     credentialHandler = newCredentialHandler;
   } catch(e) {
-    // FIXME: if `manifest` is not `null`, then manifest entry is invalid,
-    // and permission should be revoked for the handler; change to
-    // `console.error` once this is implemented
-    console.warn(e);
+    // FIXME: if `manifest` is not `null` (perhaps a temporary failure to fetch
+    // it), then manifest entry is invalid, and permission should be revoked
+    // for the handler
+    console.error(e);
+    return;
   }
 
-  const hint = _createHint({credentialHandler, host, origin, manifest});
-  // if credential handler has changed, update registration
-  // FIXME: also re-register credential handler if enabled types have changed
-  if(originalCredentialHandler !== credentialHandler) {
-    const {enabledTypes} = handlerInfo;
-    await navigator.credentialMediator.ui.registerCredentialHandler(
-      credentialHandler, {name: hint.name, enabledTypes, icons: []});
+  // if a `credential` is to be stored, exclude any handlers that receive
+  // input via the `url` as some credentials are too large to send through
+  if(credential && handlerInfo.protocol?.input === 'url') {
+    return;
   }
-  return hint;
+
+  return _createHint({credentialHandler, host, origin, manifest});
 }
 
-async function _createRegisteredHints({handlers}) {
-  return Promise.all(handlers.map(_createRegisteredHint));
+async function _createRegisteredHints({handlers, credential}) {
+  const unfilteredHints = await Promise.all(handlers.map(
+    credentialHandler => _createRegisteredHint(
+      {credentialHandler, credential})));
+  return unfilteredHints.filter(e => !!e);
 }
 
 function _getManifestCredentialHandlerInfo({manifest, origin}) {
@@ -284,7 +295,23 @@ function _getManifestCredentialHandlerInfo({manifest, origin}) {
       'Missing "credential_handler.enabledTypes" array in Web app manifest ' +
       `for origin "${origin}".`);
   }
+  // optional `protocol` entry
+  const {credential_handler: {protocol}} = manifest;
+  if(protocol) {
+    if(typeof protocol !== 'object') {
+      throw new Error(
+        'If present, "credential_handler.protocol" must be an object in Web ' +
+        `app manifest for origin "${origin}".`);
+    }
+    if(protocol.input) {
+      if(!(protocol.input === 'url' || protocol.input === 'event')) {
+        throw new Error(
+          'If present, "credential_handler.protocol.input" must be either ' +
+          `"url" or "event" in app manifest for origin "${origin}".`);
+      }
+    }
+  }
   const {credential_handler: {url, enabledTypes}} = manifest;
   const credentialHandler = new URL(url, origin).href;
-  return {credentialHandler, enabledTypes};
+  return {credentialHandler, enabledTypes, protocol};
 }
