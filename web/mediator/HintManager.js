@@ -281,9 +281,6 @@ async function _createRegisteredHint({registration, credential}) {
 
   // re-register credential handler if required
   if(_mustRegister({registration, hintOption: hint.hintOption})) {
-    // FIXME: remove after testing
-    console.log('**** RE-REGISTERING CREDENTIAL HANDLER ****',
-      registration, hint.hintOption);
     const {enabledTypes, protocol} = handlerInfo;
     await navigator.credentialMediator.ui.registerCredentialHandler(
       credentialHandler,
