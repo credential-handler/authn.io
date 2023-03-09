@@ -65,12 +65,16 @@ export class HintManager {
     const registrations = [...registrationMap.values()];
     const registeredOrigins = [...registrationMap.keys()];
 
+    // get RP accepted protocols
+    const rpProtocols = (credential?.options || credentialRequestOptions.web)
+      ?.protocols || {};
+
     // get both non-JIT and JIT hint options
     const [nonJitHints, jitHints] = await Promise.all([
-      _createRegisteredHints({registrations, credential}),
+      _createRegisteredHints({registrations, rpProtocols}),
       _createRecommendedHints({
         recommendedHandlerOrigins, registeredOrigins,
-        credentialRequestOptions, credential,
+        credential, credentialRequestOptions,
         credentialRequestOrigin, credentialRequestOriginManifest
       })
     ]);
@@ -91,11 +95,14 @@ export class HintManager {
   static async autoRegisterHint({hint}) {
     const {
       hintOption: {credentialHandler},
-      manifest: {credential_handler: {enabledTypes, protocol}},
+      manifest: {
+        credential_handler: {enabledTypes, acceptedInput, acceptedProtocols}
+      },
       name
     } = hint;
     await navigator.credentialMediator.ui.registerCredentialHandler(
-      credentialHandler, {name, enabledTypes, icons: [], protocol});
+      credentialHandler,
+      {name, enabledTypes, icons: [], acceptedInput, acceptedProtocols});
   }
 
   static createHintOption({origin, manifest} = {}) {
@@ -107,14 +114,12 @@ export class HintManager {
       console.error(e);
       return null;
     }
-    const {credentialHandler, enabledTypes, protocol} = handlerInfo;
-    return _createHintOption({credentialHandler, enabledTypes, protocol});
+    const name = getOriginName({origin, manifest});
+    return _createHintOption({name, handlerInfo});
   }
 }
 
-function _createHint({
-  credentialHandler, host, origin, manifest, recommendedBy, handlerInfo
-}) {
+function _createHint({host, origin, manifest, recommendedBy, handlerInfo}) {
   const name = getOriginName({origin, manifest});
   let icon = getWebAppManifestIcon({manifest, origin, size: 32});
   if(icon) {
@@ -122,7 +127,7 @@ function _createHint({
   }
   const hint = {
     name, icon, origin, host, manifest,
-    hintOption: _createHintOption({name, credentialHandler, handlerInfo})
+    hintOption: _createHintOption({name, handlerInfo})
   };
   if(recommendedBy) {
     hint.jit = {recommendedBy};
@@ -130,18 +135,22 @@ function _createHint({
   return hint;
 }
 
-function _createHintOption({name, credentialHandler, handlerInfo}) {
-  const {enabledTypes, protocol} = handlerInfo;
+function _createHintOption({name, handlerInfo}) {
+  const {
+    credentialHandler, enabledTypes, acceptedInput, acceptedProtocols
+  } = handlerInfo;
   const hintOption = {
     credentialHandler,
-    credentialHint: {name, enabledTypes, icons: [], protocol},
+    credentialHint: {
+      name, enabledTypes, icons: [], acceptedInput, acceptedProtocols
+    },
     credentialHintKey: 'default'
   };
   return hintOption;
 }
 
 async function _createJitHint({
-  recommendedOrigin, recommendedBy, acceptedTypes, credential
+  recommendedOrigin, recommendedBy, rpTypes, rpProtocols
 }) {
   if(typeof recommendedOrigin !== 'string') {
     return;
@@ -157,17 +166,18 @@ async function _createJitHint({
 
     // get handler info from manifest
     const handlerInfo = _getManifestCredentialHandlerInfo({manifest, origin});
-    const {credentialHandler, enabledTypes, protocol} = handlerInfo;
+    const {credentialHandler, enabledTypes} = handlerInfo;
 
-    // if a `credential` is to be stored, exclude any handlers that receive
-    // input via the `url` as some credentials are too large to send through
-    if(credential && protocol?.input === 'url') {
+    // exclude any handlers that receive input via a URL that do not have a
+    // protocol in common with the relying party
+    if(handlerInfo.acceptedInput === 'url' &&
+      !_hasMatchingProtocol(rpProtocols, handlerInfo.acceptedProtocols)) {
       return;
     }
 
     // see if manifest expressed types match request/credential type
     let match = false;
-    for(const t of acceptedTypes) {
+    for(const t of rpTypes) {
       if(enabledTypes.includes(t)) {
         match = true;
         break;
@@ -186,8 +196,8 @@ async function _createJitHint({
 }
 
 async function _createJitHints({
-  recommendedHandlerOrigins, acceptedTypes,
-  credential, credentialRequestOrigin, credentialRequestOriginManifest
+  recommendedHandlerOrigins, rpTypes, rpProtocols,
+  credentialRequestOrigin, credentialRequestOriginManifest
 }) {
   const credentialRequestOriginName = getOriginName({
     origin: credentialRequestOrigin,
@@ -200,12 +210,12 @@ async function _createJitHints({
   };
   return Promise.all(recommendedHandlerOrigins.map(
     async recommendedOrigin => _createJitHint(
-      {recommendedOrigin, recommendedBy, acceptedTypes, credential})));
+      {recommendedOrigin, recommendedBy, rpTypes, rpProtocols})));
 }
 
 async function _createRecommendedHints({
   recommendedHandlerOrigins, registeredOrigins,
-  credentialRequestOptions, credential,
+  credential, credentialRequestOptions,
   credentialRequestOrigin, credentialRequestOriginManifest
 }) {
   if(!Array.isArray(recommendedHandlerOrigins)) {
@@ -221,39 +231,39 @@ async function _createRecommendedHints({
     return [];
   }
 
-  // get relevant accepted types to match against handler
-  let acceptedTypes;
+  // get relevant accepted types and protocols to match against handler
+  let rpTypes;
+  const rpProtocols = (credential?.options || credentialRequestOptions?.web)
+    ?.protocols || {};
   if(credentialRequestOptions) {
     // types are all capitalized `{web: {Type1, Type2, ..., TypeN}}`; use this
     // to filter out any non-type parameters in the request
-    acceptedTypes = Object.keys(credentialRequestOptions.web)
+    rpTypes = Object.keys(credentialRequestOptions.web)
       .filter(k => k[0] === k.toUpperCase()[0]);
   } else {
-    acceptedTypes = [credential.dataType];
+    rpTypes = [credential.dataType];
   }
 
   // use a maximum of 3 recommended handlers
   recommendedHandlerOrigins = recommendedHandlerOrigins.slice(0, 3);
-  /* Note: If `credential` is defined, credential handlers that only support
-  receiving input via a URL will not be used (due to the potential for size
-  limitations and a need for predictably consistent behavior). This creates a
-  conflict with how N recommended handler origins are selected: the current
-  implementation here will only allow the top three options from the list to
-  possibly become hints for user selection, even if some of those three end up
-  being filtered out. Ideally, if any of those three get filtered out more
-  options could be checked, however, checking whether to filter an option
-  involves fetching its Web app manifest. So either we fetch chunks of Web app
-  manifests in parallel or we potentially fetch too many in parallel creating a
-  possibility for bad UX. Right now we just rely on sites only recommending a
-  maximum of three handlers anyway until we have a better fix for this. */
+  /* Note: The current implementation here will only allow the first three
+  options from the list to possibly become hints for user selection, even if
+  some of those three end up being filtered out because they do not support a
+  protocol that matches what the RP accepts. Ideally, if any of those three get
+  filtered out more options could be checked, however, checking whether to
+  filter an option involves fetching its Web app manifest. So either we fetch
+  chunks of Web app manifests in parallel or we potentially fetch too many in
+  parallel creating a possibility for bad UX. Right now we just rely on sites
+  only recommending a maximum of three handlers anyway until we have a better
+  fix for this. */
   const unfilteredHints = await _createJitHints({
-    recommendedHandlerOrigins, acceptedTypes,
-    credential, credentialRequestOrigin, credentialRequestOriginManifest
+    recommendedHandlerOrigins, rpTypes, rpProtocols,
+    credentialRequestOrigin, credentialRequestOriginManifest
   });
   return unfilteredHints.filter(e => !!e);
 }
 
-async function _createRegisteredHint({registration, credential}) {
+async function _createRegisteredHint({registration, rpProtocols}) {
   let {credentialHandler} = registration;
   const {origin, host} = new URL(credentialHandler);
   const manifest = await getWebAppManifest({origin});
@@ -270,9 +280,10 @@ async function _createRegisteredHint({registration, credential}) {
     console.warn(e);
   }
 
-  // if a `credential` is to be stored, exclude any handlers that receive
-  // input via the `url` as some credentials are too large to send through
-  if(credential && handlerInfo.protocol?.input === 'url') {
+  // exclude any handlers that receive input via a URL that do not have a
+  // protocol in common with the relying party
+  if(handlerInfo.acceptedInput === 'url' &&
+    !_hasMatchingProtocol(rpProtocols, handlerInfo.acceptedProtocols)) {
     return;
   }
 
@@ -281,18 +292,19 @@ async function _createRegisteredHint({registration, credential}) {
 
   // re-register credential handler if required
   if(_mustRegister({registration, hintOption: hint.hintOption})) {
-    const {enabledTypes, protocol} = handlerInfo;
     await navigator.credentialMediator.ui.registerCredentialHandler(
-      credentialHandler,
-      {name: hint.name, enabledTypes, icons: [], protocol});
+      credentialHandler, hint.hintOption.credentialHint);
   }
 
   return hint;
 }
 
-async function _createRegisteredHints({registrations, credential}) {
+async function _createRegisteredHints({
+  registrations, rpProtocols, credentialRequestOptions
+}) {
   const unfilteredHints = await Promise.all(registrations.map(
-    registration => _createRegisteredHint({registration, credential})));
+    registration => _createRegisteredHint(
+      {registration, rpProtocols, credentialRequestOptions})));
   return unfilteredHints.filter(e => !!e);
 }
 
@@ -305,35 +317,46 @@ function _getManifestCredentialHandlerInfo({manifest, origin}) {
       'Missing "credential_handler" object in Web app manifest for ' +
       `origin "${origin}".`);
   }
-  if(typeof manifest.credential_handler.url !== 'string') {
+
+  const {
+    credential_handler: {url, enabledTypes, acceptedInput, acceptedProtocols}
+  } = manifest;
+
+  // `url` and `enabledTypes` must be defined
+  if(typeof url !== 'string') {
     throw new Error(
       'Missing "credential_handler.url" string in Web app manifest for ' +
       `origin "${origin}".`);
   }
-  if(!Array.isArray(manifest.credential_handler.enabledTypes)) {
+  if(!(Array.isArray(enabledTypes) && enabledTypes.length > 0 &&
+    enabledTypes.every(p => typeof p === 'string'))) {
     throw new Error(
-      'Missing "credential_handler.enabledTypes" array in Web app manifest ' +
-      `for origin "${origin}".`);
+      '"credential_handler.enabledTypes" must be an array of one or more ' +
+      `more strings in app manifest for origin "${origin}".`);
   }
-  // optional `protocol` entry
-  const {credential_handler: {protocol}} = manifest;
-  if(protocol) {
-    if(typeof protocol !== 'object') {
+  // `acceptedInput` is optional and defaults to `event`
+  if(acceptedInput !== undefined &&
+    !(acceptedInput === 'url' || acceptedInput === 'event')) {
+    throw new Error(
+      'If present, "credential_handler.acceptedInput" must be either ' +
+      `"url" or "event" in app manifest for origin "${origin}".`);
+  }
+  // `acceptedProtocols` is optional unless `acceptedInput` is `url`
+  if(acceptedProtocols !== undefined) {
+    if(!(Array.isArray(acceptedProtocols) && acceptedProtocols.length > 0 &&
+      acceptedProtocols.every(p => typeof p === 'string'))) {
       throw new Error(
-        'If present, "credential_handler.protocol" must be an object in Web ' +
-        `app manifest for origin "${origin}".`);
+        'If present, "credential_handler.acceptedProtocols" must be an ' +
+        `array of one or more strings in app manifest for origin "${origin}".`);
     }
-    if(protocol.input) {
-      if(!(protocol.input === 'url' || protocol.input === 'event')) {
-        throw new Error(
-          'If present, "credential_handler.protocol.input" must be either ' +
-          `"url" or "event" in app manifest for origin "${origin}".`);
-      }
-    }
+  } else if(acceptedInput === 'url') {
+    throw new Error(
+      'When "credential_handler.acceptedInput" is "url", then ' +
+      '"credential_handler.acceptedProtocols" must be defined in ' +
+      `app manifest for origin "${origin}".`);
   }
-  const {credential_handler: {url, enabledTypes}} = manifest;
   const credentialHandler = new URL(url, origin).href;
-  return {credentialHandler, enabledTypes, protocol};
+  return {credentialHandler, enabledTypes, acceptedInput, acceptedProtocols};
 }
 
 function _mustRegister({registration, hintOption}) {
@@ -342,24 +365,53 @@ function _mustRegister({registration, hintOption}) {
     return true;
   }
 
-  // re-register if enabled types changed
+  // re-register if `acceptedInput` changed
   const {credentialHint: hint1} = registration;
   const {credentialHint: hint2} = hintOption;
-  if(hint1?.enabledTypes.length !== hint2?.enabledTypes.length) {
+  if(hint1.acceptedInput !== hint2.acceptedInput) {
     return true;
   }
-  if(hint1.enabledTypes) {
-    const types1 = hint1.enabledTypes.slice().sort();
-    const types2 = hint2.enabledTypes.slice().sort();
-    if(types1.some((t1, i1) => t1 !== types2[i1])) {
+
+  // re-register if enabled types changed
+  if(hint1.enabledTypes?.length !== hint2.enabledTypes?.length) {
+    return true;
+  }
+  if(hint1.enabledTypes &&
+    !_arraysEqual(hint1.enabledTypes, hint2.enabledTypes)) {
+    return true;
+  }
+
+  // re-register if accepted protocols changed
+  if(hint1.acceptedProtocols?.length !== hint2.acceptedProtocols?.length) {
+    return true;
+  }
+  if(hint1.acceptedProtocols &&
+    !_arraysEqual(hint1.acceptedProtocols, hint2.acceptedProtocols)) {
+    return true;
+  }
+
+  return false;
+}
+
+function _arraysEqual(a1, a2) {
+  a1 = a1.slice().sort();
+  a2 = a2.slice().sort();
+  return a1.every((v1, i1) => v1 === a2[i1]);
+}
+
+function _hasMatchingProtocol(rpProtocols, ch) {
+  for(const p in rpProtocols) {
+    if(!ch.includes(p)) {
+      continue;
+    }
+    const url = rpProtocols[p];
+    try {
+      new URL(url);
       return true;
+    } catch(e) {
+      // invalid URL
+      console.warn(`Invalid relying party protocol URL "${url}".`);
     }
   }
-
-  // re-register if protocol changed
-  if(hint1?.protocol?.input !== hint2?.protocol?.input) {
-    return true;
-  }
-
   return false;
 }
