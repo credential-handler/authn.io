@@ -174,8 +174,8 @@ export class ThirdPartyMediator extends BaseMediator {
   async selectHint({hint, rememberChoice = false}) {
     await super.selectHint({hint});
 
-    const {hintOption: {credentialHint: {protocol}}} = hint;
-    const sendRequestViaUrl = protocol?.input === 'url';
+    const {hintOption: {credentialHint: {acceptedInput}}} = hint;
+    const sendRequestViaUrl = acceptedInput === 'url';
 
     // note: always clear choice for site if credential handler receives
     // data via URL because there is no way to cancel / undo
@@ -298,15 +298,29 @@ export class ThirdPartyMediator extends BaseMediator {
 
   async _sendCredentialRequestViaUrl({hint}) {
     // build URL w/`request` param
-    const {credentialHandler} = hint.hintOption;
+    const {
+      credentialHandler, credentialHint: {acceptedProtocols}
+    } = hint.hintOption;
     const parsed = new URL(credentialHandler);
-    const {credentialRequestOptions, credentialRequestOrigin} = this;
+    const {
+      credential,
+      credentialRequestOptions,
+      credentialRequestOrigin
+    } = this;
+    // send only accepted protocol URLs
+    const rpProtocols = (credential?.options || credentialRequestOptions.web)
+      ?.protocols || {};
+    const protocol = {};
+    for(const p in rpProtocols) {
+      if(acceptedProtocols.includes(p)) {
+        protocol[p] = rpProtocols[p];
+      }
+    }
+
     // FIXME: use gzip as well?
     const request = JSON.stringify({
       credentialRequestOrigin,
-      credentialRequestOptions: {
-        web: credentialRequestOptions.web
-      }
+      acceptedProtocols
     });
     parsed.searchParams.set('request', request);
     const url = parsed.toString();
