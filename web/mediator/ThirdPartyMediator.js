@@ -174,12 +174,13 @@ export class ThirdPartyMediator extends BaseMediator {
   async selectHint({hint, rememberChoice = false}) {
     await super.selectHint({hint});
 
+    const {hintOption: {credentialHint: {protocol}}} = hint;
+    const sendRequestViaUrl = protocol?.input === 'url';
+
     // note: always clear choice for site if credential handler receives
     // data via URL because there is no way to cancel / undo
     const {credentialRequestOrigin} = this;
-    const {hintOption: {credentialHint: {protocol}}} = hint;
-    if(rememberChoice && this.hasStorageAccess &&
-      protocol?.input !== 'url') {
+    if(rememberChoice && this.hasStorageAccess && !sendRequestViaUrl) {
       // save choice for site
       const {credentialHandler} = hint.hintOption;
       setSiteChoice({credentialRequestOrigin, credentialHandler});
@@ -191,24 +192,22 @@ export class ThirdPartyMediator extends BaseMediator {
     let canceled = false;
     let response;
     try {
-      // FIXME: check `hint.hintOption` credential handler protocol info to
-      // determine whether to send an event or send the request via a URL
-      // query parameter
-
-      // FIXME:
-      /* For `credential_handler.protocol.input === 'url'`, auto-respond with:
-      {
-        "type": "web",
-        // wallet responded to the request out-of-band
-        "dataType": "OutOfBand",
-        "data": null
-      }
-      */
-      response = await navigator.credentialMediator.ui.selectCredentialHint(
-        hint.hintOption);
-      if(!response) {
-        // no response from credential handler, so clear site choice
-        setSiteChoice({credentialRequestOrigin, credentialHandler: null});
+      if(sendRequestViaUrl) {
+        await this._sendCredentialRequestViaUrl({hint});
+        // indicate handler handled the request out-of-band
+        response = {
+          type: 'web',
+          dataType: 'OutOfBand',
+          data: null
+        };
+      } else {
+        // obtain response via event
+        response = await navigator.credentialMediator.ui.selectCredentialHint(
+          hint.hintOption);
+        if(!response) {
+          // no response from credential handler, so clear site choice
+          setSiteChoice({credentialRequestOrigin, credentialHandler: null});
+        }
       }
       this.deferredCredentialOperation.resolve(response);
     } catch(e) {
@@ -295,6 +294,31 @@ export class ThirdPartyMediator extends BaseMediator {
         appContext.control.hide();
       }
     }
+  }
+
+  async _sendCredentialRequestViaUrl({hint}) {
+    // build URL w/`request` param
+    const {credentialHandler} = hint.hintOption;
+    const parsed = new URL(credentialHandler);
+    const {credentialRequestOptions, credentialRequestOrigin} = this;
+    // FIXME: use gzip as well?
+    const request = JSON.stringify({
+      credentialRequestOrigin,
+      credentialRequestOptions: {
+        web: credentialRequestOptions.web
+      }
+    });
+    parsed.searchParams.set('request', request);
+    const url = parsed.toString();
+
+    const width = Math.min(DEFAULT_HANDLER_POPUP_WIDTH, window.innerWidth);
+    const height = Math.min(DEFAULT_HANDLER_POPUP_HEIGHT, window.innerHeight);
+    const left = Math.floor(window.screenX + (window.innerWidth - width) / 2);
+    const top = Math.floor(window.screenY + (window.innerHeight - height) / 2);
+    const features =
+      'popup=yes,menubar=no,scrollbars=no,status=no,noopener=yes,' +
+      `width=${width},height=${height},left=${left},top=${top}`;
+    window.open(url, '_blank', features);
   }
 
   async _startCredentialFlow() {
