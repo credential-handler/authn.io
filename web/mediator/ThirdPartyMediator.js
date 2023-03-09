@@ -174,10 +174,12 @@ export class ThirdPartyMediator extends BaseMediator {
   async selectHint({hint, rememberChoice = false}) {
     await super.selectHint({hint});
 
-    // FIXME: always clear choice for site if credential handler is OOB because
-    // there is no way to cancel
+    // note: always clear choice for site if credential handler receives
+    // data via URL because there is no way to cancel / undo
     const {credentialRequestOrigin} = this;
-    if(rememberChoice && this.hasStorageAccess) {
+    const {hintOption: {credentialHint: {protocol}}} = hint;
+    if(rememberChoice && this.hasStorageAccess &&
+      protocol?.input !== 'url') {
       // save choice for site
       const {credentialHandler} = hint.hintOption;
       setSiteChoice({credentialRequestOrigin, credentialHandler});
