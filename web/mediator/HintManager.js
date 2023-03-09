@@ -36,16 +36,16 @@ export class HintManager {
       credentialRequestOriginManifest
     } = this;
 
-    let matchingHintOptions;
+    let matchingRegistrations;
     let recommendedHandlerOrigins;
     if(credentialRequestOptions) {
-      // get matching hints from request options
-      matchingHintOptions = await navigator.credentialMediator.ui
+      // get matching registrations from request options
+      matchingRegistrations = await navigator.credentialMediator.ui
         .matchCredentialRequest(credentialRequestOptions);
       ({web: {recommendedHandlerOrigins = []}} = credentialRequestOptions);
     } else if(credential) {
-      // get hints that match credential
-      matchingHintOptions = await navigator.credentialMediator.ui
+      // get registrations that match credential
+      matchingRegistrations = await navigator.credentialMediator.ui
         .matchCredential(credential);
       ({options: {recommendedHandlerOrigins = []} = {}} = credential);
     } else {
@@ -53,15 +53,23 @@ export class HintManager {
       return [];
     }
 
-    // get unique credential handlers from matches
-    const handlers = [...new Set(matchingHintOptions.map(
-      ({credentialHandler}) => credentialHandler))];
+    // only allow registration option per origin
+    const registrationMap = new Map();
+    for(const registration of matchingRegistrations) {
+      const {credentialHandler} = registration;
+      const {origin} = new URL(credentialHandler);
+      if(!registrationMap.has(origin)) {
+        registrationMap.set(origin, registration);
+      }
+    }
+    const registrations = [...registrationMap.values()];
+    const registeredOrigins = [...registrationMap.keys()];
 
     // get both non-JIT and JIT hint options
     const [nonJitHints, jitHints] = await Promise.all([
-      _createRegisteredHints({handlers, credential}),
+      _createRegisteredHints({registrations, credential}),
       _createRecommendedHints({
-        recommendedHandlerOrigins, handlers,
+        recommendedHandlerOrigins, registeredOrigins,
         credentialRequestOptions, credential,
         credentialRequestOrigin, credentialRequestOriginManifest
       })
@@ -83,11 +91,11 @@ export class HintManager {
   static async autoRegisterHint({hint}) {
     const {
       hintOption: {credentialHandler},
-      manifest: {credential_handler: {enabledTypes}},
+      manifest: {credential_handler: {enabledTypes, protocol}},
       name
     } = hint;
     await navigator.credentialMediator.ui.registerCredentialHandler(
-      credentialHandler, {name, enabledTypes, icons: []});
+      credentialHandler, {name, enabledTypes, icons: [], protocol});
   }
 
   static createHintOption({origin, manifest} = {}) {
@@ -99,13 +107,13 @@ export class HintManager {
       console.error(e);
       return null;
     }
-    const {credentialHandler, enabledTypes} = handlerInfo;
-    return _createHintOption({credentialHandler, enabledTypes});
+    const {credentialHandler, enabledTypes, protocol} = handlerInfo;
+    return _createHintOption({credentialHandler, enabledTypes, protocol});
   }
 }
 
 function _createHint({
-  credentialHandler, host, origin, manifest, recommendedBy
+  credentialHandler, host, origin, manifest, recommendedBy, handlerInfo
 }) {
   const name = getOriginName({origin, manifest});
   let icon = getWebAppManifestIcon({manifest, origin, size: 32});
@@ -114,7 +122,7 @@ function _createHint({
   }
   const hint = {
     name, icon, origin, host, manifest,
-    hintOption: _createHintOption({credentialHandler})
+    hintOption: _createHintOption({name, credentialHandler, handlerInfo})
   };
   if(recommendedBy) {
     hint.jit = {recommendedBy};
@@ -122,11 +130,13 @@ function _createHint({
   return hint;
 }
 
-function _createHintOption({credentialHandler, enabledTypes}) {
-  const hintOption = {credentialHandler, credentialHintKey: 'default'};
-  if(enabledTypes) {
-    hintOption.enabledTypes = enabledTypes;
-  }
+function _createHintOption({name, credentialHandler, handlerInfo}) {
+  const {enabledTypes, protocol} = handlerInfo;
+  const hintOption = {
+    credentialHandler,
+    credentialHint: {name, enabledTypes, icons: [], protocol},
+    credentialHintKey: 'default'
+  };
   return hintOption;
 }
 
@@ -168,7 +178,7 @@ async function _createJitHint({
       return;
     }
     return _createHint(
-      {credentialHandler, host, origin, manifest, recommendedBy});
+      {credentialHandler, host, origin, manifest, recommendedBy, handlerInfo});
   } catch(e) {
     console.warn(e);
     return;
@@ -194,7 +204,7 @@ async function _createJitHints({
 }
 
 async function _createRecommendedHints({
-  recommendedHandlerOrigins, handlers,
+  recommendedHandlerOrigins, registeredOrigins,
   credentialRequestOptions, credential,
   credentialRequestOrigin, credentialRequestOriginManifest
 }) {
@@ -202,11 +212,11 @@ async function _createRecommendedHints({
     return [];
   }
 
-  // filter out any recommended handler origins that are already in `handlers`
+  // filter out any recommended handler origins that are already registered
   recommendedHandlerOrigins = recommendedHandlerOrigins.filter(
-    // if credential handler URL starts with a recommended
-    // handler origin, skip it
-    url => !handlers.some(h => h.startsWith(url)));
+    // a recommended handler origin must not match any registered origin
+    recommendedOrigin => !registeredOrigins.some(
+      registeredOrigin => recommendedOrigin.startsWith(registeredOrigin)));
   if(recommendedHandlerOrigins.length === 0) {
     return [];
   }
@@ -243,7 +253,8 @@ async function _createRecommendedHints({
   return unfilteredHints.filter(e => !!e);
 }
 
-async function _createRegisteredHint({credentialHandler, credential}) {
+async function _createRegisteredHint({registration, credential}) {
+  let {credentialHandler} = registration;
   const {origin, host} = new URL(credentialHandler);
   const manifest = await getWebAppManifest({origin});
 
@@ -255,9 +266,8 @@ async function _createRegisteredHint({credentialHandler, credential}) {
   } catch(e) {
     // FIXME: if `manifest` is not `null` (perhaps a temporary failure to fetch
     // it), then manifest entry is invalid, and permission should be revoked
-    // for the handler
-    console.error(e);
-    return;
+    // for the handler; change to `console.error` in that case
+    console.warn(e);
   }
 
   // if a `credential` is to be stored, exclude any handlers that receive
@@ -266,13 +276,26 @@ async function _createRegisteredHint({credentialHandler, credential}) {
     return;
   }
 
-  return _createHint({credentialHandler, host, origin, manifest});
+  const hint = _createHint(
+    {credentialHandler, host, origin, manifest, handlerInfo});
+
+  // re-register credential handler if required
+  if(_mustRegister({registration, hintOption: hint.hintOption})) {
+    // FIXME: remove after testing
+    console.log('**** RE-REGISTERING CREDENTIAL HANDLER ****',
+      registration, hint.hintOption);
+    const {enabledTypes, protocol} = handlerInfo;
+    await navigator.credentialMediator.ui.registerCredentialHandler(
+      credentialHandler,
+      {name: hint.name, enabledTypes, icons: [], protocol});
+  }
+
+  return hint;
 }
 
-async function _createRegisteredHints({handlers, credential}) {
-  const unfilteredHints = await Promise.all(handlers.map(
-    credentialHandler => _createRegisteredHint(
-      {credentialHandler, credential})));
+async function _createRegisteredHints({registrations, credential}) {
+  const unfilteredHints = await Promise.all(registrations.map(
+    registration => _createRegisteredHint({registration, credential})));
   return unfilteredHints.filter(e => !!e);
 }
 
@@ -314,4 +337,32 @@ function _getManifestCredentialHandlerInfo({manifest, origin}) {
   const {credential_handler: {url, enabledTypes}} = manifest;
   const credentialHandler = new URL(url, origin).href;
   return {credentialHandler, enabledTypes, protocol};
+}
+
+function _mustRegister({registration, hintOption}) {
+  // re-register if credential handler changed
+  if(registration.credentialHandler !== hintOption.credentialHandler) {
+    return true;
+  }
+
+  // re-register if enabled types changed
+  const {credentialHint: hint1} = registration;
+  const {credentialHint: hint2} = hintOption;
+  if(hint1?.enabledTypes.length !== hint2?.enabledTypes.length) {
+    return true;
+  }
+  if(hint1.enabledTypes) {
+    const types1 = hint1.enabledTypes.slice().sort();
+    const types2 = hint2.enabledTypes.slice().sort();
+    if(types1.some((t1, i1) => t1 !== types2[i1])) {
+      return true;
+    }
+  }
+
+  // re-register if protocol changed
+  if(hint1?.protocol?.input !== hint2?.protocol?.input) {
+    return true;
+  }
+
+  return false;
 }
