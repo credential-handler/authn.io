@@ -310,18 +310,15 @@ export class ThirdPartyMediator extends BaseMediator {
     // send only accepted protocol URLs
     const rpProtocols = (credential?.options || credentialRequestOptions.web)
       ?.protocols || {};
-    const protocol = {};
+    const protocols = {};
     for(const p in rpProtocols) {
       if(acceptedProtocols.includes(p)) {
-        protocol[p] = rpProtocols[p];
+        protocols[p] = rpProtocols[p];
       }
     }
 
     // FIXME: use gzip as well?
-    const request = JSON.stringify({
-      credentialRequestOrigin,
-      acceptedProtocols
-    });
+    const request = JSON.stringify({credentialRequestOrigin, protocols});
     parsed.searchParams.set('request', request);
     const url = parsed.toString();
 
