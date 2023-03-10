@@ -1,5 +1,18 @@
 # authn.io ChangeLog
 
+## 5.1.0 - 2023-03-10
+
+### Added
+- Add support for registering credential handlers that specify
+  that they wish to receive input via `url` instead of `event`.
+  These handlers will receive any protocol URLs specified by
+  relying parties using protocol names that match any of the
+  accepted protocols announced by the credential handler's
+  `manifest.json`. The RP request information, including the
+  credential request origin and the matching protocol URLs
+  will be sent via a `request` query parameter as stringified
+  JSON to the credential handler URL.
+
 ## 5.0.4 - 2023-03-03
 
 ### Fixed
