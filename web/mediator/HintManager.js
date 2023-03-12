@@ -278,6 +278,13 @@ async function _createRegisteredHint({registration, rpProtocols}) {
     // it), then manifest entry is invalid, and permission should be revoked
     // for the handler; change to `console.error` in that case
     console.warn(e);
+    // build `handlerInfo` from existing registration info
+    const {
+      credentialHint: {enabledTypes, acceptedInput, acceptedProtocols}
+    } = registration;
+    handlerInfo = {
+      credentialHandler, enabledTypes, acceptedInput, acceptedProtocols
+    };
   }
 
   // exclude any handlers that receive input via a URL that do not have a
@@ -312,7 +319,8 @@ function _getManifestCredentialHandlerInfo({manifest, origin}) {
   if(!manifest) {
     throw new Error(`No Web app manifest for origin "${origin}".`);
   }
-  if(typeof manifest.credential_handler !== 'object') {
+  if(manifest.credential_handler &&
+    typeof manifest.credential_handler !== 'object') {
     throw new Error(
       'Missing "credential_handler" object in Web app manifest for ' +
       `origin "${origin}".`);

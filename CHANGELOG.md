@@ -1,5 +1,12 @@
 # authn.io ChangeLog
 
+## 5.1.1 - 2023-03-dd
+
+### Fixed
+- Handle case that Web app manifest for a registered hint cannot
+  be retrieved by building `handlerInfo` from existing locally
+  stored hint information.
+
 ## 5.1.0 - 2023-03-10
 
 ### Added
