@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 5.1.1 - 2023-03-dd
+## 5.1.1 - 2023-03-12
 
 ### Fixed
 - Handle case that Web app manifest for a registered hint cannot
