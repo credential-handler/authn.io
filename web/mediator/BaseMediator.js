@@ -6,6 +6,11 @@
 import {HintManager} from './HintManager.js';
 import {WebShareHandler} from './WebShareHandler.js';
 
+import {
+  DEFAULT_HANDLER_POPUP_HEIGHT,
+  DEFAULT_HANDLER_POPUP_WIDTH
+} from './constants.js';
+
 export class BaseMediator {
   constructor() {
     this.credential = null;
@@ -48,11 +53,21 @@ export class BaseMediator {
     return handler;
   }
 
-  async selectHint({hint}) {
+  async selectHint({hint, allowHandlerPopup = true}) {
     if(this.selectedHint) {
       throw new Error('Hint already selected.');
     }
     this.selectedHint = hint;
+
+    if(allowHandlerPopup) {
+      // if the request is to be sent via URL, it must be done now to prevent
+      // the popup from being blocked
+      const {hintOption: {credentialHint: {acceptedInput}}} = hint;
+      const sendRequestViaUrl = acceptedInput === 'url';
+      if(sendRequestViaUrl) {
+        await this._sendCredentialRequestViaUrl({hint});
+      }
+    }
 
     // auto-register handler if hint was JIT-created
     if(hint.jit) {
@@ -74,5 +89,41 @@ export class BaseMediator {
     }
     await handler.share();
     return false;
+  }
+
+  async _sendCredentialRequestViaUrl({hint}) {
+    // build URL w/`request` param
+    const {
+      credentialHandler, credentialHint: {acceptedProtocols}
+    } = hint.hintOption;
+    const parsed = new URL(credentialHandler);
+    const {
+      credential,
+      credentialRequestOptions,
+      credentialRequestOrigin
+    } = this;
+    // send only accepted protocol URLs
+    const rpProtocols = (credential?.options || credentialRequestOptions.web)
+      ?.protocols || {};
+    const protocols = {};
+    for(const p in rpProtocols) {
+      if(acceptedProtocols.includes(p)) {
+        protocols[p] = rpProtocols[p];
+      }
+    }
+
+    // FIXME: use gzip as well?
+    const request = JSON.stringify({credentialRequestOrigin, protocols});
+    parsed.searchParams.set('request', request);
+    const url = parsed.toString();
+
+    const width = Math.min(DEFAULT_HANDLER_POPUP_WIDTH, window.innerWidth);
+    const height = Math.min(DEFAULT_HANDLER_POPUP_HEIGHT, window.innerHeight);
+    const left = Math.floor(window.screenX + (window.innerWidth - width) / 2);
+    const top = Math.floor(window.screenY + (window.innerHeight - height) / 2);
+    const features =
+      'popup=yes,menubar=no,scrollbars=no,status=no,noopener=yes,' +
+      `width=${width},height=${height},left=${left},top=${top}`;
+    window.open(url, '_blank', features);
   }
 }

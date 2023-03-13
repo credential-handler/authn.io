@@ -11,14 +11,14 @@ import {HintManager} from './HintManager.js';
 import {loadOnce} from 'credential-mediator-polyfill';
 import {WebAppContext} from 'web-request-rpc';
 
-const DEFAULT_ALLOW_WALLET_POPUP_WIDTH = 500;
-const DEFAULT_ALLOW_WALLET_POPUP_HEIGHT = 240;
-
-const DEFAULT_HANDLER_POPUP_WIDTH = 800;
-const DEFAULT_HANDLER_POPUP_HEIGHT = 600;
-
-const DEFAULT_HINT_CHOOSER_POPUP_WIDTH = 500;
-const DEFAULT_HINT_CHOOSER_POPUP_HEIGHT = 440;
+import {
+  DEFAULT_ALLOW_WALLET_POPUP_HEIGHT,
+  DEFAULT_ALLOW_WALLET_POPUP_WIDTH,
+  DEFAULT_HANDLER_POPUP_HEIGHT,
+  DEFAULT_HANDLER_POPUP_WIDTH,
+  DEFAULT_HINT_CHOOSER_POPUP_HEIGHT,
+  DEFAULT_HINT_CHOOSER_POPUP_WIDTH
+} from './constants.js';
 
 export class ThirdPartyMediator extends BaseMediator {
   constructor() {
@@ -172,15 +172,19 @@ export class ThirdPartyMediator extends BaseMediator {
   }
 
   async selectHint({hint, rememberChoice = false}) {
-    await super.selectHint({hint});
+    // if a first party dialog is in use, do not allow the base mediator to
+    // open a handler popup, it was already handled in the first party dialog
+    await super.selectHint({hint, allowHandlerPopup: !this.firstPartyDialog});
 
+    // determine if credential handler already received request via URL
+    // via `super.selectHint` or if we must send it below via an event
     const {hintOption: {credentialHint: {acceptedInput}}} = hint;
-    const sendRequestViaUrl = acceptedInput === 'url';
+    const sentRequestViaUrl = acceptedInput === 'url';
 
-    // note: always clear choice for site if credential handler receives
+    // note: always clear choice for site if credential handler received
     // data via URL because there is no way to cancel / undo
     const {credentialRequestOrigin} = this;
-    if(rememberChoice && this.hasStorageAccess && !sendRequestViaUrl) {
+    if(rememberChoice && this.hasStorageAccess && !sentRequestViaUrl) {
       // save choice for site
       const {credentialHandler} = hint.hintOption;
       setSiteChoice({credentialRequestOrigin, credentialHandler});
@@ -192,8 +196,7 @@ export class ThirdPartyMediator extends BaseMediator {
     let canceled = false;
     let response;
     try {
-      if(sendRequestViaUrl) {
-        await this._sendCredentialRequestViaUrl({hint});
+      if(sentRequestViaUrl) {
         // indicate handler handled the request out-of-band
         response = {
           type: 'web',
@@ -201,6 +204,7 @@ export class ThirdPartyMediator extends BaseMediator {
           data: null
         };
       } else {
+        // if request was not already sent via URL, send it via event and
         // obtain response via event
         response = await navigator.credentialMediator.ui.selectCredentialHint(
           hint.hintOption);
@@ -294,42 +298,6 @@ export class ThirdPartyMediator extends BaseMediator {
         appContext.control.hide();
       }
     }
-  }
-
-  async _sendCredentialRequestViaUrl({hint}) {
-    // build URL w/`request` param
-    const {
-      credentialHandler, credentialHint: {acceptedProtocols}
-    } = hint.hintOption;
-    const parsed = new URL(credentialHandler);
-    const {
-      credential,
-      credentialRequestOptions,
-      credentialRequestOrigin
-    } = this;
-    // send only accepted protocol URLs
-    const rpProtocols = (credential?.options || credentialRequestOptions.web)
-      ?.protocols || {};
-    const protocols = {};
-    for(const p in rpProtocols) {
-      if(acceptedProtocols.includes(p)) {
-        protocols[p] = rpProtocols[p];
-      }
-    }
-
-    // FIXME: use gzip as well?
-    const request = JSON.stringify({credentialRequestOrigin, protocols});
-    parsed.searchParams.set('request', request);
-    const url = parsed.toString();
-
-    const width = Math.min(DEFAULT_HANDLER_POPUP_WIDTH, window.innerWidth);
-    const height = Math.min(DEFAULT_HANDLER_POPUP_HEIGHT, window.innerHeight);
-    const left = Math.floor(window.screenX + (window.innerWidth - width) / 2);
-    const top = Math.floor(window.screenY + (window.innerHeight - height) / 2);
-    const features =
-      'popup=yes,menubar=no,scrollbars=no,status=no,noopener=yes,' +
-      `width=${width},height=${height},left=${left},top=${top}`;
-    window.open(url, '_blank', features);
   }
 
   async _startCredentialFlow() {
