@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 5.1.2 - 2023-03-dd
+## 5.1.2 - 2023-03-13
 
 ### Fixed
 - Fix popup blocking of dialog for credential handlers that receive
