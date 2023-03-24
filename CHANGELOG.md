@@ -1,5 +1,10 @@
 # authn.io ChangeLog
 
+## 5.2.0 - 2023-03-dd
+
+### Added
+- Ensure `credential_handler.url` origin matches app manifest origin.
+
 ## 5.1.2 - 2023-03-13
 
 ### Fixed

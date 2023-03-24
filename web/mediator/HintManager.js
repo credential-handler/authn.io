@@ -330,12 +330,21 @@ function _getManifestCredentialHandlerInfo({manifest, origin}) {
     credential_handler: {url, enabledTypes, acceptedInput, acceptedProtocols}
   } = manifest;
 
-  // `url` and `enabledTypes` must be defined
+  // `url` must be defined
   if(typeof url !== 'string') {
     throw new Error(
       'Missing "credential_handler.url" string in Web app manifest for ' +
       `origin "${origin}".`);
   }
+  // `url` must use the same origin
+  const parsed = new URL(url, origin);
+  if(parsed.origin !== origin) {
+    throw new Error(
+      `"credential_handler.url" "${parsed.origin}" must match the app ` +
+      `manifest origin "${origin}".`);
+  }
+  const credentialHandler = parsed.href;
+  // `enabledTypes` must be defined
   if(!(Array.isArray(enabledTypes) && enabledTypes.length > 0 &&
     enabledTypes.every(p => typeof p === 'string'))) {
     throw new Error(
@@ -363,7 +372,6 @@ function _getManifestCredentialHandlerInfo({manifest, origin}) {
       '"credential_handler.acceptedProtocols" must be defined in ' +
       `app manifest for origin "${origin}".`);
   }
-  const credentialHandler = new URL(url, origin).href;
   return {credentialHandler, enabledTypes, acceptedInput, acceptedProtocols};
 }
 
