@@ -36,10 +36,10 @@
     "web-request-rpc": "^2.0.3"
   },
   "devDependencies": {
-    "eslint": "^8.34.0",
-    "eslint-config-digitalbazaar": "^4.2.0",
-    "eslint-plugin-jsdoc": "^40.0.0",
-    "eslint-plugin-vue": "^9.9.0"
+    "eslint": "^8.41.0",
+    "eslint-config-digitalbazaar": "^5.0.1",
+    "eslint-plugin-jsdoc": "^45.0.0",
+    "eslint-plugin-vue": "^9.14.1"
   },
   "engines": {
     "node": ">=16"
