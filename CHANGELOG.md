@@ -1,5 +1,10 @@
 # authn.io ChangeLog
 
+## 5.3.0 - 2023-08-dd
+
+### Changed
+- Deploy on node 20.x.
+
 ## 5.2.1 - 2023-08-08
 
 ### Fixed
