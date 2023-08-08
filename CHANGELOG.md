@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 5.2.1 - 2023-08-dd
+## 5.2.1 - 2023-08-08
 
 ### Fixed
 - Do not show any mediator UI when `hide()` is called.
