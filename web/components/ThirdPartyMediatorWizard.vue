@@ -1,5 +1,6 @@
 <template>
   <MediatorWizard
+    v-if="show"
     :can-web-share="canWebShare"
     :credential-request-origin="credentialRequestOrigin"
     :credential-request-origin-manifest="credentialRequestOriginManifest"
@@ -63,6 +64,7 @@ export default {
     const rememberChoice = ref(true);
     const requestType = ref('');
     const selectedHint = ref(null);
+    const show = ref(true);
 
     const showHintChooser = computed(() =>
       hasStorageAccess.value && requestType.value !== 'permissionRequest');
@@ -139,6 +141,7 @@ export default {
       try {
         await mediator.initialize({
           show: ({requestType: _requestType}) => {
+            show.value = true;
             loading.value = true;
             requestType.value = _requestType;
 
@@ -147,6 +150,7 @@ export default {
               .then(({enabled}) => canWebShare.value = enabled);
           },
           hide: () => {
+            show.value = false;
             hints.value = [];
             loading.value = false;
             firstPartyDialogOpen.value = false;
@@ -172,7 +176,7 @@ export default {
       // data
       canWebShare, credentialRequestOrigin, credentialRequestOriginManifest,
       firstPartyDialogOpen, hasStorageAccess, hints, loading,
-      rememberChoice, requestType, selectedHint, showHintChooser,
+      rememberChoice, requestType, selectedHint, show, showHintChooser,
       // methods
       allow, cancel, deny, focusFirstPartyDialog, openFirstPartyDialog,
       removeHint, selectHint, webShare

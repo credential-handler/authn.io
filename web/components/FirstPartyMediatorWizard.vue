@@ -1,8 +1,8 @@
 <template>
   <!-- blank screen once hint is selected and wallet window is loading -->
-  <div v-if="selectedHint" />
+  <div v-if="show && selectedHint" />
   <MediatorWizard
-    v-else
+    v-else-if="show"
     :can-web-share="canWebShare"
     :credential-request-origin="credentialRequestOrigin"
     :credential-request-origin-manifest="credentialRequestOriginManifest"
@@ -44,6 +44,7 @@ export default {
     const loading = ref(true);
     const requestType = ref('');
     const selectedHint = ref(null);
+    const show = ref(true);
 
     const showHintChooser = computed(() => {
       return requestType.value !== 'permissionRequest';
@@ -88,6 +89,7 @@ export default {
       try {
         await mediator.initialize({
           show: ({requestType: _requestType}) => {
+            show.value = true;
             loading.value = true;
             requestType.value = _requestType;
 
@@ -96,6 +98,7 @@ export default {
               .then(({enabled}) => canWebShare.value = enabled);
           },
           hide: () => {
+            show.value = false;
             hints.value = [];
             loading.value = false;
             requestType.value = '';
@@ -117,7 +120,7 @@ export default {
     return {
       // data
       canWebShare, credentialRequestOrigin, credentialRequestOriginManifest,
-      hints, loading, requestType, selectedHint, showHintChooser,
+      hints, loading, requestType, selectedHint, show, showHintChooser,
       // methods
       allow, cancel, deny, removeHint, selectHint, webShare
     };
