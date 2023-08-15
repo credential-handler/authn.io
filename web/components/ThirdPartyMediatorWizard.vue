@@ -61,7 +61,7 @@ export default {
     const hasStorageAccess = ref(mediator.hasStorageAccess);
     const hints = ref([]);
     const loading = ref(true);
-    const rememberChoice = ref(true);
+    const rememberChoice = ref(false);
     const requestType = ref('');
     const selectedHint = ref(null);
     const show = ref(true);
@@ -154,7 +154,7 @@ export default {
             hints.value = [];
             loading.value = false;
             firstPartyDialogOpen.value = false;
-            rememberChoice.value = true;
+            rememberChoice.value = false;
             requestType.value = '';
             selectedHint.value = null;
           },

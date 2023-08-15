@@ -1,5 +1,10 @@
 # authn.io ChangeLog
 
+## 5.5.0 - 2023-08-dd
+
+### Changed
+- Change "Remember my choice" default to `false`.
+
 ## 5.4.0 - 2023-08-15
 
 ### Changed
