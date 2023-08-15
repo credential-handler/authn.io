@@ -55,7 +55,7 @@ export default {
         return 'has a credential request or offer for you:';
       }
       if(requestType.value === 'credentialStore') {
-        return 'wants to send credentials to you:';
+        return 'has credentials for you to store:';
       }
       return 'wants to manage credentials for you:';
     });
