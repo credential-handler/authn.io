@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 5.4.0 - 2023-08-dd
+## 5.4.0 - 2023-08-15
 
 ### Changed
 - Reword store credential modal text.
