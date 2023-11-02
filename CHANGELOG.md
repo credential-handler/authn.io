@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 6.0.0 - 2023-11-dd
+## 6.0.0 - 2023-11-02
 
 ### Changed
 - **BREAKING**: Always assume partitioned storage for every browser.
