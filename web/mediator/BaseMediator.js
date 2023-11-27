@@ -44,11 +44,14 @@ export class BaseMediator {
       return this.webShareHandler;
     }
     const handler = new WebShareHandler();
+    // disable web share
+    /*
     const {
       credential, credentialRequestOptions, credentialRequestOrigin
     } = this;
     await handler.initialize(
       {credential, credentialRequestOptions, credentialRequestOrigin});
+    */
     this.webShareHandler = handler;
     return handler;
   }
