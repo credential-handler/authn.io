@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 7.0.0 - 2023-11-dd
+## 7.0.0 - 2023-11-27
 
 ### Changed
 - **BREAKING**: Disable Web Share bridge to native apps in every browser.
