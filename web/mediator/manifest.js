@@ -25,9 +25,7 @@ async function _getWebAppManifest({origin}) {
     `${origin}/manifest.json`,
     `${origin}/manifest.webmanifest`
   ];
-  const responses = await Promise.allSettled(
-    urls.map(url => _fetchWithCache(url))
-  );
+  const responses = await Promise.allSettled(urls.map(_fetchWithCache));
   const response = responses.find(({value}) => value !== null);
   return response.value || null;
 }
