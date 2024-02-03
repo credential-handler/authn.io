@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 7.1.0 - 2024-02-dd
+## 7.1.0 - 2024-02-03
 
 ### Added
 - Load web app manifests from both `manifest.json` and `manifest.webmanifest` files.
