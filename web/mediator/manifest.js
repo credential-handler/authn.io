@@ -27,7 +27,7 @@ async function _getWebAppManifest({origin}) {
   ];
   const responses = await Promise.allSettled(urls.map(_fetchWithCache));
   const response = responses.find(({value}) => value !== null);
-  return response.value || null;
+  return response?.value || null;
 }
 
 async function _parseBody(response) {
