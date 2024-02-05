@@ -1,5 +1,10 @@
 # authn.io ChangeLog
 
+## 7.1.1 - 2024-02-05
+
+### Fixed
+- Update dependencies in Github workflows.
+
 ## 7.1.0 - 2024-02-03
 
 ### Added
