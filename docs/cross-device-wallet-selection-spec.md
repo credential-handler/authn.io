@@ -308,8 +308,32 @@ This repo has no automated test suite (CI runs ESLint only). Plan:
   - (Phase 2) clicking the link on a machine with a `web+interaction://`
     handler launches it.
 
-- Use vc-playground as the test coordinator since it already issues
-  protocol-bearing requests.
+### Local test harness
+
+The `chapi-demo-*` repos in the `credential-handler` org (e.g.
+[chapi-demo-wallet](https://github.com/credential-handler/chapi-demo-wallet),
+[chapi-demo-verifier](https://github.com/credential-handler/chapi-demo-verifier),
+[chapi-demo-issuer](https://github.com/credential-handler/chapi-demo-issuer))
+are the standard way to exercise a local mediator:
+
+1. Map `authn.localhost` to `127.0.0.1` in `/etc/hosts` (per this repo's
+   README) and run the local mediator: `node authn.localhost.js` →
+   `https://authn.localhost:33443/`. Real hostnames matter: without them,
+   browsers misclassify the third-party mediator context and block the
+   iframe/popup flows.
+
+2. In the demo repo, repoint the `MEDIATOR` constant in `config.js`
+   (which exists for exactly this purpose — "to help test against local
+   instances of authn.io") at
+   `https://authn.localhost:33443/mediator?origin=...`.
+
+3. `npm install && npm start` in the demo repo (e.g. the wallet serves at
+   `https://chapi-demo-wallet.localhost:8081`).
+
+Note: the demo issuer/verifier must be modified to include a
+`protocols.interact` URL in their CHAPI calls to exercise this feature —
+they predate the `protocols` option. vc-playground already issues
+protocol-bearing requests and can serve as a secondary test coordinator.
 
 ## Resolved Decisions (from the #166 discussion)
 
