@@ -32,8 +32,10 @@ browser-registered credential handlers, delivered in two phases:
 ## Terminology
 
 Every value in the `protocols` map of a CHAPI request is a **protocol
-URL**. One of them is a special subclass (rectangle/square), and that
-distinction drives the whole design:
+URL**. Interaction URLs are a proper subset (interaction URLs ⊂ protocol
+URLs): every interaction URL is a protocol URL, but only
+`protocols.interact` is an interaction URL. That distinction drives the
+whole design:
 
 - **Protocol URLs** — all values in `protocols` (`OID4VP`, `vcapi`, ...).
   Other than `interact`, these are homed at **workflow services**, not the
