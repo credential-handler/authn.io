@@ -31,20 +31,25 @@ browser-registered credential handlers, delivered in two phases:
 
 ## Terminology
 
-The `protocols` map in a CHAPI request contains two different kinds of URL.
-The distinction drives the whole design:
+Every value in the `protocols` map of a CHAPI request is a **protocol
+URL**. One of them is a special subclass (rectangle/square), and that
+distinction drives the whole design:
 
-- **Interaction URL** — the value of `protocols.interact`, and only that
-  value. It is served from the **coordinator's own website**, so its origin
-  is one the end user recognizes. It is dereferenceable: fetching it with
-  `?iuv=1` and `Accept: application/json` returns
+- **Protocol URLs** — all values in `protocols` (`OID4VP`, `vcapi`, ...).
+  Other than `interact`, these are homed at **workflow services**, not the
+  coordinator, and are intended for direct consumption by a chosen
+  credential handler.
+
+- **Interaction URL** — the `interact` protocol URL specifically, i.e.
+  the value of `protocols.interact`. It is served from the
+  **coordinator's own website**, so its origin is one the end user
+  recognizes. The URL always carries an `iuv=1` query parameter as part
+  of its value, which is what identifies a URL as an interaction URL even
+  when encountered standalone, outside any `protocols` wrapper.
+  Dereferencing it with `Accept: application/json` returns
   `{"protocols": {"vcapi": ..., "OID4VP": ...}}` — i.e., it is an
-  indirection layer over the protocol URLs. A wallet that scans it can
-  discover and pick whichever protocol it supports.
-
-- **Protocol URLs** — the values of `protocols.OID4VP`, `protocols.vcapi`,
-  etc. These are homed at **workflow services**, not the coordinator, and
-  are intended for direct consumption by a chosen credential handler.
+  indirection layer over the other protocol URLs. A wallet that scans it
+  can discover and pick whichever protocol it supports.
 
 **Only the interaction URL is acceptable QR/link content.** Protocol URLs
 are never rendered as QR codes or custom-scheme links: their origins are
@@ -149,7 +154,8 @@ mediator cannot detect that a wallet on another device picked up the
 exchange, so both of the following apply:
 
 - Coordinators should cancel the CHAPI request once their exchange
-  progresses (to be covered in coordinator guidance docs).
+  progresses (to be documented in the credential-handler-polyfill docs —
+  the coordinator's entry point — per the #166 discussion).
 - The cross-device section includes a "Close" button under copy to the
   effect of *"Already scanned? Click close to return to the website."*
 
@@ -162,7 +168,7 @@ discussion calls for experimenting and gathering feedback.
 1. Coordinator calls CHAPI with `credentialRequestOptions.web.protocols`
    (request/presentation) or `credential.options.protocols` (storage),
    e.g.
-   `{interact: 'https://coordinator.example/exchanges/123', OID4VP: ..., vcapi: ...}`.
+   `{interact: 'https://coordinator.example/exchanges/123?iuv=1', OID4VP: ..., vcapi: ...}`.
 
 2. The mediator (`ThirdPartyMediator` / `FirstPartyMediator`) already
    holds the request; a new accessor on `BaseMediator` exposes the
@@ -183,8 +189,9 @@ discussion calls for experimenting and gathering feedback.
    bypasses the credential-handler selection entirely.
 
 5. Out of band: the scanning wallet dereferences the interaction URL
-   (`?iuv=1`, `Accept: application/json`), receives the protocol URL map,
-   and continues the exchange directly with the workflow service. The
+   (which already carries `iuv=1` in its value) with
+   `Accept: application/json`, receives the protocol URL map, and
+   continues the exchange directly with the workflow service. The
    mediator plays no part in this step.
 
 ## Implementation Sketch
@@ -213,7 +220,9 @@ discussion calls for experimenting and gathering feedback.
 
 - **Visibility rule:** render nothing unless the request contains a valid
   `protocols.interact` URL. Other protocol entries (`OID4VP`, `vcapi`,
-  ...) do not trigger the section.
+  ...) do not trigger the section. Since an interaction URL always
+  carries the `iuv=1` query parameter in its value, its presence can
+  serve as an additional sanity check during validation.
 
 - **Close behavior:** the "Close" button cancels/dismisses the mediator
   dialog through the same path as the existing cancel action (regression
@@ -312,6 +321,8 @@ This repo has no automated test suite (CI runs ESLint only). Plan:
 3. **Storage requests:** in scope — the section appears for storage as
    well as requests/presentations.
 4. **Visibility:** no `protocols.interact` → UI unchanged.
+5. **Coordinator guidance location:** the credential-handler-polyfill
+   docs — the coordinator's entry point to CHAPI — not this repo.
 
 ## Open Questions
 
@@ -322,7 +333,3 @@ This repo has no automated test suite (CI runs ESLint only). Plan:
 
 2. **QR always-visible vs. behind a disclosure** — to be settled by
    experimentation and user feedback.
-
-3. **Coordinator guidance:** where do we document the "cancel the CHAPI
-   request when your exchange progresses" recommendation for coordinator
-   developers (README, CHAPI docs site, polyfill docs)?
