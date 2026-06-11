@@ -1,6 +1,6 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2023, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2026, Digital Bazaar, Inc.
  * All rights reserved.
  */
 import {HintManager} from './HintManager.js';
@@ -26,6 +26,28 @@ export class BaseMediator {
     this.hide = null;
     this.ready = null;
     this.show = null;
+  }
+
+  get interactionUrl() {
+    const {credential, credentialRequestOptions} = this;
+    const protocols =
+      (credential?.options || credentialRequestOptions?.web)?.protocols || {};
+    const url = protocols.interact;
+    if(!url) {
+      return null;
+    }
+    // an interaction URL must be https and always carries `iuv=1` in its
+    // value; it is the marker by which a URL is identified as an
+    // interaction URL at all, so reject values without it
+    try {
+      const parsed = new URL(url);
+      if(parsed.protocol === 'https:' &&
+        parsed.searchParams.get('iuv') === '1') {
+        return url;
+      }
+    } catch(e) {}
+    console.warn(`Invalid relying party interaction URL "${url}".`);
+    return null;
   }
 
   async allowCredentialHandler() {
