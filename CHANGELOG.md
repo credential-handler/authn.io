@@ -1,5 +1,20 @@
 # authn.io ChangeLog
 
+## 7.2.0 - TBD
+
+### Added
+- Render the relying party's interaction URL (`protocols.interact`) as a
+  QR code in the wallet chooser, with a post-scan "Close" button, so the
+  user can continue the exchange with a wallet on another device. The
+  section appears for credential requests and storage and only when a
+  valid interaction URL is present.
+
+### Fixed
+- Fit the allow wallet popup buttons on browsers with tall popup window
+  chrome (e.g. Firefox).
+- Allow the first party dialog to scroll when its content is taller than
+  the popup window.
+
 ## 7.1.1 - 2024-02-05
 
 ### Fixed
