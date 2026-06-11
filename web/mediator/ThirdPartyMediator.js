@@ -1,6 +1,6 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2023, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2026, Digital Bazaar, Inc.
  * All rights reserved.
  */
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
@@ -14,6 +14,7 @@ import {WebAppContext} from 'web-request-rpc';
 import {
   DEFAULT_ALLOW_WALLET_POPUP_HEIGHT,
   DEFAULT_ALLOW_WALLET_POPUP_WIDTH,
+  DEFAULT_CROSS_DEVICE_HINT_CHOOSER_POPUP_HEIGHT,
   DEFAULT_HANDLER_POPUP_HEIGHT,
   DEFAULT_HANDLER_POPUP_WIDTH,
   DEFAULT_HINT_CHOOSER_POPUP_HEIGHT,
@@ -151,7 +152,10 @@ export class ThirdPartyMediator extends BaseMediator {
         url: `${window.location.origin}/mediator/wallet-chooser`,
         bounds: {
           width: DEFAULT_HINT_CHOOSER_POPUP_WIDTH,
-          height: DEFAULT_HINT_CHOOSER_POPUP_HEIGHT
+          // use a taller popup when the cross-device QR section will show
+          height: this.interactionUrl ?
+            DEFAULT_CROSS_DEVICE_HINT_CHOOSER_POPUP_HEIGHT :
+            DEFAULT_HINT_CHOOSER_POPUP_HEIGHT
         },
         event: {
           type: 'selectcredentialhint',
