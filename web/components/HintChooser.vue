@@ -15,6 +15,7 @@
         :credential-request-origin-name="credentialRequestOriginName"
         :request-type="requestType"
         :show-warning="hints.length === 0"
+        :has-cross-device-option="!!interactionUrl"
         @close="cancel()" />
     </template>
     <template #hint-list-footer>
