@@ -4,7 +4,9 @@
  * All rights reserved.
  */
 export const DEFAULT_ALLOW_WALLET_POPUP_WIDTH = 500;
-export const DEFAULT_ALLOW_WALLET_POPUP_HEIGHT = 240;
+// tall enough for the Block/Allow footer on browsers with tall popup
+// chrome (e.g. Firefox always shows a URL bar in popups)
+export const DEFAULT_ALLOW_WALLET_POPUP_HEIGHT = 320;
 
 export const DEFAULT_HANDLER_POPUP_WIDTH = 800;
 export const DEFAULT_HANDLER_POPUP_HEIGHT = 600;
