@@ -4,6 +4,21 @@
       Loading options... <i class="fas fa-cog fa-spin" />
     </div>
     <div
+      v-else-if="showWarning && hasCrossDeviceOption"
+      style="font-size: 14px">
+      <p v-if="requestType === 'credentialRequest'">
+        No wallet with the credentials requested by
+        <strong>{{credentialRequestOriginName}}</strong> is registered
+        in this browser. You can scan the QR code below to use a wallet
+        on another device, or visit your wallet website to register.
+      </p>
+      <p v-else>
+        No wallet is registered in this browser to store credentials.
+        You can scan the QR code below to use a wallet on another
+        device, or visit your wallet website to register.
+      </p>
+    </div>
+    <div
       v-else-if="showWarning"
       style="font-size: 14px">
       <div style="font-weight: bold">
@@ -49,7 +64,7 @@
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2023, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2026, Digital Bazaar, Inc.
  * All rights reserved.
  */
 export default {
@@ -71,6 +86,11 @@ export default {
     showWarning: {
       type: Boolean,
       required: true
+    },
+    hasCrossDeviceOption: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   emits: ['close'],
