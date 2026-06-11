@@ -32,6 +32,7 @@
         :can-web-share="canWebShare"
         :credential-request-origin-name="credentialRequestOriginName"
         :hints="hints"
+        :interaction-url="interactionUrl"
         :loading="loading"
         :request-type="requestType"
         @cancel="cancel()"
@@ -112,7 +113,7 @@
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2023, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2026, Digital Bazaar, Inc.
  * All rights reserved.
  */
 import {computed, toRef} from 'vue';
@@ -162,6 +163,11 @@ export default {
       type: Array,
       required: false,
       default: () => []
+    },
+    interactionUrl: {
+      type: String,
+      required: false,
+      default: ''
     },
     loading: {
       type: Boolean,

@@ -19,6 +19,11 @@
     </template>
     <template #hint-list-footer>
       <slot name="hint-list-footer" />
+      <CrossDeviceOptions
+        v-if="interactionUrl"
+        :interaction-url="interactionUrl"
+        :loading="loading"
+        @close="cancel()" />
       <!-- include separator before web share button if there are no hints -->
       <div
         v-if="canWebShare && hints.length === 0"
@@ -44,15 +49,16 @@
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2023, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2026, Digital Bazaar, Inc.
  * All rights reserved.
  */
+import CrossDeviceOptions from './CrossDeviceOptions.vue';
 import HintChooserMessage from './HintChooserMessage.vue';
 import {WrmHintChooser} from 'vue-web-request-mediator';
 
 export default {
   name: 'HintChooser',
-  components: {HintChooserMessage, WrmHintChooser},
+  components: {CrossDeviceOptions, HintChooserMessage, WrmHintChooser},
   props: {
     canWebShare: {
       type: Boolean,
@@ -67,6 +73,11 @@ export default {
       type: Array,
       required: false,
       default: () => []
+    },
+    interactionUrl: {
+      type: String,
+      required: false,
+      default: ''
     },
     loading: {
       type: Boolean,
