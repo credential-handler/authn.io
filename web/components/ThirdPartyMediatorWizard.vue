@@ -7,6 +7,7 @@
     :first-party-dialog-open="firstPartyDialogOpen"
     :has-storage-access="hasStorageAccess"
     :hints="hints"
+    :interaction-url="interactionUrl"
     :loading="loading"
     :request-type="requestType"
     :selected-hint="selectedHint"
@@ -38,7 +39,7 @@
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2023, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2026, Digital Bazaar, Inc.
  * All rights reserved.
  */
 import {computed, createApp, onMounted, ref, toRaw} from 'vue';
@@ -60,6 +61,7 @@ export default {
     const firstPartyDialogOpen = ref(false);
     const hasStorageAccess = ref(mediator.hasStorageAccess);
     const hints = ref([]);
+    const interactionUrl = ref('');
     const loading = ref(true);
     const rememberChoice = ref(false);
     const requestType = ref('');
@@ -152,6 +154,7 @@ export default {
           hide: () => {
             show.value = false;
             hints.value = [];
+            interactionUrl.value = '';
             loading.value = false;
             firstPartyDialogOpen.value = false;
             rememberChoice.value = false;
@@ -160,6 +163,7 @@ export default {
           },
           ready: async () => {
             hints.value = mediator.hintManager.hints.slice();
+            interactionUrl.value = mediator.interactionUrl || '';
             credentialRequestOriginManifest.value =
               await mediator.credentialRequestOriginManifestPromise;
             loading.value = false;
@@ -175,7 +179,7 @@ export default {
     return {
       // data
       canWebShare, credentialRequestOrigin, credentialRequestOriginManifest,
-      firstPartyDialogOpen, hasStorageAccess, hints, loading,
+      firstPartyDialogOpen, hasStorageAccess, hints, interactionUrl, loading,
       rememberChoice, requestType, selectedHint, show, showHintChooser,
       // methods
       allow, cancel, deny, focusFirstPartyDialog, openFirstPartyDialog,

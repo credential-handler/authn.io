@@ -8,6 +8,7 @@
     :credential-request-origin-manifest="credentialRequestOriginManifest"
     :has-storage-access="true"
     :hints="hints"
+    :interaction-url="interactionUrl"
     :is-first-party="true"
     :loading="loading"
     :request-type="requestType"
@@ -24,7 +25,7 @@
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2023, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2026, Digital Bazaar, Inc.
  * All rights reserved.
  */
 import {computed, onMounted, ref, toRaw} from 'vue';
@@ -41,6 +42,7 @@ export default {
     const credentialRequestOrigin = ref('');
     const credentialRequestOriginManifest = ref(null);
     const hints = ref([]);
+    const interactionUrl = ref('');
     const loading = ref(true);
     const requestType = ref('');
     const selectedHint = ref(null);
@@ -100,12 +102,14 @@ export default {
           hide: () => {
             show.value = false;
             hints.value = [];
+            interactionUrl.value = '';
             loading.value = false;
             requestType.value = '';
             selectedHint.value = null;
           },
           ready: async () => {
             hints.value = mediator.hintManager.hints.slice();
+            interactionUrl.value = mediator.interactionUrl || '';
             credentialRequestOriginManifest.value =
               await mediator.credentialRequestOriginManifestPromise;
             credentialRequestOrigin.value = mediator.credentialRequestOrigin;
@@ -120,7 +124,8 @@ export default {
     return {
       // data
       canWebShare, credentialRequestOrigin, credentialRequestOriginManifest,
-      hints, loading, requestType, selectedHint, show, showHintChooser,
+      hints, interactionUrl, loading, requestType, selectedHint, show,
+      showHintChooser,
       // methods
       allow, cancel, deny, removeHint, selectHint, webShare
     };
