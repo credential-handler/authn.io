@@ -109,7 +109,7 @@ export default {
           },
           ready: async () => {
             hints.value = mediator.hintManager.hints.slice();
-            interactionUrl.value = mediator.interactionUrl || '';
+            interactionUrl.value = mediator.getInteractionUrl() || '';
             credentialRequestOriginManifest.value =
               await mediator.credentialRequestOriginManifestPromise;
             credentialRequestOrigin.value = mediator.credentialRequestOrigin;

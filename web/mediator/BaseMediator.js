@@ -28,7 +28,7 @@ export class BaseMediator {
     this.show = null;
   }
 
-  get interactionUrl() {
+  getInteractionUrl() {
     const {credential, credentialRequestOptions} = this;
     const protocols =
       (credential?.options || credentialRequestOptions?.web)?.protocols || {};
