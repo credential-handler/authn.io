@@ -153,7 +153,7 @@ export class ThirdPartyMediator extends BaseMediator {
         bounds: {
           width: DEFAULT_HINT_CHOOSER_POPUP_WIDTH,
           // use a taller popup when the cross-device QR section will show
-          height: this.interactionUrl ?
+          height: this.getInteractionUrl() ?
             DEFAULT_CROSS_DEVICE_HINT_CHOOSER_POPUP_HEIGHT :
             DEFAULT_HINT_CHOOSER_POPUP_HEIGHT
         },

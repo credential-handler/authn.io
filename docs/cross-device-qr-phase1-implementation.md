@@ -25,7 +25,7 @@ FirstPartyMediatorWizard.vue ──┘         (props down, events up)
 | File | Change |
 |---|---|
 | `package.json` | add `qrcode` dependency |
-| `web/mediator/BaseMediator.js` | add `interactionUrl` getter |
+| `web/mediator/BaseMediator.js` | add `getInteractionUrl()` method |
 | `web/components/CrossDeviceOptions.vue` | **new** — QR section UI |
 | `web/components/HintChooser.vue` | new prop + render section + emit |
 | `web/components/MediatorWizard.vue` | thread prop through |
@@ -39,12 +39,12 @@ npm install qrcode
 ```
 
 `qrcode@^1.5.x` (same library `bedrock-vue-wallet` uses for generation). Browser-safe, works with `@bedrock/webpack`. Use `QRCode.toDataURL(text, opts)` → `<img>`; no canvas ref management and it renders fine inside the dialog's CSS.
-## 2. `BaseMediator.interactionUrl` getter
+## 2. `BaseMediator.getInteractionUrl()` method
 `BaseMediator` already holds `credential` (storage), `credentialRequestOptions` (request), set by both subclasses before `ready()` fires. Reuse the established extraction idiom from `_sendCredentialRequestViaUrl()`:
 
 ```js
 // BaseMediator.js
-get interactionUrl() {
+getInteractionUrl() {
   const {credential, credentialRequestOptions} = this;
   const protocols =
     (credential?.options || credentialRequestOptions?.web)?.protocols || {};
@@ -71,9 +71,9 @@ Notes:
 
 - Getter (not cached): trivially cheap, and `credential` / `credentialRequestOptions` change per request.
   
-- Permission requests have neither `credential.options` nor `credentialRequestOptions.web`, so the getter returns `null` and the section naturally never renders there.
+- Permission requests have neither `credential.options` nor `credentialRequestOptions.web`, so the method returns `null` and the section naturally never renders there.
   
-- Validation is deliberately stricter than `_hasMatchingProtocol()` (which only checks `new URL`): the QR forwards the URL to another device, so require `https:` and the `iuv=1` marker. **`iuv=1` is a hard requirement, not a heuristic:** per the parent spec's Terminology section, an interaction URL *always* carries `iuv=1` in its value — it is the marker by which a URL is identified as an interaction URL at all, even standalone outside a `protocols` wrapper. A `protocols.interact` value without it is therefore malformed (not an interaction URL), and a wallet scanning a QR of it would have no way to detect what it received. Rendering such a QR would produce broken scans, so the getter rejects it (warn + hide section), consistent with how invalid protocol URLs are handled today.
+- Validation is deliberately stricter than `_hasMatchingProtocol()` (which only checks `new URL`): the QR forwards the URL to another device, so require `https:` and the `iuv=1` marker. **`iuv=1` is a hard requirement, not a heuristic:** per the parent spec's Terminology section, an interaction URL *always* carries `iuv=1` in its value — it is the marker by which a URL is identified as an interaction URL at all, even standalone outside a `protocols` wrapper. A `protocols.interact` value without it is therefore malformed (not an interaction URL), and a wallet scanning a QR of it would have no way to detect what it received. Rendering such a QR would produce broken scans, so the method rejects it (warn + hide section), consistent with how invalid protocol URLs are handled today.
   
 ## 3. New component: `web/components/CrossDeviceOptions.vue`
 Follows the repo's Vue 3 `setup()` style and the existing footer-section styling (`wrm-separator wrm-modern`, `wrm-button`), like the former Web Share button block in `HintChooser.vue`.
@@ -156,9 +156,9 @@ watchEffect(async () => {
 
 `MediatorWizard.vue` — add pass-through prop `interactionUrl` (String, default `''`), bind it on `<HintChooser>`.
 
-`ThirdPartyMediatorWizard.vue` — add `const interactionUrl = ref('');` set in the `ready` callback (`interactionUrl.value = mediator.interactionUrl;`), cleared in `hide` (`interactionUrl.value = '';`), bound on `<MediatorWizard>`.
+`ThirdPartyMediatorWizard.vue` — add `const interactionUrl = ref('');` set in the `ready` callback (`interactionUrl.value = mediator.getInteractionUrl();`), cleared in `hide` (`interactionUrl.value = '';`), bound on `<MediatorWizard>`.
 
-`FirstPartyMediatorWizard.vue` — same three lines. The `FirstPartyMediator` receives `credential` / `credentialRequestOptions` via `CredentialEventProxy` before `ready()`, so the getter works identically there.
+`FirstPartyMediatorWizard.vue` — same three lines. The `FirstPartyMediator` receives `credential` / `credentialRequestOptions` via `CredentialEventProxy` before `ready()`, so the method works identically there.
 ## 5. Close semantics
 `close` → `cancel`:
 
