@@ -1,6 +1,6 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2015-2023, Digital Bazaar, Inc.
+ * Copyright (c) 2015-2026, Digital Bazaar, Inc.
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
@@ -41,4 +41,19 @@
 }
 .wrm-selectable {
   margin-right: 1px;
+}
+
+/* Allow vertical scrolling in the 1p dialog so content below the fold
+   (e.g. the cross-device QR section) stays reachable when the popup is
+   shorter than its content */
+.wrm-modal.wrm-modal-1p {
+  overflow-y: auto;
+
+  /* let the content panel grow with its children (the modal scrolls
+     instead), so the panel background fully wraps tall content like the
+     cross-device QR section */
+  .wrm-modal-content {
+    height: auto;
+    max-height: none;
+  }
 }
