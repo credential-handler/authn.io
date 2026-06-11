@@ -48,7 +48,8 @@ getInteractionUrl() {
   const {credential, credentialRequestOptions} = this;
   const protocols =
     (credential?.options || credentialRequestOptions?.web)?.protocols || {};
-  const url = protocols.interact;
+  // some implementations send `interaction` instead of `interact`
+  const url = protocols.interact ?? protocols.interaction;
   if(!url) {
     return null;
   }
