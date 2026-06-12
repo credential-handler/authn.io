@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 7.2.0 - TBD
+## 7.2.0 - 2026-06-12
 
 ### Added
 - Render the relying party's interaction URL (`protocols.interact`) as a
