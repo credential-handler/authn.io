@@ -21,8 +21,11 @@
     </template>
     <template #hint-list-footer>
       <slot name="hint-list-footer" />
+      <!-- with no wallets to choose from, the QR code is the primary
+        option: show it immediately instead of behind the expander -->
       <CrossDeviceOptions
         v-if="interactionUrl"
+        :collapsible="hints.length > 0"
         :interaction-url="interactionUrl"
         :loading="loading"
         @close="cancel()" />
