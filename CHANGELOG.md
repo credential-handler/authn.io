@@ -1,5 +1,10 @@
 # authn.io ChangeLog
 
+## 7.4.1 - 2026-06-dd
+
+### Fixed
+- Prevent horizontal scrolling in first party mediator content area.
+
 ## 7.4.0 - 2026-06-12
 
 ### Changed
