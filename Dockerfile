@@ -1,4 +1,4 @@
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 RUN mkdir -p /home/node/app && chown -R node:node /home/node/app
 WORKDIR /home/node/app
 
@@ -12,7 +12,7 @@ RUN mv authn.io.js index.js
 # There are not tests available for this context
 # RUN npm i --package-lock-only && npm ci --no-optional --production && cd test && npm i
 # RUN npm i --no-optional --production --package-lock
-RUN npm i --production --package-lock
+RUN npm i --omit=optional --omit=dev --package-lock
 RUN node index.js bundle --webpack-mode production --bundle-mode production
 
 FROM build AS test
