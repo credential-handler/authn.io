@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 7.4.0 - 2026-06-dd
+## 7.4.0 - 2026-06-12
 
 ### Changed
 - Put the cross-device QR code behind an expander in the wallet
