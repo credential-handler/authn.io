@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 7.3.1 - 2026-06-dd
+## 7.3.1 - 2026-06-12
 
 ### Fixed
 - Keep the 1p dialog content panel filling the popup height so the page
