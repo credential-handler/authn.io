@@ -52,6 +52,26 @@
   margin-right: 1px;
 }
 
+/* Expander row for the cross-device QR section: always on screen (the
+   prompt text is the affordance that a cross-device option exists), with
+   the QR code itself revealed on demand */
+.cross-device-toggle {
+  color: @wrm-dark-gray;
+  cursor: pointer;
+  padding: 1em 0 0.5em;
+  text-align: center;
+
+  > .fas {
+    font-size: 12px;
+    margin-left: 6px;
+  }
+
+  &:hover,
+  &:focus-visible {
+    text-decoration: underline;
+  }
+}
+
 /* Lay the 1p dialog out as a fixed frame around one scrollable region:
    the header, greeting, and cross-device QR section always stay on
    screen, and only the wallet hint list scrolls. This avoids scrolling

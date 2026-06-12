@@ -3,9 +3,25 @@
     <div
       class="wrm-separator wrm-modern"
       style="margin: 15px -15px 0px" />
-    <div style="padding-top: 1em; text-align: center">
+    <!-- expander: the QR code is hidden until the user asks for it -->
+    <div
+      class="cross-device-toggle"
+      role="button"
+      tabindex="0"
+      :aria-expanded="expanded"
+      @click="toggle()"
+      @keydown.enter.prevent="toggle()"
+      @keydown.space.prevent="toggle()">
+      <span>Don't see your wallet? Is your wallet on another device?</span>
+      <i
+        class="fas"
+        :class="expanded ? 'fa-chevron-up' : 'fa-chevron-down'" />
+    </div>
+    <div
+      v-if="expanded"
+      style="text-align: center">
       <div class="wrm-dark-gray">
-        Use a wallet on another device:
+        Scan this code with the other device:
       </div>
       <img
         v-if="qrDataUrl"
@@ -57,6 +73,9 @@ export default {
   },
   emits: ['close'],
   setup(props, {emit}) {
+    const expanded = ref(false);
+    const toggle = () => expanded.value = !expanded.value;
+
     const qrDataUrl = ref('');
     watchEffect(async () => {
       try {
@@ -72,7 +91,7 @@ export default {
       }
     });
     const close = () => emit('close');
-    return {close, qrDataUrl};
+    return {close, expanded, qrDataUrl, toggle};
   }
 };
 </script>
