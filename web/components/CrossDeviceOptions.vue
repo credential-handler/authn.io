@@ -3,8 +3,11 @@
     <div
       class="wrm-separator wrm-modern"
       style="margin: 15px -15px 0px" />
-    <!-- expander: the QR code is hidden until the user asks for it -->
+    <!-- expander: the QR code is hidden until the user asks for it
+      (unless not collapsible, e.g. when there are no wallets and the
+      QR code is the primary option) -->
     <div
+      v-if="collapsible"
       class="cross-device-toggle"
       role="button"
       tabindex="0"
@@ -55,12 +58,17 @@
  * Copyright (c) 2026, Digital Bazaar, Inc.
  * All rights reserved.
  */
-import {ref, watchEffect} from 'vue';
+import {ref, toRef, watch, watchEffect} from 'vue';
 import QRCode from 'qrcode';
 
 export default {
   name: 'CrossDeviceOptions',
   props: {
+    collapsible: {
+      type: Boolean,
+      required: false,
+      default: true
+    },
     interactionUrl: {
       type: String,
       required: true
@@ -73,8 +81,17 @@ export default {
   },
   emits: ['close'],
   setup(props, {emit}) {
-    const expanded = ref(false);
+    // start expanded when not collapsible (the QR code is the
+    // primary option, e.g. no wallets are available)
+    const expanded = ref(!props.collapsible);
     const toggle = () => expanded.value = !expanded.value;
+    // auto-expand if the QR code becomes the primary option (e.g. the
+    // user hides the last wallet in the list)
+    watch(toRef(props, 'collapsible'), collapsible => {
+      if(!collapsible) {
+        expanded.value = true;
+      }
+    });
 
     const qrDataUrl = ref('');
     watchEffect(async () => {

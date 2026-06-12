@@ -7,7 +7,8 @@
   chooser. The always-visible prompt ("Don't see your wallet?") keeps
   the option discoverable while leaving the dialog compact — and
   giving the wallet list more room — until the user asks for the
-  code.
+  code. When no wallets are registered, the QR code is the primary
+  option and shows immediately, with no expander.
 
 ### Fixed
 - Lay the 1p dialog out as a fixed frame around the wallet hint list:
