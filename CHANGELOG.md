@@ -3,9 +3,9 @@
 ## 7.3.1 - 2026-06-12
 
 ### Fixed
-- Keep the 1p dialog content panel filling the popup height so the page
-  background no longer shows through below short content (visible as a
-  black band in dark mode).
+- Keep the 1p dialog content panel filling the popup, so the page
+  background no longer shows through below short content or on either
+  side of the panel (visible as black bands in dark mode).
 
 ## 7.3.0 - 2026-06-12
 

@@ -61,5 +61,13 @@
     height: auto;
     min-height: 100%;
     max-height: none;
+    /* upstream sets `width: calc(100% - padding)` assuming content-box;
+       with border-box that calc becomes the total width and leaves gaps
+       on either side, so use the full width (padding now included) */
+    width: 100%;
+
+    &.wrm-modern {
+      width: 100%;
+    }
   }
 }
