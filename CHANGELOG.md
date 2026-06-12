@@ -4,10 +4,10 @@
 
 ### Changed
 - Put the cross-device QR code behind an expander in the wallet
-  chooser. The always-visible prompt ("Don't see your wallet? Is your
-  wallet on another device?") keeps the option discoverable while
-  leaving the dialog compact — and giving the wallet list more room —
-  until the user asks for the code.
+  chooser. The always-visible prompt ("Don't see your wallet?") keeps
+  the option discoverable while leaving the dialog compact — and
+  giving the wallet list more room — until the user asks for the
+  code.
 
 ### Fixed
 - Lay the 1p dialog out as a fixed frame around the wallet hint list:

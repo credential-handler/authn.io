@@ -12,7 +12,7 @@
       @click="toggle()"
       @keydown.enter.prevent="toggle()"
       @keydown.space.prevent="toggle()">
-      <span>Don't see your wallet? Is your wallet on another device?</span>
+      <span>Don't see your wallet?</span>
       <i
         class="fas"
         :class="expanded ? 'fa-chevron-up' : 'fa-chevron-down'" />
@@ -21,7 +21,7 @@
       v-if="expanded"
       style="text-align: center">
       <div class="wrm-dark-gray">
-        Scan this code with the other device:
+        Scan this code on a device with your wallet:
       </div>
       <img
         v-if="qrDataUrl"
