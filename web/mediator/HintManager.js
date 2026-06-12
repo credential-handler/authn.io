@@ -1,7 +1,6 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2023, Digital Bazaar, Inc.
- * All rights reserved.
+ * Copyright (c) 2017-2026, Digital Bazaar, Inc.
  */
 import {getOriginName} from './helpers.js';
 import {getWebAppManifest} from './manifest.js';
@@ -424,7 +423,7 @@ function _hasMatchingProtocol(rpProtocols, ch) {
     try {
       new URL(url);
       return true;
-    } catch(e) {
+    } catch {
       // invalid URL
       console.warn(`Invalid relying party protocol URL "${url}".`);
     }
