@@ -3,13 +3,20 @@
 ## 7.3.1 - 2026-06-12
 
 ### Fixed
-- Keep the 1p dialog header fixed and scroll only the body region
-  between the header and footer, so the Close button never scrolls
-  away and the popup window no longer adds a second scrollbar on top
-  of the wallet list's own.
+- Lay the 1p dialog out as a fixed frame around the wallet hint list:
+  the header, greeting, and cross-device QR section always stay on
+  screen and only the wallet list scrolls. The Close button can no
+  longer scroll away, the popup window never adds a second scrollbar,
+  and the QR section stays visible as an affordance at any popup
+  height.
 - Keep the 1p dialog content panel exactly filling the popup, so the
   page background no longer shows through below or beside the panel
   (visible as black bands in dark mode).
+- Fix the wallet hint list's custom scrollbar styling (an invalid
+  `scrollbar-width` value, and Chromium 121+ ignoring
+  `::-webkit-scrollbar*` rules when standard scrollbar properties are
+  also set) so the list reliably shows a persistent scrollbar as the
+  affordance that more wallets are available.
 
 ## 7.3.0 - 2026-06-12
 

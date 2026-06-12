@@ -19,9 +19,12 @@
 /* Make hint list scrollable with custom thin scrollbar */
 .wrm-hint-list {
   max-height: 200px;
-  scrollbar-width: 6px;
-  scrollbar-color: @wrm-gray @wrm-dark-gray;
 
+  /* Chromium/WebKit: a persistent custom scrollbar. Do not also set the
+     standard `scrollbar-width`/`scrollbar-color` properties here —
+     Chromium 121+ ignores all `::-webkit-scrollbar*` styling when either
+     standard property is set, which silently reverts the scrollbar to
+     the platform default (invisible-at-rest overlay on macOS) */
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -33,6 +36,12 @@
     border-radius: 6px;
     box-shadow: inset 0 0 6px @wrm-gray;
   }
+
+  /* Firefox (no `::-webkit-scrollbar` support): nearest equivalent */
+  @supports not selector(::-webkit-scrollbar) {
+    scrollbar-width: thin;
+    scrollbar-color: @wrm-gray @wrm-dark-gray;
+  }
 }
 
 /* Adjust padding and margin for hint list items to accommodate scrollbar */
@@ -43,18 +52,18 @@
   margin-right: 1px;
 }
 
-/* Keep the 1p dialog header (and footer) fixed and scroll only the body
-   region between them, so content below the fold (e.g. the cross-device
-   QR section) stays reachable without scrolling the whole popup window
-   (which would scroll the header/Close button away and stack a window
-   scrollbar on top of the hint list's own) */
+/* Lay the 1p dialog out as a fixed frame around one scrollable region:
+   the header, greeting, and cross-device QR section always stay on
+   screen, and only the wallet hint list scrolls. This avoids scrolling
+   the popup window (which scrolled the header/Close button away and
+   stacked a second scrollbar on top of the hint list's own) and keeps
+   the QR section visible as an affordance at any popup height */
 .wrm-modal.wrm-modal-1p {
   /* make the content panel exactly fill the popup — never grow with
-     content (the body region scrolls instead) and never come up short
-     (the page background would show through as black bands in dark
-     mode); `border-box` + `width/height: 100%` includes the panel
-     padding, replacing upstream's content-box `calc(100% - padding)`
-     sizing */
+     content and never come up short (the page background would show
+     through as black bands in dark mode); `border-box` +
+     `width/height: 100%` includes the panel padding, replacing
+     upstream's content-box `calc(100% - padding)` sizing */
   .wrm-modal-content {
     box-sizing: border-box;
     height: 100%;
@@ -71,12 +80,61 @@
     }
 
     /* the body slot wrapper (the header's sibling) absorbs the
-       remaining height and scrolls its own overflow; `min-height: 0`
-       lets it shrink below its content size inside the flex column */
+       remaining height as a flex column; `overflow-y: auto` is only a
+       fallback for windows too short to fit even the fixed parts */
     > .wrm-modal-content-header + div {
+      display: flex;
       flex: 1 1 auto;
+      flex-direction: column;
       min-height: 0;
       overflow-y: auto;
+
+      /* fixed (non-scrolling) parts: greeting, separator, etc. */
+      > * {
+        flex-shrink: 0;
+      }
+
+      /* the hint chooser absorbs the remaining height */
+      > .hint-chooser {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-height: 0;
+
+        > .wrm-slide {
+          display: flex;
+          flex: 1 1 auto;
+          flex-direction: column;
+          min-height: 0;
+
+          /* fixed parts: message, QR section, web-share button */
+          > * {
+            flex-shrink: 0;
+          }
+
+          /* the wallet list region is the only shrinkable part, down
+             to ~one wallet row (below that, the body fallback scroll
+             takes over); the list itself scrolls — never a wrapper
+             around it, which would nest two scrollbars */
+          > .wrm-flex-column-stretch {
+            flex-shrink: 1;
+            min-height: 62px;
+
+            &:not(.wrm-hint-list) {
+              overflow-y: hidden;
+            }
+          }
+
+          .wrm-hint-list {
+            flex: 1 1 auto;
+            /* always show at least ~one wallet row */
+            min-height: 62px;
+            /* grow with available space instead of the fixed 200px
+               cap used in the 3p dialog */
+            max-height: none;
+          }
+        }
+      }
     }
   }
 }
