@@ -20,8 +20,11 @@
         class="fas"
         :class="expanded ? 'fa-chevron-up' : 'fa-chevron-down'" />
     </div>
+    <!-- without the toggle row above it, the block provides its own
+      spacing below the separator -->
     <div
       v-if="expanded"
+      :style="{paddingTop: collapsible ? '0' : '1em'}"
       style="text-align: center">
       <div class="wrm-dark-gray">
         Scan this code on a device with your wallet:
