@@ -51,9 +51,15 @@
 
   /* let the content panel grow with its children (the modal scrolls
      instead), so the panel background fully wraps tall content like the
-     cross-device QR section */
+     cross-device QR section; keep `min-height` so the panel still fills
+     the popup when content is short (otherwise the page background shows
+     through below it, e.g. as a black band in dark mode) */
   .wrm-modal-content {
+    /* include padding in `min-height: 100%` (the panel defaults to
+       content-box, which would overflow the popup by its padding) */
+    box-sizing: border-box;
     height: auto;
+    min-height: 100%;
     max-height: none;
   }
 }
