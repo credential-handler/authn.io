@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 7.3.1 - 2026-06-12
+## 7.4.0 - 2026-06-dd
 
 ### Changed
 - Put the cross-device QR code behind an expander in the wallet
@@ -25,6 +25,13 @@
   `::-webkit-scrollbar*` rules when standard scrollbar properties are
   also set) so the list reliably shows a persistent scrollbar as the
   affordance that more wallets are available.
+
+## 7.3.1 - 2026-06-12
+
+### Fixed
+- Keep the 1p dialog content panel filling the popup height so the page
+  background no longer shows through below short content (visible as a
+  black band in dark mode).
 
 ## 7.3.0 - 2026-06-12
 
