@@ -1,5 +1,6 @@
 <template>
   <WrmHintChooser
+    class="hint-chooser"
     style="user-select: none"
     :hints="hints"
     :cancel-remove-hint-timeout="5000"
