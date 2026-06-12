@@ -1,7 +1,6 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2018-2023, Digital Bazaar, Inc.
- * All rights reserved.
+ * Copyright (c) 2018-2026, Digital Bazaar, Inc.
  */
 const KEY = 'storedCredentialHandlerChoices';
 
@@ -15,7 +14,7 @@ export function setSiteChoice({credentialRequestOrigin, credentialHandler}) {
       delete choices[credentialRequestOrigin];
     }
     localStorage.setItem(KEY, JSON.stringify(choices));
-  } catch(e) {
+  } catch {
     // ignore errors
   }
 }
@@ -32,8 +31,8 @@ export function getSiteChoice({credentialRequestOrigin, hints}) {
         return hint;
       }
     }
-  } catch(e) {
-    // ignore
+  } catch {
+    // ignore errors
   }
   return null;
 }
@@ -45,8 +44,8 @@ export function hasSiteChoice({credentialRequestOrigin}) {
     if(credentialHandler) {
       return true;
     }
-  } catch(e) {
-    // ignore
+  } catch {
+    // ignore errors
   }
   return false;
 }
@@ -55,8 +54,8 @@ function _getChoices() {
   let choices;
   try {
     choices = JSON.parse(localStorage.getItem(KEY) || {});
-  } catch(e) {
-    // ignore
+  } catch {
+    // ignore errors
   }
   return choices || {};
 }

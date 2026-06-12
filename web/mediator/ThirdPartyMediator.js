@@ -1,7 +1,6 @@
 /*!
  * New BSD License (3-clause)
  * Copyright (c) 2017-2026, Digital Bazaar, Inc.
- * All rights reserved.
  */
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
 import {BaseMediator} from './BaseMediator.js';
@@ -170,7 +169,7 @@ export class ThirdPartyMediator extends BaseMediator {
       });
       const {choice} = result;
       return {choice};
-    } catch(e) {
+    } catch {
       return {choice: null};
     }
   }

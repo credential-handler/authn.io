@@ -1,6 +1,24 @@
 # authn.io ChangeLog
 
-## 7.2.1 - 2026-06-dd
+## 7.3.0 - 2026-06-dd
+
+### Changed
+- Update dependencies:
+  - `@bedrock/config-yaml@4.3.3`
+  - `@bedrock/core@6.3.0`
+  - `@bedrock/express@8.7.0`
+  - `@bedrock/server@5.1.0`
+  - `@bedrock/views@12.0.0`
+  - `@bedrock/vue@5.1.0`
+  - `@bedrock/web@3.1.0`
+  - `@bedrock/web-fontawesome@2.1.0`
+  - `@bedrock/webpack@11.6.1`
+  - `@digitalbazaar/http-client@4.3.0`
+  - `credential-mediator-polyfill@4.0.0`
+  - `vue@3.5.38`
+  - `vue-router@4.6.4`
+  - `web-request-mediator@3.0.0`
+  - `web-request-rpc@3.0.1`.
 
 ### Fixed
 - Use node 24 in dockerfile.

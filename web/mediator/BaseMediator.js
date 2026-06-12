@@ -1,7 +1,6 @@
 /*!
  * New BSD License (3-clause)
  * Copyright (c) 2017-2026, Digital Bazaar, Inc.
- * All rights reserved.
  */
 import {HintManager} from './HintManager.js';
 import {WebShareHandler} from './WebShareHandler.js';
@@ -46,7 +45,9 @@ export class BaseMediator {
         parsed.searchParams.get('iuv') === '1') {
         return url;
       }
-    } catch(e) {}
+    } catch {
+      // swallow parse errors and warn below
+    }
     console.warn(`Invalid relying party interaction URL "${url}".`);
     return null;
   }
