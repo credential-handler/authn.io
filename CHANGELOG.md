@@ -3,9 +3,13 @@
 ## 7.3.1 - 2026-06-12
 
 ### Fixed
-- Keep the 1p dialog content panel filling the popup, so the page
-  background no longer shows through below short content or on either
-  side of the panel (visible as black bands in dark mode).
+- Keep the 1p dialog header fixed and scroll only the body region
+  between the header and footer, so the Close button never scrolls
+  away and the popup window no longer adds a second scrollbar on top
+  of the wallet list's own.
+- Keep the 1p dialog content panel exactly filling the popup, so the
+  page background no longer shows through below or beside the panel
+  (visible as black bands in dark mode).
 
 ## 7.3.0 - 2026-06-12
 

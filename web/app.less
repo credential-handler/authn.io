@@ -43,31 +43,40 @@
   margin-right: 1px;
 }
 
-/* Allow vertical scrolling in the 1p dialog so content below the fold
-   (e.g. the cross-device QR section) stays reachable when the popup is
-   shorter than its content */
+/* Keep the 1p dialog header (and footer) fixed and scroll only the body
+   region between them, so content below the fold (e.g. the cross-device
+   QR section) stays reachable without scrolling the whole popup window
+   (which would scroll the header/Close button away and stack a window
+   scrollbar on top of the hint list's own) */
 .wrm-modal.wrm-modal-1p {
-  overflow-y: auto;
-
-  /* let the content panel grow with its children (the modal scrolls
-     instead), so the panel background fully wraps tall content like the
-     cross-device QR section; keep `min-height` so the panel still fills
-     the popup when content is short (otherwise the page background shows
-     through below it, e.g. as a black band in dark mode) */
+  /* make the content panel exactly fill the popup — never grow with
+     content (the body region scrolls instead) and never come up short
+     (the page background would show through as black bands in dark
+     mode); `border-box` + `width/height: 100%` includes the panel
+     padding, replacing upstream's content-box `calc(100% - padding)`
+     sizing */
   .wrm-modal-content {
-    /* include padding in `min-height: 100%` (the panel defaults to
-       content-box, which would overflow the popup by its padding) */
     box-sizing: border-box;
-    height: auto;
-    min-height: 100%;
+    height: 100%;
     max-height: none;
-    /* upstream sets `width: calc(100% - padding)` assuming content-box;
-       with border-box that calc becomes the total width and leaves gaps
-       on either side, so use the full width (padding now included) */
     width: 100%;
 
     &.wrm-modern {
       width: 100%;
+    }
+
+    /* the header never scrolls or shrinks */
+    > .wrm-modal-content-header {
+      flex-shrink: 0;
+    }
+
+    /* the body slot wrapper (the header's sibling) absorbs the
+       remaining height and scrolls its own overflow; `min-height: 0`
+       lets it shrink below its content size inside the flex column */
+    > .wrm-modal-content-header + div {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
     }
   }
 }
