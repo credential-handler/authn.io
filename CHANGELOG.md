@@ -1,5 +1,10 @@
 # authn.io ChangeLog
 
+## 7.2.1 - 2026-06-dd
+
+### Fixed
+- Use node 24 in dockerfile.
+
 ## 7.2.0 - 2026-06-12
 
 ### Added
