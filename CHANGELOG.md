@@ -4,6 +4,7 @@
 
 ### Fixed
 - Prevent horizontal scrolling in first party mediator content area.
+- Reduce third party mediator permission popup dialog height.
 
 ## 7.4.0 - 2026-06-12
 
