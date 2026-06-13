@@ -52,6 +52,14 @@ for(const state of STATES) {
       const offenders = await page.evaluate(() => {
         const out = [];
         for(const el of document.querySelectorAll('.wrm-modal-1p *')) {
+          // only inspect elements with a real content box. Inline
+          // elements (e.g. <span>, <strong>) report `clientWidth: 0` but
+          // a nonzero `scrollWidth`, which Firefox surfaces and Chromium
+          // does not; that difference is not overflow, so skip them.
+          const cs = getComputedStyle(el);
+          if(cs.display === 'inline' || el.clientWidth === 0) {
+            continue;
+          }
           if(el.scrollWidth - el.clientWidth > 1) {
             out.push(`${el.className || el.tagName} ` +
               `(scrollW ${el.scrollWidth} > clientW ${el.clientWidth})`);
