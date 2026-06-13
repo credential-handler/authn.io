@@ -1,5 +1,11 @@
 # authn.io ChangeLog
 
+## 7.4.4 - 2026-06-dd
+
+### Fixed
+- Make dark mode hint list items look more like buttons.
+- Make adding url bar to popup window height conditional.
+
 ## 7.4.3 - 2026-06-12
 
 ### Fixed
