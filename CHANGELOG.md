@@ -1,5 +1,10 @@
 # authn.io ChangeLog
 
+## 7.4.3 - 2026-06-dd
+
+### Fixed
+- Close CHAPI entirely when 1p window is closed.
+
 ## 7.4.2 - 2026-06-12
 
 ### Fixed

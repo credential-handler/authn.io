@@ -116,6 +116,8 @@ export default {
         // if a choice was made... (vs. closing the window)
         if(choice) {
           selectHint({...choice, waitUntil: () => {}});
+        } else {
+          await cancel();
         }
       } finally {
         loading.value = false;
