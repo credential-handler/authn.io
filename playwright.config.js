@@ -34,6 +34,19 @@ export default defineConfig({
     {
       name: 'firefox',
       use: {...devices['Desktop Firefox'], viewport: {width: 500, height: 640}}
+    },
+    // phone-sized projects: on a phone the popup is clamped to the screen
+    // width (narrower than the 500px desktop popup) and crosses the
+    // dialog's 430px "small screen" CSS breakpoint, so these exercise
+    // layout branches the desktop projects do not. Device descriptors also
+    // set a touch-capable, mobile-UA context.
+    {
+      name: 'iphone',
+      use: {...devices['iPhone 15']}
+    },
+    {
+      name: 'android-pixel',
+      use: {...devices['Pixel 7']}
     }
   ],
   // start the authn.io dev server automatically; reuse one already running

@@ -96,14 +96,22 @@ Install the browser engines once:
 
     npx playwright install chromium webkit firefox
 
-Run the layout regression suite (Chromium, WebKit, Firefox):
+Run the layout regression suite:
 
     npm run test:e2e
 
 This asserts structural invariants — the expected wallets render, no horizontal
 or window scrollbar appears, the header stays pinned while the list scrolls, and
 the panel fills the popup — rather than comparing pixels. It starts the dev
-server automatically.
+server automatically and runs five projects: desktop Chromium, WebKit, and
+Firefox at the 500px popup width, plus emulated **iPhone 15** and **Pixel 7**.
+The phone projects matter because on a phone the popup is clamped to the screen
+width and crosses the dialog's 430px "small screen" CSS breakpoint, exercising
+layout branches the desktop width does not.
+
+Run a single project with, e.g., `npm run test:e2e -- --project=iphone`. The
+project names are `chromium`, `webkit`, `firefox`, `iphone`, and
+`android-pixel`.
 
 Generate a browsable screenshot gallery of every state (wallet count × theme ×
 engine, collapsed and expanded), with an `index.html` contact sheet:

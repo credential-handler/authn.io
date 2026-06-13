@@ -48,9 +48,24 @@ test.describe('gallery', () => {
           const toggle = page.locator('.cross-device-toggle');
           if(await toggle.count() > 0) {
             await toggle.click();
-            await expect(page.locator('img[alt*="QR"]')).toBeVisible();
+            const qr = page.locator('img[alt*="QR"]');
+            await expect(qr).toBeVisible();
             await page.screenshot(
               {path: path.join(dir, `${state.name}-expanded.png`)});
+
+            // when the expanded QR sits below the fold (many wallets on a
+            // short/phone viewport), also capture a shot scrolled to the
+            // QR, so the gallery shows it is reachable
+            const qrInView = await qr.evaluate(el => {
+              const r = el.getBoundingClientRect();
+              return r.bottom <= window.innerHeight && r.top >= 0;
+            });
+            if(!qrInView) {
+              await qr.scrollIntoViewIfNeeded();
+              await expect(qr).toBeInViewport();
+              await page.screenshot(
+                {path: path.join(dir, `${state.name}-expanded-scrolled.png`)});
+            }
           }
         });
       }
