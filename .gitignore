@@ -24,3 +24,6 @@ static/images/logo-*.png
 /playwright-report
 /blob-report
 /test/e2e/gallery
+
+# local working notes / manual-test artifacts
+scratchpad

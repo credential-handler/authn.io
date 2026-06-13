@@ -83,6 +83,40 @@ Access the server at the following URL:
 
 * https://authn.localhost:33443/
 
+## Testing
+
+The first party wallet chooser dialog has an automated visual/layout test
+suite. It drives a dev-only harness route
+(`/test/wallet-chooser?hints=N&qr=1`) that renders the dialog with fake state,
+so the layout can be exercised across wallet counts (0, 1, 5, 15) and the
+cross-device QR section without any CHAPI registration, wallets, or popups. The
+harness route is excluded from production builds.
+
+Install the browser engines once:
+
+    npx playwright install chromium webkit firefox
+
+Run the layout regression suite (Chromium, WebKit, Firefox):
+
+    npm run test:e2e
+
+This asserts structural invariants — the expected wallets render, no horizontal
+or window scrollbar appears, the header stays pinned while the list scrolls, and
+the panel fills the popup — rather than comparing pixels. It starts the dev
+server automatically.
+
+Generate a browsable screenshot gallery of every state (wallet count × theme ×
+engine, collapsed and expanded), with an `index.html` contact sheet:
+
+    npm run gallery
+
+Output is written to `test/e2e/gallery/` (git-ignored).
+
+> **Brave:** the Chromium engine covers Brave's rendering (Brave is Chromium
+> plus "shields", which do not affect the dialog CSS). Brave's storage/shields
+> behavior is a CHAPI plumbing concern, verified in the manual mobile pass, not
+> by this layout suite. Real mobile/Safari-on-iOS is likewise a manual pass.
+
 ## Production
 
 Full instructions for running this code in production are beyond the scope of
