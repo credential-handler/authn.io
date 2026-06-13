@@ -106,6 +106,28 @@ for(const state of STATES) {
         expect(fills).toBe(true);
       });
 
+    test('header border bleeds edge to edge', async ({page}) => {
+      // the dialog header ("Choose a Wallet") is full-bleed by design: its
+      // bottom border spans the popup edge to edge, distinguishing it from
+      // an inset in-page separator. A regression once removed the
+      // negative side margins that produce the bleed, shrinking the
+      // border to the padded content width; the geometric-overflow checks
+      // did not catch it because no overflow remained. This guards the
+      // bleed directly. The header is the panel's direct-child header (not
+      // the empty separator div the body reuses the class for).
+      const flush = await page.evaluate(() => {
+        const header = document.querySelector(
+          '.wrm-modal-1p .wrm-modal-content > .wrm-modal-content-header');
+        const panel = document.querySelector(
+          '.wrm-modal-1p .wrm-modal-content');
+        const h = header.getBoundingClientRect();
+        const p = panel.getBoundingClientRect();
+        return Math.abs(h.left - p.left) <= 1 &&
+          Math.abs(h.right - p.right) <= 1;
+      });
+      expect(flush).toBe(true);
+    });
+
     if(state.qr && state.hints > 0) {
       test('shows the cross-device expander, collapsed', async ({page}) => {
         await expect(page.locator('.cross-device-toggle')).toBeVisible();

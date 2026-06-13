@@ -4,12 +4,15 @@
 
 ### Fixed
 - Fix the root cause of the first party dialog's horizontal overflow
-  instead of clipping it. The dialog headers and separators use a
-  negative side-margin (`margin: -15px`) to bleed their border
-  edge-to-edge; under the dialog's border-box flex layout that overhang
-  was measured as horizontal overflow. Neutralize the side margins and
-  recreate the full-bleed border with padding, then remove the
-  temporary `overflow-x: hidden` workaround.
+  instead of clipping it. The dialog header keeps its full-bleed
+  edge-to-edge border (a negative side-margin that cancels the panel
+  padding, with no overflow). The overflow came from the in-flow body
+  dividers, which reuse the same negative side-margin but sit inside a
+  wrapper narrower than the panel, so the margin pushed past its edge.
+  Neutralize the side margins on those body dividers only — they read as
+  inset rules with no overhang — and remove the temporary
+  `overflow-x: hidden` workaround. Adds a layout test asserting the
+  header border bleeds edge-to-edge so the bleed cannot regress silently.
 - Target the wallet hint list by its own class for the 1p flex sizing,
   rather than the generic `.wrm-flex-column-stretch` (which upstream
   also applies to a wrapper around the integrated list), so the sizing

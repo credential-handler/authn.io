@@ -85,31 +85,23 @@
    stacked a second scrollbar on top of the hint list's own) and keeps
    the QR section visible as an affordance at any popup height */
 .wrm-modal.wrm-modal-1p {
-  /* Upstream gives every `.wrm-modal-content-header` (the real header AND
-     the empty separator div between the greeting and the chooser)
-     `margin: -15px -15px 0` so its bottom border bleeds edge-to-edge
-     across the panel's 15px padding. Under this dialog's border-box flex
-     layout those negative side margins measure 15px wider than the
-     wrapper on each side — real horizontal overflow (previously only
-     hidden with `overflow-x: hidden`). Neutralize the side margins and
-     recreate the full-bleed separator with negative-margin-free padding:
-     the header keeps the panel padding (content stays aligned) while its
-     border still reaches both edges, with nothing overhanging. Applies to
-     both the direct-child header and the nested separator. */
-  .wrm-modal-content-header {
-    margin-left: 0;
-    margin-right: 0;
-    padding-left: 15px;
-    padding-right: 15px;
-  }
-
-  /* the cross-device / web-share separators use the same negative
-     side-margin full-bleed trick (inline `margin: 15px -15px 0`) and
-     overflow the border-box layout the same way. A separator is just a
-     1px top border with no content, so it can fill the full width with
-     no negative margin: keep the vertical margin, drop the horizontal
-     overhang. `!important` overrides the element's inline style. */
-  .wrm-slide .wrm-separator {
+  /* The dialog header (a direct child of the padded `.wrm-modal-content`)
+     keeps upstream's `margin: -15px` full-bleed trick: its negative side
+     margins exactly cancel the panel's 15px padding, so its bottom border
+     spans the popup edge-to-edge with no overflow. The body's in-flow
+     dividers reuse the same trick — the `.wrm-separator` rows (inline
+     `margin: 15px -15px 0`) and the empty `.wrm-modal-content-header` div
+     the greeting uses as a divider — but they live inside the body
+     wrapper, a content-box flex column 15px narrower than the panel on
+     each side, so their negative side margins push 15px past the
+     wrapper's right edge: real horizontal overflow (the 7.4.1
+     `overflow-x: hidden` band-aid only hid it). Each is a full-width 1px
+     rule that already stretches to fill its box, so dropping the side
+     overhang leaves it ending at the panel padding edge — reading as an
+     inset divider, with no overflow and no hack. `!important` beats the
+     element's inline margin. */
+  .wrm-modal-content-header + div .wrm-separator,
+  .wrm-modal-content-header + div .wrm-modal-content-header {
     margin-left: 0 !important;
     margin-right: 0 !important;
   }
@@ -129,8 +121,7 @@
       width: 100%;
     }
 
-    /* the header never scrolls or shrinks (side-margin overhang is
-       neutralized by the `.wrm-modal-content-header` rule above) */
+    /* the header never scrolls or shrinks */
     > .wrm-modal-content-header {
       flex-shrink: 0;
     }
