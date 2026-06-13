@@ -1,5 +1,28 @@
 # authn.io ChangeLog
 
+## 7.4.4 - 2026-06-dd
+
+### Fixed
+- Fix the root cause of the first party dialog's horizontal overflow
+  instead of clipping it. The dialog headers and separators use a
+  negative side-margin (`margin: -15px`) to bleed their border
+  edge-to-edge; under the dialog's border-box flex layout that overhang
+  was measured as horizontal overflow. Neutralize the side margins and
+  recreate the full-bleed border with padding, then remove the
+  temporary `overflow-x: hidden` workaround.
+- Target the wallet hint list by its own class for the 1p flex sizing,
+  rather than the generic `.wrm-flex-column-stretch` (which upstream
+  also applies to a wrapper around the integrated list), so the sizing
+  and scrolling apply only to the intended element.
+
+### Added
+- Add an automated visual/layout test suite for the first party wallet
+  chooser dialog. A dev-only `/test/wallet-chooser` harness route
+  renders the dialog with fake state across wallet counts and the
+  cross-device QR section; `npm run test:e2e` asserts layout invariants
+  on Chromium, WebKit, and Firefox, and `npm run gallery` produces a
+  browsable screenshot gallery.
+
 ## 7.4.3 - 2026-06-12
 
 ### Fixed

@@ -43,26 +43,24 @@ for(const state of STATES) {
       expect(scrolls).toBe(false);
     });
 
-    // NOTE: the stricter assertion below detects horizontal OVERFLOW
-    // itself (content wider than its box), not just the scrollbar. On
-    // current `main` it FAILS because 7.4.1 only clips the overflow with
-    // `overflow-x: hidden` rather than fixing the root cause (the header's
-    // `margin: -15px` overhang). It is skipped here and should be enabled
-    // together with the root-cause fix on `fix-1p-flex-sizing-rootcause`.
-    test.skip('has no horizontal overflow (enable with root-cause fix)',
-      async ({page}) => {
-        const offenders = await page.evaluate(() => {
-          const out = [];
-          for(const el of document.querySelectorAll('.wrm-modal-1p *')) {
-            if(el.scrollWidth - el.clientWidth > 1) {
-              out.push(`${el.className || el.tagName} ` +
-                `(scrollW ${el.scrollWidth} > clientW ${el.clientWidth})`);
-            }
+    // Stricter than the scrollbar check: detects the horizontal OVERFLOW
+    // condition itself (an element whose content is wider than its box),
+    // not just the resulting scrollbar — so an `overflow-x: hidden`
+    // band-aid cannot make it a false pass. This guards the root-cause
+    // fix that neutralizes the header's `margin: -15px` overhang.
+    test('has no horizontal overflow', async ({page}) => {
+      const offenders = await page.evaluate(() => {
+        const out = [];
+        for(const el of document.querySelectorAll('.wrm-modal-1p *')) {
+          if(el.scrollWidth - el.clientWidth > 1) {
+            out.push(`${el.className || el.tagName} ` +
+              `(scrollW ${el.scrollWidth} > clientW ${el.clientWidth})`);
           }
-          return out;
-        });
-        expect(offenders, offenders.join('; ')).toEqual([]);
+        }
+        return out;
       });
+      expect(offenders, offenders.join('; ')).toEqual([]);
+    });
 
     test('does not scroll the popup window', async ({page}) => {
       // only an inner region may scroll; the window itself must not (that

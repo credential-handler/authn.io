@@ -85,6 +85,35 @@
    stacked a second scrollbar on top of the hint list's own) and keeps
    the QR section visible as an affordance at any popup height */
 .wrm-modal.wrm-modal-1p {
+  /* Upstream gives every `.wrm-modal-content-header` (the real header AND
+     the empty separator div between the greeting and the chooser)
+     `margin: -15px -15px 0` so its bottom border bleeds edge-to-edge
+     across the panel's 15px padding. Under this dialog's border-box flex
+     layout those negative side margins measure 15px wider than the
+     wrapper on each side — real horizontal overflow (previously only
+     hidden with `overflow-x: hidden`). Neutralize the side margins and
+     recreate the full-bleed separator with negative-margin-free padding:
+     the header keeps the panel padding (content stays aligned) while its
+     border still reaches both edges, with nothing overhanging. Applies to
+     both the direct-child header and the nested separator. */
+  .wrm-modal-content-header {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  /* the cross-device / web-share separators use the same negative
+     side-margin full-bleed trick (inline `margin: 15px -15px 0`) and
+     overflow the border-box layout the same way. A separator is just a
+     1px top border with no content, so it can fill the full width with
+     no negative margin: keep the vertical margin, drop the horizontal
+     overhang. `!important` overrides the element's inline style. */
+  .wrm-slide .wrm-separator {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
   /* make the content panel exactly fill the popup — never grow with
      content and never come up short (the page background would show
      through as black bands in dark mode); `border-box` +
@@ -100,21 +129,20 @@
       width: 100%;
     }
 
-    /* the header never scrolls or shrinks */
+    /* the header never scrolls or shrinks (side-margin overhang is
+       neutralized by the `.wrm-modal-content-header` rule above) */
     > .wrm-modal-content-header {
       flex-shrink: 0;
     }
 
     /* the body slot wrapper (the header's sibling) absorbs the
-       remaining height as a flex column; `overflow-y: auto` is only a
-       fallback for windows too short to fit even the fixed parts */
+       remaining height as a flex column */
     > .wrm-modal-content-header + div {
       display: flex;
       flex: 1 1 auto;
       flex-direction: column;
       min-height: 0;
       overflow-y: auto;
-      overflow-x: hidden;
 
       /* fixed (non-scrolling) parts: greeting, separator, etc. */
       > * {
@@ -139,25 +167,16 @@
             flex-shrink: 0;
           }
 
-          /* the wallet list region is the only shrinkable part, down
-             to ~one wallet row (below that, the body fallback scroll
-             takes over); the list itself scrolls — never a wrapper
-             around it, which would nest two scrollbars */
-          > .wrm-flex-column-stretch {
-            flex-shrink: 1;
-            min-height: 62px;
-
-            &:not(.wrm-hint-list) {
-              overflow-y: hidden;
-            }
-          }
-
+          /* the wallet list is the only shrinkable part and the only
+             scroller; it grows with available space and shrinks to ~one
+             wallet row. Target it by its own class — NOT the generic
+             `.wrm-flex-column-stretch`, which upstream also applies to a
+             wrapper div around the integrated list, so styling that
+             class reached the wrong element and nested scrollers. */
           .wrm-hint-list {
             flex: 1 1 auto;
-            /* always show at least ~one wallet row */
             min-height: 62px;
-            /* grow with available space instead of the fixed 200px
-               cap used in the 3p dialog */
+            /* grow instead of the fixed 200px cap used in the 3p dialog */
             max-height: none;
           }
         }
