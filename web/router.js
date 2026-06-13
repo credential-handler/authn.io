@@ -30,6 +30,15 @@ export async function createRouter() {
         /* webpackChunkName: "FirstPartyMediatorPage" */
         './routes/FirstPartyMediatorPage.vue'),
       meta: {title: 'Allow Wallet'}
-    }]
+    },
+    // dev-only harness for exercising the wallet chooser dialog layout
+    // without CHAPI; excluded from production builds
+    ...(process.env.NODE_ENV !== 'production' ? [{
+      path: '/test/wallet-chooser',
+      component: () => import(
+        /* webpackChunkName: "TestWalletChooser" */
+        './routes/TestWalletChooser.vue'),
+      meta: {title: 'Test Wallet Chooser'}
+    }] : [])]
   });
 }
