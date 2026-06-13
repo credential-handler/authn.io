@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 7.4.4 - 2026-06-dd
+## 7.4.4 - 2026-06-13
 
 ### Fixed
 - Make dark mode hint list items look more like buttons.
