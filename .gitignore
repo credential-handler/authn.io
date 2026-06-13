@@ -18,3 +18,9 @@ authn.localhost-access.log
 authn.localhost-access1.log
 bedrock
 static/images/logo-*.png
+
+# Playwright
+/test-results
+/playwright-report
+/blob-report
+/test/e2e/gallery

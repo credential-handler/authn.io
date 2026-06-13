@@ -1,0 +1,129 @@
+/*!
+ * New BSD License (3-clause)
+ * Copyright (c) 2026, Digital Bazaar, Inc.
+ * All rights reserved.
+ */
+import {expect, test} from '@playwright/test';
+
+/* Geometric-invariant tests for the first party wallet chooser dialog,
+exercised via the dev-only `/test/wallet-chooser` harness route. These assert
+structural properties (no horizontal scroll, header pinned, panel fills the
+popup) rather than pixels, so they catch the layout regressions seen in the
+7.4.x series without screenshot-diff noise. */
+
+// the states the dialog must handle, keyed for readable test titles
+const STATES = [
+  {name: '0 wallets + QR', query: 'hints=0&qr=1', hints: 0, qr: true},
+  {name: '1 wallet + QR', query: 'hints=1&qr=1', hints: 1, qr: true},
+  {name: '5 wallets + QR', query: 'hints=5&qr=1', hints: 5, qr: true},
+  {name: '5 wallets, no QR', query: 'hints=5&qr=0', hints: 5, qr: false},
+  {name: '15 wallets + QR', query: 'hints=15&qr=1', hints: 15, qr: true}
+];
+
+async function gotoChooser(page, query) {
+  await page.goto(`/test/wallet-chooser?${query}`);
+  // wait for the dialog content to render
+  await page.locator('.wrm-modal-1p .wrm-modal-content').waitFor();
+}
+
+for(const state of STATES) {
+  test.describe(state.name, () => {
+    test.beforeEach(async ({page}) => gotoChooser(page, state.query));
+
+    test('renders the expected number of wallet hints', async ({page}) => {
+      await expect(page.locator('.wrm-hint-list .wrm-selectable'))
+        .toHaveCount(state.hints);
+    });
+
+    test('shows no horizontal scrollbar', async ({page}) => {
+      // the 7.4.1 regression produced a horizontal scrollbar on the 1p
+      // content. Assert the document does not scroll horizontally.
+      const scrolls = await page.evaluate(() =>
+        document.documentElement.scrollWidth > window.innerWidth);
+      expect(scrolls).toBe(false);
+    });
+
+    // NOTE: the stricter assertion below detects horizontal OVERFLOW
+    // itself (content wider than its box), not just the scrollbar. On
+    // current `main` it FAILS because 7.4.1 only clips the overflow with
+    // `overflow-x: hidden` rather than fixing the root cause (the header's
+    // `margin: -15px` overhang). It is skipped here and should be enabled
+    // together with the root-cause fix on `fix-1p-flex-sizing-rootcause`.
+    test.skip('has no horizontal overflow (enable with root-cause fix)',
+      async ({page}) => {
+        const offenders = await page.evaluate(() => {
+          const out = [];
+          for(const el of document.querySelectorAll('.wrm-modal-1p *')) {
+            if(el.scrollWidth - el.clientWidth > 1) {
+              out.push(`${el.className || el.tagName} ` +
+                `(scrollW ${el.scrollWidth} > clientW ${el.clientWidth})`);
+            }
+          }
+          return out;
+        });
+        expect(offenders, offenders.join('; ')).toEqual([]);
+      });
+
+    test('does not scroll the popup window', async ({page}) => {
+      // only an inner region may scroll; the window itself must not (that
+      // scrolled the header/Close button away and stacked scrollbars)
+      const windowScrolls = await page.evaluate(() =>
+        document.documentElement.scrollHeight > window.innerHeight + 1);
+      expect(windowScrolls).toBe(false);
+    });
+
+    test('keeps the header pinned while the list scrolls', async ({page}) => {
+      const header = page.locator('.wrm-modal-1p .wrm-modal-content-header')
+        .first();
+      const before = await header.boundingBox();
+      // scroll the wallet list to its end, if it scrolls at all
+      await page.evaluate(() => {
+        const list = document.querySelector('.wrm-hint-list');
+        if(list) {
+          list.scrollTop = list.scrollHeight;
+        }
+      });
+      const after = await header.boundingBox();
+      expect(after.y).toBeCloseTo(before.y, 0);
+    });
+
+    test('panel fills the popup width (no background bleed)',
+      async ({page}) => {
+        // the content panel must span the full popup width; gaps showed the
+        // page background as dark bands
+        const fills = await page.evaluate(() => {
+          const panel = document.querySelector(
+            '.wrm-modal-1p .wrm-modal-content');
+          return Math.abs(panel.getBoundingClientRect().width -
+            window.innerWidth) <= 1;
+        });
+        expect(fills).toBe(true);
+      });
+
+    if(state.qr && state.hints > 0) {
+      test('shows the cross-device expander, collapsed', async ({page}) => {
+        await expect(page.locator('.cross-device-toggle')).toBeVisible();
+        await expect(page.locator('img[alt*="QR"]')).toHaveCount(0);
+      });
+
+      test('expands the QR code when the prompt is clicked', async ({page}) => {
+        await page.locator('.cross-device-toggle').click();
+        await expect(page.locator('img[alt*="QR"]')).toBeVisible();
+      });
+    }
+
+    if(state.qr && state.hints === 0) {
+      test('shows the QR code immediately, no expander', async ({page}) => {
+        await expect(page.locator('.cross-device-toggle')).toHaveCount(0);
+        await expect(page.locator('img[alt*="QR"]')).toBeVisible();
+      });
+    }
+
+    if(!state.qr) {
+      test('shows no cross-device section', async ({page}) => {
+        await expect(page.locator('.cross-device-toggle')).toHaveCount(0);
+        await expect(page.locator('img[alt*="QR"]')).toHaveCount(0);
+      });
+    }
+  });
+}

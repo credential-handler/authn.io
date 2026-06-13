@@ -8,7 +8,8 @@
   },
   "scripts": {
     "start": "node authn.localhost.js",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:e2e": "playwright test wallet-chooser"
   },
   "repository": {
     "type": "git",
@@ -37,6 +38,7 @@
   },
   "devDependencies": {
     "@digitalbazaar/eslint-config": "^8.0.1",
+    "@playwright/test": "^1.60.0",
     "eslint": "^9.39.4"
   },
   "engines": {
