@@ -13,4 +13,4 @@ export const DEFAULT_HANDLER_POPUP_HEIGHT = 600;
 export const DEFAULT_HINT_CHOOSER_POPUP_WIDTH = 500;
 export const DEFAULT_HINT_CHOOSER_POPUP_HEIGHT = 440;
 // taller hint chooser popup that fits the cross-device QR section
-export const DEFAULT_CROSS_DEVICE_HINT_CHOOSER_POPUP_HEIGHT = 640;
+export const DEFAULT_CROSS_DEVICE_HINT_CHOOSER_POPUP_HEIGHT = 560;

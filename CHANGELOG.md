@@ -1,5 +1,10 @@
 # authn.io ChangeLog
 
+## 7.4.2 - 2026-06-dd
+
+### Fixed
+- Reduce hint chooser popup height.
+
 ## 7.4.1 - 2026-06-12
 
 ### Fixed
