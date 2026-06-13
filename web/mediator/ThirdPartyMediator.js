@@ -459,7 +459,8 @@ function _updateHandlerWindow({webAppWindow}) {
       // Options for cancelation behavior are:
       // this.cancelSelection -- close handler UI but keep CHAPI UI up
       // this.cancel -- close CHAPI entirely
-      this.cancelSelection();
+      //this.cancelSelection();
+      this.cancel();
     };
     dialog.addEventListener('close', abort);
     return;
