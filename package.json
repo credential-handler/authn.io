@@ -1,6 +1,6 @@
 {
   "name": "authio",
-  "version": "7.4.4",
+  "version": "7.4.3",
   "type": "module",
   "main": "./lib/index.js",
   "browser": {
@@ -8,7 +8,9 @@
   },
   "scripts": {
     "start": "node authn.localhost.js",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:e2e": "playwright test wallet-chooser",
+    "gallery": "playwright test gallery && node test/e2e/build-gallery-index.js"
   },
   "repository": {
     "type": "git",
@@ -37,6 +39,7 @@
   },
   "devDependencies": {
     "@digitalbazaar/eslint-config": "^8.0.1",
+    "@playwright/test": "^1.60.0",
     "eslint": "^9.39.4"
   },
   "engines": {
