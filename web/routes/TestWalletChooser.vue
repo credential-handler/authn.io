@@ -23,7 +23,6 @@
 /*!
  * New BSD License (3-clause)
  * Copyright (c) 2026, Digital Bazaar, Inc.
- * All rights reserved.
  */
 import {computed} from 'vue';
 import MediatorWizard from '../components/MediatorWizard.vue';

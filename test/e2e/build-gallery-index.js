@@ -1,7 +1,6 @@
 /*!
  * New BSD License (3-clause)
  * Copyright (c) 2026, Digital Bazaar, Inc.
- * All rights reserved.
  */
 import {fileURLToPath} from 'node:url';
 import fs from 'node:fs/promises';
