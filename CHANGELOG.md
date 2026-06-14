@@ -1,12 +1,12 @@
 # authn.io ChangeLog
 
-## 7.5.0 - 2026-06-dd
+## 7.5.0 - 2026-06-14
 
 ### Added
-- Add an automated visual/layout test suite for the first party wallet
-  chooser dialog. A dev-only `/test/wallet-chooser` harness route
-  renders the dialog with fake state across wallet counts and the
-  cross-device QR section (excluded from production builds);
+- Non-API change: Add an automated visual/layout test suite for the
+  first party wallet chooser dialog. A dev-only `/test/wallet-chooser`
+  harness route renders the dialog with fake state across wallet counts
+  and the cross-device QR section (excluded from production builds);
   `npm run test:e2e` asserts layout invariants on desktop Chromium,
   WebKit, and Firefox plus emulated iPhone and Pixel phone sizes, and
   `npm run gallery` produces a browsable screenshot gallery. No
