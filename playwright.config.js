@@ -12,7 +12,12 @@ export default defineConfig({
   // the dialog suite is layout-only and deterministic; fail fast in CI
   forbidOnly: !!process.env.CI,
   retries: 0,
-  reporter: 'list',
+  // `list` for readable output everywhere; in CI also emit the `github`
+  // reporter, which surfaces failed and skipped/fixme tests as inline
+  // GitHub annotations on the run and PR (e.g. the deferred
+  // `has no horizontal overflow` checks show up rather than vanishing
+  // into the summary's skipped count)
+  reporter: process.env.CI ? [['list'], ['github']] : 'list',
   use: {
     baseURL: BASE_URL,
     // the dev server uses a self-signed localhost certificate
