@@ -1,7 +1,6 @@
 /*!
  * New BSD License (3-clause)
  * Copyright (c) 2026, Digital Bazaar, Inc.
- * All rights reserved.
  */
 import {expect, test} from '@playwright/test';
 import {fileURLToPath} from 'node:url';

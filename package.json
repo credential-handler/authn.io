@@ -1,6 +1,6 @@
 {
   "name": "authio",
-  "version": "7.5.0",
+  "version": "7.4.4",
   "type": "module",
   "main": "./lib/index.js",
   "browser": {

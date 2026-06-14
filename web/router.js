@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2023 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2023-2026 Digital Bazaar, Inc.
  */
 import {createRouter as _createRouter, createWebHistory} from 'vue-router';
 
