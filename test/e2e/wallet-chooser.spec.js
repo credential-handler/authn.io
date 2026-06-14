@@ -48,17 +48,17 @@ for(const state of STATES) {
     // not just the resulting scrollbar — so the `overflow-x: hidden`
     // band-aid in the 1p dialog CSS cannot make it a false pass.
     //
-    // FIXME for now: this currently fails because the dialog still
-    // relies on that band-aid to hide a real overflow (the headers and
-    // separators bleed their border edge-to-edge with a negative side
-    // margin that overhangs the border-box flex layout). The fix is
-    // deferred until the styles are reworked against code we own — after
+    // KNOWN FAILING: this fails today because the dialog still relies on
+    // that band-aid to hide a real overflow (the headers and separators
+    // bleed their border edge-to-edge with a negative side margin that
+    // overhangs the border-box flex layout). It is left active, not
+    // skipped, so it shows up as a red test when the suite is run locally
+    // — a standing reminder of the deferred CSS work. The fix comes after
     // the components we use are pulled out of `vue-web-request-mediator`
-    // and that dependency is removed. `fixme` (not `skip`) so the runner
-    // reports it as a known-broken test to re-enable, not a silent skip.
-    // Drop the `.fixme` as part of that CSS work; it is the guard that
-    // proves the band-aid can be removed.
-    test.fixme('has no horizontal overflow', async ({page}) => {
+    // and that dependency is removed; this test then turns green and
+    // proves the band-aid can be removed. (CI does not run this suite
+    // yet, so this failure does not gate anything.)
+    test('has no horizontal overflow', async ({page}) => {
       const offenders = await page.evaluate(() => {
         const out = [];
         for(const el of document.querySelectorAll('.wrm-modal-1p *')) {
