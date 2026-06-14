@@ -1,6 +1,8 @@
-name: Lint CI
+name: Lint and Test CI
 
 on: [push]
+
+permissions: {}
 
 jobs:
   lint:
@@ -18,3 +20,24 @@ jobs:
     - run: npm install
     - name: Run ESLint
       run: npm run lint
+  test-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        node-version: [24.x]
+    steps:
+    - uses: actions/checkout@v6
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm install
+    # the dev server binds the `authn.localhost` domain (config.server.domain);
+    # map it to loopback so Playwright's webServer can reach it in CI
+    - name: Map authn.localhost to loopback
+      run: echo "127.0.0.1 authn.localhost" | sudo tee -a /etc/hosts
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps chromium webkit firefox
+    - name: Run the wallet chooser layout suite
+      run: npm run test:e2e
