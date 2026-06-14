@@ -1,5 +1,13 @@
 # authn.io ChangeLog
 
+## 7.5.1 - 2026-06-dd
+
+### Added
+- Add a small Playwright reporter that prints a `Totals: N/M passed`
+  line at the end of `npm run test:e2e`, so the total test count is
+  visible without scrolling up and summing the per-outcome counts the
+  `list` reporter prints.
+
 ## 7.5.0 - 2026-06-dd
 
 ### Added

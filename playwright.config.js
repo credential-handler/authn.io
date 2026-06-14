@@ -12,7 +12,10 @@ export default defineConfig({
   // the dialog suite is layout-only and deterministic; fail fast in CI
   forbidOnly: !!process.env.CI,
   retries: 0,
-  reporter: 'list',
+  // `list` streams per-test results; `totalsReporter` appends an explicit
+  // "N/M passed" line at the end so the total test count is visible without
+  // scrolling up and adding the outcome counts by hand
+  reporter: [['list'], ['./test/e2e/totalsReporter.js']],
   use: {
     baseURL: BASE_URL,
     // the dev server uses a self-signed localhost certificate
