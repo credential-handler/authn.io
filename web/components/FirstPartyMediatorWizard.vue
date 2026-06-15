@@ -16,6 +16,7 @@
     :show-hint-chooser="showHintChooser"
     @allow="allow()"
     @cancel="cancel()"
+    @cross-device="crossDevice()"
     @deny="deny()"
     @remove-hint="removeHint"
     @select-hint="selectHint"
@@ -26,7 +27,6 @@
 /*!
  * New BSD License (3-clause)
  * Copyright (c) 2017-2026, Digital Bazaar, Inc.
- * All rights reserved.
  */
 import {computed, onMounted, ref, toRaw} from 'vue';
 import {FirstPartyMediator} from '../mediator/FirstPartyMediator.js';
@@ -59,6 +59,10 @@ export default {
     const cancel = async () => {
       loading.value = true;
       return mediator.cancel();
+    };
+    const crossDevice = async () => {
+      loading.value = true;
+      return mediator.crossDevice();
     };
     const deny = async () => {
       loading.value = true;
@@ -127,7 +131,7 @@ export default {
       hints, interactionUrl, loading, requestType, selectedHint, show,
       showHintChooser,
       // methods
-      allow, cancel, deny, removeHint, selectHint, webShare
+      allow, cancel, crossDevice, deny, removeHint, selectHint, webShare
     };
   }
 };

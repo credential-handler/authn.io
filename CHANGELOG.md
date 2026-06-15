@@ -1,5 +1,11 @@
 # authn.io ChangeLog
 
+## 7.5.1 - 2026-06-dd
+
+### Fixed
+- Pass cross-device selection by the user (e.g., the user choosing to
+  "close" after scanning a QR code) to the original JS API caller.
+
 ## 7.5.0 - 2026-06-14
 
 ### Added

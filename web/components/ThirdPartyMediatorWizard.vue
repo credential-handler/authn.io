@@ -14,6 +14,7 @@
     :show-hint-chooser="showHintChooser"
     @allow="allow()"
     @cancel="cancel()"
+    @cross-device="crossDevice()"
     @deny="deny()"
     @focus-first-party-dialog="focusFirstPartyDialog()"
     @open-first-party-dialog="openFirstPartyDialog()"
@@ -40,7 +41,6 @@
 /*!
  * New BSD License (3-clause)
  * Copyright (c) 2017-2026, Digital Bazaar, Inc.
- * All rights reserved.
  */
 import {computed, createApp, onMounted, ref, toRaw} from 'vue';
 import HandlerWindowHeader from './HandlerWindowHeader.vue';
@@ -111,11 +111,19 @@ export default {
         }
 
         // handle all other cases
-        const {choice} = await mediator.getHintChoiceWithFirstPartyMediator(
-          {opened, closed});
-        // if a choice was made... (vs. closing the window)
+        const {
+          choice,
+          response
+        } = await mediator.getHintChoiceWithFirstPartyMediator({
+          opened, closed
+        });
+        // if a choice was made...
+        // (vs. cross-device response vs. closing the window)
         if(choice) {
           selectHint({...choice, waitUntil: () => {}});
+        } else if(response) {
+          // cross-device response
+          await mediator.crossDevice({response});
         } else {
           await cancel();
         }

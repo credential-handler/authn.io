@@ -84,6 +84,16 @@ export class ThirdPartyMediator extends BaseMediator {
     }
   }
 
+  async crossDevice({response} = {}) {
+    try {
+      this.deferredCredentialOperation.resolve(response);
+      await this.hide();
+      await navigator.credentialMediator.hide();
+    } catch(e) {
+      console.error(e);
+    }
+  }
+
   async denyCredentialHandler() {
     return this._finishPermissionRequest({state: 'denied'});
   }
@@ -167,8 +177,8 @@ export class ThirdPartyMediator extends BaseMediator {
         opened,
         closed
       });
-      const {choice} = result;
-      return {choice};
+      const {choice, response} = result;
+      return {choice, response};
     } catch {
       return {choice: null};
     }
