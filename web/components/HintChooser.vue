@@ -28,7 +28,7 @@
         :collapsible="hints.length > 0"
         :interaction-url="interactionUrl"
         :loading="loading"
-        @close="cancel()" />
+        @close="crossDevice()" />
       <!-- include separator before web share button if there are no hints -->
       <div
         v-if="canWebShare && hints.length === 0"
@@ -94,13 +94,14 @@ export default {
       default: ''
     }
   },
-  emits: ['cancel', 'select-hint', 'remove-hint', 'web-share'],
+  emits: ['cancel', 'cross-device', 'select-hint', 'remove-hint', 'web-share'],
   setup(props, {emit}) {
     const cancel = event => emit('cancel', event);
+    const crossDevice = event => emit('cross-device', event);
     const selectHint = event => emit('select-hint', event);
     const removeHint = event => emit('remove-hint', event);
     const webShare = () => emit('web-share');
-    return {cancel, removeHint, selectHint, webShare};
+    return {cancel, crossDevice, removeHint, selectHint, webShare};
   }
 };
 </script>

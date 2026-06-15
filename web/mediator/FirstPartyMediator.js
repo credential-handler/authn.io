@@ -93,6 +93,18 @@ export class FirstPartyMediator extends BaseMediator {
     window.close();
   }
 
+  async crossDevice() {
+    this.proxiedEvent.respondWith({
+      response: {
+        type: 'web',
+        dataType: 'OutOfBand',
+        data: null
+      }
+    });
+    this.selectedHint = null;
+    await this.hide();
+  }
+
   async denyCredentialHandler() {
     const status = {state: 'denied'};
     try {

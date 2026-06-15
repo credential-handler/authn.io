@@ -36,6 +36,7 @@
         :loading="loading"
         :request-type="requestType"
         @cancel="cancel()"
+        @cross-device="crossDevice()"
         @remove-hint="removeHint"
         @select-hint="selectHint"
         @web-share="webShare()">
@@ -114,7 +115,6 @@
 /*!
  * New BSD License (3-clause)
  * Copyright (c) 2017-2026, Digital Bazaar, Inc.
- * All rights reserved.
  */
 import {computed, toRef} from 'vue';
 import {WrmHint, WrmWizardDialog} from 'vue-web-request-mediator';
@@ -190,7 +190,7 @@ export default {
     }
   },
   emits: [
-    'allow', 'cancel', 'deny',
+    'allow', 'cancel', 'cross-device', 'deny',
     'focus-first-party-dialog', 'open-first-party-dialog',
     'remove-hint', 'select-hint', 'web-share'
   ],
@@ -256,6 +256,7 @@ export default {
 
     const allow = () => emit('allow');
     const cancel = () => emit('cancel');
+    const crossDevice = () => emit('cross-device');
     const deny = () => emit('deny');
     const focusFirstPartyDialog = () => emit('focus-first-party-dialog');
     const next = () => emit('open-first-party-dialog');
@@ -267,7 +268,7 @@ export default {
       credentialRequestOriginName, firstPartyDialogFocusText,
       greetingIconSize, hasCustomFooter, headerLoading, headerTitle,
       // methods
-      allow, cancel, deny, focusFirstPartyDialog, next,
+      allow, cancel, crossDevice, deny, focusFirstPartyDialog, next,
       removeHint, selectHint, webShare
     };
   }
