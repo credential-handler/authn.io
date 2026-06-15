@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 7.5.1 - 2026-06-dd
+## 7.5.1 - 2026-06-15
 
 ### Fixed
 - Pass cross-device selection by the user (e.g., the user choosing to
