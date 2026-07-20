@@ -1,5 +1,13 @@
 # authn.io ChangeLog
 
+## 7.5.2 - 2026-07-dd
+
+### Changed
+- Reword the first party wallet chooser permission dialog to describe
+  the concrete action ("appear as an option when you're asked to share
+  or store information on other websites") instead of the abstract
+  "manage credentials for you". Addresses #150.
+
 ## 7.5.1 - 2026-06-15
 
 ### Fixed
