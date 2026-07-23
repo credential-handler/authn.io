@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 7.6.0 - 2026-07-dd
+## 7.6.0 - 2026-07-23
 
 ### Changed
 - Reword the first party wallet chooser permission dialog to describe
