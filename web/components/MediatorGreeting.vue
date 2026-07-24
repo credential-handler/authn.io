@@ -5,7 +5,7 @@
     </div>
     <div else>
       <div style="font-size: 14px; padding-top: 10px">
-        The following website {{websiteDesire}}
+        This site {{websiteDesire}}
       </div>
       <WrmOriginCard
         style="padding: 20px 0 10px 0"
@@ -57,9 +57,8 @@ export default {
       if(requestType.value === 'credentialStore') {
         return 'has credentials for you to store:';
       }
-      return 'This site wants to be a digital wallet option when ' +
-        'other sites ask you to share or store information: ';
-
+      return 'wants to be a digital wallet option when other sites' +
+        ' ask you to share or store information';
     });
     return {websiteDesire};
   }
