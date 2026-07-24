@@ -57,8 +57,9 @@ export default {
       if(requestType.value === 'credentialStore') {
         return 'has credentials for you to store:';
       }
-      return 'wants to appear as an option when you\'re asked to share or ' +
-        'store information on other websites:';
+      return 'This site wants to be a digital wallet option when ' +
+        'other sites ask you to share or store information: ';
+
     });
     return {websiteDesire};
   }
