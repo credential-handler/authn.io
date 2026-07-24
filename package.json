@@ -10,6 +10,7 @@
     "start": "node authn.localhost.js",
     "lint": "eslint",
     "test:e2e": "playwright test wallet-chooser",
+    "test:unit": "node --test \"test/unit/*.spec.js\"",
     "gallery": "playwright test gallery && node test/e2e/build-gallery-index.js"
   },
   "repository": {

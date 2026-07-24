@@ -2,7 +2,7 @@
   <MediatorWizard
     :can-web-share="false"
     :credential-request-origin="credentialRequestOrigin"
-    :credential-request-origin-manifest="null"
+    :credential-request-origin-manifest="credentialRequestOriginManifest"
     :has-storage-access="true"
     :hints="hints"
     :interaction-url="interactionUrl"
@@ -35,7 +35,15 @@ QR section, and request types without any CHAPI registration, iframes, or
 popups. Registered in `router.js` only outside production. Examples:
   /test/wallet-chooser?hints=5&qr=1
   /test/wallet-chooser?hints=0&qr=1
-  /test/wallet-chooser?hints=1&type=permissionRequest */
+  /test/wallet-chooser?hints=1&type=permissionRequest
+  /test/wallet-chooser?type=permissionRequest&name=Demo%20Wallet
+  /test/wallet-chooser?type=permissionRequest&manifest=0 */
+/* An icon served from the mediator's own origin. It must be an absolute
+`http(s)` URL: `getWebAppManifestIcon` resolves any other `src` as a path
+relative to the *wallet's* origin, which for a fake test origin cannot load
+(and mangles a `data:` URI). */
+const ICON_URL = `${window.location.origin}/favicon.ico`;
+
 export default {
   name: 'TestWalletChooser',
   components: {MediatorWizard},
@@ -82,6 +90,32 @@ export default {
     const credentialRequestOrigin = computed(() =>
       route.query.origin || 'https://verifier.example');
 
+    /* A manifest makes `WrmOriginCard` render its full form: the large icon
+    plus a name line stacked above the origin line, instead of the origin
+    alone. That taller card is what the real dialog shows for any site with a
+    web app manifest, so the no-manifest default under-reports the greeting's
+    height. `name=` sets the displayed name; `manifest=0` forces the bare
+    origin form. */
+    const credentialRequestOriginManifest = computed(() => {
+      const {manifest, name} = route.query;
+      if(manifest === '0' || manifest === 'false') {
+        return null;
+      }
+      return {
+        name: name || 'Demo Wallet',
+        /* A loadable icon so the card renders at its real (tallest) height.
+        Without `icons`, the icon falls back to `<origin>/favicon.ico`, which
+        cannot load for a fake test origin and collapses to a small default
+        glyph — under-reporting the greeting height for any real wallet that
+        does have an icon. */
+        icons: [{
+          src: ICON_URL,
+          sizes: '48x48',
+          type: 'image/svg+xml'
+        }]
+      };
+    });
+
     /* mirror `FirstPartyMediatorWizard`: the chooser is shown for every
     request type except a permission request (which shows the allow/deny
     greeting instead). This is what surfaces the chooser with zero hints. */
@@ -91,8 +125,8 @@ export default {
     const noop = () => {};
 
     return {
-      credentialRequestOrigin, hints, interactionUrl, noop, requestType,
-      showHintChooser
+      credentialRequestOrigin, credentialRequestOriginManifest, hints,
+      interactionUrl, noop, requestType, showHintChooser
     };
   }
 };

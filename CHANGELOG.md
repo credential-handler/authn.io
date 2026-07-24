@@ -1,5 +1,27 @@
 # authn.io ChangeLog
 
+## 7.6.1 - 2026-07-dd
+
+### Fixed
+- Stop clipping the first party "Allow Wallet" permission dialog. The
+  popup height was a fixed guess (230px, plus a 30px URL bar allowance
+  applied only when the user agent looked like Firefox), so the wallet
+  row was cut off mid-line whenever the browser's popup chrome or the
+  greeting's wrapping exceeded that guess. The dialog fills the popup and
+  scrolls internally, so this surfaced as clipped content rather than a
+  scrollable window. The allowance now applies to every browser (Chrome
+  and Safari also show a URL bar in popups, and user agent sniffing
+  cannot predict the real chrome height), and the popup measures its own
+  content once loaded and resizes to fit, replacing both guesses with a
+  measurement.
+
+### Added
+- Non-API change: Add unit tests for the popup self-sizing logic and a
+  geometric-invariant test suite for the "Allow Wallet" dialog.
+- Non-API change: Let the dev-only wallet chooser test harness render an
+  origin manifest (name and icon), so it reproduces the taller greeting
+  the real dialog shows for a site with a web app manifest.
+
 ## 7.6.0 - 2026-07-23
 
 ### Changed
