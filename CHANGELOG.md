@@ -1,5 +1,13 @@
 # authn.io ChangeLog
 
+## 7.7.0 - 2026-mm-dd
+
+### Changed
+- Update dependencies:
+  - `@bedrock/config-yaml@4.5.0`
+  - `@digitalbazaar/http-client@4.4.0`
+  - `content-type@2.1`.
+
 ## 7.6.0 - 2026-07-23
 
 ### Changed
