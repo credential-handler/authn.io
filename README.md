@@ -55,8 +55,21 @@ software on a local development machine.
 
 ### Configuration
 
-The options in the `./configs/authn.localhost.js` file can be tuned to your
-environment as needed.
+The options in the `./configs/dev.js` file can be tuned to your environment as
+needed.
+
+Prefer a local override to editing that file, since it is checked in. Copy the
+example and edit the copy:
+
+    cp configs/local.js.example configs/local.js
+
+`configs/local.js` is imported last when it exists, so its settings win, and it
+is gitignored. Delete it to go back to the defaults. The server reads it at
+startup, so restart after changing it.
+
+The example covers the case it exists for: serving the mediator under a tunnel
+hostname so a phone can reach it, which needs `server.host` and
+`server.baseUri` changed and cannot be done from a checked-in file.
 
 ### Setup
 
