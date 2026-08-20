@@ -8,6 +8,7 @@
 TAGS
 bower_components
 configs/*-secrets.js
+configs/local.js
 coverage
 node_modules
 npm-debug.log
