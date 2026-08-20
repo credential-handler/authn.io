@@ -7,6 +7,7 @@
  * All rights reserved.
  */
 import {config} from '@bedrock/core';
+import {existsSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
@@ -22,3 +23,12 @@ config.paths.log = path.join(os.tmpdir(), 'authn.localhost');
 // note: this also exposes the mediator on all LAN interfaces, not just
 // Docker's bridge — acceptable for local dev, avoid on shared networks.
 config.server.bindAddr = ['0.0.0.0'];
+
+/* Optional local overrides, loaded last so they win. `configs/local.js` is
+gitignored, so machine-specific settings -- e.g. pointing `server.domain` at
+a tunnel hostname so a phone can reach the mediator -- stay out of the
+tracked config. */
+const localConfigPath = path.join(__dirname, 'local.js');
+if(existsSync(localConfigPath)) {
+  await import(localConfigPath);
+}
