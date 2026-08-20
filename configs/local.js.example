@@ -1,0 +1,36 @@
+/*!
+ * Example local development overrides.
+ *
+ * Copy to `configs/local.js` and edit. That path is gitignored, so machine
+ * specific settings stay out of the tracked config.
+ *
+ * Copyright (c) 2026, Digital Bazaar, Inc.
+ */
+import {config} from '@bedrock/core';
+
+/* Serve the mediator under a tunnel hostname, so a phone can reach it.
+
+`server.host` and `server.baseUri` are what the HTTP->HTTPS redirect and the
+mediator's own origin checks use. Left at their defaults, a request arriving
+through a tunnel is redirected to `https://authn.localhost:33443`, which
+resolves only on the machine running the server -- so the mediator iframe
+fails to load on a phone.
+
+Set these two derived values rather than `server.domain`: that also drives
+`server.bindAddr`, and `server.host` appends `server.port` unless the port is
+443. Overriding the port to 443 would stop the server listening on 33443
+locally. Setting `host` and `baseUri` leaves the local ports (33443 HTTPS,
+33080 HTTP) alone, so `https://authn.localhost:33443` keeps working alongside
+the tunnel.
+
+Point the tunnel at the HTTPS port (33443), not the HTTP one. The HTTP port
+redirects unconditionally to `https://<server.host>`, which with a tunnel
+hostname redirects to itself forever. For example, with ngrok:
+
+  ngrok http --url=YOUR-HOSTNAME.ngrok.app \
+    --upstream-tls-verify=false https://localhost:33443
+
+Coordinator sites under test must point their CHAPI mediator origin at the
+same hostname. */
+config.server.host = 'YOUR-HOSTNAME.ngrok.app';
+config.server.baseUri = 'https://YOUR-HOSTNAME.ngrok.app';
