@@ -4,24 +4,30 @@
  * Copy to `configs/local.js` and edit. That path is gitignored, so machine
  * specific settings stay out of the tracked config.
  *
+ * Assign config values only. This file is imported after `lib/index.js` has
+ * imported `@bedrock/config-yaml`, so registering a `bedrock.events` handler
+ * here fails with `"bedrock-config-yaml" must be the last import`.
+ *
  * Copyright (c) 2026, Digital Bazaar, Inc.
  */
 import {config} from '@bedrock/core';
 
 /* Serve the mediator under a tunnel hostname, so a phone can reach it.
 
-`server.host` and `server.baseUri` are what the HTTP->HTTPS redirect and the
-mediator's own origin checks use. Left at their defaults, a request arriving
-through a tunnel is redirected to `https://authn.localhost:33443`, which
-resolves only on the machine running the server -- so the mediator iframe
-fails to load on a phone.
+`server.host` is what the HTTP->HTTPS redirect uses. Left at its default, a
+request arriving through a tunnel is redirected to
+`https://authn.localhost:33443`, which resolves only on the machine running
+the server -- so the mediator iframe fails to load on a phone.
 
-Set these two derived values rather than `server.domain`: that also drives
-`server.bindAddr`, and `server.host` appends `server.port` unless the port is
-443. Overriding the port to 443 would stop the server listening on 33443
-locally. Setting `host` and `baseUri` leaves the local ports (33443 HTTPS,
-33080 HTTP) alone, so `https://authn.localhost:33443` keeps working alongside
-the tunnel.
+Set `server.host` rather than `server.domain`: `host` is derived as
+`domain + ':' + port` unless the port is 443, so overriding `domain` yields a
+tunnel hostname with the local port glued on. Overriding the port to 443 to
+avoid that would stop the server listening on 33443. Setting `host` leaves
+both local ports (33443 HTTPS, 33080 HTTP) alone.
+
+`server.baseUri` needs no override: it is the lazily-evaluated template
+`https://${server.host}`, so it follows `host` automatically. Setting both
+means two values that have to agree.
 
 Point the tunnel at the HTTPS port (33443), not the HTTP one. The HTTP port
 redirects unconditionally to `https://<server.host>`, which with a tunnel
@@ -31,6 +37,20 @@ hostname redirects to itself forever. For example, with ngrok:
     --upstream-tls-verify=false https://localhost:33443
 
 Coordinator sites under test must point their CHAPI mediator origin at the
-same hostname. */
+same hostname.
+
+One side effect while this is set: `@bedrock/express` sends
+`Access-Control-Allow-Private-Network` only when `server.host` contains
+`localhost`, so a coordinator site on a public origin that reaches the local
+mediator *directly* -- rather than through the tunnel -- will start failing
+Chrome's private-network preflight. Traffic through the tunnel is unaffected.
+Delete this file to restore the header. */
 config.server.host = 'YOUR-HOSTNAME.ngrok.app';
-config.server.baseUri = 'https://YOUR-HOSTNAME.ngrok.app';
+
+/* `configs/dev.js` binds to all interfaces so Docker containers can reach the
+host via `host.docker.internal`. That also exposes the dev mediator on every
+LAN interface, which is worth avoiding on a shared or public network. Restrict
+it here when you do not need Docker access:
+
+config.server.bindAddr = ['127.0.0.1'];
+*/

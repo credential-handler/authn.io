@@ -6,9 +6,9 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
+import {fileURLToPath, pathToFileURL} from 'node:url';
 import {config} from '@bedrock/core';
 import {existsSync} from 'node:fs';
-import {fileURLToPath} from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -25,10 +25,23 @@ config.paths.log = path.join(os.tmpdir(), 'authn.localhost');
 config.server.bindAddr = ['0.0.0.0'];
 
 /* Optional local overrides, loaded last so they win. `configs/local.js` is
-gitignored, so machine-specific settings -- e.g. pointing `server.domain` at
-a tunnel hostname so a phone can reach the mediator -- stay out of the
-tracked config. */
+gitignored, so machine-specific settings -- e.g. pointing `server.host` at a
+tunnel hostname so a phone can reach the mediator -- stay out of the tracked
+config. See `configs/local.js.example`.
+
+This is the development override channel. `@bedrock/config-yaml` (imported
+from `lib/index.js`) is another, but it reads `/etc/bedrock-config/app.yaml`
+or a base64 blob in `BEDROCK_CONFIG`, which suits deployment rather than a
+working copy.
+
+Assign config values only. The file is imported after `lib/index.js` has
+imported `@bedrock/config-yaml`, so registering a `bedrock.events` handler
+here fails with `"bedrock-config-yaml" must be the last import`.
+
+`pathToFileURL` because `import()` takes a URL, not a filesystem path: a
+checkout under a directory containing `#` truncates at the fragment, and a
+Windows path parses its drive letter as a URL scheme. */
 const localConfigPath = path.join(__dirname, 'local.js');
 if(existsSync(localConfigPath)) {
-  await import(localConfigPath);
+  await import(pathToFileURL(localConfigPath).href);
 }

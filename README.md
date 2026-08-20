@@ -45,8 +45,8 @@ implements the [Credential Handler API][] would function.
 
 ## Requirements
 
-* Node.js v16+
-* npm v8+
+* Node.js v24+
+* npm v10+
 
 ## Development
 
@@ -68,8 +68,9 @@ is gitignored. Delete it to go back to the defaults. The server reads it at
 startup, so restart after changing it.
 
 The example covers the case it exists for: serving the mediator under a tunnel
-hostname so a phone can reach it, which needs `server.host` and
-`server.baseUri` changed and cannot be done from a checked-in file.
+hostname so a phone can reach it, which needs `server.host` changed and cannot
+be done from a checked-in file. It also shows how to restrict `server.bindAddr`
+to loopback, since `configs/dev.js` binds to all interfaces for Docker.
 
 ### Setup
 
