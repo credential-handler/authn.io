@@ -1,0 +1,65 @@
+# Example local development overrides.
+#
+# Copy to `configs/app.yaml` and edit. That path is gitignored, so machine
+# specific settings stay out of the tracked config. It is read by
+# `@bedrock/config-yaml`, which `configs/dev.js` points at this directory,
+# and applies automatically whenever the file is present.
+#
+# Do not add a top-level `app:` key here. The file is merged into the
+# configuration directly, while the `BEDROCK_CONFIG` environment variable
+# carries the same YAML indexed by config type -- so a payload passed that
+# way needs `app:` and this file must not have it. `BEDROCK_CONFIG` takes
+# precedence over this file when both are set.
+#
+# Copyright (c) 2026, Digital Bazaar, Inc.
+
+# Serve the mediator under a tunnel hostname, so a phone can reach it.
+#
+# `server.host` is what the HTTP->HTTPS redirect uses. Left at its default, a
+# request arriving through a tunnel is redirected to
+# `https://authn.localhost:33443`, which resolves only on the machine running
+# the server -- so the mediator iframe fails to load on a phone.
+#
+# Set `server.host` rather than `server.domain`: `host` is derived as
+# `domain + ':' + port` unless the port is 443, so overriding `domain` yields
+# a tunnel hostname with the local port glued on. Overriding the port to 443
+# to avoid that would stop the server listening on 33443. Setting `host`
+# leaves both local ports (33443 HTTPS, 33080 HTTP) alone.
+#
+# `server.baseUri` needs no override: it is the lazily-evaluated template
+# `https://${server.host}`, so it follows `host` automatically. Setting both
+# means two values that have to agree.
+#
+# Point the tunnel at the HTTPS port (33443), not the HTTP one. The HTTP port
+# redirects unconditionally to `https://<server.host>`, which with a tunnel
+# hostname redirects to itself forever. For example, with ngrok:
+#
+#   ngrok http --url=YOUR-HOSTNAME.ngrok.app \
+#     --upstream-tls-verify=false https://localhost:33443
+#
+# Coordinator sites under test must point their CHAPI mediator origin at the
+# same hostname.
+#
+# One side effect while this is set: `@bedrock/express` sends
+# `Access-Control-Allow-Private-Network` only when `server.host` contains
+# `localhost`, so a coordinator site on a public origin that reaches the
+# local mediator *directly* -- rather than through the tunnel -- will start
+# failing Chrome's private-network preflight. Traffic through the tunnel is
+# unaffected. Delete this file to restore the header.
+server:
+  host: YOUR-HOSTNAME.ngrok.app
+
+# Move the server off its default ports, e.g. when another service on this
+# machine already holds 33443.
+#
+#  port: 43443
+#  httpPort: 43080
+
+# Bind to all interfaces, so a Docker container can reach the host through
+# `host.docker.internal` (which maps to 192.168.65.254, not loopback).
+#
+# `configs/dev.js` binds to loopback only. Set this when you need the Docker
+# path, and be aware it publishes the dev mediator on every interface the
+# machine is attached to -- avoid it on a shared or public network.
+#
+#  bindAddr: ['0.0.0.0']

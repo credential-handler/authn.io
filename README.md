@@ -61,16 +61,23 @@ needed.
 Prefer a local override to editing that file, since it is checked in. Copy the
 example and edit the copy:
 
-    cp configs/local.js.example configs/local.js
+    cp configs/app.yaml.example configs/app.yaml
 
-`configs/local.js` is imported last when it exists, so its settings win, and it
-is gitignored. Delete it to go back to the defaults. The server reads it at
-startup, so restart after changing it.
+`configs/app.yaml` is read by `@bedrock/config-yaml`, which `configs/dev.js`
+points at the `configs` directory. It applies whenever the file is present, so
+plain `npm start` picks it up with no flag to remember, and it is gitignored.
+Delete it to go back to the defaults. The server reads it at startup, so
+restart after changing it.
 
 The example covers the case it exists for: serving the mediator under a tunnel
 hostname so a phone can reach it, which needs `server.host` changed and cannot
-be done from a checked-in file. It also shows how to restrict `server.bindAddr`
-to loopback, since `configs/dev.js` binds to all interfaces for Docker.
+be done from a checked-in file. It also shows how to move the server off its
+default ports, and how to set `server.bindAddr` to `0.0.0.0` if you need a
+Docker container to reach the host.
+
+Setting the `BEDROCK_CONFIG` environment variable overrides the file. The YAML
+it carries is indexed by config type, so that payload needs a top-level `app:`
+key and `configs/app.yaml` must not have one.
 
 ### Setup
 
