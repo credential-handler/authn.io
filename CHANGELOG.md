@@ -1,5 +1,24 @@
 # authn.io ChangeLog
 
+## 7.8.0 - 2026-09-dd
+
+### Changed
+- Bind the development server to loopback instead of every interface.
+  `configs/dev.js` set `server.bindAddr` to `['0.0.0.0']` so a Docker
+  container could reach the host through `host.docker.internal`. That also
+  published the dev mediator on every network the machine was attached to,
+  for everyone rather than only those using the Docker path. Set
+  `bindAddr: ['0.0.0.0']` in a local override to restore it.
+
+### Added
+- Non-API change: Allow local overrides of the development server config.
+  `configs/dev.js` points `@bedrock/config-yaml` at the `configs` directory,
+  so a gitignored `configs/app.yaml` overrides the tracked defaults whenever
+  it is present -- with no flag to remember, so existing scripts pick it up.
+  This makes config-yaml the single override channel rather than adding a
+  second one beside it, and `BEDROCK_CONFIG` still takes precedence for a
+  deployment. See `configs/app.yaml.example`.
+
 ## 7.7.0 - 2026-08-18
 
 ### Changed

@@ -6,9 +6,8 @@
  * Copyright (c) 2015-2016, Accreditrust Technologies, LLC
  * All rights reserved.
  */
-import {fileURLToPath, pathToFileURL} from 'node:url';
 import {config} from '@bedrock/core';
-import {existsSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -18,30 +17,34 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 config.paths.cache = path.join(__dirname, '..', '.cache');
 config.paths.log = path.join(os.tmpdir(), 'authn.localhost');
 
-// bind to all interfaces so Docker containers can reach the host via
-// host.docker.internal (which maps to 192.168.65.254, not loopback).
-// note: this also exposes the mediator on all LAN interfaces, not just
-// Docker's bridge — acceptable for local dev, avoid on shared networks.
-config.server.bindAddr = ['0.0.0.0'];
+/* Bind to loopback only. This used to be `['0.0.0.0']`, so that a Docker
+container could reach the host through `host.docker.internal` -- but that
+also published the dev mediator on every interface the machine is attached
+to, café and guest wifi included, for everyone rather than only the people
+who needed the Docker path.
 
-/* Optional local overrides, loaded last so they win. `configs/local.js` is
-gitignored, so machine-specific settings -- e.g. pointing `server.host` at a
-tunnel hostname so a phone can reach the mediator -- stay out of the tracked
-config. See `configs/local.js.example`.
+`configs/dev.js` is not what a container runs, so the exposure was paid by
+everyone and used by few. Restore it in `configs/app.yaml` when you need it:
 
-This is the development override channel. `@bedrock/config-yaml` (imported
-from `lib/index.js`) is another, but it reads `/etc/bedrock-config/app.yaml`
-or a base64 blob in `BEDROCK_CONFIG`, which suits deployment rather than a
-working copy.
+  server:
+    bindAddr: ['0.0.0.0']
 
-Assign config values only. The file is imported after `lib/index.js` has
-imported `@bedrock/config-yaml`, so registering a `bedrock.events` handler
-here fails with `"bedrock-config-yaml" must be the last import`.
+Set explicitly rather than left to the default. Bedrock computes `bindAddr`
+from `server.domain`, so an override of `domain` would otherwise move it,
+and a value that follows something else by accident is the harder kind to
+debug. */
+config.server.bindAddr = ['127.0.0.1'];
 
-`pathToFileURL` because `import()` takes a URL, not a filesystem path: a
-checkout under a directory containing `#` truncates at the fragment, and a
-Windows path parses its drive letter as a URL scheme. */
-const localConfigPath = path.join(__dirname, 'local.js');
-if(existsSync(localConfigPath)) {
-  await import(pathToFileURL(localConfigPath).href);
-}
+/* Point `@bedrock/config-yaml` at this directory, so `configs/app.yaml`
+becomes the local override file.
+
+`app.path` defaults to `/etc/bedrock-config`, which suits a deployment
+rather than a working copy. It is an ordinary config value read when
+config-yaml applies the app configuration, so development can move it. That
+makes config-yaml the single override channel here instead of a rival to a
+hand-rolled one: `configs/app.yaml` is gitignored, applies automatically
+when present, and needs no flag to remember. See `configs/app.yaml.example`.
+
+`BEDROCK_CONFIG` still takes precedence over the file when it is set, which
+is how a deployment overrides everything here. */
+config['config-yaml'].app.path = __dirname;
