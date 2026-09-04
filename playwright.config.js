@@ -4,7 +4,11 @@
  */
 import {defineConfig, devices} from '@playwright/test';
 
-const BASE_URL = 'https://authn.localhost:33443';
+/* The dev server's HTTPS port. Defaults to bedrock's 33443; override with
+`AUTHNIO_TEST_PORT` when a local `configs/app.yaml` moves the server off it
+(e.g. another service already holds 33443 on the machine). */
+const PORT = process.env.AUTHNIO_TEST_PORT || '33443';
+const BASE_URL = `https://authn.localhost:${PORT}`;
 
 export default defineConfig({
   testDir: './test/e2e',

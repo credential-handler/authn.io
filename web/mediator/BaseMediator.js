@@ -7,7 +7,11 @@ import {WebShareHandler} from './WebShareHandler.js';
 
 import {
   DEFAULT_HANDLER_POPUP_HEIGHT,
-  DEFAULT_HANDLER_POPUP_WIDTH
+  DEFAULT_HANDLER_POPUP_WIDTH,
+  IS_MOBILE_DEVICE,
+  SUPPORTS_WEB_WALLET_LINK,
+  WALLET_LINK_SCHEME_APP,
+  WALLET_LINK_SCHEME_WEB
 } from './constants.js';
 
 export class BaseMediator {
@@ -43,13 +47,50 @@ export class BaseMediator {
       const parsed = new URL(url);
       if(parsed.protocol === 'https:' &&
         parsed.searchParams.get('iuv') === '1') {
-        return url;
+        /* the parsed form, not the raw string: `new URL()` strips tabs and
+        newlines, so returning the input would ship a value that differs
+        from the one that passed validation */
+        return parsed.toString();
       }
     } catch {
       // swallow parse errors and warn below
     }
     console.warn(`Invalid relying party interaction URL "${url}".`);
     return null;
+  }
+
+  /* Prefixes the interaction URL with the wallet link schemes, so the OS or
+  the browser can route it to a wallet that registered a scheme but is not
+  registered as a credential handler here.
+
+  Straight concatenation, with no percent-encoding of the interaction URL:
+  the scheme is a prefix and the interaction URL keeps its own query string
+  (`iuv=1`), so the receiving wallet parses it as an ordinary URL.
+
+  Both links carry the same interaction URL and differ only in prefix, so
+  neither is a fallback for the other: a native app can only claim
+  `interaction:` and a web app only `web+interaction:`, and nothing in the
+  browser reveals which the user registered.
+
+  The app link is offered only on a mobile device, where a wallet app can be
+  installed. A desktop is served by the QR code instead, which needs no
+  installed app and no scheme registration.
+
+  The web wallet link is offered only where `registerProtocolHandler()`
+  exists, since nothing can claim a `web+` scheme without it -- see
+  `SUPPORTS_WEB_WALLET_LINK`. Either may be null, so a caller must handle
+  one link, both, or (with neither available) none. */
+  getWalletLinkUrls() {
+    const interactionUrl = this.getInteractionUrl();
+    if(!interactionUrl) {
+      return null;
+    }
+    return {
+      app: IS_MOBILE_DEVICE ?
+        `${WALLET_LINK_SCHEME_APP}${interactionUrl}` : null,
+      web: SUPPORTS_WEB_WALLET_LINK ?
+        `${WALLET_LINK_SCHEME_WEB}${interactionUrl}` : null
+    };
   }
 
   async allowCredentialHandler() {

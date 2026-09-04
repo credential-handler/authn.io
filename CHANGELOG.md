@@ -2,15 +2,33 @@
 
 ## 7.8.0 - 2026-09-dd
 
-### Changed
-- Bind the development server to loopback instead of every interface.
-  `configs/dev.js` set `server.bindAddr` to `['0.0.0.0']` so a Docker
-  container could reach the host through `host.docker.internal`. That also
-  published the dev mediator on every network the machine was attached to,
-  for everyone rather than only those using the Docker path. Set
-  `bindAddr: ['0.0.0.0']` in a local override to restore it.
-
 ### Added
+- Add "Open a wallet app on this device" and "Open a wallet website" rows
+  to the wallet chooser, shown whenever a relying party supplies an
+  interaction URL.
+  They hand that URL to a wallet on the same device by prefixing it with
+  the `interaction:` and `web+interaction:` schemes, so a wallet that
+  registered a scheme without registering as a credential handler can
+  receive the exchange. Previously such a wallet was unreachable: it never
+  appears in the chooser, and a QR code cannot be scanned by the device
+  displaying it. Addresses #166.
+
+  The rows sit between the wallet list and the cross-device QR code, and
+  use the same row styling as the wallet list. With no wallet registered
+  in this browser, the wallet app row is marked as recommended.
+
+  A single "Don't see your wallet?" heading introduces the rows and the
+  cross-device QR expander together, so the chooser asks the question once
+  and then lists every way to answer it: open a wallet on this device, or
+  scan a code for one on another device. Without it, "Choose a Wallet"
+  above and "Open a wallet..." below read as competing instructions.
+
+  Each row appears only where it can work. The wallet app row is shown on
+  a phone or tablet, where a wallet app can be installed; a desktop is
+  served by the QR code instead. The wallet website row is shown only
+  where `navigator.registerProtocolHandler()` exists, since nothing can
+  claim a `web+` scheme without it -- in Safari the link cannot resolve
+  and the browser reports the address as invalid.
 - Non-API change: Allow local overrides of the development server config.
   `configs/dev.js` points `@bedrock/config-yaml` at the `configs` directory,
   so a gitignored `configs/app.yaml` overrides the tracked defaults whenever
@@ -18,6 +36,28 @@
   This makes config-yaml the single override channel rather than adding a
   second one beside it, and `BEDROCK_CONFIG` still takes precedence for a
   deployment. See `configs/app.yaml.example`.
+
+### Changed
+- Reword the wallet chooser's zero-wallet greeting. It described the
+  browser registration model directly above the options that answer it;
+  it now names the next step in one line, and points at the QR code when
+  no wallet link rows are available.
+- Relabel the cross-device expander "Use a wallet on another device", and
+  promote "Don't see your wallet?" to a heading above it. The heading now
+  introduces the same-device rows and the expander together, so the
+  chooser asks once and then lists every way to answer -- rather than
+  asking whether the user has a wallet directly above a list of their
+  wallets.
+- Increase the cross-device wallet chooser popup height to fit the wallet
+  link rows. The dialog does not size itself to its content, so its height
+  is maintained by hand; without the increase the Close button can scroll
+  out of reach.
+- Bind the development server to loopback instead of every interface.
+  `configs/dev.js` set `server.bindAddr` to `['0.0.0.0']` so a Docker
+  container could reach the host through `host.docker.internal`. That also
+  published the dev mediator on every network the machine was attached to,
+  for everyone rather than only those using the Docker path. Set
+  `bindAddr: ['0.0.0.0']` in a local override to restore it.
 
 ## 7.7.0 - 2026-08-18
 

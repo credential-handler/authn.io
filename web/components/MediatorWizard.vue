@@ -35,6 +35,8 @@
         :interaction-url="interactionUrl"
         :loading="loading"
         :request-type="requestType"
+        :wallet-app-url="walletAppUrl"
+        :wallet-web-url="walletWebUrl"
         @cancel="cancel()"
         @cross-device="crossDevice()"
         @remove-hint="removeHint"
@@ -187,6 +189,16 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    walletAppUrl: {
+      type: String,
+      required: false,
+      default: ''
+    },
+    walletWebUrl: {
+      type: String,
+      required: false,
+      default: ''
     }
   },
   emits: [

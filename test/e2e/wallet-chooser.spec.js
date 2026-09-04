@@ -16,7 +16,27 @@ const STATES = [
   {name: '1 wallet + QR', query: 'hints=1&qr=1', hints: 1, qr: true},
   {name: '5 wallets + QR', query: 'hints=5&qr=1', hints: 5, qr: true},
   {name: '5 wallets, no QR', query: 'hints=5&qr=0', hints: 5, qr: false},
-  {name: '15 wallets + QR', query: 'hints=15&qr=1', hints: 15, qr: true}
+  {name: '15 wallets + QR', query: 'hints=15&qr=1', hints: 15, qr: true},
+  /* both same-device wallet link rows forced on, so the layout invariants
+  above cover them. `app`/`web` override the browser gates the real rows use
+  (`IS_MOBILE_DEVICE`, `SUPPORTS_WEB_WALLET_LINK`), which would otherwise
+  make the rows appear on some projects and not others. */
+  {
+    name: '0 wallets + QR + wallet links',
+    query: 'hints=0&qr=1&app=1&web=1', hints: 0, qr: true
+  },
+  {
+    name: '1 wallet + QR + wallet links',
+    query: 'hints=1&qr=1&app=1&web=1', hints: 1, qr: true
+  },
+  /* recommended (just-in-time) wallets render in their own section below a
+  separator, so the chooser is taller and has an extra divider above the
+  wallet link rows -- a distinct layout for the invariants to cover.
+  `hints` is the total selectable count: 2 registered + 2 recommended. */
+  {
+    name: '2 wallets + 2 recommended + QR + wallet links',
+    query: 'hints=2&jit=2&qr=1&app=1&web=1', hints: 4, qr: true
+  }
 ];
 
 async function gotoChooser(page, query) {

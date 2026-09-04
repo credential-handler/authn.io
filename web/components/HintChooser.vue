@@ -28,6 +28,10 @@
         :collapsible="hints.length > 0"
         :interaction-url="interactionUrl"
         :loading="loading"
+        :recommend-app="hints.length === 0"
+        :wallet-app-url="walletAppUrl"
+        :wallet-web-url="walletWebUrl"
+        @activate="crossDevice()"
         @close="crossDevice()" />
       <!-- include separator before web share button if there are no hints -->
       <div
@@ -89,6 +93,16 @@ export default {
       required: true
     },
     requestType: {
+      type: String,
+      required: false,
+      default: ''
+    },
+    walletAppUrl: {
+      type: String,
+      required: false,
+      default: ''
+    },
+    walletWebUrl: {
       type: String,
       required: false,
       default: ''

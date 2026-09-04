@@ -9,6 +9,8 @@
     :has-storage-access="true"
     :hints="hints"
     :interaction-url="interactionUrl"
+    :wallet-app-url="walletAppUrl"
+    :wallet-web-url="walletWebUrl"
     :is-first-party="true"
     :loading="loading"
     :request-type="requestType"
@@ -43,6 +45,8 @@ export default {
     const credentialRequestOriginManifest = ref(null);
     const hints = ref([]);
     const interactionUrl = ref('');
+    const walletAppUrl = ref('');
+    const walletWebUrl = ref('');
     const loading = ref(true);
     const requestType = ref('');
     const selectedHint = ref(null);
@@ -107,6 +111,8 @@ export default {
             show.value = false;
             hints.value = [];
             interactionUrl.value = '';
+            walletAppUrl.value = '';
+            walletWebUrl.value = '';
             loading.value = false;
             requestType.value = '';
             selectedHint.value = null;
@@ -114,6 +120,9 @@ export default {
           ready: async () => {
             hints.value = mediator.hintManager.hints.slice();
             interactionUrl.value = mediator.getInteractionUrl() || '';
+            const walletLinkUrls = mediator.getWalletLinkUrls();
+            walletAppUrl.value = walletLinkUrls?.app || '';
+            walletWebUrl.value = walletLinkUrls?.web || '';
             credentialRequestOriginManifest.value =
               await mediator.credentialRequestOriginManifestPromise;
             credentialRequestOrigin.value = mediator.credentialRequestOrigin;
@@ -129,7 +138,7 @@ export default {
       // data
       canWebShare, credentialRequestOrigin, credentialRequestOriginManifest,
       hints, interactionUrl, loading, requestType, selectedHint, show,
-      showHintChooser,
+      showHintChooser, walletAppUrl, walletWebUrl,
       // methods
       allow, cancel, crossDevice, deny, removeHint, selectHint, webShare
     };

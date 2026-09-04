@@ -17,12 +17,40 @@ that); run it with `npm run gallery`. */
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const GALLERY_DIR = path.join(__dirname, 'gallery');
 
+/* The `app=1&web=1` states force both same-device link gates on, so the rows
+appear on every project rather than only where the browser satisfies them --
+the gallery is for reviewing layout, not for reproducing gate behaviour. */
 const STATES = [
   {name: 'hints-0-qr', query: 'hints=0&qr=1', label: '0 wallets + QR'},
   {name: 'hints-1-qr', query: 'hints=1&qr=1', label: '1 wallet + QR'},
   {name: 'hints-5-qr', query: 'hints=5&qr=1', label: '5 wallets + QR'},
   {name: 'hints-5-noqr', query: 'hints=5&qr=0', label: '5 wallets, no QR'},
-  {name: 'hints-15-qr', query: 'hints=15&qr=1', label: '15 wallets + QR'}
+  {name: 'hints-15-qr', query: 'hints=15&qr=1', label: '15 wallets + QR'},
+  {
+    name: 'hints-0-links',
+    query: 'hints=0&qr=1&app=1&web=1',
+    label: '0 wallets + same-device links'
+  },
+  {
+    name: 'hints-1-links',
+    query: 'hints=1&qr=1&app=1&web=1',
+    label: '1 wallet + same-device links'
+  },
+  {
+    name: 'hints-5-links',
+    query: 'hints=5&qr=1&app=1&web=1',
+    label: '5 wallets + same-device links'
+  },
+  {
+    name: 'hints-2-jit-2-links',
+    query: 'hints=2&jit=2&qr=1&app=1&web=1',
+    label: '2 wallets + 2 recommended + same-device links'
+  },
+  {
+    name: 'hints-0-jit-2-links',
+    query: 'hints=0&jit=2&qr=1&app=1&web=1',
+    label: '2 recommended only + same-device links'
+  }
 ];
 const THEMES = ['light', 'dark'];
 
