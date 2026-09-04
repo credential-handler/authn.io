@@ -6,16 +6,27 @@
     <div
       v-else-if="showWarning && hasCrossDeviceOption"
       style="font-size: 14px">
-      <p v-if="requestType === 'credentialRequest'">
-        No wallet with the credentials requested by
-        <strong>{{credentialRequestOriginName}}</strong> is registered
-        in this browser. You can scan the QR code below to use a wallet
-        on another device, or visit your wallet website to register.
+      <!-- Kept short, since this sits directly above the options that
+        answer it. `showWarning` is `hints.length === 0`, and hints are
+        filtered to registrations that *match* the request, so this must
+        not claim no wallet is registered: the common case is a wallet
+        that does not hold the requested credential. -->
+      <p style="margin: 0">
+        {{noWalletMessage}}
       </p>
-      <p v-else>
-        No wallet is registered in this browser to store credentials.
-        You can scan the QR code below to use a wallet on another
-        device, or visit your wallet website to register.
+      <!-- A first-timer has no wallet to open, so the link rows below
+        assume something they may not have. Keep the route to getting
+        one. -->
+      <p
+        v-if="requestType === 'credentialRequest'"
+        style="margin: 0.5em 0 0">
+        Check <strong>{{credentialRequestOriginName}}</strong> to find out
+        how to obtain it, or visit your wallet website to register.
+      </p>
+      <p
+        v-else
+        style="margin: 0.5em 0 0">
+        Or visit your wallet website to register it with this browser.
       </p>
     </div>
     <div
@@ -67,6 +78,8 @@
  * Copyright (c) 2017-2026, Digital Bazaar, Inc.
  * All rights reserved.
  */
+import {computed} from 'vue';
+
 export default {
   name: 'HintChooserMessage',
   props: {
@@ -95,8 +108,21 @@ export default {
   },
   emits: ['close'],
   setup(props, {emit}) {
+    /* `showWarning` is `hints.length === 0`, and `HintManager.reload()`
+    filters hints through `matchCredentialRequest()`. So an empty list means
+    "nothing registered here holds what was asked for", not "no wallet is
+    registered" -- claiming the latter is wrong exactly when the user has a
+    wallet that lacks the credential.
+
+    It states the situation and nothing more: `CrossDeviceOptions` owns the
+    "Don't see your wallet?" heading over the options that answer it, so a
+    closing clause here would render a second heading above the first. */
+    const noWalletMessage = computed(() =>
+      props.requestType === 'credentialRequest' ?
+        'No wallet registered in this browser has the requested credential.' :
+        'No wallet is registered in this browser to store credentials.');
     const close = () => emit('close');
-    return {close};
+    return {close, noWalletMessage};
   }
 };
 </script>

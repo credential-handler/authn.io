@@ -8,6 +8,8 @@
     :has-storage-access="hasStorageAccess"
     :hints="hints"
     :interaction-url="interactionUrl"
+    :wallet-app-url="walletAppUrl"
+    :wallet-web-url="walletWebUrl"
     :loading="loading"
     :request-type="requestType"
     :selected-hint="selectedHint"
@@ -62,6 +64,8 @@ export default {
     const hasStorageAccess = ref(mediator.hasStorageAccess);
     const hints = ref([]);
     const interactionUrl = ref('');
+    const walletAppUrl = ref('');
+    const walletWebUrl = ref('');
     const loading = ref(true);
     const rememberChoice = ref(false);
     const requestType = ref('');
@@ -131,6 +135,16 @@ export default {
         loading.value = false;
       }
     };
+    /* The template binds `@cross-device`, but this had no handler: the
+    first-party wizard defines one and this did not, so any path reaching it
+    threw. Mirrors that one -- the user has chosen to continue out of band,
+    which is a response, not a cancellation. */
+    const crossDevice = async () => {
+      loading.value = true;
+      return mediator.crossDevice({
+        response: {type: 'web', dataType: 'OutOfBand', data: null}
+      });
+    };
     const removeHint = async event => {
       const hint = toRaw(event.hint);
       const {hintManager} = mediator;
@@ -165,6 +179,8 @@ export default {
             show.value = false;
             hints.value = [];
             interactionUrl.value = '';
+            walletAppUrl.value = '';
+            walletWebUrl.value = '';
             loading.value = false;
             firstPartyDialogOpen.value = false;
             rememberChoice.value = false;
@@ -174,6 +190,9 @@ export default {
           ready: async () => {
             hints.value = mediator.hintManager.hints.slice();
             interactionUrl.value = mediator.getInteractionUrl() || '';
+            const walletLinkUrls = mediator.getWalletLinkUrls();
+            walletAppUrl.value = walletLinkUrls?.app || '';
+            walletWebUrl.value = walletLinkUrls?.web || '';
             credentialRequestOriginManifest.value =
               await mediator.credentialRequestOriginManifestPromise;
             loading.value = false;
@@ -191,8 +210,10 @@ export default {
       canWebShare, credentialRequestOrigin, credentialRequestOriginManifest,
       firstPartyDialogOpen, hasStorageAccess, hints, interactionUrl, loading,
       rememberChoice, requestType, selectedHint, show, showHintChooser,
+      walletAppUrl, walletWebUrl,
       // methods
-      allow, cancel, deny, focusFirstPartyDialog, openFirstPartyDialog,
+      allow, cancel, crossDevice, deny, focusFirstPartyDialog,
+      openFirstPartyDialog,
       removeHint, selectHint, webShare
     };
   }
