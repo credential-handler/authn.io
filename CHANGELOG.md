@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 7.8.2 - 2026-09-dd
+## 7.8.2 - 2026-09-04
 
 ### Fixed
 - Unpin and use `@bedrock/vue@6`.
