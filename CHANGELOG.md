@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 7.8.0 - 2026-09-dd
+## 7.8.0 - 2026-09-04
 
 ### Added
 - Add "Open a wallet app on this device" and "Open a wallet website" rows
