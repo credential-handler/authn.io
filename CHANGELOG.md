@@ -2,12 +2,12 @@
 
 ## 7.8.2 - 2026-09-dd
 
-### Changed
+### Fixed
 - Unpin and use `@bedrock/vue@6`.
 
 ## 7.8.1 - 2026-09-04
 
-### Changed
+### Fixed
 - Update dependencies to latest minor+patch.
 
 ## 7.8.0 - 2026-09-04
