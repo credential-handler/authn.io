@@ -1,5 +1,13 @@
 # authn.io ChangeLog
 
+## 7.8.3 - 2026-10-xx
+
+### Fixed
+- Register the full credential hint when a wallet is allowed. Its
+  `enabledTypes`, `acceptedInput` and `acceptedProtocols` were read from the
+  wrong level, so the wallet was registered without them and re-registered
+  with them the next time the chooser opened.
+
 ## 7.8.2 - 2026-09-04
 
 ### Fixed
