@@ -94,14 +94,11 @@ export class BaseMediator {
   }
 
   async allowCredentialHandler() {
-    const {
-      registrationHintOption: {
-        credentialHandler, credentialHintKey, enabledTypes
-      }
-    } = this;
-    const hint = {name: credentialHintKey, enabledTypes};
+    // register the full hint from the handler's manifest -- `enabledTypes`,
+    // `acceptedInput` and `acceptedProtocols` live under `credentialHint`
+    const {registrationHintOption: {credentialHandler, credentialHint}} = this;
     await navigator.credentialMediator.ui.registerCredentialHandler(
-      credentialHandler, hint);
+      credentialHandler, credentialHint);
   }
 
   async getWebShareHandler() {
