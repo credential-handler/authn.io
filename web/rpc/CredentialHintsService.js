@@ -2,7 +2,7 @@
  * New BSD License (3-clause)
  * Copyright (c) 2017-2026 Digital Bazaar, Inc.
  */
-import {SimpleContainerService} from 'web-request-mediator';
+import {SimpleContainerService} from './SimpleContainerService.js';
 
 const ITEM_TYPE = 'credentialHint';
 
