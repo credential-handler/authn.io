@@ -1,6 +1,6 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2026, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2026 Digital Bazaar, Inc.
  */
 import {HintManager} from './HintManager.js';
 import {WebShareHandler} from './WebShareHandler.js';

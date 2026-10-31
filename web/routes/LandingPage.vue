@@ -16,8 +16,7 @@
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2023, Digital Bazaar, Inc.
- * All rights reserved.
+ * Copyright (c) 2017-2026 Digital Bazaar, Inc.
  */
 export default {
   name: 'LandingPage'

@@ -138,7 +138,7 @@
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2026, Digital Bazaar, Inc.
+ * Copyright (c) 2026 Digital Bazaar, Inc.
  */
 import {computed, ref, toRef, watch, watchEffect} from 'vue';
 import QRCode from 'qrcode';

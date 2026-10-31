@@ -1,0 +1,931 @@
+/*!
+ * New BSD License (3-clause)
+ * Copyright (c) 2017-2026 Digital Bazaar, Inc.
+ */
+@wrm-gray: #aaa;
+@wrm-darker-gray: darken(@wrm-gray, 10%);
+@wrm-dark-gray: darken(@wrm-gray, 25%);
+
+@wrm-blue: #3678e3;
+@wrm-green: #188038;
+
+@wrm-text-color: #444;
+@wrm-separator-color: #ccc;
+@wrm-modern-separator-color: #dfdfdf;
+
+@wrm-modal-font-size: 14px;
+@wrm-modal-background: @wrm-modal-modern-background;
+@wrm-modal-modern-background: #f9f9f9;
+@wrm-modal-border-color: @wrm-modal-modern-border-color;
+@wrm-modal-modern-border-color: rgba(221, 221, 221, 0.75);
+@wrm-modal-modern-width: 400px;
+@wrm-modal-padding: 15px;
+@wrm-modal-padding-x: (@wrm-modal-padding * 2);
+@wrm-modal-small-screen: (@wrm-modal-modern-width + @wrm-modal-padding-x);
+@wrm-modal-large-screen: (@wrm-modal-small-screen + 1);
+
+@wrm-selectable-background-color: darken(@wrm-modal-modern-background, 3%);
+@wrm-selected-background-color: fadeout(@wrm-active-border-color, 95%);
+
+@wrm-active-border-color: @wrm-blue;
+@wrm-primary: lighten(@wrm-active-border-color, 5%);
+@wrm-activity-bar-background-color: fadeout(@wrm-active-border-color, 50%);
+@wrm-activity-bar-line-color: lighten(@wrm-active-border-color, 20%);
+
+@wrm-close-button-size: 20px;
+@wrm-close-button-width: (@wrm-close-button-size - 1);
+@wrm-close-button-height: (@wrm-close-button-size - 1);
+@wrm-close-x-left: (unit(@wrm-close-button-size) / 4);
+@wrm-close-x-right: (unit(@wrm-close-button-width) - @wrm-close-x-left);
+@wrm-close-x-stroke-width: 2.5;
+
+@wrm-header-close-button-size: 26px;
+@wrm-header-close-button-width: (@wrm-header-close-button-size - 1);
+@wrm-header-close-button-height: (@wrm-header-close-button-size - 1);
+@wrm-header-close-x-left: (unit(@wrm-header-close-button-size) / 4);
+@wrm-header-close-x-right: (
+  unit(@wrm-header-close-button-width) - @wrm-header-close-x-left);
+@wrm-header-close-x-stroke-width: 2.5;
+@wrm-header-arrowhead-y-middle: (unit(@wrm-header-close-button-size) / 2);
+@wrm-header-arrowhead-x-left: (@wrm-header-close-x-left - 1);
+@wrm-header-arrowhead-x-right: (
+  unit(@wrm-header-close-button-width) - @wrm-header-close-x-left + 5px);
+@wrm-header-arrow-x-right: (
+  unit(@wrm-header-close-button-width) - 2.5);
+
+@wrm-handler-header-height: 65px;
+
+.web-app-window-backdrop {
+  align-items: center;
+}
+
+.wrm-flex-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+}
+.wrm-flex-column-stretch {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow-y: auto;
+  width: 100%;
+}
+.wrm-flex-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.wrm-flex-item {
+  flex: 0 1 auto;
+}
+.wrm-flex-item-grow {
+  flex: 1 1 auto;
+}
+.wrm-flex-item-shrink {
+  flex: 0 0 auto;
+}
+
+div.wrm-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1050;
+  box-sizing: border-box;
+  overflow: hidden; /* visible? */
+  outline: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent;
+  max-width: 100%;
+  max-height: 100%;
+
+  @media only screen and (max-width: @wrm-modal-small-screen) {
+    /* full screen appearance */
+    &:not(.wrm-modal-1p) {
+      height: 100%;
+      justify-content: flex-end;
+      padding-bottom: 0;
+    }
+  }
+  @media only screen and (min-width: @wrm-modal-large-screen) {
+    &:not(.wrm-modal-1p) {
+      /* dialog appearance */
+      justify-content: flex-start;
+      padding-bottom: 5px;
+    }
+  }
+}
+
+.wrm-modal-1p {
+  height: 100%;
+  padding: 0;
+}
+
+.wrm-modal-1p > .wrm-modal-content {
+  /* full screen appearance */
+  margin-top: 0;
+  /* must subtract padding */
+  width: calc(100% - @wrm-modal-padding-x);
+  border: none;
+  box-shadow: none;
+  height: 100%;
+
+  &.wrm-modern {
+    width: calc(100% - @wrm-modal-padding-x);
+  }
+}
+
+.wrm-modal-content {
+  background: @wrm-modal-modern-background;
+  background-clip: padding-box;
+  border: 1px solid @wrm-modal-modern-border-color;
+  border-radius: 3px;
+  box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.3);
+  color: @wrm-text-color;
+  display: flex;
+  //flex: 1 1 auto;
+  flex-direction: column;
+  font-size: @wrm-modal-font-size;
+  font-family: Arial;
+  margin-top: -1px;
+  max-height: calc(100% - 10px);
+  outline: none;
+  //overflow-y: auto;
+  padding: @wrm-modal-padding;
+  position: relative;
+
+  @media only screen and (max-width: @wrm-modal-small-screen) {
+    /* full screen appearance */
+    margin-top: 0;
+    /* must subtract padding */
+    width: calc(100% - @wrm-modal-padding-x);
+    border: none;
+    border-top: 1px solid @wrm-modal-modern-border-color;
+    border-radius: 3px 3px 0 0;
+    box-shadow: none;
+  }
+  @media only screen and (min-width: @wrm-modal-large-screen) {
+    /* dialog appearance */
+    margin-top: -1px;
+    border-radius: 0 0 3px 3px;
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.3);
+    width: 300px;
+    &.wrm-modern {
+      width: @wrm-modal-modern-width;
+    }
+  }
+}
+
+.wrm-modal-content-header {
+  border-bottom: 1px solid @wrm-modern-separator-color;
+  padding: 10px 5px;
+  /* remove modal-content padding */
+  margin: -15px -15px 0 -15px;
+};
+
+.wrm-green {
+  color: @wrm-green;
+};
+
+.wrm-dark-gray {
+  color: @wrm-dark-gray;
+}
+
+.wrm-ellipsis {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  scrollbar-width: none;
+
+  div, span, h6, strong {
+    text-overflow: ellipsis;
+  }
+
+  &:hover, &.wrm-ellipsis-off {
+    text-overflow: inherit;
+    overflow-x: auto;
+    div, span, h6, strong {
+      text-overflow: inherit;
+    }
+  }
+
+  &:hover::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.wrm-header-hint {
+  padding: 5px;
+  margin: 1px 0;
+
+  h6 {
+    color: @wrm-dark-gray;
+    font-size: 11px;
+    font-weight: bold;
+    margin-top: 4px;
+    margin-bottom: 0;
+  }
+}
+
+.wrm-header-back-button {
+  cursor: pointer;
+  display: block;
+  margin: -5px 0 -10px 0;
+  position: relative;
+  padding: 10px;
+
+  div {
+    float: right;
+  }
+
+  svg {
+    height: @wrm-header-close-button-height;
+    width: @wrm-header-close-button-width;
+
+    circle {
+      visibility: hidden;
+      fill: darken(@wrm-modal-modern-background, 5%);
+    }
+
+    path {
+      fill: none;
+      stroke: #777;
+      stroke-width: @wrm-header-close-x-stroke-width;
+    }
+
+    /* non-iOS device detection (only :hover on non-iOS) */
+    @supports not (-webkit-overflow-scrolling: touch) {
+      &:hover {
+        circle {
+          visibility: visible;
+        }
+        overflow: visible;
+      }
+    }
+
+    &:active {
+      circle {
+        visibility: visible;
+      }
+      overflow: visible;
+    }
+  }
+
+  &:active {
+    &:after {
+      animation: wrm-ripple 0.5s ease-out;
+    }
+  }
+
+  &:after {
+    content: '';
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, .2);
+    position: absolute;
+    box-sizing: border-box;
+    left: 21px;
+    top: 21px;
+    transform: scale(0);
+    width: 2px;
+    height: 2px;
+  }
+}
+
+.wrm-header-close-button {
+  cursor: pointer;
+  display: block;
+  margin: -5px 0 -10px 0;
+  padding: 10px;
+  position: relative;
+
+  div {
+    float: right;
+  }
+
+  svg {
+    height: @wrm-header-close-button-height;
+    width: @wrm-header-close-button-width;
+
+    circle {
+      visibility: hidden;
+      fill: darken(@wrm-modal-modern-background, 5%);
+    }
+
+    path {
+      fill: none;
+      stroke: #777;
+      stroke-width: @wrm-header-close-x-stroke-width;
+    }
+
+    /* non-iOS device detection (only :hover on non-iOS) */
+    @supports not (-webkit-overflow-scrolling: touch) {
+      &:hover {
+        circle {
+          visibility: visible;
+        }
+        overflow: visible;
+      }
+    }
+
+    &:active {
+      circle {
+        visibility: visible;
+      }
+      overflow: visible;
+    }
+  }
+
+  &:active {
+    &:after {
+      animation: wrm-ripple 0.5s ease-out;
+    }
+  }
+
+  &:after {
+    content: '';
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, .2);
+    position: absolute;
+    box-sizing: border-box;
+    left: 21px;
+    top: 21px;
+    transform: scale(0);
+    width: 2px;
+    height: 2px;
+  }
+}
+
+.wrm-close-button {
+  cursor: pointer;
+  display: block;
+  padding: 10px;
+  position: absolute;
+  right: 0px;
+  top: 0;
+
+  div {
+    float: right;
+  }
+
+  svg {
+    height: @wrm-close-button-height;
+    width: @wrm-close-button-width;
+
+    circle {
+      visibility: hidden;
+      fill: darken(@wrm-modal-modern-background, 5%);
+    }
+
+    path {
+      fill: none;
+      stroke: #777;
+      stroke-width: @wrm-header-close-x-stroke-width;
+    }
+
+    /* non-iOS device detection (only :hover on non-iOS) */
+    @supports not (-webkit-overflow-scrolling: touch) {
+      &:hover {
+        circle {
+          visibility: visible;
+        }
+        overflow: visible;
+      }
+    }
+
+    &:active {
+      circle {
+        visibility: visible;
+      }
+      overflow: visible;
+    }
+  }
+
+  &:active {
+    &:after {
+      animation: wrm-ripple-small 0.5s ease-out;
+    }
+  }
+
+  &:after {
+    content: '';
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, .2);
+    position: absolute;
+    box-sizing: border-box;
+    left: 19px;
+    top: 18px;
+    transform: scale(0);
+    width: 2px;
+    height: 2px;
+  }
+}
+
+.wrm-remove-button {
+  display: block;
+  padding: 8px 0px 8px 8px;
+  position: relative;
+
+  &:not(.wrm-disabled) {
+    cursor: pointer;
+  }
+
+  div {
+    float: right;
+  }
+
+  svg {
+    /* circle radius is 14px, so double for svg height */
+    height: 28px;
+    width: 28px;
+
+    circle {
+      visibility: hidden;
+      fill: darken(@wrm-modal-modern-background, 5%);
+    }
+
+    path {
+      fill: none;
+      stroke: #777;
+      stroke-width: @wrm-header-close-x-stroke-width;
+    }
+
+    text {
+      font-family: 'Font Awesome 5 Free';
+      font-size: 14px;
+      font-weight: 900;
+      fill: #777;
+      /* fas fa-fw attributes: */
+      -webkit-font-smoothing: antialiased;
+      font-style: normal;
+      font-variant: normal;
+      text-rendering: auto;
+      line-height: 1;
+      text-align: center;
+      width: 1.25em;
+    }
+
+    /* non-iOS device detection (only :hover on non-iOS) */
+    @supports not (-webkit-overflow-scrolling: touch) {
+      &:not(.wrm-disabled):hover {
+        circle {
+          visibility: visible;
+        }
+        text {
+          fill: @wrm-text-color;
+        }
+        overflow: visible;
+      }
+    }
+
+    &:not(.wrm-disabled):active {
+      circle {
+        visibility: visible;
+      }
+      text {
+        fill: @wrm-text-color;
+      }
+      overflow: visible;
+    }
+  }
+
+  &:not(.wrm-disabled):active {
+    &:after {
+      animation: wrm-ripple-small 0.5s ease-out;
+    }
+  }
+
+  &:not(.wrm-disabled):after {
+    content: '';
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, .2);
+    position: absolute;
+    box-sizing: border-box;
+    left: 21px;
+    top: 21px;
+    transform: scale(0);
+    width: 2px;
+    height: 2px;
+  }
+}
+
+.wrm-button-bar {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.wrm-button {
+  background-color: @wrm-modal-modern-background;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: #777;
+  cursor: pointer;
+  display: inline-block;
+  flex: 0 1 auto;
+  font: inherit;
+  font-size: @wrm-modal-font-size;
+  font-weight: normal;
+  letter-spacing: normal;
+  outline: none;
+  overflow: visible;
+  margin: 0;
+  padding: 8px 20px;
+  text-align: center;
+  text-indent: 0px;
+  text-rendering: auto;
+  text-transform: none;
+  touch-action: manipulation;
+  vertical-align: middle;
+  white-space: nowrap;
+  word-spacing: normal;
+  -webkit-appearance: button;
+
+  &.wrm-primary {
+    color: #f7f7f7;
+    background-color: @wrm-primary;
+
+    &:disabled {
+      background-color: #ddd;
+      box-shadow: none;
+      color: @wrm-gray;
+      cursor: auto;
+    }
+
+    /* non-iOS device detection (only :hover on non-iOS) */
+    @supports not (-webkit-overflow-scrolling: touch) {
+      &:not(:disabled):hover {
+        border-color: darken(@wrm-primary, 5%);
+        background-color: lighten(@wrm-primary, 5%);
+        box-shadow: inset 0px 11px 1px -10px rgba(255, 255, 255, 0.75);
+      }
+    }
+  }
+
+  /* non-iOS device detection (only :hover on non-iOS) */
+  @supports not (-webkit-overflow-scrolling: touch) {
+    &:not(:disabled):hover {
+      border-color: #999;
+      background-color: #eee;
+      box-shadow: inset 0px 11px 1px -10px rgba(255, 255, 255, 0.75);
+      outline: none;
+    }
+  }
+
+  &:active, &:focus {
+    &:not(:disabled) {
+      outline: none;
+      border-color: @wrm-active-border-color;
+    }
+  }
+
+  &:disabled {
+    background-color: #ddd;
+    box-shadow: none;
+    color: @wrm-gray;
+    cursor: auto;
+  }
+}
+
+.wrm-separator {
+  border: 0;
+  border-top: 1px solid @wrm-modern-separator-color;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+.wrm-panel {
+  color: @wrm-text-color;
+  background-color: @wrm-modal-modern-background;
+  border-bottom: 1px solid darken(@wrm-modal-modern-border-color, 25%);
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  box-sizing: border-box;
+  font-family: Arial;
+  font-size: 12px;
+  padding: 2px;
+  text-align: left;
+  width: 100%;
+
+  &.wrm-handler-header {
+    height: @wrm-handler-header-height;
+  }
+}
+
+.wrm-handler-iframe {
+  position: relative;
+  background: white;
+  border: none;
+  box-shadow: none;
+  box-sizing: border-box;
+  flex-grow: 1;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  width: 100%;
+  /* due to IE11 fix required to center iframe below */
+  left: 0 !important;
+}
+
+.wrm-heading {
+  color: @wrm-blue;
+  margin: 4px 0;
+  font-size: @wrm-modal-font-size
+}
+
+.wrm-item {
+  border: 1px solid transparent;
+  border-radius: 2px;
+  padding: 5px 10px;
+  margin: 1px 0;
+  background-color: @wrm-selectable-background-color;
+  border-bottom-color: darken(@wrm-selectable-background-color, 5%);
+
+  h6 {
+    color: @wrm-dark-gray;
+    font-size: 11px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+
+  &.wrm-disabled {
+    color: @wrm-gray;
+
+    h6 {
+      color: @wrm-gray;
+    }
+
+    i {
+      color: @wrm-gray;
+    }
+
+    span {
+      color: @wrm-gray;
+    }
+
+    img {
+      filter: grayscale(1)
+    }
+  }
+
+  &.wrm-selected {
+    outline: none;
+    border-color: fadeout(@wrm-active-border-color, 85%);
+    background-color: @wrm-selected-background-color;
+  }
+
+  &.wrm-selectable {
+    touch-action: manipulation;
+
+    /* non-iOS device detection (only :hover on non-iOS) */
+    @supports not (-webkit-overflow-scrolling: touch) {
+      &:hover {
+        background-color: @wrm-selected-background-color;
+        border: 1px solid fadeout(@wrm-active-border-color, 85%);
+        border-bottom-color: darken(@wrm-active-border-color, 15%);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+        cursor: pointer;
+        outline: none;
+        transition: border-color ease-in-out .5s, box-shadow ease-in-out .5s;
+      }
+    }
+  }
+}
+
+/* Checkbox */
+.wrm-checkbox {
+  & label {
+    cursor: pointer;
+    position: relative;
+  }
+  & input[type='checkbox'] {
+    cursor: pointer;
+    opacity: 0;
+    position: absolute;
+  }
+  & input[type='checkbox'] + .wrm-label:before {
+    font-size: 16px;
+    font-family: 'Font Awesome 5 Free';
+    display: inline-block;
+    letter-spacing: 5px;
+    opacity: 0.5;
+    transition: all 0.5s;
+    transition-property: opacity, color, content;
+    vertical-align: top;
+  }
+  /* unchecked */
+  & input[type='checkbox'] + .wrm-label:before {
+    /* unchecked icon */
+    content: '\f0c8';
+  }
+  /* checked */
+  & input[type='checkbox']:checked + .wrm-label:before {
+    /* checked icon */
+    content: '\f14a';
+    font-weight: bold;
+    opacity: 1;
+  }
+  &.wrm-green input[type='checkbox']:checked + .wrm-label:before {
+    color: @wrm-green;
+  }
+  &.wrm-blue input[type='checkbox']:checked + .wrm-label:before {
+    color: @wrm-blue;
+  }
+  /* ripple effect */
+  & input[type='checkbox']:focus + .wrm-label:after {
+    animation: wrm-ripple 0.5s ease-out;
+  }
+  & input[type='checkbox'] + .wrm-label:after {
+    content: '';
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, .1);
+    position: absolute;
+    box-sizing: border-box;
+    left: 6px;
+    top: 7px;
+    transform: scale(0);
+    width: 2px;
+    height: 2px;
+  }
+}
+
+@keyframes wrm-ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 1;
+  }
+  20% {
+    transform: scale(10, 10);
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(20, 20);
+  }
+}
+
+@keyframes wrm-ripple-small {
+  0% {
+    transform: scale(0, 0);
+    opacity: 1;
+  }
+  20% {
+    transform: scale(7, 7);
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(14, 14);
+  }
+}
+
+/* Activity bar */
+@keyframes wrm-pulse-animation {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: -100%;
+  }
+}
+.wrm-activity-bar {
+  height: 3px;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  background-color: @wrm-activity-bar-background-color;
+}
+.wrm-activity-bar .wrm-activity-line {
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
+  animation-name: wrm-pulse-animation;
+  animation-timing-function: ease-in-out;
+  background-image: linear-gradient(
+    to right,
+    @wrm-activity-bar-background-color,
+    @wrm-activity-bar-line-color 50%,
+    @wrm-activity-bar-background-color 100%);
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .wrm-modal-content {
+    background-color: #282828;
+    color: #d9d9d9;
+    border: 1px solid #54585d;
+  }
+  .wrm-modal-content-header {
+    border-bottom: 1px solid #54585d;
+  }
+  .wrm-button {
+    color: #7fabf7;
+    border: 1px solid #54585d;
+    background-color: #282828;
+    box-shadow: none;
+
+    &.wrm-primary {
+      color: #7fabf7;
+      background-color: #282828;
+
+      /* non-iOS device detection (only :hover on non-iOS) */
+      @supports not (-webkit-overflow-scrolling: touch) {
+        &:not(:disabled):hover {
+          border-color: #54585d;
+          background-color: #2b2d33;
+        }
+      }
+    }
+
+    /* non-iOS device detection (only :hover on non-iOS) */
+    @supports not (-webkit-overflow-scrolling: touch) {
+      &:not(:disabled):hover {
+        border-color: #54585d;
+        background-color: #2b2d33;
+      }
+    }
+  }
+  .wrm-item {
+    background-color: #353535;
+    border-bottom-color: #54585d;
+
+    &.wrm-selected {
+      border-color: #54585d;
+      background-color: #2b2d33;
+    }
+
+    &.wrm-selectable {
+      /* non-iOS device detection (only :hover on non-iOS) */
+      @supports not (-webkit-overflow-scrolling: touch) {
+        &:hover {
+          background-color: #3d3d40;
+          border: 1px solid #54585d !important;
+          box-shadow: none;
+          transition: none;
+        }
+      }
+    }
+  }
+  .wrm-separator {
+    border-top: 1px solid #54585d;
+  }
+  .wrm-panel {
+    color: #d9d9d9;
+    background-color: #282828;
+    border: 1px solid #54585d;
+  }
+  .wrm-green {
+    color: #8f969c;
+  }
+  .wrm-dark-gray {
+    color: #d9d9d9;
+  }
+  .wrm-header-close-button svg path,
+  .wrm-header-back-button svg path,
+  .wrm-close-button svg path {
+    stroke: #d9d9d9;
+  }
+  .wrm-header-close-button svg circle,
+  .wrm-header-back-button svg circle,
+  .wrm-close-button svg circle {
+    fill: #3d3d40;
+  }
+}
+
+@-webkit-keyframes wrm-slide-up {
+  from {
+    margin-top: 100%;
+  }
+  to {
+    margin-top: 0;
+  }
+}
+@keyframes wrm-slide-up {
+  from {
+    margin-top: 100%;
+  }
+  to {
+    margin-top: 0;
+  }
+}
+
+.wrm-slide-up {
+  position: relative;
+  -webkit-animation-name: wrm-slide-up;
+  -webkit-animation-duration: 0.5s;
+  animation-name: wrm-slide-up;
+  animation-duration: 0.25s;
+  animation-timing-function: ease-out;
+}

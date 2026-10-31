@@ -1,7 +1,6 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2022-2023, Digital Bazaar, Inc.
- * All rights reserved.
+ * Copyright (c) 2022-2026 Digital Bazaar, Inc.
  */
 const PROXY_EVENT_TIMEOUT = 60000;
 

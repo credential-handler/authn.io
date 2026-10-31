@@ -24,7 +24,7 @@
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2026, Digital Bazaar, Inc.
+ * Copyright (c) 2026 Digital Bazaar, Inc.
  */
 import {IS_MOBILE_DEVICE, SUPPORTS_WEB_WALLET_LINK}
   from '../mediator/constants.js';
