@@ -1,5 +1,11 @@
 # authn.io ChangeLog
 
+## 7.8.4 - 2026-mm-dd
+
+### Changed
+- Include code from external mediator libs that are not generally used
+  elsewhere, reducing dependencies and simplifying development.
+
 ## 7.8.3 - 2026-10-31
 
 ### Fixed
