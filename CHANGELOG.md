@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 7.8.3 - 2026-10-xx
+## 7.8.3 - 2026-10-31
 
 ### Fixed
 - Register the full credential hint when a wallet is allowed. Its
