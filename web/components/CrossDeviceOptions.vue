@@ -15,7 +15,7 @@
     <div
       class="wrm-dark-gray"
       style="padding-top: 0.5em">
-      Don't see your wallet?
+      Don't see your wallet? Choose an option below:
     </div>
     <!-- Same-device wallet links: always visible, never behind the
       expander. A wallet the user already has installed is a first-class
@@ -23,7 +23,11 @@
       web wallets listed above -- not a fallback for when those fail. The
       QR code below stays behind its expander because it needs a second
       device, which is the less common case. -->
-    <div v-if="walletAppUrl || walletWebUrl">
+    <a
+      v-if="walletAppUrl || walletWebUrl"
+      class="wrm-flex-row wrm-item wrm-selectable wallet-link"
+      :class="{'wallet-link-recommended': recommendApp}"
+      style="margin-top: 0.5em">
       <!-- Rendered as `wrm-item` rows, the same shape as the registered
         wallet list above, so opening a wallet the user already has reads
         as the same class of action as picking a listed one -- rather than
@@ -32,44 +36,48 @@
         the likeliest thing the user actually has, so it is marked as the
         recommended row. With wallets listed, one of those is likelier and
         both rows stay neutral. -->
-      <a
-        v-if="walletAppUrl"
-        class="wallet-link wrm-flex-row wrm-item"
-        :class="{'wallet-link-recommended': recommendApp}"
-        :href="walletAppUrl"
-        @click="activate()">
-        <i
-          class="fas fa-mobile-alt wrm-flex-item wallet-link-icon"
-          aria-hidden="true" />
-        <div class="wallet-link-text">
-          <strong>Open a wallet app on this device</strong>
-        </div>
-      </a>
-      <a
-        v-if="walletWebUrl"
-        class="wallet-link wrm-flex-row wrm-item"
-        :href="walletWebUrl"
-        @click="activate()">
-        <i
-          class="fas fa-globe wrm-flex-item wallet-link-icon"
-          aria-hidden="true" />
-        <div class="wallet-link-text">
-          <strong>Open a wallet website</strong>
-        </div>
-      </a>
-      <!-- Custom-scheme navigation fails silently when nothing claims the
-        scheme, with no event to detect it, so say so rather than promise an
-        error that can never fire.
+      <i
+        class="fas wrm-flex-item"
+        :class="walletAppUrl ? 'fa-mobile-alt' : 'fa-globe'"
+        style="font-size: 32px"
+        aria-hidden="true" />
+      <span
+        style="margin-left: 10px; align-items: start; overflow: hidden"
+        class="wrm-flex-column wrm-flex-item-grow">
+        <span
+          v-if="walletAppUrl"
+          class="wrm-flex-item-grow wrm-ellipsis"
+          :href="walletAppUrl"
+          style="width: 100%"
+          @click="activate()">
+          <strong style="font-size: 14px">
+            Open a wallet app on this device
+          </strong>
+        </span>
+        <span
+          v-if="walletWebUrl"
+          class="wrm-flex-item-grow wrm-ellipsis"
+          :href="walletWebUrl"
+          style="width: 100%"
+          @click="activate()">
+          <strong style="font-size: 14px">
+            Open a wallet website on this device
+          </strong>
+        </span>
+      </span>
+    </a>
+    <!-- Custom-scheme navigation fails silently when nothing claims the
+      scheme, with no event to detect it, so say so rather than promise an
+      error that can never fire.
 
-        Shown only after a row is activated: before that it asserts no
-        wallet handles the link while a matching wallet may be listed above,
-        which argues the user out of their fastest option. -->
-      <div
-        v-if="activated"
-        class="wrm-dark-gray wallet-link-hint"
-        style="font-size: 13px; padding-top: 0.5em">
-        {{failureHint}}
-      </div>
+      Shown only after a row is activated: before that it asserts no
+      wallet handles the link while a matching wallet may be listed above,
+      which argues the user out of their fastest option. -->
+    <div
+      v-if="activated"
+      class="wrm-dark-gray wallet-link-hint"
+      style="font-size: 13px; padding-top: 0.5em">
+      {{failureHint}}
     </div>
     <!-- expander: the QR code is hidden until the user asks for it
       (unless not collapsible, e.g. when there are no wallets and the
@@ -92,31 +100,31 @@
       spacing below the separator -->
     <div
       v-if="expanded"
-      :style="{paddingTop: collapsible ? '0' : '1em'}"
+      :style="{paddingTop: collapsible ? '0' : '0.5em'}"
       style="text-align: center">
-      <div class="wrm-dark-gray">
-        Scan this code on a device with your wallet:
-      </div>
-      <img
-        v-if="qrDataUrl"
-        :src="qrDataUrl"
-        alt="QR code for using a wallet on another device"
-        style="width: 156px; height: 156px; margin: 0.5em auto">
       <div
         class="wrm-dark-gray"
-        style="font-size: 14px">
-        Already scanned? Click close to return to the website.
+        style="text-align: left">
+        Scan this code with your wallet on another device and then click
+        "Finish":
+      </div>
+      <div class="wrm-flex-row">
+        <img
+          v-if="qrDataUrl"
+          :src="qrDataUrl"
+          alt="QR code for using a wallet on another device"
+          style="width: 156px; height: 156px; margin: 1em auto">
       </div>
       <div
         class="wrm-button-bar"
-        style="margin: auto; padding-top: 0.5em">
+        style="padding-top: 0.5em">
         <button
           type="button"
           class="wrm-button"
           style="margin: auto"
           :disabled="loading"
           @click="close()">
-          Close
+          Finish
         </button>
       </div>
     </div>
@@ -218,63 +226,40 @@ export default {
     };
 
     const close = () => emit('close');
-    return {activate, activated, close, expanded, failureHint, qrDataUrl,
-      toggle};
+    return {
+      activate, activated, close, expanded, failureHint, qrDataUrl,
+      toggle
+    };
   }
 };
 </script>
 
 <style>
-/* match the registered wallet rows: full width, icon left, and a pointer
-cursor -- `.wrm-item` supplies the rest */
-.wallet-link.wrm-item {
-  align-items: center;
-  cursor: pointer;
+.wallet-link {
   text-decoration: none;
-  /* `wrm-flex-row` centers its children; the wallet rows above are
-  left-aligned, so start the icon and text at the left edge to match */
-  justify-content: flex-start;
   /* inherit the dialog's text color: as an <a>, the row would otherwise
   take the UA's blue link color and read as a different kind of thing
   from the wallet rows it sits beside */
   color: inherit;
 }
-.wallet-link.wrm-item:hover {
+.wallet-link:hover {
   color: inherit;
-}
-/* Same 48px icon slot the registered wallet rows use for their logos, so
-the glyph is centered in it and every row's text starts on the same
-vertical line -- the wallet list above and these rows below it. A centered
-glyph in a fixed slot also keeps the rows aligned with each other when the
-two icons differ in width. */
-.wallet-link-icon {
-  width: 48px;
-  min-width: 48px;
-  font-size: 28px;
-  line-height: 1;
-  text-align: center;
-}
-.wallet-link-text {
-  margin-left: 10px;
-  overflow: hidden;
-  /* take the remaining width so the text block cannot be centered by the
-  flex row's leftover space */
-  flex: 1 1 auto;
-}
-.wallet-link-text strong {
-  font-size: 14px;
 }
 /* the recommended row: a left accent bar and a slightly lifted
 background, rather than a filled `wrm-primary` treatment, which would
 overpower a full-width row and fight the wallet list beside it */
 .wallet-link.wallet-link-recommended {
   background-color: #eef4fb;
-  border-left: 3px solid #4a90d9;
+}
+.wallet-link.wallet-link-recommended:hover {
+  background-color: #eef4fb;
 }
 @media (prefers-color-scheme: dark) {
   .wallet-link.wallet-link-recommended {
-    background-color: #2b3038;
-    border-left-color: #5b9bd5;
+    background-color: #28303d;
+  }
+  .wallet-link.wallet-link-recommended:hover {
+    background-color: #28303d;
   }
 }
 /* the silent-failure note only matters after a tap that did nothing, so
