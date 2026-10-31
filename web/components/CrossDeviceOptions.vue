@@ -14,8 +14,9 @@
       said. -->
     <div
       class="wrm-dark-gray"
-      style="padding-top: 0.5em">
-      Don't see your wallet? Choose an option below:
+      style="padding: 1em 0 0.5em 0">
+      <span v-if="!recommendApp">Don't see your wallet?</span>
+      You can also try an option below:
     </div>
     <!-- Same-device wallet links: always visible, never behind the
       expander. A wallet the user already has installed is a first-class
@@ -105,7 +106,10 @@
       <div
         class="wrm-dark-gray"
         style="text-align: left">
-        Scan this code with your wallet on another device and then click
+        <div
+          v-if="collapsible"
+          style="padding-top: 1em" />
+        Scan this code with a wallet on another device and then click
         "Finish":
       </div>
       <div class="wrm-flex-row">
