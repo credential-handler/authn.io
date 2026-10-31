@@ -73,10 +73,10 @@ for(const state of STATES) {
     // overhangs the border-box flex layout). It is left active, not
     // skipped, so it shows up as a red test when the suite is run locally
     // — a standing reminder of the deferred CSS work. The fix comes after
-    // the components we use are pulled out of `vue-web-request-mediator`
-    // and that dependency is removed; this test then turns green and
-    // proves the band-aid can be removed. (CI does not run this suite
-    // yet, so this failure does not gate anything.)
+    // the components we use are pulled out of (originally)
+    // `vue-web-request-mediator` and that dependency is removed; this test
+    // then turns green and proves the band-aid can be removed. (CI does not
+    // run this suite yet, so this failure does not gate anything.)
     test('has no horizontal overflow', async ({page}) => {
       const offenders = await page.evaluate(() => {
         const out = [];

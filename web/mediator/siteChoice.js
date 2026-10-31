@@ -1,6 +1,6 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2018-2026, Digital Bazaar, Inc.
+ * Copyright (c) 2018-2026 Digital Bazaar, Inc.
  */
 const KEY = 'storedCredentialHandlerChoices';
 

@@ -1,13 +1,13 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2023, Digital Bazaar, Inc.
- * All rights reserved.
+ * Copyright (c) 2017-2026 Digital Bazaar, Inc.
  */
 import * as brVue from '@bedrock/vue';
 import App from './components/App.vue';
 import {createRouter} from './router.js';
 
 import '@bedrock/web-fontawesome';
+import './style/main.less';
 import './app.less';
 
 brVue.initialize({

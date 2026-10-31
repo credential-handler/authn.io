@@ -42,13 +42,13 @@
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2026, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2026 Digital Bazaar, Inc.
  */
 import {computed, createApp, onMounted, ref, toRaw} from 'vue';
 import HandlerWindowHeader from './HandlerWindowHeader.vue';
 import MediatorWizard from './MediatorWizard.vue';
 import {ThirdPartyMediator} from '../mediator/ThirdPartyMediator.js';
-import {WrmCheckbox} from 'vue-web-request-mediator';
+import WrmCheckbox from './WrmCheckbox.vue';
 
 // eslint-disable-next-line vue/one-component-per-file
 export default {

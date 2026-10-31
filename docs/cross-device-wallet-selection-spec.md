@@ -91,8 +91,8 @@ authn.io 7.0.0.
   `web/mediator/HintManager.js`).
 
 - The chooser UI (`web/components/HintChooser.vue`) wraps `WrmHintChooser`
-  from `vue-web-request-mediator` and exposes a `hint-list-footer` slot —
-  the same slot previously used for the Web Share button.
+  and exposes a `hint-list-footer` slot -- the same slot previously used for
+  the Web Share button.
 
 ## Goals
 
