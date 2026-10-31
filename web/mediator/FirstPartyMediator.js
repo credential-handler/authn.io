@@ -1,12 +1,11 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2023, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2026, Digital Bazaar, Inc.
  * All rights reserved.
  */
+import {loadOnce, PermissionManager} from '../rpc/index.js';
 import {BaseMediator} from './BaseMediator.js';
 import {CredentialEventProxy} from './CredentialEventProxy.js';
-import {loadOnce} from 'credential-mediator-polyfill';
-import {PermissionManager} from 'credential-mediator-polyfill';
 
 export class FirstPartyMediator extends BaseMediator {
   constructor() {

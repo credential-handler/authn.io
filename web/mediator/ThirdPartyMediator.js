@@ -7,7 +7,7 @@ import {BaseMediator} from './BaseMediator.js';
 import {getWebAppManifest} from './manifest.js';
 import {hasPartitionedStorage} from './platformDetection.js';
 import {HintManager} from './HintManager.js';
-import {loadOnce} from 'credential-mediator-polyfill';
+import {loadOnce} from '../rpc/index.js';
 import {WebAppContext} from 'web-request-rpc';
 
 import {
