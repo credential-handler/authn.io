@@ -3,7 +3,7 @@
  * Copyright (c) 2017-2026 Digital Bazaar, Inc.
  */
 import {utils} from 'web-request-rpc';
-import {WebRequestHandlersService} from 'web-request-mediator';
+import {WebRequestHandlersService} from './WebRequestHandlersService.js';
 
 /* Note: The credential handlers service has been deprecated for use by
 credential handler developers. It is only used by the mediator internally now.

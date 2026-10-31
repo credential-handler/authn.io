@@ -2,17 +2,15 @@
  * New BSD License (3-clause)
  * Copyright (c) 2017-2026 Digital Bazaar, Inc.
  */
-import {
-  PermissionManager,
-  storage,
-  WebRequestHandlersService,
-  WebRequestMediator
-} from 'web-request-mediator';
 import {utils} from 'web-request-rpc';
 
 import {CredentialHandlersService} from './CredentialHandlersService.js';
 import {CredentialHintsService} from './CredentialHintsService.js';
 import {CredentialsContainerService} from './CredentialsContainerService.js';
+import {localforage} from './storage.js';
+import {PermissionManager} from './PermissionManager.js';
+import {WebRequestHandlersService} from './WebRequestHandlersService.js';
+import {WebRequestMediator} from './WebRequestMediator.js';
 
 export {PermissionManager};
 
@@ -52,9 +50,9 @@ export async function load({
     isChrome = false;
   }
   if(isChrome && typeof document.requestStorageAccess === 'function') {
-    await storage.setDriver(['cookieWrapper']);
+    await localforage.setDriver(['cookieWrapper']);
   } else {
-    await storage.setDriver(
+    await localforage.setDriver(
       ['asyncStorage', 'localStorageWrapper', 'cookieWrapper']);
   }
 
