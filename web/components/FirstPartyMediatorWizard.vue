@@ -28,7 +28,7 @@
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2026, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2026 Digital Bazaar, Inc.
  */
 import {computed, onMounted, ref, toRaw} from 'vue';
 import {FirstPartyMediator} from '../mediator/FirstPartyMediator.js';

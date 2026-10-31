@@ -1,4 +1,5 @@
 /*!
+ * New BSD License (3-clause)
  * Copyright (c) 2023-2026 Digital Bazaar, Inc.
  */
 import {createRouter as _createRouter, createWebHistory} from 'vue-router';

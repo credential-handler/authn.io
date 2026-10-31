@@ -19,11 +19,10 @@
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2019-2023, Digital Bazaar, Inc.
- * All rights reserved.
+ * Copyright (c) 2019-2026 Digital Bazaar, Inc.
  */
 import {computed, toRef} from 'vue';
-import {WrmOriginCard} from 'vue-web-request-mediator';
+import WrmOriginCard from './WrmOriginCard.vue';
 
 export default {
   name: 'MediatorGreeting',

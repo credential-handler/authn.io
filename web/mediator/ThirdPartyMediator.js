@@ -1,13 +1,13 @@
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2026, Digital Bazaar, Inc.
+ * Copyright (c) 2017-2026 Digital Bazaar, Inc.
  */
 import {getSiteChoice, hasSiteChoice, setSiteChoice} from './siteChoice.js';
 import {BaseMediator} from './BaseMediator.js';
 import {getWebAppManifest} from './manifest.js';
 import {hasPartitionedStorage} from './platformDetection.js';
 import {HintManager} from './HintManager.js';
-import {loadOnce} from 'credential-mediator-polyfill';
+import {loadOnce} from '../rpc/index.js';
 import {WebAppContext} from 'web-request-rpc';
 
 import {

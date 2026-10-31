@@ -20,15 +20,12 @@
 <script>
 /*!
  * New BSD License (3-clause)
- * Copyright (c) 2017-2023, Digital Bazaar, Inc.
- * All rights reserved.
+ * Copyright (c) 2017-2026 Digital Bazaar, Inc.
  */
 import {computed, toRef} from 'vue';
-import {
-  WrmHeaderBackButton,
-  WrmHeaderCloseButton,
-  WrmOriginCard
-} from 'vue-web-request-mediator';
+import WrmHeaderBackButton from './WrmHeaderBackButton.vue';
+import WrmHeaderCloseButton from './WrmHeaderCloseButton.vue';
+import WrmOriginCard from './WrmOriginCard.vue';
 
 export default {
   name: 'HandlerWindowHeader',
