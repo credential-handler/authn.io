@@ -7,6 +7,7 @@
   `enabledTypes`, `acceptedInput` and `acceptedProtocols` were read from the
   wrong level, so the wallet was registered without them and re-registered
   with them the next time the chooser opened.
+- Adjust cross device component CSS.
 
 ## 7.8.2 - 2026-09-04
 
