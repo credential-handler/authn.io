@@ -94,9 +94,28 @@ async function _getWebAppManifest({origin}) {
     `${origin}/manifest.json`,
     `${origin}/manifest.webmanifest`
   ];
-  const responses = await Promise.allSettled(urls.map(_fetchWithCache));
-  const response = responses.find(({value}) => value !== null);
-  return response?.value || null;
+  const errors = [];
+  const responses = await Promise.allSettled(urls.map(async url => {
+    let json;
+    try {
+      json = await _fetchWithCache(url);
+    } catch(error) {
+      errors.push({url, error});
+    }
+    return json;
+  }));
+  const response = responses.find(
+    ({value}) => value && typeof value === 'object');
+  const json = response?.value;
+
+  if(!json) {
+    const joined = `"${urls.join('", "')}"`;
+    console.warn(
+      `Warning: Could not fetch a valid Web app manifest from any of ` +
+      `these urls: ${joined}. Fixing this may improve the information ` +
+      `displayed for "${origin}".`, {errors});
+  }
+  return json;
 }
 
 async function _parseBody(response) {
@@ -124,87 +143,80 @@ async function _legacyFetch(url) {
 }
 
 async function _fetchWithCache(url) {
-  try {
-    if(!cacheStorage && typeof caches !== 'undefined') {
-      try {
-        cacheStorage = await caches.open(CACHE_NAME);
-      } catch(e) {
-        console.warn('Cache storage for web app manifest unavailable.', e);
-      }
-    }
-    if(!cacheStorage) {
-      // no cache storage/API available, fetch directly
-      return await _legacyFetch(url);
-    }
-
-    // try to get cached response
-    let response = await cacheStorage.match(url);
-    if(response) {
-      const expires = new Date(response.headers.get('expires'));
-      const now = new Date();
-      if(expires >= now) {
-        // return cached response
-        return await _parseBody(response);
-      }
-      // remove expired response from cache
-      await cacheStorage.delete(url);
-    }
-
-    let fetchError;
+  if(!cacheStorage && typeof caches !== 'undefined') {
     try {
-      // fetch live response
-      response = await fetch(url, {credentials: 'omit'});
-
-      // build a cached response that will expire based on local config
-      const headers = new Headers(response.headers);
-      const expires = new Date(Date.now() + CACHE_TTL);
-      headers.set('expires', expires.toUTCString());
-      response = new Response(response.body, {
-        status: response.status,
-        statusText: response.statusText,
-        headers
-      });
+      cacheStorage = await caches.open(CACHE_NAME);
     } catch(e) {
-      fetchError = e;
-
-      // failed to fetch, cache as not found
-      const expires = new Date(Date.now() + CACHE_TTL);
-      const headers = new Headers();
-      headers.set('expires', expires.toUTCString());
-      response = new Response(null, {
-        status: 404,
-        statusText: 'Not Found',
-        headers
-      });
+      console.warn('Cache storage for web app manifest unavailable.', e);
     }
-
-    // cache response, including a failed fetch; the cache is short-lived
-    // and an intermittent failure will eventually be remedied
-    try {
-      await cacheStorage.put(url, response);
-    } catch(e) {
-      if(e.name !== 'QuotaExceededError') {
-        throw e;
-      }
-      // cache has filled, clear the whole cache
-      caches.delete(CACHE_NAME);
-      cacheStorage = null;
-      // use fetched response
-      return await _parseBody(response);
-    }
-
-    // if there was a fetch error, throw it now
-    if(fetchError) {
-      throw fetchError;
-    }
-
-    // get cloned response from cache and return parsed body
-    response = await cacheStorage.match(url);
-    return await _parseBody(response);
-  } catch(e) {
-    console.warn(
-      `Warning: Could not fetch the Web app manifest from "${url}". ` +
-      `Fixing this may improve the information displayed for "${origin}".`, e);
-    return null;
   }
+  if(!cacheStorage) {
+    // no cache storage/API available, fetch directly
+    return _legacyFetch(url);
+  }
+
+  // try to get cached response
+  let response = await cacheStorage.match(url);
+  if(response) {
+    const expires = new Date(response.headers.get('expires'));
+    const now = new Date();
+    if(expires >= now) {
+      // return cached response
+      return _parseBody(response);
+    }
+    // remove expired response from cache
+    await cacheStorage.delete(url);
+  }
+
+  let fetchError;
+  try {
+    // fetch live response
+    response = await fetch(url, {credentials: 'omit'});
+
+    // build a cached response that will expire based on local config
+    const headers = new Headers(response.headers);
+    const expires = new Date(Date.now() + CACHE_TTL);
+    headers.set('expires', expires.toUTCString());
+    response = new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers
+    });
+  } catch(e) {
+    fetchError = e;
+
+    // failed to fetch, cache as not found
+    const expires = new Date(Date.now() + CACHE_TTL);
+    const headers = new Headers();
+    headers.set('expires', expires.toUTCString());
+    response = new Response(null, {
+      status: 404,
+      statusText: 'Not Found',
+      headers
+    });
+  }
+
+  // cache response, including a failed fetch; the cache is short-lived
+  // and an intermittent failure will eventually be remedied
+  try {
+    await cacheStorage.put(url, response);
+  } catch(e) {
+    if(e.name !== 'QuotaExceededError') {
+      throw e;
+    }
+    // cache has filled, clear the whole cache
+    caches.delete(CACHE_NAME);
+    cacheStorage = null;
+    // use fetched response
+    return _parseBody(response);
+  }
+
+  // if there was a fetch error, throw it now
+  if(fetchError) {
+    throw fetchError;
+  }
+
+  // get cloned response from cache and return parsed body
+  response = await cacheStorage.match(url);
+  return _parseBody(response);
 }
