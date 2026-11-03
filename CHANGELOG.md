@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 7.8.5 - 2026-11-dd
+## 7.8.5 - 2026-11-03
 
 ### Fixed
 - Do not call `console.warn()` when a valid web app manifest is retrieved
