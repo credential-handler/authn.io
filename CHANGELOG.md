@@ -1,6 +1,6 @@
 # authn.io ChangeLog
 
-## 7.8.4 - 2026-mm-dd
+## 7.8.4 - 2026-11-03
 
 ### Changed
 - Update dependencies.
