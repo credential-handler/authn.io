@@ -3,6 +3,7 @@
 ## 7.8.4 - 2026-mm-dd
 
 ### Changed
+- Update dependencies.
 - Include code from external mediator libs that are not generally used
   elsewhere, reducing dependencies and simplifying development.
 

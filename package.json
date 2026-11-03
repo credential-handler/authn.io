@@ -18,28 +18,28 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "@bedrock/config-yaml": "^4.6.0",
+    "@bedrock/config-yaml": "^4.7.0",
     "@bedrock/core": "^6.3.0",
-    "@bedrock/express": "^8.8.0",
-    "@bedrock/server": "^5.2.0",
+    "@bedrock/express": "^8.8.4",
+    "@bedrock/server": "^5.2.1",
     "@bedrock/views": "^12.0.0",
     "@bedrock/vue": "^6.0.0",
     "@bedrock/web": "^3.1.0",
     "@bedrock/web-fontawesome": "^2.1.0",
     "@bedrock/webpack": "^11.7.0",
     "@digitalbazaar/http-client": "^4.4.0",
-    "content-type": "^3.0.0",
+    "content-type": "^3.1.1",
     "localforage": "^1.10.0",
     "qrcode": "^1.5.4",
     "tiny-cookie": "^2.5.1",
-    "vue": "^3.5.42",
-    "vue-router": "^5.3.1",
+    "vue": "^3.5.44",
+    "vue-router": "^5.4.0",
     "web-request-rpc": "^3.0.1"
   },
   "devDependencies": {
     "@digitalbazaar/eslint-config": "^9.0.0",
-    "@playwright/test": "^1.62.1",
-    "eslint": "^10.10.0"
+    "@playwright/test": "^1.64.1",
+    "eslint": "^10.14.0"
   },
   "engines": {
     "node": ">=24"
